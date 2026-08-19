@@ -1,0 +1,47 @@
+# --- Secretos ---
+.env
+.env.*
+!.env.example
+
+# --- Python (api/) ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+htmlcov/
+.coverage
+.coverage.*
+
+# --- Node / Next.js (web/) ---
+node_modules/
+.next/
+.vercel/
+dist/
+build/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Datos que nunca deben entrar al repo (C13, C14) ---
+*.csv
+*.pdf
+*.sql
+*.dump
+/dumps/
+/exports/
+
+# --- Editor / SO ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# --- Logs y misceláneo ---
+*.log
+.cache/
