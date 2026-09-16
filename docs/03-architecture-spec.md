@@ -19,7 +19,7 @@ Dos artefactos desplegables y una base de datos:
        │  HTTPS, JSON, Bearer token
        ▼
    ┌──────────────────┐        ┌──────────────────┐        ┌────────────┐
-   │  guita-web       │───────▶│  guita-api       │───────▶│ PostgreSQL │
+   │  biyu-web        │───────▶│  biyu-api        │───────▶│ PostgreSQL │
    │  Next.js + React │        │  FastAPI         │        │  (Neon)    │
    │  (Vercel)        │        │  (Render)        │        └────────────┘
    └──────────────────┘        └──────────────────┘
@@ -148,10 +148,10 @@ Regla: si algo se puede probar en el dominio, no se prueba más arriba. Los test
 Un monorepo, dos aplicaciones. Un solo repositorio mantiene el spec, los ADRs y el contrato de la API en el mismo historial que el código de ambos lados.
 
 ```
-guita/
+biyu/
   docs/                  # este spec, ADRs, openapi.json
   api/
-    src/guita/
+    src/biyu/
       domain/            # C1: cero dependencias de infraestructura
         installments.py  # generate_ledger_entries
         money.py         # Decimal, conversión, redondeo

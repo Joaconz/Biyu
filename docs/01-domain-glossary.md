@@ -40,7 +40,7 @@ Nótese el nivel de indirección: así como una transacción no es lo que suma e
 es la imputación), una suscripción no es una transacción. Son tres niveles: la **regla**
 genera el **evento**, y el evento genera el **impacto mensual**.
 
-**"Suscripción" nunca significa un plan de pago de la aplicación.** Guita no cobra ni tiene
+**"Suscripción" nunca significa un plan de pago de la aplicación.** Biyu no cobra ni tiene
 planes (ver `00-project-brief.md`, §5).
 
 ### Ocurrencia (`Occurrence`)
@@ -151,5 +151,5 @@ Si aparecen en una conversación, hay que decidir explícitamente si entran al d
 | Transferencia entre cuentas propias | No modelado. Sería un tercer `TransactionType` |
 | Interés / recargo por financiación | No modelado. Las cuotas se asumen sin interés |
 | Resumen de tarjeta (`Statement`) | V3+, con la importación |
-| Plan / suscripción de la aplicación | No existe. Guita no cobra. Ver "Suscripción" arriba |
+| Plan / suscripción de la aplicación | No existe. Biyu no cobra. Ver "Suscripción" arriba |
 | Frecuencia de suscripción distinta de mensual | V3+. Anual, semanal o personalizada obligan a decidir cómo se imputan |

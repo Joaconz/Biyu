@@ -249,7 +249,7 @@ convierte en trivial de arreglar. Vale la pena tenerlo escrito.
 ## Lo que esto no es
 
 **No son planes de pago de la aplicación.** El brief (`00-project-brief.md`, §5) dice que
-Guita no es un producto con onboarding, planes ni cobro, y eso sigue en pie. "Suscripción"
+Biyu no es un producto con onboarding, planes ni cobro, y eso sigue en pie. "Suscripción"
 acá significa siempre un gasto recurrente **del usuario**, registrado por el usuario. Si
 alguna vez apareciera un modelo de cobro de la app, sería un dominio nuevo y necesitaría su
 propio spec y su propio ADR.
