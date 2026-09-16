@@ -1,8 +1,13 @@
 # ADR-018 — Autenticación con JWT propio emitido por la API
 
-**Estado:** aceptada
+**Estado:** superada por [ADR-019](019-vuelta-a-supabase.md)
 **Supera a:** la parte de ADR-004 y ADR-011 que asumía Supabase Auth. El registro público y el modelo multi-tenant de ADR-011 siguen vigentes.
 **Relacionada:** ADR-016
+
+> **Revertida junto con ADR-016.** [ADR-019](019-vuelta-a-supabase.md) vuelve a Supabase Auth:
+> no hay más API propia que emita JWT, así que este esquema de access/refresh token deja de
+> aplicarse. El análisis de por qué un JWT propio pesa contra Supabase Auth queda como
+> referencia si la decisión se revisita otra vez.
 
 ---
 

@@ -194,11 +194,14 @@ del brief.
 | Actividad | Herramienta |
 |---|---|
 | Gestión de casos y defectos | Planilla colaborativa compartida, o el tablero de issues del repositorio |
-| Pruebas de dominio y de API | pytest, httpx |
+| Pruebas de dominio (TypeScript) | Vitest |
+| Pruebas de base de datos (invariantes, RLS, atomicidad) | pgTAP contra Supabase local |
+| Pruebas de Edge Functions | Deno Test / Vitest |
 | Pruebas de componentes | Vitest + Testing Library |
-| Pruebas end-to-end | Playwright (binding de Python) |
-| Exploración manual de la API | Swagger UI en `/docs`, generado por FastAPI |
-| Integración continua | GitHub Actions, con Postgres como *service container* |
+| Pruebas end-to-end | Playwright (Chromium, WebKit, Firefox) |
+| Rendimiento, accesibilidad y PWA | Lighthouse CI |
+| Exploración manual de la base | Panel de Supabase (Table Editor, SQL Editor) del proyecto local |
+| Integración continua | GitHub Actions, con Supabase CLI levantando el stack local |
 | Datos de prueba | Semillas sintéticas versionadas en el repo. **Nunca datos financieros reales** (C14) |
 
 ---

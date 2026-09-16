@@ -7,6 +7,12 @@
 > público, C13). Cambió la herramienta: `supabase start` pasó a ser un Postgres en Docker
 > Compose, y en GitHub Actions un *service container*. Los tests son de pytest, cada uno en
 > una transacción que se revierte.
+>
+> **Nota posterior.** [ADR-019](019-vuelta-a-supabase.md) volvió a Supabase, así que
+> `supabase start` (CLI local, Docker) vuelve a ser la herramienta, tal como describe el
+> cuerpo de este documento. Las funciones SQL se testean con **pgTAP**; las Edge Functions,
+> con **Deno Test/Vitest**. El criterio de nunca correr contra el proyecto hosteado, con
+> credenciales separadas en `.env.test.local`, sigue aplicando sin cambios.
 
 ## Contexto
 

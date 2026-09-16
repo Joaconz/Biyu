@@ -21,10 +21,11 @@ users
     └──< debts
 ```
 
-> **Nota de stack.** Este documento pasó de Supabase/Drizzle a Postgres gestionado por la
-> API propia (ADR-016). Donde antes decía `auth.users` ahora dice `users`: la tabla de
-> usuarios es del sistema, no de un proveedor de auth. Ver ADR-018 para el esquema de
-> autenticación y la sección "Aislamiento por usuario" al final, que reemplaza a la de RLS.
+> **Nota de stack.** Este documento pasó de Supabase a una API propia (ADR-016) y volvió a
+> Supabase ([ADR-019](adr/019-vuelta-a-supabase.md)). `users` vuelve a ser `auth.users`: la
+> tabla de usuarios la administra Supabase Auth, no el schema de la aplicación. Cada `user_id`
+> de las tablas de abajo es una FK a `auth.users(id)`. Ver la sección "Row Level Security" al
+> final, que reemplaza a la de "Aislamiento por usuario" de la versión con API propia.
 
 ---
 
@@ -228,34 +229,49 @@ puede absorber un resto.
 
 ---
 
-## Aislamiento por usuario
+## Row Level Security
 
-_Reemplaza a la sección de RLS de la versión Supabase de este documento. Ver ADR-016 y ADR-018._
+_Reemplaza a la sección "Aislamiento por usuario" de la versión con API propia. Ver
+[ADR-019](adr/019-vuelta-a-supabase.md) y ADR-004._
 
-Con la API propia, el navegador nunca habla con Postgres: toda lectura y escritura pasa por
-un endpoint de FastAPI que resuelve el `user_id` desde el token y **lo aplica en el `WHERE`
-de cada consulta**. La autorización es responsabilidad de la capa de aplicación y está
-testeada ahí (C7).
+El navegador habla directo con Supabase a través del Supabase Client SDK. No hay una capa de
+aplicación intermedia que filtre por dueño: **Row Level Security es la autorización real**,
+no una red de contención adicional.
+
+Cada tabla (`categories`, `accounts`, `fx_rates`, `subscriptions`, `transactions`,
+`ledger_entries`, `debts`) tiene una política, como mínimo:
+
+```sql
+create policy "select_own_rows" on transactions
+  for select using (user_id = auth.uid());
+-- análogas para insert/update/delete, y una política por tabla
+```
 
 Reglas, sin excepciones:
 
-1. **Ninguna consulta parte de un identificador del cliente sin filtrar por dueño.** Un
-   `GET /transactions/{id}` filtra por `id AND user_id = <el del token>`. Si no hay fila, se
-   responde 404, no 403 — un 403 confirmaría que ese recurso existe y es de otro.
-2. **El `user_id` nunca viaja en el cuerpo de un pedido.** Sale siempre del token. Un cliente
-   que mande `user_id` en el JSON lo ve ignorado, no aceptado.
-3. **La sesión de base de datos se abre con un rol de aplicación**, no con superusuario.
+1. **Ninguna política es más laxa que `user_id = auth.uid()`.** No hay una política
+   `using (true)` "temporal para probar" en ninguna tabla, ni siquiera en desarrollo.
+2. **El `user_id` de una fila nueva se completa con `auth.uid()`**, nunca con un valor que
+   mande el cliente. Se aplica con un `default auth.uid()` en la columna o con un trigger
+   `before insert`, para que un cliente que intente forzar un `user_id` ajeno en el `insert`
+   lo vea ignorado o rechazado.
+3. **El rol `anon`** (sin sesión) no tiene ninguna política que le dé acceso a estas tablas.
+   Un pedido sin JWT válido contra la API de Supabase devuelve cero filas, igual que un
+   pedido con el JWT de otro usuario pidiendo un recurso ajeno — RLS no distingue "no existe"
+   de "no es tuyo", y eso es intencional: no permite inferir existencia.
+4. **La `service_role key`, que se salta RLS por completo, nunca la usa el cliente.** Solo
+   las Edge Functions que corren en el servidor de Supabase (cierre de tarjeta, puesta al día
+   de suscripciones) y el arnés de tests la tienen disponible, y ambos la usan para escribir
+   en nombre del usuario correcto explícitamente, no para saltear el filtro por error (C8).
 
-`ledger_entries` conserva el `user_id` denormalizado. Ya no es para evitar un join en una
-política de RLS, sino porque el índice `(user_id, period)` es el acceso principal del
-dashboard y porque deja el filtro de dueño a un solo `WHERE` de distancia en la tabla más
-consultada del sistema.
+`ledger_entries` conserva el `user_id` denormalizado. No es solo para que la política no
+tenga que hacer un join por fila — aunque eso también importa para el plan de consulta —
+sino porque el índice `(user_id, period)` es el acceso principal del dashboard.
 
-**Lo que se perdió al soltar RLS, dicho explícitamente.** Antes había una segunda red: aunque
-la capa de servidor tuviera un bug, la base filtraba igual. Ahora no. La compensación es un
-grupo de pruebas de autorización obligatorio — para cada recurso, un caso que pide con el
-token de otro usuario y espera 404 — y la vista de integridad de abajo. Es un intercambio
-consciente, no un descuido: ver ADR-016.
+**Grupo de pruebas obligatorio.** Para cada tabla, un caso de pgTAP que consulta con el JWT
+de otro usuario y espera cero filas, y otro que consulta sin sesión (rol `anon`) y espera
+cero filas. Es la verificación directa de NFR-13 (`pre-entrega.md`) y lo que hace que C7 esté
+cubierta y no solo declarada.
 
 ---
 

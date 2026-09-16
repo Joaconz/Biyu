@@ -5,6 +5,13 @@
 > **La decisión sigue vigente:** la siembra del set inicial de categorías y cuentas es una
 > función idempotente por usuario, no un trigger de base. Cambió dónde vive: de una Server
 > Action de Next.js a un módulo `seed/` de la API, invocado al crear la cuenta.
+>
+> **Nota posterior.** [ADR-019](019-vuelta-a-supabase.md) volvió a Supabase. El criterio
+> —función idempotente, no trigger `SECURITY DEFINER` sobre `auth.users`, con
+> `onConflictDoNothing` sobre los índices únicos parciales— sigue siendo el correcto por las
+> mismas tres razones que este documento ya dio. Vuelve a vivir del lado del cliente
+> (Supabase Client SDK), llamada desde `/signup` y desde `/register` como red de contención,
+> igual que describían los dos puntos de llamada originales de este ADR.
 
 ## Contexto
 

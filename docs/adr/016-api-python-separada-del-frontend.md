@@ -1,9 +1,14 @@
 # ADR-016 — API de Python separada del frontend
 
-**Estado:** aceptada
+**Estado:** superada por [ADR-019](019-vuelta-a-supabase.md)
 **Supera a:** ADR-007 (Supabase como Postgres hosteado), ADR-008 (Drizzle y acceso por query builder), ADR-010 (conexión directa para Drizzle Kit), ADR-012 (Drizzle bajo RLS)
 **Modifica:** ADR-013 (la regla de redondeo sigue; la elección de librería decimal ya no aplica), ADR-014 (la siembra idempotente sigue; su implementación cambia), ADR-015 (el arnés pasa de Supabase local a Postgres en Docker)
 **Relacionada:** ADR-018
+
+> **Revertida.** El equipo volvió a Supabase — ver [ADR-019](019-vuelta-a-supabase.md). El
+> razonamiento de acá (por qué una superficie HTTP explícita es valiosa para el testing) sigue
+> siendo correcto; lo que cambió es el balance costo/beneficio frente al tiempo disponible de
+> un equipo de cinco en el cronograma de la materia.
 
 ---
 

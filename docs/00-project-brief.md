@@ -56,7 +56,7 @@ dominio testeado y arquitectura explicable. Esto no compite con el objetivo prim
 habilita — un dominio puro y testeable es lo que hace que el catálogo de casos pueda anclarse
 a invariantes en vez de a impresiones.
 
-- El dominio (cuotas, conversión de moneda, KPIs, ocurrencias de suscripción) vive en módulos puros, independientes de FastAPI y de SQLAlchemy.
+- El dominio (cuotas, conversión de moneda, KPIs, ocurrencias de suscripción) vive en módulos puros de TypeScript, independientes del Supabase Client SDK; la parte que necesita atomicidad multi-fila vive en funciones de Postgres, testeadas con pgTAP.
 - Cada decisión no obvia tiene un ADR con contexto, alternativas descartadas y consecuencias.
 - La especificación de comportamiento existe **antes** que el código y se mantiene actualizada.
 
@@ -74,7 +74,7 @@ un CRUD sin reglas— autoriza a construir *menos features, mejor probadas*.
 | # | Métrica | Objetivo | Cómo se mide |
 |---|---|---|---|
 | M1 | Invariantes del dominio con al menos un caso de prueba ejecutado | 100% | Trazabilidad del catálogo contra `04-data-model.md` |
-| M2 | Lógica de negocio acoplada a la infraestructura | 0 imports de `fastapi` o `sqlalchemy` dentro de `domain/` | Test de arquitectura automatizado |
+| M2 | Lógica de negocio acoplada a la infraestructura | 0 imports del Supabase Client SDK dentro de `domain/` | Test de arquitectura automatizado |
 | M3 | Decisiones de diseño no obvias sin ADR | 0 | Revisión manual contra la lista de ADRs |
 | M4 | Historias de usuario sin ningún caso de prueba ejecutado | 0 al cierre de cada versión | Reporte de ejecución |
 | M5 | Defectos de severidad crítica o alta abiertos al cierre de una versión | 0, o justificados y registrados | Criterio de salida (`07-plan-de-testing.md`, §6) |

@@ -8,6 +8,13 @@
 > TypeScript: en Python los montos usan `decimal.Decimal` de la biblioteca estándar, y el
 > módulo de borde que este ADR justificaba se reduce al parseo del input y a serializar los
 > montos como string en el JSON (C2).
+>
+> **Nota posterior.** [ADR-019](019-vuelta-a-supabase.md) volvió a un frontend TypeScript sin
+> API propia en Python. La elección de librería decimal de este documento (`decimal.js`)
+> vuelve a aplicar del lado del cliente y de las Edge Functions (Deno también corre
+> TypeScript); Postgres sigue siendo la fuente de verdad con `numeric(14,2)` y las dos reglas
+> de redondeo, ahora aplicadas también en triggers/funciones SQL para las Edge Functions que
+> escriben directamente contra la base.
 
 ## Contexto
 
