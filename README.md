@@ -1,4 +1,4 @@
-# Guita
+# Biyu
 
 Control de gastos personales para el contexto argentino: dos monedas simultáneas, compras en
 cuotas y gastos compartidos que después se reembolsan. Ninguna de las tres cosas se modela

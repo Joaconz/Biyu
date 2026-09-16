@@ -1,4 +1,4 @@
-# Guita — Pre-Entrega
+# Biyu — Pre-Entrega
 
 **Testing de Aplicaciones · Proyecto Integrador**
 
@@ -8,7 +8,7 @@ Grupo: _(completar nombres)_ · Fecha: _(completar)_
 
 ## 1. Nombre tentativo
 
-**Guita** — control de gastos personales para el contexto argentino.
+**Biyu** — control de gastos personales para el contexto argentino.
 
 ## 2. Qué problema resuelve
 

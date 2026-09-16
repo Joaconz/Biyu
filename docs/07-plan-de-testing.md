@@ -73,7 +73,7 @@ pruebas de instalación. Se declara para que la ausencia sea una decisión y no 
 Cada caso del catálogo declara con qué técnica se derivó. No es burocracia: es lo que
 permite argumentar cobertura sin contar líneas de código.
 
-| Técnica | Dónde se aplica en Guita | Ejemplo |
+| Técnica | Dónde se aplica en Biyu | Ejemplo |
 |---|---|---|
 | **Particiones de equivalencia** | Monto, cantidad de cuotas, día de cobro | Monto: negativo · cero · positivo válido · mayor al máximo |
 | **Valores límite** | Todo campo numérico o de fecha con rango | Cuotas: 0, 1, 2, 12, 13 · Día de cobro: 0, 1, 31, 32 · Deuda: monto del gasto − 0,01, igual, + 0,01 |

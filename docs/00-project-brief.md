@@ -1,9 +1,9 @@
-# Guita — Project Brief
+# Biyu — Project Brief
 
 _Documento raíz. Todo lo demás deriva de acá._
 
 > **Cambio de encuadre.** Este documento se escribió como proyecto personal de una persona.
-> Guita pasó a ser el Trabajo Práctico Integrador de **Testing de Aplicaciones**, con un
+> Biyu pasó a ser el Trabajo Práctico Integrador de **Testing de Aplicaciones**, con un
 > equipo de cinco. El problema, el dominio y las restricciones no cambiaron; cambió quién lo
 > construye y para qué se lo evalúa. Las secciones 3 y 4 están actualizadas.
 > El documento corto que se presenta en la materia es `pre-entrega.md`.
@@ -91,7 +91,7 @@ Es multi-tenant con registro público (ADR-011): cualquiera con el link crea su 
 la app con sus propios datos, aislados por usuario. **No es un producto con onboarding,
 planes ni cobro** — es la misma app de un usuario, abierta a que la use más de uno. Eso
 incluye a la feature de suscripciones: "suscripción" significa siempre un gasto recurrente
-*del usuario*, nunca un plan de pago de Guita.
+*del usuario*, nunca un plan de pago de Biyu.
 
 ## 6. Documentos relacionados
 
