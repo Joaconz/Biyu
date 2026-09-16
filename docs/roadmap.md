@@ -104,7 +104,7 @@ El foco es automatizar un subconjunto representativo de los casos de V1 y V2. No
 
 ### Infraestructura
 
-Ejecución en GitHub Actions ante cada push y cada pull request, con Postgres como *service container*. Reporte de ejecución publicado como artefacto de la corrida. Un cambio que rompe una invariante no llega a la rama principal.
+Ejecución en GitHub Actions ante cada push y cada pull request, levantando el stack local de Supabase CLI para pgTAP y las Edge Functions. Reporte de ejecución publicado como artefacto de la corrida. Un cambio que rompe una invariante no llega a la rama principal.
 
 ### Mejora funcional menor
 

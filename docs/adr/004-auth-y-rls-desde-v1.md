@@ -8,6 +8,12 @@
 > día uno, y RLS filtrando por `auth.uid()`. De hecho, es precisamente haber nacido con esa
 > columna lo que hizo que abrir el registro no requiriera ninguna migración de datos — el
 > "camino a multi-usuario queda abierto sin refactor" de la sección Consecuencias, cumplido.
+>
+> **Nota posterior.** El proyecto pasó brevemente por una API propia con JWT propio
+> (ADR-016, ADR-018), donde este documento quedaba solo parcialmente vigente. [ADR-019](019-vuelta-a-supabase.md)
+> volvió a Supabase, así que la decisión de acá —Supabase Auth y RLS filtrando por
+> `auth.uid()`— vuelve a ser la autorización real del sistema, no solo un punto de partida
+> histórico.
 
 ## Contexto
 

@@ -15,6 +15,14 @@
 > —por qué RLS protege el vector de la `anon key` y no el camino de Drizzle por defecto,
 > y por qué el rol de conexión no lleva `BYPASSRLS`— sigue siendo la explicación correcta
 > del punto de partida.
+>
+> **[ADR-019](019-vuelta-a-supabase.md) volvió a Supabase, pero no reinstaura este
+> documento.** El problema que describe acá —una conexión directa (Drizzle) no lleva JWT,
+> así que `auth.uid()` da `NULL`— es específico de conectarse por fuera de la API que genera
+> Supabase. ADR-019 accede a los datos con el **Supabase Client SDK**, que sí manda el JWT de
+> sesión en cada request contra PostgREST: `auth.uid()` resuelve al usuario real de forma
+> nativa, sin el problema que este ADR documenta ni la ceremonia que ADR-012 tuvo que
+> inventar para resolverlo.
 
 ## Contexto
 

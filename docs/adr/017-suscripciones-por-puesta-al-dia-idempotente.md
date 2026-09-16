@@ -1,7 +1,16 @@
 # ADR-017 — Las suscripciones se generan por puesta al día idempotente
 
 **Estado:** aceptada
-**Relacionada:** ADR-001 (imputaciones materializadas), `06-suscripciones.md`
+**Relacionada:** ADR-001 (imputaciones materializadas), [ADR-019](019-vuelta-a-supabase.md), `06-suscripciones.md`
+
+> **Nota posterior.** Este documento se escribió cuando la puesta al día corría como una
+> dependencia de FastAPI, antes de resolver cualquier endpoint. Con [ADR-019](019-vuelta-a-supabase.md)
+> no hay servidor de aplicación que la dispare automáticamente: corre como una **Edge
+> Function** (`run-subscription-catchup`), invocada explícitamente por el cliente apenas
+> resuelve la sesión, antes de renderizar el dashboard. El razonamiento de este ADR —por qué
+> es al entrar y no por cron, y por qué la idempotencia depende de la función pura más el
+> índice único, no de la disciplina del código— no cambia. Ver `03-architecture-spec.md`,
+> Technical Decisions §4.
 
 ---
 
@@ -53,7 +62,7 @@ mantener consistentes.
 
 **A favor:**
 
-- Cero infraestructura nueva. La feature es una función pura más una dependencia de FastAPI.
+- Cero infraestructura nueva más allá de lo que Supabase ya provee. La feature es una función pura más una Edge Function invocada por el cliente (ver nota posterior arriba).
 - La lógica es determinística y testeable sin tocar el reloj del sistema.
 - Una ocurrencia generada es una transacción como cualquier otra: se edita, se borra, se categoriza y suma en el dashboard sin código especial. **El dashboard no sabe que las suscripciones existen.**
 - La idempotencia está garantizada por la base, no por la disciplina del código.

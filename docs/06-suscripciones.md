@@ -21,10 +21,11 @@ al final.
 
 ## El modelo de generación
 
-Cada vez que el usuario entra a la app, antes de renderizar cualquier cosa, el servidor
-ejecuta una **puesta al día**: mira todas las suscripciones activas del usuario y crea las
-transacciones de los períodos vencidos que todavía no existen. No hay cron, no hay worker, no
-hay estado a mantener entre corridas.
+Cada vez que el usuario entra a la app, antes de renderizar el dashboard, el cliente invoca
+la Edge Function `run-subscription-catchup` (ver `03-architecture-spec.md`) que ejecuta una
+**puesta al día**: mira todas las suscripciones activas del usuario y crea las transacciones
+de los períodos vencidos que todavía no existen. No hay cron, no hay worker, no hay estado a
+mantener entre corridas.
 
 La corrección de esto depende de una sola propiedad: **la puesta al día tiene que ser
 idempotente**. Correrla cien veces seguidas tiene que dar el mismo resultado que correrla una
@@ -34,22 +35,27 @@ equivocara (I11).
 
 ### Contrato de la función pura
 
-```python
-@dataclass(frozen=True)
-class OccurrenceDraft:
-    period: Period          # día 1 del mes al que se imputa
-    occurred_on: date       # fecha real del cargo
-    amount: Decimal
-    currency: Currency
-    fx_rate: Decimal | None # el de fx_rates de ESE período; None si ARS
+```typescript
+interface OccurrenceDraft {
+  period: Period;             // día 1 del mes al que se imputa
+  occurredOn: Date;           // fecha real del cargo
+  amount: Decimal;
+  currency: Currency;
+  fxRate: Decimal | null;     // el de fx_rates de ESE período; null si ARS
+}
 
-def compute_due_occurrences(
-    subscription: SubscriptionState,
-    already_generated: frozenset[Period],   # períodos que ya tienen transacción
-    fx_rates_by_period: Mapping[Period, Decimal],
-    today: date,
-) -> list[OccurrenceDraft]: ...
+function computeDueOccurrences(
+  subscription: SubscriptionState,
+  alreadyGenerated: ReadonlySet<Period>,       // períodos que ya tienen transacción
+  fxRatesByPeriod: ReadonlyMap<Period, Decimal>,
+  today: Date,
+): OccurrenceDraft[] { /* ... */ }
 ```
+
+Esta es la función de dominio en `src/domain/subscriptions.ts`, usada para previsualizar. La
+que efectivamente persiste vive como función de Postgres, invocada desde la Edge Function
+`run-subscription-catchup` (ver `03-architecture-spec.md`); las dos implementan las mismas
+ocho reglas.
 
 Sin base de datos, sin red, sin reloj implícito: `today` entra como parámetro. Es lo que
 permite testear "no abrí la app en tres meses" sin tocar el reloj del sistema.

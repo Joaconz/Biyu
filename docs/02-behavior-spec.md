@@ -33,7 +33,7 @@ Una aplicación web mobile-first donde:
 
 Decisiones que tomé sin confirmación explícita. Revisá esta lista: si alguna está mal, corregila antes de implementar.
 
-1. **Multi-tenant desde el registro público.** Cualquiera con el link puede crear una cuenta en `/signup`. El aislamiento por `user_id` lo aplica la capa de API en cada consulta, no RLS (ver ADR-016 y ADR-018). Reemplaza la decisión original de ADR-004 (usuario único creado a mano) — ver ADR-011.
+1. **Multi-tenant desde el registro público.** Cualquiera con el link puede crear una cuenta en `/signup`. El aislamiento por `user_id` lo aplica Row Level Security en cada consulta (ver [ADR-019](adr/019-vuelta-a-supabase.md) y ADR-004). Reemplaza la decisión original de ADR-004 (usuario único creado a mano) — ver ADR-011.
 2. **El ciclo de cierre de la tarjeta se ignora.** Una compra imputa al mes de su fecha, no al mes en que la cobra el resumen. Modelar el cierre real requeriría configurar día de cierre por tarjeta y desplazar imputaciones — complejidad que no aporta al objetivo primario.
 3. **Cuotas sin interés.** El monto total de la transacción se reparte en partes iguales. No se modela recargo por financiación.
 4. **El dashboard muestra bruto.** El neto de reembolsos es un KPI secundario, no el número grande.
@@ -263,36 +263,37 @@ Escenario: borrado lógico saca las imputaciones del cálculo
 
 ## Implementation Decisions
 
-- **Módulos de dominio puros.** `generate_ledger_entries`, `compute_monthly_summary`, `resolve_fx_rate`, `validate_transaction_draft` y `compute_due_occurrences` son funciones puras de Python, sin dependencias de FastAPI ni de SQLAlchemy. Reciben datos, devuelven datos.
-- **Las escrituras pasan por endpoints de la API**, que validan con un modelo Pydantic, invocan al dominio y persisten en una transacción de base. La validación de cliente es una conveniencia, no la fuente de verdad: toda regla se revalida en el servidor.
-- **Las imputaciones se materializan al escribir**, no se calculan al leer (ver ADR-001). Insertar una transacción y sus N imputaciones es una operación atómica en la base.
-- **Contrato de `generate_ledger_entries`** — encoda la regla de redondeo (ver ADR-013 para el
+- **Módulos de dominio puros.** `generateLedgerEntries`, `computeMonthlySummary`, `resolveFxRate`, `validateTransactionDraft` y `computeDueOccurrences` son funciones puras de TypeScript, sin dependencias del Supabase Client SDK. Reciben datos, devuelven datos — se usan en el cliente para previsualizar antes de guardar.
+- **Las escrituras pasan por una función de Postgres** (`create_transaction`, expuesta como RPC), que revalida todo lo que el cliente ya validó con Zod y persiste dentro de su propia transacción implícita. La validación de cliente es una conveniencia, no la fuente de verdad: toda regla se revalida en la base (ver ADR-019).
+- **Las imputaciones se materializan al escribir**, no se calculan al leer (ver ADR-001). Insertar una transacción y sus N imputaciones es atómico porque las dos escrituras ocurren dentro de la misma función de Postgres.
+- **Contrato de `generateLedgerEntries`** — encoda la regla de redondeo (ver ADR-013 para el
   porqué de las dos reglas distintas: truncar + absorber para las cuotas, half-up para la
-  conversión a ARS):
+  conversión a ARS). La función de Postgres que efectivamente persiste implementa la misma
+  regla en SQL; esta es la copia de previsualización del cliente:
 
-```python
-@dataclass(frozen=True)
-class LedgerEntryDraft:
-    period: Period            # (año, mes) — ver domain/period.py
-    installment_number: int
-    amount: Decimal           # en la moneda de la transacción
-    amount_ars: Decimal       # prorrateo del total en ARS, no la conversión cuota a cuota (I1')
+```typescript
+interface LedgerEntryDraft {
+  period: Period;           // (año, mes) — ver domain/period.ts
+  installmentNumber: number;
+  amount: Decimal;           // en la moneda de la transacción
+  amountArs: Decimal;        // prorrateo del total en ARS, no la conversión cuota a cuota (I1')
+}
 
-# Invariante I1:  sum(e.amount for e in result)     == amount,                       exacto.
-# Invariante I1': sum(e.amount_ars for e in result) == convert_to_ars(amount, fx_rate), exacto.
-# El resto de cada división lo absorbe la última cuota, en las dos series por separado.
-def generate_ledger_entries(
-    amount: Decimal,
-    fx_rate: Decimal | None,   # None ⇒ ARS (I5)
-    installments_count: int,
-    first_period: Period,
-) -> list[LedgerEntryDraft]: ...
+// Invariante I1:  sum(e.amount for e in result)    == amount,                        exacto.
+// Invariante I1': sum(e.amountArs for e in result)  == convertToArs(amount, fxRate),  exacto.
+// El resto de cada división lo absorbe la última cuota, en las dos series por separado.
+function generateLedgerEntries(
+  amount: Decimal,
+  fxRate: Decimal | null,    // null ⇒ ARS (I5)
+  installmentsCount: number,
+  firstPeriod: Period,
+): LedgerEntryDraft[] { /* ... */ }
 ```
 
-- **Aritmética decimal, nunca punto flotante** para montos. `numeric(14,2)` en Postgres y `decimal.Decimal` de la biblioteca estándar en Python. Un `0.1 + 0.2` en el prorrateo rompe la invariante principal del sistema.
+- **Aritmética decimal, nunca punto flotante** para montos. `numeric(14,2)` en Postgres y `decimal.js` en TypeScript (cliente y Edge Functions). Un `0.1 + 0.2` en el prorrateo rompe la invariante principal del sistema.
 - **Categorías y cuentas son tablas**, no JSON dentro de una fila de configuración (ver ADR-003). Las claves foráneas son reales.
-- **La clave de API de Anthropic no se almacena en la base de datos** ni se pide por UI. Cuando llegue la importación en V3+, será una variable de entorno del servidor.
-- **El dashboard se lee del servidor** en un único endpoint que devuelve el resumen ya calculado, sin estado de cliente para datos que no cambian dentro de la vista. El selector de mes navega cambiando el parámetro de URL, de modo que un mes es enlazable (C11).
+- **La clave de API de Anthropic no se almacena en la base de datos** ni se pide por UI. Cuando llegue la importación en V3+, será una variable de entorno de una Edge Function.
+- **El dashboard se lee con una consulta directa contra Supabase** (o una vista SQL que ya trae el resumen calculado), sin estado de cliente para datos que no cambian dentro de la vista. El selector de mes navega cambiando el parámetro de URL, de modo que un mes es enlazable (C11).
 - **Soft delete** con `deleted_at` en transacciones; las consultas del dashboard filtran por él.
 
 ## Testing Decisions
@@ -301,14 +302,14 @@ def generate_ledger_entries(
 
 Seams, del más alto al más bajo:
 
-1. **Dominio puro** (seam principal, donde va el grueso de los tests). `generate_ledger_entries`, `compute_monthly_summary` y `compute_due_occurrences` se testean con tablas de casos parametrizadas: montos con y sin resto, 1 cuota, 12 cuotas, cruce de año, mezcla ARS/USD, período vacío, día 31 en febrero. Cada invariante de `04-data-model.md` tiene su test.
-2. **API** (integración, pocos y elegidos). Contra una instancia de Postgres en Docker. Cubren: atomicidad de transacción + imputaciones + deuda, rechazo de cuotas sobre cuenta no crediticia, rechazo de USD sin tipo de cambio, que el soft delete saque las imputaciones del cálculo, idempotencia de la puesta al día, y **autorización cruzada** (pedir con el token de otro usuario devuelve 404).
+1. **Dominio puro** (seam principal, donde va el grueso de los tests). `generateLedgerEntries`, `computeMonthlySummary` y `computeDueOccurrences` se testean con Vitest y tablas de casos parametrizadas: montos con y sin resto, 1 cuota, 12 cuotas, cruce de año, mezcla ARS/USD, período vacío, día 31 en febrero. Cada invariante de `04-data-model.md` tiene su test.
+2. **Base de datos** (integración, pocos y elegidos). pgTAP contra Supabase local. Cubren: atomicidad de `create_transaction` (transacción + imputaciones + deuda), rechazo de cuotas sobre cuenta no crediticia, rechazo de USD sin tipo de cambio, que el soft delete saque las imputaciones del cálculo, idempotencia de la puesta al día, y **autorización cruzada** (consultar con la sesión de otro usuario devuelve cero filas — RLS).
 3. **Formulario de registro** (componente). Testing Library, comportamiento visible: el selector de cuotas aparece y desaparece según el tipo de cuenta, la previsualización de cuotas refleja el monto, Guardar queda deshabilitado con monto inválido.
-4. **Flujo completo** (end-to-end). Login → registrar un gasto en cuotas → verlo reflejado en el dashboard. En V1 es una sola prueba de humo del deploy; en V3 se amplía al subconjunto automatizado.
+4. **Flujo completo** (end-to-end). Login → registrar un gasto en cuotas → verlo reflejado en el dashboard. Playwright contra Chromium, WebKit y Firefox. En V1 es una sola prueba de humo del deploy; en V3 se amplía al subconjunto automatizado.
 
 **Prior art:** ninguno, es un proyecto nuevo. Estos cuatro niveles definen la convención; lo que se agregue después se acomoda a ellos. El detalle de quién diseña qué, cómo se reportan los defectos y qué se automatiza está en `07-plan-de-testing.md`.
 
-**Test de arquitectura:** una prueba que falla si algún módulo bajo `domain/` importa `fastapi`, `sqlalchemy` o cualquier cosa de infraestructura. Es la métrica M2 del brief, automatizada.
+**Test de arquitectura:** una prueba que falla si algún módulo bajo `domain/` importa el Supabase Client SDK o cualquier cosa de infraestructura. Es la métrica M2 del brief, automatizada.
 
 ## Out of Scope
 

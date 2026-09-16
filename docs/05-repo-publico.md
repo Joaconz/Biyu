@@ -14,7 +14,7 @@ El segundo riesgo es el habitual, agravado: un `.env` commiteado en el segundo d
 
 ## Antes del primer commit
 
-- [ ] `.gitignore` completo **antes** de `git init`, no después. Como mínimo: `.env*` (con excepción de `.env.example`), `node_modules/`, `.next/`, `.vercel/`, `__pycache__/`, `.venv/`, `.pytest_cache/`, `coverage/`, `htmlcov/`, `*.log`, `.DS_Store`, cualquier carpeta de dumps o exports locales.
+- [ ] `.gitignore` completo **antes** de `git init`, no después. Como mínimo: `.env*` (con excepción de `.env.example`), `node_modules/`, `dist/`, `.vercel/`, `.netlify/`, `coverage/`, `supabase/.temp/`, `*.log`, `.DS_Store`, cualquier carpeta de dumps o exports locales.
 - [ ] `.env.example` con todas las variables presentes y **todos los valores vacíos**. Es documentación, no configuración.
 - [ ] Verificar que el correo de los commits sea el que querés que quede público. Si usás el correo privado de GitHub, configuralo ahora: cambiarlo después no reescribe los commits anteriores.
 - [ ] Un `LICENSE`. Sin licencia, el código es "todos los derechos reservados" por defecto — legal, pero raro en un repositorio de portfolio.
@@ -23,7 +23,7 @@ El segundo riesgo es el habitual, agravado: un `.env` commiteado en el segundo d
 
 **Secretos**
 - Ninguna clave, token, URL de conexión ni secreto de firma de JWT en el código, ni siquiera comentado, ni siquiera "temporalmente para probar".
-- Lo único que el frontend puede conocer es la **URL pública de la API**. Todo lo demás —cadena de conexión a Postgres, secreto del JWT, claves de terceros— vive en variables de entorno del servidor (C8).
+- Lo único que el frontend puede conocer son la **URL del proyecto de Supabase y la `anon key`** — pública por diseño, protegida por RLS (C7). La `service_role key`, que se salta RLS, vive solo en variables de entorno de las Edge Functions y del arnés de tests, nunca en el bundle del cliente (C8).
 - Habilitar el escaneo de secretos de GitHub y la protección contra envío de secretos. Es un tilde en la configuración del repositorio.
 
 **Datos**
@@ -40,7 +40,7 @@ El segundo riesgo es el habitual, agravado: un `.env` commiteado en el segundo d
 
 No alcanza con borrar el archivo en un commit nuevo: sigue en el historial. El procedimiento es, en este orden:
 
-1. **Rotar la credencial primero.** Asumir que ya está comprometida. Regenerar la contraseña de la base en Neon, el secreto del JWT —lo que invalida todas las sesiones activas, y está bien— o la clave del proveedor que sea.
+1. **Rotar la credencial primero.** Asumir que ya está comprometida. Regenerar la `service_role key` o la contraseña de la base desde el panel de Supabase —lo que invalida todas las sesiones activas, y está bien— o la clave del proveedor que sea.
 2. Recién después limpiar el historial (`git filter-repo` o similar) y forzar la actualización.
 3. Si el repositorio ya era público, dar por perdida la credencial vieja de forma definitiva.
 

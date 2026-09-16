@@ -3,24 +3,10 @@
 .env.*
 !.env.example
 
-# --- Python (api/) ---
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-*.egg-info/
-htmlcov/
-.coverage
-.coverage.*
-
-# --- Node / Next.js (web/) ---
+# --- Node / Vite (React PWA) ---
 node_modules/
-.next/
-.vercel/
 dist/
+dist-ssr/
 build/
 *.tsbuildinfo
 npm-debug.log*
@@ -28,13 +14,24 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# --- Supabase CLI ---
+supabase/.temp/
+supabase/.branches/
+
 # --- Datos que nunca deben entrar al repo (C13, C14) ---
 *.csv
 *.pdf
-*.sql
 *.dump
 /dumps/
 /exports/
+# Las migraciones SQL versionadas sí se commitean (C15):
+!supabase/migrations/*.sql
+!supabase/seed.sql
+
+# --- Coverage ---
+coverage/
+htmlcov/
+.nyc_output/
 
 # --- Editor / SO ---
 .DS_Store

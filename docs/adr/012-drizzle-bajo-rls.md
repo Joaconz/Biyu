@@ -4,6 +4,14 @@
 
 > No hay RLS: el aislamiento por usuario lo aplica la capa de aplicación en cada consulta.
 > Ver ADR-016, sección Consecuencias, para lo que se perdió al soltar esta red.
+>
+> **[ADR-019](019-vuelta-a-supabase.md) volvió a Supabase con RLS, pero no con Drizzle.** El
+> problema que este documento resuelve —simular una sesión autenticada con `SET LOCAL ROLE` +
+> `set_config` para que `auth.uid()` no dé `NULL`— es exclusivo de conectarse a Postgres por
+> fuera de la API de Supabase. Con el **Supabase Client SDK**, el JWT de sesión viaja en cada
+> request de forma nativa y `auth.uid()` resuelve solo: no hace falta ninguna de las dos
+> sentencias `SET LOCAL` que describe este ADR. Queda como referencia de un problema que no
+> vuelve a existir con el SDK.
 
 ## Contexto
 

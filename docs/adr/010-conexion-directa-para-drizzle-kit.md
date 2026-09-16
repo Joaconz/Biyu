@@ -4,6 +4,12 @@
 
 > Sin Drizzle Kit y sin el pooler de Supabase, este problema dejó de existir. Las
 > migraciones las genera Alembic contra la conexión de la API.
+>
+> **[ADR-019](019-vuelta-a-supabase.md) volvió a Supabase, pero no a Drizzle.** Las
+> migraciones se manejan con **Supabase CLI** (`supabase migration new`, `supabase db push`),
+> que no tiene el problema de advisory lock contra el pooler en modo transacción que motivó
+> este documento. Este ADR queda como registro histórico de un problema que no vuelve a
+> aparecer con la herramienta actual.
 
 ## Contexto
 

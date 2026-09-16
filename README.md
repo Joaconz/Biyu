@@ -30,8 +30,8 @@ prorrateo al vuelo. Razonamiento completo y alternativas descartadas en
 ## Estado del proyecto
 
 En etapa de especificación. El dominio, la arquitectura y el plan de pruebas están escritos
-y versionados antes que el código (`domain/` puro, sin depender de framework ni de base de
-datos — ver restricción C1). Todavía no hay implementación en `api/` ni en `web/`.
+y versionados antes que el código (`src/domain/` puro, sin depender del Supabase Client SDK
+— ver restricción C1). Todavía no hay implementación ni schema de Supabase en el repositorio.
 
 ## Documentación
 
@@ -51,10 +51,11 @@ datos — ver restricción C1). Todavía no hay implementación en `api/` ni en 
 
 ## Stack (planificado)
 
-Next.js + TypeScript en el frontend, Python + FastAPI en el backend, PostgreSQL (Neon) como
-base de datos, ambos servicios separados y comunicándose por HTTP. Detalle completo y
-justificación de cada elección en
-[`docs/03-architecture-spec.md`](docs/03-architecture-spec.md).
+React (Vite) + TypeScript como PWA en el frontend, Supabase (Postgres + Auth + Row Level
+Security + Edge Functions) como backend. Un único artefacto desplegable que habla directo
+contra Supabase. Detalle completo y justificación de cada elección en
+[`docs/03-architecture-spec.md`](docs/03-architecture-spec.md) y
+[ADR-019](docs/adr/019-vuelta-a-supabase.md).
 
 ## Levantar el proyecto
 

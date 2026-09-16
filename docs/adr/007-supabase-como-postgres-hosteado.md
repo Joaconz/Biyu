@@ -1,10 +1,14 @@
 # ADR-007 — Supabase se usa como Postgres hosteado, no como backend
 
-**Estado:** superada por [ADR-016](016-api-python-separada-del-frontend.md) · **Fecha:** 2026-08
+**Estado:** superada por [ADR-016](016-api-python-separada-del-frontend.md), que a su vez fue revertida por [ADR-019](019-vuelta-a-supabase.md) · **Fecha:** 2026-08
 
-> El proyecto dejó Supabase: la base pasó a ser Postgres gestionado en Neon, accedido por
-> una API propia de FastAPI. El razonamiento de este documento —Supabase es hosting, no
-> backend— es exactamente lo que hizo barato el cambio, y por eso se conserva.
+> El proyecto dejó Supabase (ADR-016) y después volvió (ADR-019). Con la vuelta, **el riesgo
+> que nombra este documento** —que Supabase empuja a desparramar lógica de negocio en
+> componentes, con RLS como única autorización— vuelve a ser relevante y se acepta
+> explícitamente en ADR-019 a cambio de tiempo de equipo. Lo que **no** vuelve tal cual es la
+> restricción #2 de la "Decisión" de acá: ADR-019 no usa un query builder tipado (Drizzle):
+> usa el Supabase Client SDK directo, así que RLS deja de ser "defensa en profundidad" y pasa
+> a ser la autorización real — ver ADR-019 y el ADR-008 actualizado.
 
 ## Contexto
 
