@@ -1,3 +1,7 @@
+// ATENCIÓN: escrito a mano con el formato de `supabase gen types typescript`, porque no había
+// Docker para correr el generador. No está verificado contra la base real y el orden de las
+// columnas puede diferir del generado. Regenerar con `npm run gen:types` (supabase start antes).
+// Los `numeric` figuran como `number`: los montos NO se deben parsear como float (C2).
 export type Json =
   | string
   | number
@@ -120,11 +124,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "debts_transaction_id_fkey"
-            columns: ["transaction_id"]
+            foreignKeyName: "debts_transaction_fk"
+            columns: ["transaction_id", "user_id"]
             isOneToOne: false
             referencedRelation: "transactions"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
         ]
       }
@@ -182,11 +186,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "ledger_entries_transaction_id_fkey"
-            columns: ["transaction_id"]
+            foreignKeyName: "ledger_entries_transaction_fk"
+            columns: ["transaction_id", "user_id"]
             isOneToOne: false
             referencedRelation: "transactions"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
         ]
       }
@@ -247,18 +251,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "subscriptions_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "subscriptions_account_fk"
+            columns: ["account_id", "user_id"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
           {
-            foreignKeyName: "subscriptions_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "subscriptions_category_fk"
+            columns: ["category_id", "user_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
         ]
       }
@@ -322,25 +326,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "transactions_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "transactions_account_fk"
+            columns: ["account_id", "user_id"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
           {
-            foreignKeyName: "transactions_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "transactions_category_fk"
+            columns: ["category_id", "user_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
           {
-            foreignKeyName: "transactions_subscription_id_fkey"
-            columns: ["subscription_id"]
+            foreignKeyName: "transactions_subscription_fk"
+            columns: ["subscription_id", "user_id"]
             isOneToOne: false
             referencedRelation: "subscriptions"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
         ]
       }

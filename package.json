@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "gen:types": "supabase gen types typescript --local > src/lib/database.types.ts"
+    "gen:types": "supabase gen types typescript --local > src/lib/database.types.ts.tmp && mv src/lib/database.types.ts.tmp src/lib/database.types.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
