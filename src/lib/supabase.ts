@@ -6,7 +6,7 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!url || !anonKey) {
   throw new Error(
-    'Faltan VITE_SUPABASE_URL y/o VITE_SUPABASE_ANON_KEY. Copiá .env.example a .env y completalos.',
+    'Faltan VITE_SUPABASE_URL y/o VITE_SUPABASE_ANON_KEY. Copiá .env.example a .env y completalos (en Vercel: Project Settings → Environment Variables, antes del deploy).',
   )
 }
 
