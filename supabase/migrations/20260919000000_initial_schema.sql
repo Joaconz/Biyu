@@ -1,6 +1,8 @@
 -- Schema inicial de Biyu, derivado de docs/04-data-model.md.
--- Sin funciones RPC (create_transaction, generate_ledger_entries) ni Edge Functions:
--- este archivo es solo tablas, constraints, RLS y la vista de integridad.
+-- Tablas, constraints, triggers de I6/I7, RLS y la vista de integridad.
+-- Todavía no están las funciones RPC (create_transaction, generate_ledger_entries) ni las
+-- Edge Functions: hasta que existan, transactions y ledger_entries son de solo lectura
+-- para el rol authenticated (ver sección de RLS).
 
 -- ---------------------------------------------------------------------------
 -- Enums
@@ -22,7 +24,8 @@ create table categories (
   color       text,
   icon        text,
   archived_at timestamptz,
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  constraint categories_id_user_uq unique (id, user_id)  -- destino de FK compuestas
 );
 
 -- Índice único parcial: permite reutilizar el nombre de una categoría archivada.
@@ -39,7 +42,8 @@ create table accounts (
   type        account_type not null,
   currency    currency_code not null,
   archived_at timestamptz,
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  constraint accounts_id_user_uq unique (id, user_id)  -- destino de FK compuestas
 );
 
 create unique index accounts_user_name_active_uq
@@ -68,8 +72,8 @@ create table subscriptions (
   name                 text not null,
   amount               numeric(14,2) not null,
   currency             currency_code not null,
-  category_id          uuid not null references categories (id),
-  account_id           uuid not null references accounts (id),
+  category_id          uuid not null,
+  account_id           uuid not null,
   billing_day          int not null,
   start_period         date not null,
   end_period           date,
@@ -79,6 +83,10 @@ create table subscriptions (
   cancelled_at         timestamptz,
   description          text,
   created_at           timestamptz not null default now(),
+  constraint subscriptions_id_user_uq unique (id, user_id),
+  -- FK compuestas: el padre tiene que ser del mismo usuario (RLS no aplica a los chequeos de FK)
+  constraint subscriptions_category_fk foreign key (category_id, user_id) references categories (id, user_id),
+  constraint subscriptions_account_fk foreign key (account_id, user_id) references accounts (id, user_id),
   constraint subscriptions_amount_positive check (amount > 0),                       -- I4
   constraint subscriptions_billing_day_range check (billing_day between 1 and 31),   -- I13
   constraint subscriptions_start_first_day check (extract(day from start_period) = 1),
@@ -108,17 +116,24 @@ create table transactions (
                         case when currency = 'ARS' then amount
                              else round(amount * fx_rate, 2) end
                       ) stored,
-  category_id         uuid references categories (id),
-  account_id          uuid not null references accounts (id),
+  category_id         uuid,
+  account_id          uuid not null,
   installments_count  int not null default 1,
   first_period        date not null,
   description         text,
   occurred_on         date not null,
-  subscription_id     uuid references subscriptions (id),
+  subscription_id     uuid,
   subscription_period date,
   deleted_at          timestamptz,
   created_at          timestamptz not null default now(),
+  constraint transactions_id_user_uq unique (id, user_id),
+  -- FK compuestas: el padre tiene que ser del mismo usuario. Con category_id o
+  -- subscription_id null la FK no se evalúa (MATCH SIMPLE).
+  constraint transactions_category_fk foreign key (category_id, user_id) references categories (id, user_id),
+  constraint transactions_account_fk foreign key (account_id, user_id) references accounts (id, user_id),
+  constraint transactions_subscription_fk foreign key (subscription_id, user_id) references subscriptions (id, user_id),
   constraint transactions_amount_positive check (amount > 0),                                   -- I4
+  constraint transactions_amount_ars_positive check (amount_ars > 0),                           -- I4 (evita redondeo a 0,00)
   constraint transactions_fx_rate_iff_usd check ((currency = 'USD') = (fx_rate is not null)),   -- I5
   constraint transactions_fx_rate_positive check (fx_rate is null or fx_rate > 0),
   constraint transactions_expense_has_category check (type <> 'expense' or category_id is not null), -- I8
@@ -142,11 +157,13 @@ create unique index transactions_subscription_period_uq
 create table ledger_entries (
   id                 uuid primary key default gen_random_uuid(),
   user_id            uuid not null default auth.uid() references auth.users (id) on delete cascade,
-  transaction_id     uuid not null references transactions (id) on delete cascade,
+  transaction_id     uuid not null,
   period             date not null,
   installment_number int not null,
   amount             numeric(14,2) not null,
   amount_ars         numeric(14,2) not null,  -- no generada: absorbe el resto en el dominio (I1')
+  constraint ledger_entries_transaction_fk foreign key (transaction_id, user_id)
+    references transactions (id, user_id) on delete cascade,
   constraint ledger_entries_period_first_day check (extract(day from period) = 1),
   constraint ledger_entries_installment_positive check (installment_number >= 1),
   constraint ledger_entries_amount_positive check (amount > 0),         -- I4
@@ -163,7 +180,7 @@ create index ledger_entries_user_period_idx on ledger_entries (user_id, period);
 create table debts (
   id             uuid primary key default gen_random_uuid(),
   user_id        uuid not null default auth.uid() references auth.users (id) on delete cascade,
-  transaction_id uuid references transactions (id),
+  transaction_id uuid,
   person         text not null,
   amount         numeric(14,2) not null,
   currency       currency_code not null,
@@ -178,11 +195,57 @@ create table debts (
   notes          text,
   incurred_on    date not null,
   created_at     timestamptz not null default now(),
+  constraint debts_transaction_fk foreign key (transaction_id, user_id) references transactions (id, user_id),
   constraint debts_amount_positive check (amount > 0),                                 -- I4
+  constraint debts_amount_ars_positive check (amount_ars > 0),                         -- I4 (evita redondeo a 0,00)
   constraint debts_fx_rate_iff_usd check ((currency = 'USD') = (fx_rate is not null)), -- I5
   constraint debts_fx_rate_positive check (fx_rate is null or fx_rate > 0),
   constraint debts_settled_at_set check (status <> 'settled' or settled_at is not null) -- I9
 );
+
+-- ---------------------------------------------------------------------------
+-- I6: installments_count > 1 solo si la cuenta es credit_card y el tipo es expense.
+-- I7: las deudas vinculadas no superan transactions.amount_ars y comparten su moneda.
+-- ---------------------------------------------------------------------------
+create function check_installments_rule() returns trigger language plpgsql as $$
+begin
+  if new.installments_count > 1 and not (
+    new.type = 'expense'
+    and exists (select 1 from accounts a where a.id = new.account_id and a.type = 'credit_card')
+  ) then
+    raise exception 'I6: installments_count > 1 solo aplica a gastos con cuenta credit_card'
+      using errcode = 'check_violation';
+  end if;
+  return new;
+end $$;
+
+create trigger transactions_installments_rule
+  before insert or update on transactions
+  for each row execute function check_installments_rule();
+
+create function check_debt_rule() returns trigger language plpgsql as $$
+declare
+  tx transactions%rowtype;
+begin
+  if new.transaction_id is null then
+    return null;
+  end if;
+  select * into tx from transactions where id = new.transaction_id for update;
+  if tx.currency <> new.currency then
+    raise exception 'I7: la deuda debe tener la misma moneda que su transacción'
+      using errcode = 'check_violation';
+  end if;
+  if (select coalesce(sum(amount_ars), 0) from debts where transaction_id = new.transaction_id)
+       > tx.amount_ars then
+    raise exception 'I7: la suma de las deudas supera el monto de la transacción'
+      using errcode = 'check_violation';
+  end if;
+  return null;
+end $$;
+
+create trigger debts_transaction_rule
+  after insert or update on debts
+  for each row execute function check_debt_rule();
 
 -- ---------------------------------------------------------------------------
 -- Row Level Security (C7): ninguna política es más laxa que user_id = auth.uid().
@@ -192,10 +255,8 @@ do $$
 declare
   t text;
 begin
-  foreach t in array array[
-    'categories', 'accounts', 'fx_rates', 'subscriptions',
-    'transactions', 'ledger_entries', 'debts'
-  ]
+  -- Tablas de escritura directa desde el cliente.
+  foreach t in array array['categories', 'accounts', 'fx_rates', 'subscriptions', 'debts']
   loop
     execute format('alter table %I enable row level security', t);
     execute format(
@@ -210,6 +271,18 @@ begin
     execute format(
       'create policy %I on %I for delete to authenticated using (user_id = auth.uid())',
       'delete_own_rows', t);
+  end loop;
+
+  -- transactions y ledger_entries: solo lectura. Escribir (crear, editar, soft delete)
+  -- es responsabilidad exclusiva de las funciones RPC (security definer) que faltan
+  -- escribir; así C3, C4 y C10 no dependen del cliente. Sin política de insert/update/
+  -- delete, un pedido directo contra la API devuelve error de RLS.
+  foreach t in array array['transactions', 'ledger_entries']
+  loop
+    execute format('alter table %I enable row level security', t);
+    execute format(
+      'create policy %I on %I for select to authenticated using (user_id = auth.uid())',
+      'select_own_rows', t);
   end loop;
 end $$;
 
