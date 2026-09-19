@@ -42,3 +42,7 @@ htmlcov/
 # --- Logs y misceláneo ---
 *.log
 .cache/
+
+# --- Claude Code: estado local, no se versiona ---
+.claude/settings.local.json
+.claude/worktrees/
