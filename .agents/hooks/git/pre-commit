@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Hook de git, independiente de la herramienta (Claude, Codex, Cursor, a mano): protege el repo
+# público (C13, C14) y hace cumplir el piso de las migraciones (C2, C7).
+# Activación, una vez por clon:  git config core.hooksPath .agents/hooks/git
+set -uo pipefail
+
+root=$(git rev-parse --show-toplevel)
+fail=0
+report() { echo "pre-commit: $1" >&2; fail=1; }
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+# 1. Archivos que nunca entran: secretos y datos reales.
+while IFS= read -r f; do
+  case "$f" in
+    .env.example|*/.env.example) ;;
+    .env|.env.*|*/.env|*/.env.*) report "\`$f\` es un archivo de entorno; puede tener credenciales (C13)." ;;
+    *.csv|*.pdf|*.dump) report "\`$f\` parece un dato real (CSV/PDF/dump); no entra al repo (C13, C14)." ;;
+  esac
+done <<<"$staged"
+
+# 2. Credenciales en las líneas agregadas (mismo patrón que .claude/hooks/block-secrets.sh).
+pattern='eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|AQ\.[A-Za-z0-9_-]{30,}|sb_secret_[A-Za-z0-9_-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|postgres(ql)?://[^:@[:space:]]+:[^@[:space:]]+@'
+if git diff --cached -U0 -- . ':(exclude).env.example' ':(exclude).claude/hooks' ':(exclude).agents/hooks' \
+    | grep -E '^\+' | grep -Ev '^\+\+\+' | grep -Eq "$pattern"; then
+  report "las líneas agregadas parecen incluir una credencial (JWT, API key o URL de conexión con contraseña). Rotala si ya la usaste y sacala del commit (C13)."
+fi
+
+# 3. Piso de las migraciones.
+migrations=$(grep -E '^supabase/migrations/.*\.sql$' <<<"$staged" || true)
+if [ -n "$migrations" ]; then
+  # shellcheck disable=SC2086
+  (cd "$root" && "$root/.agents/hooks/lint-migration.sh" $migrations) || fail=1
+fi
+
+[ "$fail" -eq 0 ] || { echo "pre-commit: commit abortado." >&2; exit 1; }
+exit 0
