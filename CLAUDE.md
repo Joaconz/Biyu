@@ -54,7 +54,17 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 - Si algo se filtra: **rotar primero**, limpiar el historial después.
 
 Un hook (`.claude/hooks/block-secrets.sh`) bloquea escrituras con patrones de credenciales, y
-`.claude/settings.json` niega leer/editar `.env`.
+`.claude/settings.json` niega leer/editar `.env`. `.agents/hooks/guard-git-staging.sh` cubre los
+rodeos por Bash (`git add -f`, `--no-verify`, leer `.env*`) y `.agents/hooks/git/pre-commit` repite
+el chequeo al commitear para cualquier herramienta (activarlo: `git config core.hooksPath .agents/hooks/git`).
+
+## Skills, agentes y hooks: `.agents/`
+
+`.agents/` es una **copia** de `.claude/skills`, `.claude/agents` y `.claude/hooks` para que las use
+cualquier IA (sin symlinks; ver `.agents/README.md`). Si editás una skill, agente o hook, aplicá el
+cambio en las dos carpetas (`diff -rq` las compara). Skills externas:
+`npx skills add <repo> -s <skill> -a codex -a claude-code --copy`. Migraciones nuevas también
+pasan por `lint-migration.sh` (hook automático) y, para schema, la skill `supabase-postgres-best-practices`.
 
 ## Cómo trabajar acá
 
