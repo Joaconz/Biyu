@@ -117,6 +117,15 @@ Decisiones que tomé sin confirmación explícita. Revisá esta lista: si alguna
 50. Como usuario nuevo, quiero crear mi cuenta con email y contraseña en `/signup`, para empezar a usar la app sin que nadie me la habilite a mano.
 51. Como usuario nuevo, quiero entrar directo después de registrarme, sin un paso intermedio de confirmación por email, para no perder el momento en que decidí usar la app.
 
+_Las historias 52 a 63 están en `06-suscripciones.md`. Las dos siguientes cubren FR-03 y FR-08 de
+la pre-entrega, que no tenían historia (ver `08-trazabilidad.md`)._
+
+64. Como usuario, quiero cerrar sesión desde la app, para que nadie más use mi cuenta en un dispositivo compartido.
+
+### Baja
+
+65. Como usuario, quiero eliminar una transacción que cargué mal, con un aviso si eso cambia los totales de meses ya cerrados, para corregir el registro sin perder el historial.
+
 ---
 
 ## Behavior Detail

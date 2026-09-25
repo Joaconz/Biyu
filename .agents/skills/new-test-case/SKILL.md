@@ -41,7 +41,7 @@ Un caso por bloque, con los campos de §4 en este orden:
 
 | Campo | Contenido |
 |---|---|
-| ID | `CP-<módulo>-<nnn>`. Módulos: `CUO` cuotas · `MON` monedas y TC · `DAS` dashboard · `SUS` suscripciones · `DEU` deudas · `ACC` acceso y autorización |
+| ID | `CP-<módulo>-<nnn>`. Módulos: `CUO` cuotas · `MON` monedas y TC · `DAS` dashboard · `SUS` suscripciones · `DEU` deudas · `ACC` acceso y autorización · `REG` registro, validaciones de alta y baja lógica · `CFG` categorías, cuentas y TC de referencia |
 | Historia de usuario | `FR-xx` (y la regla R* si aplica) |
 | Invariante cubierta | `I1 … I17`, o "—" si no aplica |
 | Técnica | Una de §3 |

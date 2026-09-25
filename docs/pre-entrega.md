@@ -4,6 +4,10 @@
 
 Grupo: Valentina Giampieri, Santiago Pazos, Joaquin Nuñez, Mariana Caceres y Micaela Dopazo · Fecha: 2026-09-02
 
+> Documento entregado; no se reescribe. Las diferencias con la spec posterior (cuotas de 1 a 12, tipo
+> de cambio manual, cierre de tarjeta fuera de alcance, entre otras) están resueltas en
+> [`08-trazabilidad.md`](08-trazabilidad.md).
+
 ---
 
 ## 1. Nombre tentativo

@@ -36,6 +36,8 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 | Schema e invariantes I1–I17 | `docs/04-data-model.md` |
 | Higiene del repo público | `docs/05-repo-publico.md` |
 | Testing: técnicas, defectos, propiedad cruzada | `docs/07-plan-de-testing.md` |
+| FR/NFR → historias → issues → casos | `docs/08-trazabilidad.md` |
+| Backlog y tablero (épicas, historias V1, tareas) | [Project Biyu](https://github.com/users/Joaconz/projects/3), milestones V1–V3 |
 | Por qué se decidió X | `docs/adr/` |
 
 ## Reglas que no se negocian
@@ -82,7 +84,10 @@ pasan por `lint-migration.sh` (hook automático) y, para schema, la skill `supab
 
 ## Cómo trabajar acá
 
-- Ramas por historia de usuario, PR contra `main` con descripción. Commits que digan qué y por qué;
+- Cada historia es un issue `US-nn` bajo su épica (`docs/08-trazabilidad.md`). Las tareas se abren
+  como sub-issues recién cuando la historia arranca. Columnas del tablero y definición de "Hecho":
+  `docs/07-plan-de-testing.md` §1.
+- Ramas por historia de usuario, PR contra `main` con descripción (`Closes #n`). Commits que digan qué y por qué;
   nada de `fix`/`wip` en `main`.
 - Antes de tocar una migración de `supabase/migrations/`, usá el agente `rls-migration-reviewer` y la
   skill `supabase-postgres-best-practices`.

@@ -45,6 +45,7 @@ y versionados antes que el código (`src/domain/` puro, sin depender del Supabas
 | [`docs/05-repo-publico.md`](docs/05-repo-publico.md) | Reglas de higiene del repositorio público |
 | [`docs/06-suscripciones.md`](docs/06-suscripciones.md) | Spec de dominio de gastos recurrentes |
 | [`docs/07-plan-de-testing.md`](docs/07-plan-de-testing.md) | Equipo, técnicas de diseño de casos, defectos |
+| [`docs/08-trazabilidad.md`](docs/08-trazabilidad.md) | Matriz FR/NFR → historias → issues → casos de prueba |
 | [`docs/roadmap.md`](docs/roadmap.md) | V1, V2, V3 y qué queda para después |
 | [`docs/pre-entrega.md`](docs/pre-entrega.md) | Documento corto presentado en la materia |
 | [`docs/adr/`](docs/adr) | Decisiones de arquitectura, con contexto y alternativas descartadas |
