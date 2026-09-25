@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.113.0
       - name: Levantar Supabase local (solo lo necesario para pgTAP)
         run: supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta
       - run: supabase test db
