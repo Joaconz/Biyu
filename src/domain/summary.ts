@@ -1,5 +1,5 @@
 import { formatPeriod, type Period } from './period'
-import { Decimal } from './money'
+import { Decimal, parseMoney } from './money'
 
 // Filas tal como las devuelve PostgREST: los montos son string (C2).
 export interface SummaryEntry {
@@ -33,7 +33,7 @@ export interface MonthlySummary {
   byAccount: Map<string, Decimal>
 }
 
-const add = (map: Map<string | null, Decimal>, key: string | null, value: Decimal) =>
+const add = <K,>(map: Map<K, Decimal>, key: K, value: Decimal) =>
   map.set(key, (map.get(key) ?? new Decimal(0)).plus(value))
 
 export function computeMonthlySummary(
@@ -46,11 +46,11 @@ export function computeMonthlySummary(
   let income = new Decimal(0)
   let inherited = new Decimal(0)
   const byCategory = new Map<string | null, Decimal>()
-  const byAccount = new Map<string | null, Decimal>()
+  const byAccount = new Map<string, Decimal>()
 
   for (const e of entries) {
     if (e.period !== key || e.transaction.deleted_at) continue // I10
-    const amount = new Decimal(e.amount_ars)
+    const amount = parseMoney(e.amount_ars)
     if (e.transaction.type === 'income') {
       income = income.plus(amount)
       continue
@@ -64,7 +64,7 @@ export function computeMonthlySummary(
   // La deuda se imputa entera al mes de nacimiento de la compra (04-data-model, consulta 6).
   const reimbursed = debts
     .filter((d) => d.direction === 'owed_to_me' && d.transaction_first_period === key)
-    .reduce((acc, d) => acc.plus(d.amount_ars), new Decimal(0))
+    .reduce((acc, d) => acc.plus(parseMoney(d.amount_ars)), new Decimal(0))
 
   return {
     expenses,
@@ -73,6 +73,6 @@ export function computeMonthlySummary(
     inheritedInstallments: inherited,
     netOfReimbursements: expenses.minus(reimbursed),
     byCategory,
-    byAccount: byAccount as Map<string, Decimal>,
+    byAccount,
   }
 }

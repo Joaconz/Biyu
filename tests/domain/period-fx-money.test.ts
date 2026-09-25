@@ -29,6 +29,11 @@ describe('money', () => {
     expect(convertToArs(parseMoney('100'), parseMoney('1250'))).toEqual(parseMoney('125000'))
     expect(convertToArs(parseMoney('0.01'), parseMoney('1.5'))).toEqual(parseMoney('0.02'))
   })
+  it('parseMoney acepta formato argentino y PostgREST', () => {
+    expect(parseMoney('1.234,56').eq('1234.56')).toBe(true)
+    expect(parseMoney('1234.56').eq('1234.56')).toBe(true)
+    expect(parseMoney('10,5').eq('10.5')).toBe(true)
+  })
   it('formatea en argentino', () => expect(formatArs(parseMoney('1234567.5'))).toBe('$1.234.567,50'))
 })
 

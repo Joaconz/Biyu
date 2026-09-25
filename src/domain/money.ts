@@ -3,9 +3,14 @@ import Decimal from 'decimal.js'
 
 export { Decimal }
 
-/** Parsea un monto que viene como string (PostgREST, input). Nunca desde `number` (C2). */
+/**
+ * Parsea un monto que viene como string (PostgREST, input). Nunca desde `number` (C2).
+ * Acepta "1234.56" (PostgREST) y "1.234,56" (formato argentino): si hay coma, la coma es el
+ * decimal y los puntos son miles.
+ */
 export function parseMoney(value: string): Decimal {
-  return new Decimal(value.trim().replace(',', '.'))
+  const v = value.trim()
+  return new Decimal(v.includes(',') ? v.replace(/\./g, '').replace(',', '.') : v)
 }
 
 /**
