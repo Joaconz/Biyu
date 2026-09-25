@@ -180,13 +180,13 @@ biyu/
     lib/                          # cliente de Supabase, hooks de sesión, formateo
     hooks/
   supabase/
+    tests/database/                    # pgTAP (supabase test db) — invariantes, atomicidad, RLS
     migrations/                    # schema, constraints, políticas RLS — versionado (Supabase CLI)
     functions/                      # Edge Functions (Deno/TypeScript)
       close-card-cycle/              # FR-14: cierre de tarjeta
       run-subscription-catchup/       # puesta al día de suscripciones (ADR-017)
   tests/
     domain/                           # Vitest — el grueso
-    db/                                # pgTAP — invariantes, atomicidad, RLS
     functions/                          # Deno Test / Vitest — Edge Functions
     components/                          # Testing Library
   e2e/                                   # Playwright — Chromium, WebKit, Firefox
