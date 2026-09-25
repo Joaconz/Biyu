@@ -43,7 +43,7 @@ describe('generateLedgerEntries', () => {
     const fx = parseMoney('1250.5555')
     const r = generateLedgerEntries(parseMoney('100'), fx, 3, P(2026, 8))
     expect(sum(r.map((e) => e.amount)).eq('100')).toBe(true)
-    // convertir cuota a cuota daría 125055.56; el prorrateo del total convertido da 125055.55
+    // convertir cuota a cuota daría 125055.54; el prorrateo del total convertido da 125055.55
     expect(sum(r.map((e) => e.amountArs)).eq('125055.55')).toBe(true)
   })
 

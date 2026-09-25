@@ -7,10 +7,11 @@ español rioplatense; nombres de código en inglés.
 
 ## Estado
 
-Scaffold hecho: Vite + React + TypeScript con `@supabase/supabase-js` (`src/lib/supabase.ts`),
-migraciones en `supabase/migrations/` y deploy en Vercel (`vercel.json`). La UI todavía es la
-plantilla de Vite. Todavía no hay Tailwind, shadcn/ui ni scripts de test: no inventes comandos de
-test; cuando existan, agregalos acá.
+Fundación técnica hecha (épica #8, sin el deploy #72): Vite + React + TypeScript, Tailwind + shadcn/ui,
+rutas con React Router y sesión de Supabase, dominio puro en `src/domain/`, la RPC `create_transaction`
+(`supabase/migrations/`, ADR-020) y tests (Vitest en `tests/domain/`, pgTAP en `supabase/tests/database/`).
+CI en `.github/workflows/ci.yml`. Deploy en Vercel (`vercel.json`). Las pantallas son esqueletos: el
+registro y el dashboard reales llegan con las historias US-nn.
 
 Stack planificado: React (Vite) + TypeScript + PWA · Supabase (Postgres, Auth, RLS, Edge Functions)
 · Tailwind + shadcn/ui · Vitest, pgTAP, Playwright. Fuente de verdad: `docs/03-architecture-spec.md`
@@ -23,6 +24,8 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 | `npm run dev` | Levanta Vite. Lee `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` de `.env` (copiá `.env.example`) |
 | `npm run build` | `tsc -b` + build de producción en `dist/` (lo mismo que corre Vercel) |
 | `npm run preview` | Sirve `dist/` localmente |
+| `npm test` | Vitest sobre `tests/domain/` (no necesita Docker) |
+| `npm run test:db` | pgTAP con `supabase test db` (necesita Docker y `supabase start`) |
 | `npm run gen:types` | Regenera `src/lib/database.types.ts` desde Supabase local (`supabase start` antes) |
 | `/speckit-checklist <foco>` | Checklist de calidad de redacción de los NFR; la feature es `specs/nfr/`, que apunta a `docs/pre-entrega.md` §4 |
 
@@ -52,7 +55,7 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 - **Validación real en Postgres**; Zod en el cliente es solo UX (C6). Cada caso negativo se prueba
   por la UI y directo contra la API/RPC.
 - **RLS es la única autorización** (`user_id = auth.uid()`). Toda tabla nueva lleva políticas y su
-  par de tests pgTAP (otra sesión y rol `anon` → cero filas) (C7).
+  par de tests pgTAP (otra sesión → cero filas, rol `anon` → `permission denied`) (C7).
 - **Lógica de negocio fuera de los componentes**: funciones puras en `src/domain/`, o Postgres.
   `today` entra como parámetro, nunca se lee el reloj (C1).
 - **Soft delete** en transacciones (`deleted_at`); todo KPI filtra las borradas (C10, I10).

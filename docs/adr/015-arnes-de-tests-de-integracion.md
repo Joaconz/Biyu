@@ -11,8 +11,10 @@
 > **Nota posterior.** [ADR-019](019-vuelta-a-supabase.md) volvió a Supabase, así que
 > `supabase start` (CLI local, Docker) vuelve a ser la herramienta, tal como describe el
 > cuerpo de este documento. Las funciones SQL se testean con **pgTAP**; las Edge Functions,
-> con **Deno Test/Vitest**. El criterio de nunca correr contra el proyecto hosteado, con
-> credenciales separadas en `.env.test.local`, sigue aplicando sin cambios.
+> con **Deno Test/Vitest**. El criterio de nunca correr contra el proyecto hosteado sigue aplicando. En la implementación
+> actual no hace falta `.env.test.local`: los tests son pgTAP en `supabase/tests/database/`, corren
+> con `npm run test:db` contra el stack local y en CI (`.github/workflows/ci.yml`, sin secretos). Los
+> `tests/server/*` y `test:integration` que describe el cuerpo son del diseño anterior.
 
 ## Contexto
 

@@ -63,7 +63,7 @@ Numerá a partir del último `nnn` existente del módulo. Si no hay catálogo to
   como hueco del spec y reportalo en vez de inventar el resultado esperado.
 - **`today` entra como dato de la precondición** (C1): fijá la fecha, no dependas del reloj.
 - Cualquier caso que toque una tabla incluye, en su módulo `ACC`, el par de autorización:
-  otra sesión → 0 filas, rol `anon` → 0 filas (C7).
+  otra sesión → 0 filas, rol `anon` → `permission denied` 42501 (C7).
 - Si el spec es ambiguo o se contradice, no lo resuelvas vos: listalo al final como
   "Ambigüedades" para el Product Owner (o pasalo por el agente `spec-critic`).
 

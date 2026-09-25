@@ -10,7 +10,7 @@ export interface LedgerEntryDraft {
 
 // I1:  sum(amount)    == amount, exacto.
 // I1': sum(amountArs) == convertToArs(amount, fxRate), exacto.
-// Copia de previsualización de generate_ledger_entries (la que persiste es la de SQL).
+// Copia de previsualización de la regla de create_transaction (la que persiste es la de SQL).
 export function generateLedgerEntries(
   amount: Decimal,
   fxRate: Decimal | null, // null ⇒ ARS (I5)

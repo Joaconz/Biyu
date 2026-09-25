@@ -135,7 +135,7 @@ El evento económico. Una compra, un ingreso. **No es lo que suma el dashboard.*
 | amount_ars | numeric(14,2) | **columna generada**: `amount` si ARS, `amount * fx_rate` si USD |
 | category_id | uuid FK → categories | not null si type = expense |
 | account_id | uuid FK → accounts | not null |
-| installments_count | int | default 1, ≥ 1 |
+| installments_count | int | default 1, entre 1 y 12 (`transactions_installments_max`, ADR-020) |
 | first_period | date | día 1 del mes de la primera imputación |
 | description | text | opcional |
 | occurred_on | date | fecha real del evento |
@@ -152,7 +152,7 @@ la vuelve a crear. Borrar es una decisión del usuario, no un hueco a rellenar.
 `first_period` es derivable hoy: siempre es el mes de `occurred_on` (ver glosario, "Fecha
 de imputación"). Existe como columna igual, sin `CHECK` que la ate a `occurred_on`, porque
 es lo que permite modelar el ciclo de cierre de tarjeta más adelante sin migración — ahí
-dejaría de ser derivable. Se valida en el servidor, no en la base.
+dejaría de ser derivable. La calcula el servidor (`create_transaction`) a partir de `occurred_on`; el cliente no la manda.
 
 ## `ledger_entries`
 
@@ -166,7 +166,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | period | date | día 1 del mes |
 | installment_number | int | 1..installments_count |
 | amount | numeric(14,2) | en la moneda de la transacción |
-| amount_ars | numeric(14,2) | **no es columna generada.** Se calcula en el dominio junto con `amount` y se persiste — ver I1' más abajo |
+| amount_ars | numeric(14,2) | **no es columna generada.** La calcula `create_transaction` junto con `amount` (misma regla que `domain/installments.ts`) y se persiste — ver I1' más abajo |
 
 Único: (`transaction_id`, `installment_number`).
 Índice: (`user_id`, `period`) — es el acceso principal del dashboard.
@@ -204,8 +204,8 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 | I3 | Los períodos de las imputaciones son consecutivos desde `first_period`, sin saltos ni repeticiones | Dominio |
 | I4 | `amount > 0` siempre, en transacciones, imputaciones y deudas | Restricción de verificación en la base |
 | I5 | `fx_rate` es not null si y solo si `currency = 'USD'` | Restricción de verificación |
-| I6 | `installments_count > 1` solo si la cuenta es `credit_card` y el tipo es `expense` | Validación de servidor (requiere join, no se resuelve con check) |
-| I7 | La suma de las deudas vinculadas a una transacción no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Validación de servidor |
+| I6 | `installments_count > 1` solo si la cuenta es `credit_card` y el tipo es `expense` | Trigger en la base (requiere join, no se resuelve con check), revalidado en `create_transaction` |
+| I7 | La suma de las deudas vinculadas a una transacción no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Trigger en la base |
 | I8 | Una transacción de tipo `expense` tiene categoría | Restricción de verificación |
 | I9 | `status = 'settled'` implica `settled_at` not null | Restricción de verificación |
 | I10 | Una transacción con `deleted_at` no aporta a ningún KPI | Filtro en todas las consultas de lectura |
@@ -221,10 +221,10 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 suman el total original. No garantiza lo mismo en ARS: convertir cada cuota por separado y
 redondear introduce un desvío de redondeo que I1 no ve. Ejemplo — USD 100 en 3 cuotas con
 `fx_rate = 1250.5555`: las cuotas en USD suman exactamente 100 (✓ I1), pero convertidas y
-redondeadas una por una dan $125.055,56 contra un `transactions.amount_ars` de $125.055,55
-— un centavo de diferencia en el número que muestra el dashboard. `generate_ledger_entries`
+redondeadas una por una dan $125.055,54 contra un `transactions.amount_ars` de $125.055,55
+— un centavo de diferencia en el número que muestra el dashboard. `create_transaction`
 aplica la misma regla de absorción del resto (C3) también sobre `amount_ars`, y por eso esa
-columna se calcula en el dominio en vez de generarse en la base: una columna generada no
+columna la calcula `create_transaction` en vez de generarse en la base: una columna generada no
 puede absorber un resto.
 
 ---
@@ -244,7 +244,9 @@ Cada tabla (`categories`, `accounts`, `fx_rates`, `subscriptions`, `transactions
 ```sql
 create policy "select_own_rows" on transactions
   for select using (user_id = auth.uid());
--- análogas para insert/update/delete, y una política por tabla
+-- análogas para insert/update/delete en las tablas de escritura directa (categories, accounts,
+-- fx_rates, subscriptions, debts). transactions y ledger_entries son de solo lectura para el
+-- cliente: se escriben únicamente vía create_transaction (ADR-020).
 ```
 
 Reglas, sin excepciones:
@@ -255,9 +257,10 @@ Reglas, sin excepciones:
    mande el cliente. Se aplica con un `default auth.uid()` en la columna o con un trigger
    `before insert`, para que un cliente que intente forzar un `user_id` ajeno en el `insert`
    lo vea ignorado o rechazado.
-3. **El rol `anon`** (sin sesión) no tiene ninguna política que le dé acceso a estas tablas.
-   Un pedido sin JWT válido contra la API de Supabase devuelve cero filas, igual que un
-   pedido con el JWT de otro usuario pidiendo un recurso ajeno — RLS no distingue "no existe"
+3. **El rol `anon`** (sin sesión) no tiene privilegios ni políticas sobre estas tablas.
+   Un pedido sin JWT válido contra la API de Supabase se rechaza con `permission denied`
+   (`42501`) y no devuelve datos; un pedido con el JWT de otro usuario pidiendo un recurso
+   ajeno devuelve cero filas — RLS no distingue "no existe"
    de "no es tuyo", y eso es intencional: no permite inferir existencia.
 4. **La `service_role key`, que se salta RLS por completo, nunca la usa el cliente.** Solo
    las Edge Functions que corren en el servidor de Supabase (cierre de tarjeta, puesta al día
@@ -270,7 +273,7 @@ sino porque el índice `(user_id, period)` es el acceso principal del dashboard.
 
 **Grupo de pruebas obligatorio.** Para cada tabla, un caso de pgTAP que consulta con el JWT
 de otro usuario y espera cero filas, y otro que consulta sin sesión (rol `anon`) y espera
-cero filas. Es la verificación directa de NFR-13 (`pre-entrega.md`) y lo que hace que C7 esté
+`permission denied` (`42501`). Es la verificación directa de NFR-13 (`pre-entrega.md`) y lo que hace que C7 esté
 cubierta y no solo declarada.
 
 ---
@@ -335,6 +338,6 @@ parten de otra tabla — está indicado en cada una.
 
 `ledger_integrity_violations` expone las transacciones cuya suma de imputaciones no cuadra
 contra I1 o I1' — no debería devolver filas nunca, dado que la escritura es atómica (C4) y
-el único generador de imputaciones es `generate_ledger_entries`. Sirve de aserción en los
+el único generador de imputaciones es `create_transaction` ([ADR-020](adr/020-create-transaction-security-definer.md)). Sirve de aserción en los
 tests de integración y de herramienta de inspección manual si alguna vez hay que
 sospechar de datos escritos por fuera del camino normal.

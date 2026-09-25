@@ -60,4 +60,4 @@ aunque el commit lo haga otra herramienta o una persona.
 | Agente | `spec-critic`, `spec-consistency-checker`, `docs-writer` | Atacar specs · coherencia de `docs/` · redactar reportes |
 | Agente | `rls-migration-reviewer`, `test-adversary` | Revisar migraciones y RLS · probar la app buscando romperla |
 | Agente | `domain-purity-reviewer` | Revisa `src/` contra C1, C2, C5 |
-| Agente | `pgtap-writer` | Escribe tests pgTAP en `tests/db/` (C7, I1–I17) |
+| Agente | `pgtap-writer` | Escribe tests pgTAP en `supabase/tests/database/` (C7, I1–I17) |
