@@ -60,6 +60,12 @@ Defecto abierto · Hecho`.
 | No funcional | Rendimiento del dashboard, accesibilidad, usabilidad | Test Lead + QA | V2 |
 | Automatizado | Subconjunto de V1 y V2 | QA lidera | V3 |
 
+**Selectores estables desde V1.** Todo elemento interactivo de la UI (botones, inputs, selects,
+links de navegación, filas clickeables) lleva un atributo `data-testid` en kebab-case con el
+formato `<pantalla>-<elemento>` (por ejemplo, `transaction-form-amount`, `dashboard-period-next`).
+La automatización de V3 se apoya en esos atributos y no en textos ni clases de CSS, que cambian con
+el diseño. Un elemento interactivo sin `data-testid` es un defecto de testeabilidad.
+
 ### Fuera de alcance del plan
 
 Pruebas de seguridad más allá de la autorización entre usuarios, pruebas de carga real,
