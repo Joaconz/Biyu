@@ -1,13 +1,18 @@
-import { RouterProvider } from 'react-router'
+import { AppShell } from '@/components/layout/AppShell'
+import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
-import { AuthProvider } from '@/lib/auth'
-import { router } from '@/router'
 
+// Provisorio hasta #67 (router): muestra el shell y deja el patrón de data-testid.
 export default function App() {
   return (
-    <AuthProvider>
-      <RouterProvider router={router} />
+    <>
+      <AppShell>
+        <h1 data-testid="home-title" className="text-2xl font-semibold">
+          Registrar un gasto
+        </h1>
+        <Button data-testid="home-save">Guardar</Button>
+      </AppShell>
       <Toaster />
-    </AuthProvider>
+    </>
   )
 }
