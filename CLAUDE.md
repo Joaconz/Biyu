@@ -7,12 +7,24 @@ español rioplatense; nombres de código en inglés.
 
 ## Estado
 
-Etapa de especificación. **Todavía no hay código, schema ni `package.json`**: solo `docs/`. No
-inventes comandos de build/test; cuando exista la implementación, agregalos acá.
+Scaffold hecho: Vite + React + TypeScript con `@supabase/supabase-js` (`src/lib/supabase.ts`),
+migraciones en `supabase/migrations/` y deploy en Vercel (`vercel.json`). La UI todavía es la
+plantilla de Vite. Todavía no hay Tailwind, shadcn/ui ni scripts de test: no inventes comandos de
+test; cuando existan, agregalos acá.
 
 Stack planificado: React (Vite) + TypeScript + PWA · Supabase (Postgres, Auth, RLS, Edge Functions)
 · Tailwind + shadcn/ui · Vitest, pgTAP, Playwright. Fuente de verdad: `docs/03-architecture-spec.md`
 y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python, ya revertida).
+
+## Comandos
+
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Levanta Vite. Lee `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` de `.env` (copiá `.env.example`) |
+| `npm run build` | `tsc -b` + build de producción en `dist/` (lo mismo que corre Vercel) |
+| `npm run preview` | Sirve `dist/` localmente |
+| `npm run gen:types` | Regenera `src/lib/database.types.ts` desde Supabase local (`supabase start` antes) |
+| `/speckit-checklist <foco>` | Checklist de calidad de redacción de los NFR; la feature es `specs/nfr/`, que apunta a `docs/pre-entrega.md` §4 |
 
 ## Dónde está cada cosa
 
@@ -24,6 +36,8 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 | Schema e invariantes I1–I17 | `docs/04-data-model.md` |
 | Higiene del repo público | `docs/05-repo-publico.md` |
 | Testing: técnicas, defectos, propiedad cruzada | `docs/07-plan-de-testing.md` |
+| FR/NFR → historias → issues → casos | `docs/08-trazabilidad.md` |
+| Backlog y tablero (épicas, historias V1, tareas) | [Project Biyu](https://github.com/users/Joaconz/projects/3), milestones V1–V3 |
 | Por qué se decidió X | `docs/adr/` |
 
 ## Reglas que no se negocian
@@ -43,6 +57,8 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
   `today` entra como parámetro, nunca se lee el reloj (C1).
 - **Soft delete** en transacciones (`deleted_at`); todo KPI filtra las borradas (C10, I10).
 - **El período y los filtros viven en la URL** (C11).
+- **Todo elemento interactivo lleva `data-testid`** (`<pantalla>-<elemento>`, kebab-case). La
+  automatización de V3 depende de eso (`docs/07-plan-de-testing.md` §2).
 - **Decisión no obvia → ADR nuevo** en `docs/adr/` (C12). Skill: `/new-adr`.
 
 ## Repo público: qué nunca entra a git (C13, C14)
@@ -68,7 +84,10 @@ pasan por `lint-migration.sh` (hook automático) y, para schema, la skill `supab
 
 ## Cómo trabajar acá
 
-- Ramas por historia de usuario, PR contra `main` con descripción. Commits que digan qué y por qué;
+- Cada historia es un issue `US-nn` bajo su épica (`docs/08-trazabilidad.md`). Las tareas se abren
+  como sub-issues recién cuando la historia arranca. Columnas del tablero y definición de "Hecho":
+  `docs/07-plan-de-testing.md` §1.
+- Ramas por historia de usuario, PR contra `main` con descripción (`Closes #n`). Commits que digan qué y por qué;
   nada de `fix`/`wip` en `main`.
 - Antes de tocar una migración de `supabase/migrations/`, usá el agente `rls-migration-reviewer` y la
   skill `supabase-postgres-best-practices`.

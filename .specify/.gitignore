@@ -1,0 +1,5 @@
+# Biyu tiene una sola "feature" de spec-kit (specs/nfr), así que feature.json se commitea para que
+# /speckit-checklist funcione en cualquier clon sin setear SPECIFY_FEATURE_DIRECTORY.
+
+# Per-machine extension config overrides.
+extensions/*/local-config.yml
