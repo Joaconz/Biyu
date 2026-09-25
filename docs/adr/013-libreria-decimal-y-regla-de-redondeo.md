@@ -90,7 +90,7 @@ una regla distinta:
 ## Consecuencias
 
 - **A favor:** las dos reglas quedan explícitas y testeadas por separado (`prorate` y
-  `convertToArs` en `tests/domain/money.test.ts`), en vez de una única función `round()`
+  `convertToArs` en `tests/domain/period-fx-money.test.ts`), en vez de una única función `round()`
   usada con dos intenciones distintas y comentarios para no confundirlas.
 - **En contra:** dos primitivas de redondeo en el mismo módulo es más superficie que un
   `round()` genérico. Se acepta porque la alternativa — una sola regla — es la que produce el

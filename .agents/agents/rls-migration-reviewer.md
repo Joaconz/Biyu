@@ -13,7 +13,7 @@ migraciones indicadas (por defecto, las modificadas respecto de `main`: `git dif
 Chequeá, por cada tabla/función tocada:
 
 1. **RLS (C7):** RLS habilitado; políticas `using (user_id = auth.uid())` y `with check` equivalente;
-   ninguna condición más laxa. Falta el par de tests pgTAP (otra sesión y rol `anon` → 0 filas).
+   ninguna condición más laxa. Falta el par de tests pgTAP (otra sesión → 0 filas, rol `anon` → `permission denied`).
 2. **Montos (C2):** todo importe es `numeric(14,2)`, sin `float`/`real`/`double precision`.
 3. **Atomicidad (C4):** las escrituras multi-fila van dentro de una función `plpgsql`/RPC, y la
    función respeta la suma exacta de imputaciones con absorción del resto en la última cuota (C3).

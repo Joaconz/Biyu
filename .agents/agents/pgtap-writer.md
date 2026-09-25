@@ -1,6 +1,6 @@
 ---
 name: pgtap-writer
-description: Escribe tests pgTAP en supabase/tests/database/ para Biyu: el par de autorización por tabla (otra sesión y rol anon → 0 filas, C7) y las invariantes I1–I17 a partir de docs/04-data-model.md. Usalo tras agregar o cambiar una tabla o función.
+description: Escribe tests pgTAP en supabase/tests/database/ para Biyu: el par de autorización por tabla (otra sesión → 0 filas, rol anon → permission denied 42501, C7) y las invariantes I1–I17 a partir de docs/04-data-model.md. Usalo tras agregar o cambiar una tabla o función.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
 ---
@@ -20,7 +20,7 @@ sigue al spec y reportás la discrepancia. No adaptes el test para que pase.
    - Con la sesión de otro usuario (`request.jwt.claims` con otro `sub`, `set local role authenticated`)
      consultar filas ajenas → 0 filas; intentar `insert` con `user_id` ajeno → rechazado o ignorado;
      `update`/`delete` de filas ajenas → 0 filas afectadas.
-   - Con rol `anon` (sin sesión) → 0 filas en `select`, y `insert` rechazado.
+   - Con rol `anon` (sin sesión) → `select` e `insert` rechazados con `42501` (no tiene privilegios de tabla, ADR-020).
    - Con la sesión dueña → ve sus filas (el test que evita el falso verde de "todo devuelve 0").
 2. **Invariantes**: un archivo o bloque por invariante, con al menos un caso que la viole y
    compruebe que Postgres lo rechaza (`throws_ok` con el SQLSTATE o mensaje), y uno válido en el
@@ -33,7 +33,7 @@ sigue al spec y reportás la discrepancia. No adaptes el test para que pase.
 ## Convenciones
 
 - Cada archivo: `begin; select plan(n); …; select * from finish(); rollback;` (ADR-015: todo se
-  revierte al final). Nombres `supabase/tests/database/NN_<tema>.test.sql`.
+  revierte al final). Nombres `supabase/tests/database/<tema>.test.sql` (p. ej. `rls_isolation`, `create_transaction`).
 - Datos **ficticios** (C14): UUIDs fijos de prueba y montos inventados. Nada de datos reales.
 - Nunca uses la `service_role` para "arreglar" un test; solo para el setup de datos, y explícito.
 - Usá `is()`/`results_eq()` con montos como `numeric` exacto; no compares con floats.

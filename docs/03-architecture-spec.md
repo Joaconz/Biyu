@@ -93,7 +93,7 @@ El tipo de cambio aplicado se congela al momento de escribir. Editar configuraci
 La validación de cliente (Zod) es exclusivamente de experiencia de uso. Un pedido malicioso o malformado que llegue directo contra la API de Supabase —salteando el cliente— tiene que ser rechazado por constraints, triggers o la función RPC, nunca solo por el frontend. **Corolario operativo:** cada caso negativo del catálogo de pruebas se ejecuta dos veces, una por la interfaz y otra llamando la función RPC o la API REST directo con `curl` o Postman.
 
 ### C7 — La autorización vive en Row Level Security, y está testeada
-Cada tabla tiene políticas `using (user_id = auth.uid())`. El Supabase Client SDK adjunta el JWT de la sesión en cada request contra PostgREST, así que `auth.uid()` resuelve al usuario real sin código adicional del lado de la aplicación. **Un recurso de otro usuario no aparece en la respuesta** — RLS lo filtra en el `WHERE` implícito de cada consulta, así que pedir por `id` un recurso ajeno da una respuesta vacía, no un error que confirme su existencia.
+Cada tabla tiene políticas `using (user_id = auth.uid())`; `transactions` y `ledger_entries` solo la de lectura, porque se escriben únicamente vía `create_transaction` (ADR-020). El Supabase Client SDK adjunta el JWT de la sesión en cada request contra PostgREST, así que `auth.uid()` resuelve al usuario real sin código adicional del lado de la aplicación. **Un recurso de otro usuario no aparece en la respuesta** — RLS lo filtra en el `WHERE` implícito de cada consulta, así que pedir por `id` un recurso ajeno da una respuesta vacía, no un error que confirme su existencia.
 
 RLS pasa a ser la autorización real, no una segunda red de contención como en el diseño de la API propia. La compensación por no tener además una capa de aplicación que revalide es un grupo de pruebas de autorización obligatorio —para cada tabla, un caso que pide con la sesión de otro usuario y espera una respuesta vacía— y una revisión de que ninguna política tenga una condición más laxa que `user_id = auth.uid()`. El intercambio está razonado en [ADR-019](adr/019-vuelta-a-supabase.md).
 
@@ -157,7 +157,7 @@ El objetivo es la menor cantidad de seams posible, ubicados lo más alto que se 
 
 Regla: si algo se puede probar en el dominio o con pgTAP, no se prueba más arriba. Los tests de componentes y E2E existen para lo que ninguno de los dos puede ver — interacción real del navegador, PWA, accesibilidad.
 
-**Grupo obligatorio de autorización.** Por cada tabla (`transactions`, `debts`, `subscriptions`, `categories`, `accounts`, `fx_rates`) hay un caso pgTAP que consulta con la sesión de otro usuario y espera cero filas, y otro que consulta sin sesión (rol `anon`) y espera cero filas. Es el reemplazo explícito de lo que antes hacía una capa de aplicación con checks propios; si falta, C7 no está cubierta.
+**Grupo obligatorio de autorización.** Por cada tabla (`transactions`, `ledger_entries`, `debts`, `subscriptions`, `categories`, `accounts`, `fx_rates`) hay un caso pgTAP que consulta con la sesión de otro usuario y espera cero filas, y otro que consulta sin sesión (rol `anon`) y espera `permission denied` (`42501`): `anon` no tiene privilegios de tabla (ADR-020). Es el reemplazo explícito de lo que antes hacía una capa de aplicación con checks propios; si falta, C7 no está cubierta.
 
 ---
 
@@ -203,7 +203,7 @@ biyu/
 
 Decisiones de implementación, no de producto. Se documentan acá y no en un ADR porque no cambian qué hace el sistema.
 
-1. **Las imputaciones se generan dentro de una función de Postgres (`create_transaction`), no en el cliente.** El cliente tiene su propia copia en TypeScript (`domain/installments.ts`) únicamente para previsualizar el impacto mensual antes de guardar (historia 13) — la copia que efectivamente persiste es la de la función SQL, y es la única fuente de verdad. La vista de integridad `ledger_integrity_violations` (igual que en el diseño anterior) expone cualquier transacción cuya suma de imputaciones no cuadre; no debería devolver filas nunca, dado que la función RPC es el único camino de escritura.
+1. **Las imputaciones se generan dentro de una función de Postgres (`create_transaction`, ver [ADR-020](adr/020-create-transaction-security-definer.md)), no en el cliente.** El cliente tiene su propia copia en TypeScript (`domain/installments.ts`) únicamente para previsualizar el impacto mensual antes de guardar (historia 13) — la copia que efectivamente persiste es la de la función SQL, y es la única fuente de verdad. La vista de integridad `ledger_integrity_violations` (igual que en el diseño anterior) expone cualquier transacción cuya suma de imputaciones no cuadre; no debería devolver filas nunca, dado que la función RPC es el único camino de escritura.
 
 2. **`period` es `date` truncada al día 1**, con `CHECK (extract(day from period) = 1)` en cada tabla que la tiene. Habilita comparaciones y `generate_series` nativos para el selector de meses. El formateo a `YYYY-MM` vive en un único módulo, `domain/period.ts`.
 

@@ -55,7 +55,7 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 - **Validación real en Postgres**; Zod en el cliente es solo UX (C6). Cada caso negativo se prueba
   por la UI y directo contra la API/RPC.
 - **RLS es la única autorización** (`user_id = auth.uid()`). Toda tabla nueva lleva políticas y su
-  par de tests pgTAP (otra sesión y rol `anon` → cero filas) (C7).
+  par de tests pgTAP (otra sesión → cero filas, rol `anon` → `permission denied`) (C7).
 - **Lógica de negocio fuera de los componentes**: funciones puras en `src/domain/`, o Postgres.
   `today` entra como parámetro, nunca se lee el reloj (C1).
 - **Soft delete** en transacciones (`deleted_at`); todo KPI filtra las borradas (C10, I10).
