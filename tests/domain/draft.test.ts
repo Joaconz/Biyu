@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { emptyDraftInput, parseDraftInput } from '@/domain/draft'
 import { tryParseMoney } from '@/domain/money'
 import { toIsoDate } from '@/domain/period'
@@ -17,8 +17,24 @@ describe('emptyDraftInput', () => {
     expect(emptyDraftInput('2020-02-29').occurredOn).toBe('2020-02-29'))
 })
 
-describe('toIsoDate', () => {
+describe('toIsoDate (US-03)', () => {
   it('formatea con ceros a la izquierda', () => expect(toIsoDate(new Date(2026, 0, 5, 12))).toBe('2026-01-05'))
+
+  describe('en la zona horaria del usuario, no en UTC', () => {
+    const original = process.env.TZ
+    beforeAll(() => { process.env.TZ = 'America/Argentina/Buenos_Aires' })
+    afterAll(() => { process.env.TZ = original })
+
+    it('a las 22:30 en Argentina sigue siendo el mismo día, aunque en UTC ya sea mañana', () => {
+      const instant = new Date('2026-09-26T01:30:00Z') // 25/09 22:30 en UTC-3
+      expect(instant.toISOString().slice(0, 10)).toBe('2026-09-26')
+      expect(toIsoDate(instant)).toBe('2026-09-25')
+    })
+    it('pasada la medianoche local cambia de día', () =>
+      expect(toIsoDate(new Date('2026-09-26T03:00:00Z'))).toBe('2026-09-26'))
+    it('el 31/12 a la noche no salta de año', () =>
+      expect(toIsoDate(new Date('2027-01-01T02:59:00Z'))).toBe('2026-12-31'))
+  })
 })
 
 describe('tryParseMoney', () => {

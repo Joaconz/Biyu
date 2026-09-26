@@ -8,6 +8,7 @@ import { today } from '@/lib/clock'
 import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
 import { CategorySection } from './CategorySection'
+import { DateSection } from './DateSection'
 import type { SectionProps, Touched } from './types'
 
 interface TransactionFormProps {
@@ -61,6 +62,8 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
         Escribe `installmentsCount`. Si la cuenta deja de ser tarjeta de crédito hay que volverlo
         a 1 (si no, I6 bloquea el guardado con la sección oculta).
       */}
+
+      <DateSection {...section} today={todayIso} />
 
       <Button type="submit" size="lg" className="h-11" disabled={!canSave} data-testid="transaction-form-submit">
         Guardar
