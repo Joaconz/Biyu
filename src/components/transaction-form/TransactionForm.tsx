@@ -11,6 +11,7 @@ import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
 import { CategorySection } from './CategorySection'
 import { DateSection } from './DateSection'
+import { InstallmentsField } from './InstallmentsField'
 import type { SectionProps, Touched } from './types'
 
 interface TransactionFormProps {
@@ -77,12 +78,8 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
 
         <AccountSection {...section} accounts={accounts} />
 
-        {/*
-          Punto de extensión: cuotas (US-12 a US-14).
-          {values.accountType === 'credit_card' && <InstallmentsSection {...section} />} va acá.
-          Escribe `installmentsCount`. Si la cuenta deja de ser tarjeta de crédito hay que volverlo
-          a 1 (si no, I6 bloquea el guardado con la sección oculta).
-        */}
+        {/* Cuotas (US-12). Escribe `installmentsCount`. */}
+        {values.accountType === 'credit_card' && <InstallmentsField {...section} />}
 
         <DateSection {...section} today={todayIso} />
 
