@@ -50,6 +50,15 @@ export function convertToArs(amount: Decimal, fxRate: Decimal | null): Decimal {
 
 /** Formato argentino: $1.234,56 */
 export function formatArs(amount: Decimal): string {
+  return `$${formatArgentineNumber(amount)}`
+}
+
+/** Dólares con el mismo formato argentino: US$1.234,56 */
+export function formatUsd(amount: Decimal): string {
+  return `US$${formatArgentineNumber(amount)}`
+}
+
+function formatArgentineNumber(amount: Decimal): string {
   const [int, dec] = amount.toFixed(2).split('.')
-  return `$${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
+  return `${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
 }
