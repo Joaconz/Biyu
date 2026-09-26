@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { LogoutButton } from '@/components/LogoutButton'
 
 // Esqueleto: el formulario real llega con US-01 en adelante.
 export function RegisterPage() {
@@ -13,6 +14,7 @@ export function RegisterPage() {
           <Link to="/dashboard" data-testid="register-nav-dashboard" className="text-sm underline">
             Dashboard
           </Link>
+          <LogoutButton testId="register-nav-logout" />
         </div>
       }
     >
