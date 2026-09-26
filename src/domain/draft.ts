@@ -33,3 +33,8 @@ export function emptyDraftInput(today: string, account: DraftAccount = NO_ACCOUN
 export function parseDraftInput(input: DraftInput): TransactionDraft {
   return { ...input, amount: tryParseMoney(input.amount), fxRate: tryParseMoney(input.fxRate) }
 }
+
+/** Después de guardar: formulario en su estado inicial, conservando la última cuenta usada (US-10). */
+export function draftInputAfterSave(saved: DraftInput, today: string): DraftInput {
+  return emptyDraftInput(today, { accountId: saved.accountId, accountType: saved.accountType })
+}

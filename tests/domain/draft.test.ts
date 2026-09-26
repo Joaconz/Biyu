@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { emptyDraftInput, parseDraftInput } from '@/domain/draft'
+import { draftInputAfterSave, emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
 import { tryParseMoney } from '@/domain/money'
 import { toIsoDate } from '@/domain/period'
 import { validateTransactionDraft } from '@/domain/validation'
@@ -57,4 +57,19 @@ describe('parseDraftInput + validateTransactionDraft (US-11)', () => {
     expect(validateTransactionDraft(parseDraftInput({ ...filled, amount: '1.500,50' }), TODAY)).toEqual({}))
   it('fxRate vacío en ARS queda null, no cuenta como tipo de cambio (I5)', () =>
     expect(parseDraftInput(filled).fxRate).toBeNull())
+})
+
+describe('draftInputAfterSave (US-10)', () => {
+  const saved: DraftInput = {
+    type: 'expense', amount: '1.500,50', currency: 'ARS', fxRate: '', categoryId: 'c1',
+    accountId: 'a1', accountType: 'credit_card', installmentsCount: 3, occurredOn: '2026-08-10',
+  }
+  it('vuelve al estado inicial conservando la última cuenta usada', () =>
+    expect(draftInputAfterSave(saved, TODAY)).toEqual({
+      ...emptyDraftInput(TODAY), accountId: 'a1', accountType: 'credit_card',
+    }))
+  it('la fecha vuelve a ser hoy aunque se haya guardado una pasada', () =>
+    expect(draftInputAfterSave(saved, '2026-08-16').occurredOn).toBe('2026-08-16'))
+  it('el formulario que queda no se puede volver a guardar sin cargar un monto', () =>
+    expect(validateTransactionDraft(parseDraftInput(draftInputAfterSave(saved, TODAY)), TODAY)).toHaveProperty('amount'))
 })
