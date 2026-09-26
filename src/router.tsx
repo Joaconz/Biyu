@@ -20,8 +20,8 @@ export const router = createBrowserRouter([
   {
     element: <RedirectIfAuthed />,
     children: [
-      { path: '/login', element: <AuthForm mode="login" /> },
-      { path: '/signup', element: <AuthForm mode="signup" /> },
+      { path: '/login', element: <AuthForm key="login" mode="login" /> },
+      { path: '/signup', element: <AuthForm key="signup" mode="signup" /> },
     ],
   },
 ])
