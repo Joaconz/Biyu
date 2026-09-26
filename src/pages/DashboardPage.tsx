@@ -10,9 +10,14 @@ export function DashboardPage() {
   return (
     <AppShell
       actions={
-        <Link to="/register" data-testid="dashboard-nav-register" className="text-sm underline">
-          Registrar
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/settings" data-testid="dashboard-nav-settings" className="text-sm underline">
+            Configuración
+          </Link>
+          <Link to="/register" data-testid="dashboard-nav-register" className="text-sm underline">
+            Registrar
+          </Link>
+        </div>
       }
     >
       <h1 className="text-2xl font-semibold">Dashboard</h1>
