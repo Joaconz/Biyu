@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateLedgerEntries, previewInstallments } from '@/domain/installments'
 import { Decimal, parseMoney } from '@/domain/money'
+import { addMonths } from '@/domain/period'
 import { validateTransactionDraft, type TransactionDraft } from '@/domain/validation'
 
 const sum = (xs: Decimal[]) => xs.reduce((a, b) => a.plus(b), new Decimal(0))
@@ -47,6 +48,36 @@ describe('generateLedgerEntries', () => {
     // convertir cuota a cuota daría 125055.54; el prorrateo del total convertido da 125055.55
     expect(sum(r.map((e) => e.amountArs)).eq('125055.55')).toBe(true)
   })
+
+  it('12 cuotas desde diciembre: numeradas 1..12 sin huecos (I2) y períodos consecutivos cruzando el año (I3)', () => {
+    const r = generateLedgerEntries(parseMoney('120000'), null, 12, P(2026, 12))
+    expect(r.map((e) => e.installmentNumber)).toEqual(Array.from({ length: 12 }, (_, i) => i + 1))
+    expect(r.map((e) => e.period)).toEqual(Array.from({ length: 12 }, (_, i) => addMonths(P(2026, 12), i)))
+    expect(r[1].period).toEqual(P(2027, 1))
+    expect(r[11].period).toEqual(P(2027, 11))
+  })
+
+  // US-15: la última cuota absorbe el resto en cada serie por separado (ADR-013).
+  const series = (r: ReturnType<typeof generateLedgerEntries>) => ({
+    amount: r.map((e) => e.amount.toFixed(2)),
+    amountArs: r.map((e) => e.amountArs.toFixed(2)),
+  })
+  it('USD 100 x 1250.5555 en 3: resto en las dos series, cada una con el suyo', () =>
+    expect(series(generateLedgerEntries(parseMoney('100'), parseMoney('1250.5555'), 3, P(2026, 8)))).toEqual({
+      amount: ['33.33', '33.33', '33.34'],
+      amountArs: ['41685.18', '41685.18', '41685.19'], // 125055.55 / 3
+    }))
+  it('USD 100 x 1200 en 3: resto solo en la moneda original, ARS exacto', () =>
+    expect(series(generateLedgerEntries(parseMoney('100'), parseMoney('1200'), 3, P(2026, 8)))).toEqual({
+      amount: ['33.33', '33.33', '33.34'],
+      amountArs: ['40000.00', '40000.00', '40000.00'],
+    }))
+  it('USD 3 x 1000.0034 en 3: resto solo en ARS, que no sale de convertir cada cuota', () =>
+    // convertir cuota a cuota daría 1000.00 x 3 = 3000.00, un centavo menos que amount_ars (I1')
+    expect(series(generateLedgerEntries(parseMoney('3'), parseMoney('1000.0034'), 3, P(2026, 8)))).toEqual({
+      amount: ['1.00', '1.00', '1.00'],
+      amountArs: ['1000.00', '1000.00', '1000.01'], // 3000.0102 → 3000.01
+    }))
 
   it('propiedad: la suma siempre es el total, en ambas series', () => {
     let seed = 42
