@@ -7,6 +7,7 @@ import type { Account, Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
 import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
+import { CategorySection } from './CategorySection'
 import type { SectionProps, Touched } from './types'
 
 interface TransactionFormProps {
@@ -19,7 +20,7 @@ interface TransactionFormProps {
  * escribe solo sus campos del borrador; este componente es el único que valida y guarda.
  * Los puntos marcados "Punto de extensión" son donde se enchufan secciones de otras historias.
  */
-export function TransactionForm({ accounts }: TransactionFormProps) {
+export function TransactionForm({ categories, accounts }: TransactionFormProps) {
   const [values, setValues] = useState<DraftInput>(() => emptyDraftInput(toIsoDate(today())))
   const [touched, setTouched] = useState<Touched>({})
   const todayIso = toIsoDate(today())
@@ -49,6 +50,8 @@ export function TransactionForm({ accounts }: TransactionFormProps) {
         <CurrencySection {...section} /> va acá, pegada al monto. Escribe `currency` y `fxRate`
         (texto, como `amount`); I5 ya lo valida validateTransactionDraft.
       */}
+
+      <CategorySection {...section} categories={categories} />
 
       <AccountSection {...section} accounts={accounts} />
 

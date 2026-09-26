@@ -2,7 +2,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { toTestIdSuffix } from '@/lib/utils'
 
 interface ChipGroupProps {
-  /** Prefijo de data-testid: el grupo lo usa tal cual y cada chip le suma su nombre. */
+  /** data-testid del grupo; cada chip es `<testId>-chip-<nombre>`. */
   testId: string
   labelId: string
   describedBy?: string
@@ -30,7 +30,7 @@ export function ChipGroup({ testId, labelId, describedBy, options, value, onChan
         <ToggleGroupItem
           key={option.id}
           value={option.id}
-          data-testid={`${testId}-${toTestIdSuffix(option.name)}`}
+          data-testid={`${testId}-chip-${toTestIdSuffix(option.name)}`}
           className="h-auto min-h-11 w-full whitespace-normal px-2 py-1.5 text-center leading-tight aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
         >
           {option.name}
