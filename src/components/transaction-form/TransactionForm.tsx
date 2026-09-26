@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { draftInputAfterSave, emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
+import { applyDraftChange, draftInputAfterSave, emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
 import { toIsoDate } from '@/domain/period'
-import { validateTransactionDraft } from '@/domain/validation'
+import { allowsInstallments, validateTransactionDraft } from '@/domain/validation'
 import type { Account, Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
 import { createTransaction } from '@/lib/transactions'
@@ -11,6 +11,7 @@ import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
 import { CategorySection } from './CategorySection'
 import { DateSection } from './DateSection'
+import { InstallmentsField } from './InstallmentsField'
 import type { SectionProps, Touched } from './types'
 
 interface TransactionFormProps {
@@ -34,7 +35,14 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
   const canSave = Object.keys(errors).length === 0
 
   function change(patch: Partial<DraftInput>) {
-    setValues((prev) => ({ ...prev, ...patch }))
+    const next = applyDraftChange(values, patch)
+    setValues(next.values)
+    if (next.installmentsReset) {
+      toast.info('Las cuotas volvieron a 1', {
+        description: 'Solo los gastos con tarjeta de crédito se pagan en cuotas.',
+        testId: 'transaction-form-installments-reset',
+      })
+    }
     setTouched((prev) => ({ ...prev, ...Object.fromEntries(Object.keys(patch).map((k) => [k, true])) }))
   }
 
@@ -77,12 +85,8 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
 
         <AccountSection {...section} accounts={accounts} />
 
-        {/*
-          Punto de extensión: cuotas (US-12 a US-14).
-          {values.accountType === 'credit_card' && <InstallmentsSection {...section} />} va acá.
-          Escribe `installmentsCount`. Si la cuenta deja de ser tarjeta de crédito hay que volverlo
-          a 1 (si no, I6 bloquea el guardado con la sección oculta).
-        */}
+        {/* Cuotas (US-12, US-14): solo para un gasto con tarjeta de crédito. Escribe `installmentsCount`. */}
+        {allowsInstallments(values) && <InstallmentsField {...section} />}
 
         <DateSection {...section} today={todayIso} />
 
