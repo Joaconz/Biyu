@@ -1,6 +1,6 @@
 -- create_transaction (C3, C4, C6): reparto de cuotas, rechazos por RPC directo, aislamiento y anon.
 begin;
-select plan(29);
+select plan(37);
 
 insert into auth.users (id, instance_id, aud, role, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','00000000-0000-0000-0000-000000000000','authenticated','authenticated','a@test.local'),
@@ -25,6 +25,8 @@ select is((select min(period) from ledger_entries), '2026-08-01'::date, 'la prim
 select is((select max(period) from ledger_entries), '2027-07-01'::date, 'la última imputación es 2027-07');
 select is((select sum(amount) from ledger_entries), 120000.00, 'la suma es exactamente 120000 (I1)');
 select is((select first_period from transactions), '2026-08-01'::date, 'first_period lo deriva el servidor');
+select is((select array_agg(installment_number order by installment_number) from ledger_entries), array(select generate_series(1, 12)), 'numeradas de 1 a 12 sin huecos (I2)');
+select is((select array_agg(period order by installment_number) from ledger_entries), array(select generate_series('2026-08-01'::date, '2027-07-01', interval '1 month')::date), 'un período por mes, consecutivos y cruzando el año (I3)');
 
 -- Resto absorbido por la última cuota: 100000 en 3.
 select lives_ok($$select create_transaction('expense',100000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',3,'2026-08-15')$$, '100000 en 3 cuotas se guarda');
@@ -33,9 +35,19 @@ select is((select array_agg(le.amount order by le.installment_number) from ledge
 -- USD: I1' (prorrateo del total convertido) contra la columna generada.
 select lives_ok($$select create_transaction('expense',100,'USD',1250.5555,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',3,'2026-08-15')$$, 'USD 100 en 3 cuotas se guarda');
 select is((select sum(le.amount_ars) from ledger_entries le join transactions t on t.id = le.transaction_id where t.currency = 'USD'), 125055.55, 'la suma de amount_ars es exactamente la conversión (I1'')');
+-- La última cuota absorbe el resto en cada serie por separado (US-15, ADR-013).
+select is((select array_agg(le.amount order by le.installment_number) from ledger_entries le join transactions t on t.id = le.transaction_id where t.currency = 'USD'), array[33.33, 33.33, 33.34], 'USD: amount 33.33, 33.33 y la última 33.34');
+select is((select array_agg(le.amount_ars order by le.installment_number) from ledger_entries le join transactions t on t.id = le.transaction_id where t.currency = 'USD'), array[41685.18, 41685.18, 41685.19], 'USD: amount_ars 41685.18, 41685.18 y la última 41685.19');
+-- Resto solo en ARS: convertir cuota a cuota daría 3000.00 contra un amount_ars de 3000.01.
+select lives_ok($$select create_transaction('expense',3,'USD',1000.0034,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',3,'2026-08-15')$$, 'USD 3 x 1000.0034 en 3 cuotas se guarda');
+select is((select array_agg(le.amount_ars order by le.installment_number) from ledger_entries le join transactions t on t.id = le.transaction_id where t.amount = 3), array[1000.00, 1000.00, 1000.01], 'resto solo en ARS: la última cuota absorbe el centavo');
 
 -- Contado sin cuenta de crédito.
 select lives_ok($$select create_transaction('expense',500.50,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000002',1,'2026-08-15')$$, 'un gasto de contado en efectivo se guarda');
+select results_eq(
+  $$select le.installment_number, le.period, le.amount from ledger_entries le join transactions t on t.id = le.transaction_id where t.amount = 500.50$$,
+  $$values (1, '2026-08-01'::date, 500.50::numeric(14,2))$$,
+  '1 cuota: una sola imputación, la 1, por el total y en el período de la fecha');
 select lives_ok($$select create_transaction('income',1000,'ARS',null,null,'a0000000-0000-0000-0000-000000000002',1,'2026-08-15')$$, 'un ingreso sin categoría se guarda');
 
 select is((select count(*) from ledger_integrity_violations), 0::bigint, 'la vista de integridad queda vacía (I1, I1'')');
@@ -51,12 +63,13 @@ select throws_ok($$select create_transaction('expense',100,'ARS',null,null,'a000
 select throws_ok($$select create_transaction('expense',600,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000002',6,'2026-08-15')$$, '23514', null, '6 cuotas sobre efectivo se rechazan (I6)');
 select throws_ok($$select create_transaction('income',600,'ARS',null,null,'a0000000-0000-0000-0000-000000000001',2,'2026-08-15')$$, '23514', null, 'cuotas en un ingreso se rechazan (I6)');
 select throws_ok($$select create_transaction('expense',1300,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',13,'2026-08-15')$$, '23514', null, '13 cuotas se rechazan (tope de 12)');
+select throws_ok($$select create_transaction('expense',100,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',0,'2026-08-15')$$, '23514', null, '0 cuotas se rechazan');
 select throws_ok($$select create_transaction('expense',0.02,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',3,'2026-08-15')$$, '23514', null, 'una cuota menor a 0,01 se rechaza');
 select throws_ok($$select create_transaction('expense',100,'ARS',null,'c0000000-0000-0000-0000-000000000002','a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23503', null, 'categoría de otro usuario se rechaza');
 select throws_ok($$select create_transaction('expense',100,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000003',1,'2026-08-15')$$, '23503', null, 'cuenta de otro usuario se rechaza');
 select throws_ok($$select create_transaction('expense',100,'ARS',null,'c0000000-0000-0000-0000-000000000003','a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23503', null, 'categoría archivada se rechaza');
 
-select is((select count(*) from transactions), 5::bigint, 'los rechazos no dejaron ninguna transacción (atomicidad, C4)');
+select is((select count(*) from transactions), 6::bigint, 'los rechazos no dejaron ninguna transacción (atomicidad, C4)');
 
 -- anon no puede ejecutar la función.
 reset role;
