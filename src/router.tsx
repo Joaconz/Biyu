@@ -3,6 +3,7 @@ import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { RedirectIfAuthed, RequireAuth } from '@/pages/RequireAuth'
+import { SettingsPage } from '@/pages/SettingsPage'
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/register" replace /> },
@@ -11,6 +12,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/register', element: <RegisterPage /> },
       { path: '/dashboard', element: <DashboardPage /> },
+      { path: '/settings', element: <SettingsPage /> },
     ],
   },
   {
