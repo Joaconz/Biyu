@@ -29,9 +29,9 @@ prorrateo al vuelo. Razonamiento completo y alternativas descartadas en
 
 ## Estado del proyecto
 
-En etapa de especificación. El dominio, la arquitectura y el plan de pruebas están escritos
-y versionados antes que el código (`src/domain/` puro, sin depender del Supabase Client SDK
-— ver restricción C1). Todavía no hay implementación ni schema de Supabase en el repositorio.
+En V1. Están hechos la base de UI, las rutas, el dominio puro, la RPC `create_transaction` y los tests
+de dominio y de base; las pantallas son esqueletos y las historias de usuario se implementan sobre el
+tablero (ver [`docs/roadmap.md`](docs/roadmap.md) y [`docs/08-trazabilidad.md`](docs/08-trazabilidad.md)).
 
 ## Documentación
 
@@ -46,6 +46,7 @@ y versionados antes que el código (`src/domain/` puro, sin depender del Supabas
 | [`docs/06-suscripciones.md`](docs/06-suscripciones.md) | Spec de dominio de gastos recurrentes |
 | [`docs/07-plan-de-testing.md`](docs/07-plan-de-testing.md) | Equipo, técnicas de diseño de casos, defectos |
 | [`docs/08-trazabilidad.md`](docs/08-trazabilidad.md) | Matriz FR/NFR → historias → issues → casos de prueba |
+| [`docs/09-guia-de-inicio.md`](docs/09-guia-de-inicio.md) | Instalar el repo y trabajar con Codex, Antigravity y `gh` |
 | [`docs/roadmap.md`](docs/roadmap.md) | V1, V2, V3 y qué queda para después |
 | [`docs/pre-entrega.md`](docs/pre-entrega.md) | Documento corto presentado en la materia |
 | [`docs/adr/`](docs/adr) | Decisiones de arquitectura, con contexto y alternativas descartadas |
@@ -60,9 +61,17 @@ contra Supabase. Detalle completo y justificación de cada elección en
 
 ## Levantar el proyecto
 
-Todavía no hay código para correr. Esta sección se completa junto con la primera
-implementación de `api/` y `web/`, con instrucciones probadas de punta a punta y un
-`.env.example` con todas las variables necesarias.
+Necesitás Git, `gh`, Node 22+, Docker Desktop y la Supabase CLI. Guía completa, con Codex y Antigravity:
+[`docs/09-guia-de-inicio.md`](docs/09-guia-de-inicio.md).
+
+```bash
+gh repo clone Joaconz/Biyu && cd Biyu
+npm ci
+git config core.hooksPath .agents/hooks/git
+supabase start && supabase status -o env    # con Docker abierto
+cp .env.example .env                        # completá URL y ANON_KEY con esa salida
+npm run dev
+```
 
 ## Licencia
 
