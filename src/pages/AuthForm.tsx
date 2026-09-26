@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { translateAuthError } from '@/lib/authErrors'
+import { ensureUserSeeded } from '@/lib/seed'
 import { supabase } from '@/lib/supabase'
 
 export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
@@ -21,11 +22,21 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
     try {
       const form = new FormData(e.currentTarget)
       const credentials = { email: String(form.get('email')).trim(), password: String(form.get('password')) }
-      const { error } =
-        mode === 'login'
-          ? await supabase.auth.signInWithPassword(credentials)
-          : await supabase.auth.signUp(credentials)
-      if (error) return setError(translateAuthError(error))
+      if (mode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword(credentials)
+        if (error) return setError(translateAuthError(error))
+      } else {
+        const { data, error } = await supabase.auth.signUp(credentials)
+        if (error) return setError(translateAuthError(error))
+        // ADR-011: sin confirmación de email, signUp ya deja una sesión activa. Si algún
+        // día se activa "Confirm email" desde el panel de Supabase, esto deja de asumirlo.
+        if (!data.session) {
+          setError('Te creamos la cuenta, pero hace falta confirmar el email antes de entrar. Revisá tu casilla.')
+          return
+        }
+        // US-43 (ADR-014): mejor esfuerzo — un fallo acá no debe dejar al usuario varado.
+        await ensureUserSeeded().catch(() => {})
+      }
       const next = params.get('next')
       navigate(next?.startsWith('/') ? next : '/register', { replace: true })
     } finally {
