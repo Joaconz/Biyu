@@ -1,5 +1,6 @@
 // Borde único entre el período como valor de dominio, "YYYY-MM" (URL) y
-// "YYYY-MM-01" (columna date de Postgres). Nada más parsea estos formatos.
+// "YYYY-MM-01" (columna date de Postgres). Nada más parsea estos formatos. También formatea la
+// fecha del día "YYYY-MM-DD" (toIsoDate), que no es un período pero sale del mismo reloj local.
 
 export interface Period {
   year: number
@@ -40,4 +41,13 @@ export function currentPeriod(today: Date): Period {
 export function addMonths({ year, month }: Period, delta: number): Period {
   const index = year * 12 + (month - 1) + delta
   return { year: Math.floor(index / 12), month: (index % 12 + 12) % 12 + 1 }
+}
+
+/**
+ * Fecha calendario `YYYY-MM-DD` de un instante, en la zona horaria del dispositivo (US-03).
+ * No usa toISOString(): eso es UTC y en Argentina, de 21 a 24 h, ya daría el día siguiente.
+ */
+export function toIsoDate(instant: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${String(instant.getFullYear()).padStart(4, '0')}-${pad(instant.getMonth() + 1)}-${pad(instant.getDate())}`
 }
