@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { LogoutButton } from '@/components/LogoutButton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -37,9 +38,12 @@ export function SettingsPage() {
   return (
     <AppShell
       actions={
-        <Link to="/register" data-testid="settings-nav-register" className="text-sm underline">
-          Registrar
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/register" data-testid="settings-nav-register" className="text-sm underline">
+            Registrar
+          </Link>
+          <LogoutButton testId="settings-nav-logout" />
+        </div>
       }
     >
       <h1 data-testid="settings-title" className="text-2xl font-semibold">Configuración</h1>
