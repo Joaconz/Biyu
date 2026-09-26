@@ -29,6 +29,9 @@ import {
 } from '@/lib/categories'
 import { isUniqueViolation } from '@/lib/errors'
 import { today } from '@/lib/clock'
+import { parseMoney } from '@/domain/money'
+import { currentPeriod, formatPeriod, parsePeriod } from '@/domain/period'
+import { listReferenceRates, upsertReferenceRate, type ReferenceRate } from '@/lib/fxRates'
 
 export function SettingsPage() {
   return (
@@ -42,7 +45,79 @@ export function SettingsPage() {
       <h1 data-testid="settings-title" className="text-2xl font-semibold">Configuración</h1>
       <CategoriesSection />
       <AccountsSection />
+      <FxRatesSection />
     </AppShell>
+  )
+}
+
+function FxRatesSection() {
+  const [rates, setRates] = useState<ReferenceRate[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const defaultPeriod = formatPeriod(currentPeriod(today()))
+
+  useEffect(() => {
+    listReferenceRates().then(setRates).catch((e: Error) => setError(e.message))
+  }, [])
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    // e.currentTarget queda null después del primer await (fin del dispatch nativo);
+    // se guarda la referencia acá para poder resetear el form más abajo.
+    const formEl = e.currentTarget
+    const form = new FormData(formEl)
+    const period = parsePeriod(String(form.get('period')))
+    const rawRate = String(form.get('ars_per_usd')).trim()
+    if (!period) return setError('Elegí un mes válido')
+    const arsPerUsd = rawRate ? parseMoney(rawRate) : null
+    if (!arsPerUsd || !arsPerUsd.isFinite() || arsPerUsd.lte(0)) return setError('El tipo de cambio debe ser mayor a cero')
+    setSubmitting(true)
+    try {
+      await upsertReferenceRate(period, arsPerUsd)
+      const updated = await listReferenceRates()
+      setRates(updated)
+      formEl.reset()
+    } catch {
+      setError('No se pudo guardar el tipo de cambio')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="text-lg font-medium">Tipo de cambio de referencia</h2>
+      <ul data-testid="settings-fx-list" className="flex flex-col gap-1">
+        {(rates ?? []).map((rate) => (
+          <li key={rate.period} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <span>{rate.period.slice(0, 7)}</span>
+            <span>{rate.arsPerUsd}</span>
+          </li>
+        ))}
+      </ul>
+      <form onSubmit={onSubmit} data-testid="settings-fx-form" className="flex flex-col gap-2">
+        <div className="grid gap-1.5">
+          <Label htmlFor="settings-fx-period">Mes</Label>
+          <Input
+            id="settings-fx-period"
+            name="period"
+            type="month"
+            required
+            defaultValue={defaultPeriod}
+            data-testid="settings-fx-period"
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="settings-fx-rate">ARS por USD</Label>
+          <Input id="settings-fx-rate" name="ars_per_usd" required inputMode="decimal" placeholder="1250" data-testid="settings-fx-rate" />
+        </div>
+        {error && <p role="alert" data-testid="settings-fx-error" className="text-sm text-destructive">{error}</p>}
+        <Button type="submit" disabled={submitting} data-testid="settings-fx-submit">
+          Guardar
+        </Button>
+      </form>
+    </section>
   )
 }
 
