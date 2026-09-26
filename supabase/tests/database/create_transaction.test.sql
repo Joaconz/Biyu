@@ -1,6 +1,6 @@
 -- create_transaction (C3, C4, C6): reparto de cuotas, rechazos por RPC directo, aislamiento y anon.
 begin;
-select plan(28);
+select plan(29);
 
 insert into auth.users (id, instance_id, aud, role, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','00000000-0000-0000-0000-000000000000','authenticated','authenticated','a@test.local'),
@@ -45,6 +45,7 @@ select throws_ok($$select create_transaction('expense',100,'USD',null,'c0000000-
 select throws_ok($$select create_transaction('expense',100,'ARS',1250,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23514', null, 'ARS con tipo de cambio se rechaza (I5)');
 select throws_ok($$select create_transaction('expense',0,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23514', null, 'monto cero se rechaza (I4)');
 select throws_ok($$select create_transaction('expense',-5,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23514', null, 'monto negativo se rechaza (I4)');
+select throws_ok($$select create_transaction('expense',null,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23514', null, 'monto vacío (null) se rechaza (I4)');
 select throws_ok($$select create_transaction('expense',10.005,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23514', null, 'más de 2 decimales se rechaza');
 select throws_ok($$select create_transaction('expense',100,'ARS',null,null,'a0000000-0000-0000-0000-000000000001',1,'2026-08-15')$$, '23514', null, 'gasto sin categoría se rechaza (I8)');
 select throws_ok($$select create_transaction('expense',600,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000002',6,'2026-08-15')$$, '23514', null, '6 cuotas sobre efectivo se rechazan (I6)');
