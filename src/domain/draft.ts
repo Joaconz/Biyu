@@ -1,3 +1,4 @@
+import { tryParseMoney } from './money'
 import type { TransactionDraft } from './validation'
 
 /**
@@ -26,4 +27,9 @@ export function emptyDraftInput(today: string, account: DraftAccount = NO_ACCOUN
     installmentsCount: 1,
     occurredOn: today,
   }
+}
+
+/** Borrador listo para validateTransactionDraft y createTransaction: montos vacíos o inválidos → null. */
+export function parseDraftInput(input: DraftInput): TransactionDraft {
+  return { ...input, amount: tryParseMoney(input.amount), fxRate: tryParseMoney(input.fxRate) }
 }

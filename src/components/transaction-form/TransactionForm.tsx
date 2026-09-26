@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
-import { emptyDraftInput, type DraftInput } from '@/domain/draft'
+import { emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
 import { toIsoDate } from '@/domain/period'
-import type { DraftErrors } from '@/domain/validation'
+import { validateTransactionDraft } from '@/domain/validation'
 import type { Account, Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
 import { AccountSection } from './AccountSection'
@@ -22,7 +22,11 @@ interface TransactionFormProps {
 export function TransactionForm({ accounts }: TransactionFormProps) {
   const [values, setValues] = useState<DraftInput>(() => emptyDraftInput(toIsoDate(today())))
   const [touched, setTouched] = useState<Touched>({})
-  const errors: DraftErrors = {}
+  const todayIso = toIsoDate(today())
+  const draft = parseDraftInput(values)
+  // Copia UX de lo que revalida create_transaction (C6): con errores no se emite ninguna escritura.
+  const errors = validateTransactionDraft(draft, todayIso)
+  const canSave = Object.keys(errors).length === 0
 
   function change(patch: Partial<DraftInput>) {
     setValues((prev) => ({ ...prev, ...patch }))
@@ -31,6 +35,7 @@ export function TransactionForm({ accounts }: TransactionFormProps) {
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (!canSave) return
   }
 
   const section: SectionProps = { values, errors, touched, onChange: change }
@@ -54,7 +59,7 @@ export function TransactionForm({ accounts }: TransactionFormProps) {
         a 1 (si no, I6 bloquea el guardado con la sección oculta).
       */}
 
-      <Button type="submit" size="lg" className="h-11" data-testid="transaction-form-submit">
+      <Button type="submit" size="lg" className="h-11" disabled={!canSave} data-testid="transaction-form-submit">
         Guardar
       </Button>
     </form>
