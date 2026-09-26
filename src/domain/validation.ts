@@ -18,6 +18,11 @@ export interface TransactionDraft {
 export type DraftField = 'amount' | 'fxRate' | 'categoryId' | 'accountId' | 'installmentsCount' | 'occurredOn'
 export type DraftErrors = Partial<Record<DraftField, string>>
 
+/** I6: solo un gasto con tarjeta de crédito admite más de una cuota (US-14). */
+export function allowsInstallments({ type, accountType }: Pick<TransactionDraft, 'type' | 'accountType'>): boolean {
+  return type === 'expense' && accountType === 'credit_card'
+}
+
 // Copia UX de lo que valida create_transaction (C6): la fuente de verdad es Postgres.
 export function validateTransactionDraft(draft: TransactionDraft, today: string): DraftErrors {
   const errors: DraftErrors = {}
@@ -40,10 +45,7 @@ export function validateTransactionDraft(draft: TransactionDraft, today: string)
     draft.installmentsCount > MAX_INSTALLMENTS
   ) {
     errors.installmentsCount = `Las cuotas van de 1 a ${MAX_INSTALLMENTS}`
-  } else if (
-    draft.installmentsCount > 1 &&
-    !(draft.type === 'expense' && draft.accountType === 'credit_card')
-  ) {
+  } else if (draft.installmentsCount > 1 && !allowsInstallments(draft)) {
     errors.installmentsCount = 'Solo los gastos con tarjeta de crédito admiten cuotas' // I6
   } else if (!errors.amount && !errors.fxRate && draft.amount && hasEmptyInstallment(draft)) {
     errors.installmentsCount = 'Con ese monto, cada cuota daría menos de 0,01' // I4 por cuota

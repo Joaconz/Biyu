@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseMoney } from '@/domain/money'
-import { validateTransactionDraft, type TransactionDraft } from '@/domain/validation'
+import { allowsInstallments, validateTransactionDraft, type TransactionDraft } from '@/domain/validation'
 
 const TODAY = '2026-08-15'
 const ok: TransactionDraft = {
@@ -42,4 +42,14 @@ describe('validateTransactionDraft', () => {
     expect(v({ occurredOn: '2026-08-16' }).occurredOn).toBeDefined()
     expect(v({ occurredOn: '15/08/2026' }).occurredOn).toBeDefined()
   })
+})
+
+describe('allowsInstallments (I6, US-14)', () => {
+  it('solo un gasto con tarjeta de crédito', () => {
+    expect(allowsInstallments({ type: 'expense', accountType: 'credit_card' })).toBe(true)
+    expect(allowsInstallments({ type: 'income', accountType: 'credit_card' })).toBe(false)
+    expect(allowsInstallments({ type: 'expense', accountType: null })).toBe(false)
+  })
+  it.each(['debit_card', 'cash', 'bank_account', 'wallet'] as const)('%s no admite cuotas', (accountType) =>
+    expect(allowsInstallments({ type: 'expense', accountType })).toBe(false))
 })
