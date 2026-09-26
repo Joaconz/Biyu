@@ -38,3 +38,9 @@ export async function updateCategory(id: string, changes: { name?: string; color
   const { error } = await supabase.from('categories').update(changes).eq('id', id)
   if (error) throw error
 }
+
+// Soft delete (C10): las transacciones históricas conservan category_id sin cambios.
+export async function archiveCategory(id: string, archivedAt: string): Promise<void> {
+  const { error } = await supabase.from('categories').update({ archived_at: archivedAt }).eq('id', id)
+  if (error) throw error
+}
