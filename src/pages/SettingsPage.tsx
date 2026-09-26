@@ -20,6 +20,7 @@ import {
   type AccountType,
 } from '@/lib/accounts'
 import {
+  archiveCategory,
   CATEGORY_COLOR_PALETTE,
   createCategory,
   listActiveCategories,
@@ -27,6 +28,7 @@ import {
   type Category,
 } from '@/lib/categories'
 import { isUniqueViolation } from '@/lib/errors'
+import { today } from '@/lib/clock'
 
 export function SettingsPage() {
   return (
@@ -92,6 +94,16 @@ function CategoriesSection() {
     }
   }
 
+  async function onArchive(id: string) {
+    setError(null)
+    try {
+      await archiveCategory(id, today().toISOString())
+      setCategories((prev) => prev?.filter((c) => c.id !== id) ?? null)
+    } catch {
+      setError('No se pudo archivar la categoría')
+    }
+  }
+
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-lg font-medium">Categorías</h2>
@@ -114,15 +126,26 @@ function CategoriesSection() {
                 />
                 {category.name}
               </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                data-testid="settings-categories-edit"
-                onClick={() => setEditingId(category.id)}
-              >
-                Editar
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  data-testid="settings-categories-edit"
+                  onClick={() => setEditingId(category.id)}
+                >
+                  Editar
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  data-testid="settings-categories-archive"
+                  onClick={() => onArchive(category.id)}
+                >
+                  Archivar
+                </Button>
+              </div>
             </li>
           ),
         )}
