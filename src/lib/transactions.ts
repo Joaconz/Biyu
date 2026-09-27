@@ -23,3 +23,14 @@ export async function createTransaction(draft: TransactionDraft & { description?
   if (error) throw error
   return data
 }
+
+/**
+ * Da de baja una transacción de forma lógica vía RPC (C4, C10, FR-08).
+ */
+export async function deleteTransaction(id: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_transaction', {
+    p_transaction_id: id,
+  })
+  if (error) throw error
+}
+
