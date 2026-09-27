@@ -12,8 +12,9 @@ export type MonthlySummaryState =
  * Carga el resumen mensual para un período determinado.
  * Vuelve a cargar si cambia el período.
  */
-export function useMonthlySummary(period: Period): MonthlySummaryState {
+export function useMonthlySummary(period: Period): MonthlySummaryState & { refresh: () => void } {
   const [state, setState] = useState<MonthlySummaryState>({ status: 'loading' })
+  const [version, setVersion] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -35,7 +36,10 @@ export function useMonthlySummary(period: Period): MonthlySummaryState {
     return () => {
       cancelled = true
     }
-  }, [period.year, period.month])
+  }, [period.year, period.month, version])
 
-  return state
+  return {
+    ...state,
+    refresh: () => setVersion((v) => v + 1),
+  }
 }

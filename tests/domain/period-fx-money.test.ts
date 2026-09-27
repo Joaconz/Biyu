@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { resolveFxRate } from '@/domain/fx'
 import { convertToArs, formatArs, parseMoney } from '@/domain/money'
-import { addMonths, currentPeriod, formatPeriod, fromDbDate, parsePeriod, toDbDate } from '@/domain/period'
+import { addMonths, currentPeriod, formatDisplayDate, formatPeriod, fromDbDate, parsePeriod, toDbDate } from '@/domain/period'
 
 describe('period', () => {
   it.each(['2026-13', '2026-00', '26-01', '2026-1', '', 'abcd-ef', '2026-01-01'])('parsePeriod rechaza %j', (v) => {
@@ -22,6 +22,9 @@ describe('period', () => {
   it('currentPeriod usa el today recibido', () => {
     expect(currentPeriod(new Date(2026, 1, 28))).toEqual({ year: 2026, month: 2 })
   })
+  it('formatDisplayDate formatea YYYY-MM-DD a DD/MM/AAAA', () => {
+    expect(formatDisplayDate('2026-09-15')).toBe('15/09/2026')
+  })
 })
 
 describe('money', () => {
@@ -34,7 +37,11 @@ describe('money', () => {
     expect(parseMoney('1234.56').eq('1234.56')).toBe(true)
     expect(parseMoney('10,5').eq('10.5')).toBe(true)
   })
-  it('formatea en argentino', () => expect(formatArs(parseMoney('1234567.5'))).toBe('$1.234.567,50'))
+  it('formatea en argentino', () => {
+    expect(formatArs(parseMoney('1234567.5'))).toBe('$1.234.567,50')
+    expect(formatArs(parseMoney('-50000'))).toBe('-$50.000,00')
+    expect(formatArs(parseMoney('0'))).toBe('$0,00')
+  })
 })
 
 describe('resolveFxRate', () => {
