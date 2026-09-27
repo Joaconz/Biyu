@@ -52,8 +52,8 @@ select throws_ok(
   'usuario B no puede eliminar transacción de usuario A'
 );
 
--- Verificamos que la transacción sigue intacta (deleted_at is null)
-set local role service_role;
+-- Volvemos al rol administrativo del arnés para inspeccionar el estado interno.
+reset role;
 select is(
   (select count(*) from transactions where id = (select tx_id from _test_context) and deleted_at is null),
   1::bigint,
@@ -70,7 +70,7 @@ select lives_ok(
 );
 
 -- 4. El borrado es lógico (C10): la fila en transactions sigue existiendo y deleted_at is not null
-set local role service_role;
+reset role;
 select is(
   (select count(*) from transactions where id = (select tx_id from _test_context)),
   1::bigint,
