@@ -45,4 +45,16 @@ describe('computeMonthlySummary', () => {
     expect(s.expenses.toFixed(2)).toBe('120000.00')
     expect(s.netOfReimbursements.toFixed(2)).toBe('60000.00')
   })
+  it('US-25: total gastado suma imputaciones del período y excluye borradas (I10)', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({ amount_ars: '12500.50', tx: { type: 'expense', deleted_at: null } }),
+        entry({ amount_ars: '3200.00', tx: { type: 'expense', deleted_at: '2026-09-10T12:00:00Z' } }),
+        entry({ period: '2026-10-01', amount_ars: '5000.00', tx: { type: 'expense', deleted_at: null } }),
+      ],
+      [],
+      P,
+    )
+    expect(s.expenses.toFixed(2)).toBe('12500.50')
+  })
 })
