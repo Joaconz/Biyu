@@ -5,10 +5,12 @@ import { Decimal, parseMoney } from './money'
 export interface SummaryEntry {
   period: string // YYYY-MM-01
   installment_number: number
+  amount?: string // en la moneda de la transacción (numeric(14,2))
   amount_ars: string
   transaction: {
     id: string
     type: 'expense' | 'income'
+    currency?: 'ARS' | 'USD'
     category_id: string | null
     account_id: string
     first_period: string
@@ -25,6 +27,7 @@ export interface SummaryDebt {
 
 export interface MonthlySummary {
   expenses: Decimal
+  expensesUsd: Decimal // subtotal en USD de las imputaciones en dólares (US-24)
   income: Decimal
   balance: Decimal
   inheritedInstallments: Decimal // cuotas con installment_number > 1
@@ -43,6 +46,7 @@ export function computeMonthlySummary(
 ): MonthlySummary {
   const key = `${formatPeriod(period)}-01`
   let expenses = new Decimal(0)
+  let expensesUsd = new Decimal(0)
   let income = new Decimal(0)
   let inherited = new Decimal(0)
   const byCategory = new Map<string | null, Decimal>()
@@ -56,6 +60,9 @@ export function computeMonthlySummary(
       continue
     }
     expenses = expenses.plus(amount)
+    if (e.transaction.currency === 'USD') {
+      expensesUsd = expensesUsd.plus(parseMoney(e.amount ?? e.amount_ars))
+    }
     if (e.installment_number > 1) inherited = inherited.plus(amount)
     add(byCategory, e.transaction.category_id, amount)
     add(byAccount, e.transaction.account_id, amount)
@@ -68,6 +75,7 @@ export function computeMonthlySummary(
 
   return {
     expenses,
+    expensesUsd,
     income,
     balance: income.minus(expenses),
     inheritedInstallments: inherited,

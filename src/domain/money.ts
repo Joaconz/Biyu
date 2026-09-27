@@ -53,3 +53,10 @@ export function formatArs(amount: Decimal): string {
   const [int, dec] = amount.toFixed(2).split('.')
   return `$${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
 }
+
+/** Formato USD: USD 1.234,56 */
+export function formatUsd(amount: Decimal): string {
+  const [int, dec] = amount.toFixed(2).split('.')
+  return `USD ${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
+}
+

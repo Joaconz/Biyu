@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { resolveFxRate } from '@/domain/fx'
-import { convertToArs, formatArs, parseMoney } from '@/domain/money'
+import { convertToArs, formatArs, formatUsd, parseMoney } from '@/domain/money'
 import { addMonths, currentPeriod, formatDisplayDate, formatPeriod, fromDbDate, parsePeriod, toDbDate } from '@/domain/period'
 
 describe('period', () => {
@@ -38,6 +38,7 @@ describe('money', () => {
     expect(parseMoney('10,5').eq('10.5')).toBe(true)
   })
   it('formatea en argentino', () => expect(formatArs(parseMoney('1234567.5'))).toBe('$1.234.567,50'))
+  it('formatea en USD', () => expect(formatUsd(parseMoney('1234.5'))).toBe('USD 1.234,50'))
 })
 
 describe('resolveFxRate', () => {

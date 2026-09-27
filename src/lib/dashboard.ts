@@ -14,10 +14,12 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
     .select(`
       period,
       installment_number,
+      amount,
       amount_ars,
       transaction:transactions!ledger_entries_transaction_fk (
         id,
         type,
+        currency,
         category_id,
         account_id,
         first_period,
@@ -30,15 +32,17 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
   if (!data) return []
 
   // PostgREST devuelve los datos con la relación `transaction`.
-  // C2: amount_ars pasa como string al dominio (parseMoney).
+  // C2: amount y amount_ars pasan como string al dominio (parseMoney).
   return (
     data as unknown as Array<{
       period: string
       installment_number: number
+      amount: number | string
       amount_ars: number | string
       transaction: {
         id: string
         type: 'expense' | 'income'
+        currency: 'ARS' | 'USD'
         category_id: string | null
         account_id: string
         first_period: string
@@ -48,10 +52,12 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
   ).map((row) => ({
     period: row.period,
     installment_number: row.installment_number,
+    amount: String(row.amount),
     amount_ars: String(row.amount_ars),
     transaction: {
       id: row.transaction.id,
       type: row.transaction.type,
+      currency: row.transaction.currency,
       category_id: row.transaction.category_id,
       account_id: row.transaction.account_id,
       first_period: row.transaction.first_period,
