@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
 import { AppShell } from '@/components/layout/AppShell'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
@@ -101,6 +102,8 @@ export function DashboardPage() {
             </Card>
 
             <CategoryExpenseBars categories={summaryState.summary.categoryExpenses} />
+
+            <AccountExpenseBreakdown accounts={summaryState.summary.accountExpenses} />
           </>
         )}
 

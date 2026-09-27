@@ -19,6 +19,12 @@ export interface SummaryEntry {
       color: string | null
       archived_at: string | null
     } | null
+    account?: {
+      id: string
+      name: string
+      type: string
+      archived_at: string | null
+    } | null
   }
 }
 
@@ -38,6 +44,15 @@ export interface CategoryExpenseSummary {
   percentage: number // 0..100
 }
 
+export interface AccountExpenseSummary {
+  id: string
+  name: string
+  type: string
+  isArchived: boolean
+  amount: Decimal
+  percentage: number // 0..100
+}
+
 export interface MonthlySummary {
   expenses: Decimal
   income: Decimal
@@ -47,6 +62,7 @@ export interface MonthlySummary {
   byCategory: Map<string | null, Decimal>
   byAccount: Map<string, Decimal>
   categoryExpenses: CategoryExpenseSummary[]
+  accountExpenses: AccountExpenseSummary[]
 }
 
 const add = <K,>(map: Map<K, Decimal>, key: K, value: Decimal) =>
@@ -69,6 +85,16 @@ export function computeMonthlySummary(
     {
       name: string
       color: string | null
+      isArchived: boolean
+      amount: Decimal
+    }
+  >()
+
+  const accountMap = new Map<
+    string,
+    {
+      name: string
+      type: string
       isArchived: boolean
       amount: Decimal
     }
@@ -100,6 +126,21 @@ export function computeMonthlySummary(
         })
       }
     }
+
+    if (e.transaction.account_id) {
+      const accId = e.transaction.account_id
+      const existing = accountMap.get(accId)
+      if (existing) {
+        existing.amount = existing.amount.plus(amount)
+      } else {
+        accountMap.set(accId, {
+          name: e.transaction.account?.name ?? 'Cuenta',
+          type: e.transaction.account?.type ?? 'other',
+          isArchived: Boolean(e.transaction.account?.archived_at),
+          amount,
+        })
+      }
+    }
   }
 
   // Ordenadas de mayor a menor para identificar dónde se concentra el gasto (US-27)
@@ -123,6 +164,27 @@ export function computeMonthlySummary(
     })
     .sort((a, b) => b.amount.comparedTo(a.amount))
 
+  // Ordenadas de mayor a menor para identificar el gasto por cuenta (US-28)
+  const accountExpenses: AccountExpenseSummary[] = Array.from(accountMap.entries())
+    .map(([id, info]) => {
+      const percentage = expenses.isZero()
+        ? 0
+        : info.amount
+            .dividedBy(expenses)
+            .times(100)
+            .toDecimalPlaces(1, Decimal.ROUND_HALF_UP)
+            .toNumber()
+      return {
+        id,
+        name: info.name,
+        type: info.type,
+        isArchived: info.isArchived,
+        amount: info.amount,
+        percentage,
+      }
+    })
+    .sort((a, b) => b.amount.comparedTo(a.amount))
+
   // La deuda se imputa entera al mes de nacimiento de la compra (04-data-model, consulta 6).
   const reimbursed = debts
     .filter((d) => d.direction === 'owed_to_me' && d.transaction_first_period === key)
@@ -137,5 +199,6 @@ export function computeMonthlySummary(
     byCategory,
     byAccount,
     categoryExpenses,
+    accountExpenses,
   }
 }

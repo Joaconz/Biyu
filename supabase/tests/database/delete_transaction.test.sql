@@ -16,6 +16,7 @@ insert into accounts (id, user_id, name, type, currency) values
 
 create temporary table _test_context (tx_id uuid);
 grant all on _test_context to public;
+grant select on transactions, ledger_entries to service_role;
 
 -- Creamos una transacción para el usuario A
 set local role authenticated;
