@@ -10,6 +10,7 @@ import { createTransaction } from '@/lib/transactions'
 import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
 import { CategorySection } from './CategorySection'
+import { CurrencySection } from './CurrencySection'
 import { DateSection } from './DateSection'
 import type { SectionProps, Touched } from './types'
 
@@ -67,11 +68,7 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
       <fieldset disabled={saving} className="flex flex-col gap-5">
         <AmountSection {...section} />
 
-        {/*
-          Punto de extensión: moneda y tipo de cambio (US-19 a US-21).
-          <CurrencySection {...section} /> va acá, pegada al monto. Escribe `currency` y `fxRate`
-          (texto, como `amount`); I5 ya lo valida validateTransactionDraft.
-        */}
+        <CurrencySection {...section} />
 
         <CategorySection {...section} categories={categories} />
 

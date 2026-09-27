@@ -73,3 +73,30 @@ describe('draftInputAfterSave (US-10)', () => {
   it('el formulario que queda no se puede volver a guardar sin cargar un monto', () =>
     expect(validateTransactionDraft(parseDraftInput(draftInputAfterSave(saved, TODAY)), TODAY)).toHaveProperty('amount'))
 })
+
+describe('moneda precargada en ARS (US-05)', () => {
+  it('la moneda por defecto es ARS en un borrador vacío', () => {
+    expect(emptyDraftInput(TODAY).currency).toBe('ARS')
+  })
+
+  it('el borrador por defecto en ARS no tiene tipo de cambio (fxRate vacío y parsea a null, I5)', () => {
+    const draft = emptyDraftInput(TODAY)
+    expect(draft.currency).toBe('ARS')
+    expect(draft.fxRate).toBe('')
+    expect(parseDraftInput(draft).fxRate).toBeNull()
+  })
+
+  it('después de guardar vuelve a ARS y sin tipo de cambio aunque se haya guardado en USD', () => {
+    const savedUsd: DraftInput = {
+      ...emptyDraftInput(TODAY),
+      currency: 'USD',
+      fxRate: '1350',
+      amount: '100',
+      accountId: 'acc-1',
+    }
+    const after = draftInputAfterSave(savedUsd, TODAY)
+    expect(after.currency).toBe('ARS')
+    expect(after.fxRate).toBe('')
+  })
+})
+
