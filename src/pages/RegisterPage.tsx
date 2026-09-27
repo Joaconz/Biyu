@@ -24,7 +24,11 @@ export function RegisterPage() {
         </p>
       )}
       {catalog.status === 'ready' && (
-        <TransactionForm categories={catalog.categories} accounts={catalog.accounts} />
+        <TransactionForm
+          categories={catalog.categories}
+          accounts={catalog.accounts}
+          defaultAccountId={catalog.defaultAccountId}
+        />
       )}
     </AppShell>
   )

@@ -1,10 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { draftInputAfterSave, emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
+import {
+  draftInputAfterSave,
+  emptyDraftInput,
+  parseDraftInput,
+  resolvePreloadedAccount,
+  type DraftInput,
+} from '@/domain/draft'
 import { toIsoDate } from '@/domain/period'
 import { validateTransactionDraft } from '@/domain/validation'
-import type { Account, Category } from '@/lib/catalog'
+import { setStoredLastAccountId, type Account, type Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
 import { createTransaction } from '@/lib/transactions'
 import { AccountSection } from './AccountSection'
@@ -16,6 +22,7 @@ import type { SectionProps, Touched } from './types'
 interface TransactionFormProps {
   categories: Category[]
   accounts: Account[]
+  defaultAccountId?: string | null
 }
 
 /**
@@ -23,8 +30,10 @@ interface TransactionFormProps {
  * escribe solo sus campos del borrador; este componente es el único que valida y guarda.
  * Los puntos marcados "Punto de extensión" son donde se enchufan secciones de otras historias.
  */
-export function TransactionForm({ categories, accounts }: TransactionFormProps) {
-  const [values, setValues] = useState<DraftInput>(() => emptyDraftInput(toIsoDate(today())))
+export function TransactionForm({ categories, accounts, defaultAccountId }: TransactionFormProps) {
+  const [values, setValues] = useState<DraftInput>(() =>
+    emptyDraftInput(toIsoDate(today()), resolvePreloadedAccount(defaultAccountId, accounts)),
+  )
   const [touched, setTouched] = useState<Touched>({})
   const [saving, setSaving] = useState(false)
   const todayIso = toIsoDate(today())
@@ -44,10 +53,11 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
     setSaving(true)
     try {
       await createTransaction(draft) // C4: una sola llamada RPC
+      setStoredLastAccountId(draft.accountId)
       toast.success(draft.type === 'expense' ? 'Gasto guardado' : 'Ingreso guardado', {
         testId: 'transaction-form-saved',
       })
-      setValues(draftInputAfterSave(values, toIsoDate(today())))
+      setValues(draftInputAfterSave(values, toIsoDate(today()), accounts))
       setTouched({})
     } catch (error) {
       toast.error('No se pudo guardar', {
