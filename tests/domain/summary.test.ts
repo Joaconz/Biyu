@@ -157,4 +157,121 @@ describe('computeMonthlySummary', () => {
     expect(activeCat).toBeDefined()
     expect(activeCat!.isArchived).toBe(false)
   })
+
+  it('US-28: accountExpenses desagrega gastos por cuenta, calcula porcentaje y ordena de mayor a menor', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({
+          amount_ars: '30000.00',
+          tx: {
+            account_id: 'acc-bbva',
+            account: { id: 'acc-bbva', name: 'BBVA Visa', type: 'credit_card', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '50000.00',
+          tx: {
+            account_id: 'acc-mp',
+            account: { id: 'acc-mp', name: 'Mercado Pago', type: 'wallet', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '20000.00',
+          tx: {
+            account_id: 'acc-bbva',
+            account: { id: 'acc-bbva', name: 'BBVA Visa', type: 'credit_card', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    // Total expenses: 100.000 (BBVA Visa: 50.000 = 50%, Mercado Pago: 50.000 = 50%)
+    expect(s.expenses.toFixed(2)).toBe('100000.00')
+    expect(s.accountExpenses).toHaveLength(2)
+
+    // Ambos tienen 50.000
+    const bbva = s.accountExpenses.find((a) => a.id === 'acc-bbva')
+    expect(bbva).toBeDefined()
+    expect(bbva!.name).toBe('BBVA Visa')
+    expect(bbva!.type).toBe('credit_card')
+    expect(bbva!.amount.toFixed(2)).toBe('50000.00')
+    expect(bbva!.percentage).toBe(50)
+    expect(bbva!.isArchived).toBe(false)
+
+    const mp = s.accountExpenses.find((a) => a.id === 'acc-mp')
+    expect(mp).toBeDefined()
+    expect(mp!.name).toBe('Mercado Pago')
+    expect(mp!.type).toBe('wallet')
+    expect(mp!.amount.toFixed(2)).toBe('50000.00')
+    expect(mp!.percentage).toBe(50)
+    expect(mp!.isArchived).toBe(false)
+  })
+
+  it('US-28: accountExpenses ordena de mayor a menor, incluye cuentas archivadas y excluye ingresos y borradas', () => {
+    const s = computeMonthlySummary(
+      [
+        // Gasto en tarjeta de crédito activa: 70.000
+        entry({
+          amount_ars: '70000.00',
+          tx: {
+            type: 'expense',
+            account_id: 'acc-santander',
+            account: { id: 'acc-santander', name: 'Santander Crédito', type: 'credit_card', archived_at: null },
+          },
+        }),
+        // Gasto en cuenta archivada: 30.000
+        entry({
+          amount_ars: '30000.00',
+          tx: {
+            type: 'expense',
+            account_id: 'acc-galicia-old',
+            account: { id: 'acc-galicia-old', name: 'Galicia Débito (cerrada)', type: 'debit_card', archived_at: '2026-07-01T00:00:00Z' },
+          },
+        }),
+        // Ingreso en la misma cuenta: 200.000 (no debe contar como gasto por cuenta)
+        entry({
+          amount_ars: '200000.00',
+          tx: {
+            type: 'income',
+            account_id: 'acc-santander',
+            account: { id: 'acc-santander', name: 'Santander Crédito', type: 'credit_card', archived_at: null },
+          },
+        }),
+        // Gasto borrado: 15.000 (I10)
+        entry({
+          amount_ars: '15000.00',
+          tx: {
+            type: 'expense',
+            deleted_at: '2026-09-15T00:00:00Z',
+            account_id: 'acc-santander',
+            account: { id: 'acc-santander', name: 'Santander Crédito', type: 'credit_card', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    // Total gastos: 100.000 (70.000 + 30.000)
+    expect(s.expenses.toFixed(2)).toBe('100000.00')
+    expect(s.accountExpenses).toHaveLength(2)
+
+    // 1º lugar: Santander Crédito (70.000 = 70%)
+    expect(s.accountExpenses[0].id).toBe('acc-santander')
+    expect(s.accountExpenses[0].name).toBe('Santander Crédito')
+    expect(s.accountExpenses[0].type).toBe('credit_card')
+    expect(s.accountExpenses[0].amount.toFixed(2)).toBe('70000.00')
+    expect(s.accountExpenses[0].percentage).toBe(70)
+    expect(s.accountExpenses[0].isArchived).toBe(false)
+
+    // 2º lugar: Galicia Débito (30.000 = 30%)
+    expect(s.accountExpenses[1].id).toBe('acc-galicia-old')
+    expect(s.accountExpenses[1].name).toBe('Galicia Débito (cerrada)')
+    expect(s.accountExpenses[1].type).toBe('debit_card')
+    expect(s.accountExpenses[1].amount.toFixed(2)).toBe('30000.00')
+    expect(s.accountExpenses[1].percentage).toBe(30)
+    expect(s.accountExpenses[1].isArchived).toBe(true)
+  })
 })
