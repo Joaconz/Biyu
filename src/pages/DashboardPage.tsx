@@ -58,21 +58,39 @@ export function DashboardPage() {
         )}
 
         {summaryState.status === 'ready' && (
-          <Card data-testid="dashboard-total">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total gastado
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div
-                data-testid="dashboard-total-expenses"
-                className="text-3xl font-bold tracking-tight"
-              >
-                {formatArs(summaryState.summary.expenses)}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <Card data-testid="dashboard-total">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total gastado
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  data-testid="dashboard-total-expenses"
+                  className="text-3xl font-bold tracking-tight"
+                >
+                  {formatArs(summaryState.summary.expenses)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="dashboard-days-with-transactions">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Días con registro
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  data-testid="dashboard-days-count"
+                  className="text-3xl font-bold tracking-tight"
+                >
+                  {summaryState.daysWithTransactions}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </AppShell>
