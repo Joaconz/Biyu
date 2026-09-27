@@ -74,4 +74,87 @@ describe('computeMonthlySummary', () => {
     expect(s.expenses.toFixed(2)).toBe('15000.00')
     expect(s.inheritedInstallments.toFixed(2)).toBe('15000.00')
   })
+
+  it('US-27: categoryExpenses desagrega gastos en barras, calcula porcentaje y ordena de mayor a menor', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({
+          amount_ars: '20000.00',
+          tx: {
+            category_id: 'c1',
+            category: { id: 'c1', name: 'Supermercado', color: '#10b981', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '60000.00',
+          tx: {
+            category_id: 'c2',
+            category: { id: 'c2', name: 'Alquiler', color: '#6366f1', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '20000.00',
+          tx: {
+            category_id: 'c1',
+            category: { id: 'c1', name: 'Supermercado', color: '#10b981', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    // Total expenses: 100.000 (Alquiler: 60.000 = 60%, Supermercado: 40.000 = 40%)
+    expect(s.expenses.toFixed(2)).toBe('100000.00')
+    expect(s.categoryExpenses).toHaveLength(2)
+
+    // Primero el mayor (Alquiler)
+    expect(s.categoryExpenses[0].id).toBe('c2')
+    expect(s.categoryExpenses[0].name).toBe('Alquiler')
+    expect(s.categoryExpenses[0].amount.toFixed(2)).toBe('60000.00')
+    expect(s.categoryExpenses[0].percentage).toBe(60)
+    expect(s.categoryExpenses[0].isArchived).toBe(false)
+
+    // Segundo Supermercado
+    expect(s.categoryExpenses[1].id).toBe('c1')
+    expect(s.categoryExpenses[1].name).toBe('Supermercado')
+    expect(s.categoryExpenses[1].amount.toFixed(2)).toBe('40000.00')
+    expect(s.categoryExpenses[1].percentage).toBe(40)
+    expect(s.categoryExpenses[1].isArchived).toBe(false)
+  })
+
+  it('US-27: categoryExpenses incluye categorías archivadas y las marca visualmente (isArchived)', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({
+          amount_ars: '30000.00',
+          tx: {
+            category_id: 'c-archived',
+            category: { id: 'c-archived', name: 'Salidas (antigua)', color: null, archived_at: '2026-08-01T00:00:00Z' },
+          },
+        }),
+        entry({
+          amount_ars: '10000.00',
+          tx: {
+            category_id: 'c-active',
+            category: { id: 'c-active', name: 'Comida', color: '#22c55e', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    expect(s.categoryExpenses).toHaveLength(2)
+    const archivedCat = s.categoryExpenses.find((c) => c.id === 'c-archived')
+    expect(archivedCat).toBeDefined()
+    expect(archivedCat!.isArchived).toBe(true)
+    expect(archivedCat!.name).toBe('Salidas (antigua)')
+    expect(archivedCat!.amount.toFixed(2)).toBe('30000.00')
+    expect(archivedCat!.percentage).toBe(75)
+
+    const activeCat = s.categoryExpenses.find((c) => c.id === 'c-active')
+    expect(activeCat).toBeDefined()
+    expect(activeCat!.isArchived).toBe(false)
+  })
 })

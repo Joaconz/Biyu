@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
 import { AppShell } from '@/components/layout/AppShell'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
@@ -82,21 +83,25 @@ export function DashboardPage() {
         )}
 
         {summaryState.status === 'ready' && (
-          <Card data-testid="dashboard-total">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total gastado
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div
-                data-testid="dashboard-total-expenses"
-                className="text-3xl font-bold tracking-tight"
-              >
-                {formatArs(summaryState.summary.expenses)}
-              </div>
-            </CardContent>
-          </Card>
+          <>
+            <Card data-testid="dashboard-total">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total gastado
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  data-testid="dashboard-total-expenses"
+                  className="text-3xl font-bold tracking-tight"
+                >
+                  {formatArs(summaryState.summary.expenses)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <CategoryExpenseBars categories={summaryState.summary.categoryExpenses} />
+          </>
         )}
 
         <Card data-testid="dashboard-recent-transactions">
