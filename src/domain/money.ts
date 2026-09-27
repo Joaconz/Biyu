@@ -48,8 +48,11 @@ export function convertToArs(amount: Decimal, fxRate: Decimal | null): Decimal {
   return converted.toDecimalPlaces(2, Decimal.ROUND_HALF_UP)
 }
 
-/** Formato argentino: $1.234,56 */
+/** Formato argentino: $1.234,56 o -$1.234,56 */
 export function formatArs(amount: Decimal): string {
-  const [int, dec] = amount.toFixed(2).split('.')
-  return `$${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
+  const isNegative = amount.isNegative() && !amount.isZero()
+  const abs = amount.abs()
+  const [int, dec] = abs.toFixed(2).split('.')
+  const formatted = `$${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
+  return isNegative ? `-${formatted}` : formatted
 }

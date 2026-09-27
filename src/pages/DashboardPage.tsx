@@ -85,21 +85,79 @@ export function DashboardPage() {
 
         {summaryState.status === 'ready' && (
           <>
-            <Card data-testid="dashboard-total">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total gastado
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div
-                  data-testid="dashboard-total-expenses"
-                  className="text-3xl font-bold tracking-tight"
-                >
-                  {formatArs(summaryState.summary.expenses)}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Card data-testid="dashboard-total">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total gastado
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div
+                    data-testid="dashboard-total-expenses"
+                    className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
+                  >
+                    {formatArs(summaryState.summary.expenses)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card data-testid="dashboard-income">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total ingresos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div
+                    data-testid="dashboard-total-income"
+                    className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400"
+                  >
+                    {formatArs(summaryState.summary.income)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card data-testid="dashboard-balance">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Balance
+                    </CardTitle>
+                    <span
+                      data-testid="dashboard-balance-badge"
+                      className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${
+                        summaryState.summary.balance.isNegative() && !summaryState.summary.balance.isZero()
+                          ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                          : summaryState.summary.balance.isPositive() && !summaryState.summary.balance.isZero()
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {summaryState.summary.balance.isNegative() && !summaryState.summary.balance.isZero()
+                        ? 'Déficit'
+                        : summaryState.summary.balance.isPositive() && !summaryState.summary.balance.isZero()
+                          ? 'Superávit'
+                          : 'En cero'}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div
+                    data-testid="dashboard-total-balance"
+                    className={`text-2xl sm:text-3xl font-bold tracking-tight ${
+                      summaryState.summary.balance.isNegative() && !summaryState.summary.balance.isZero()
+                        ? 'text-rose-600 dark:text-rose-400'
+                        : summaryState.summary.balance.isPositive() && !summaryState.summary.balance.isZero()
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-foreground'
+                    }`}
+                  >
+                    {formatArs(summaryState.summary.balance)}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             <CategoryExpenseBars categories={summaryState.summary.categoryExpenses} />
 
