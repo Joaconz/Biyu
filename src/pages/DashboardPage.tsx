@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { CategoryExpenseChart } from '@/components/dashboard/CategoryExpenseChart'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -78,21 +79,25 @@ export function DashboardPage() {
         )}
 
         {summaryState.status === 'ready' && (
-          <Card data-testid="dashboard-total">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total gastado
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div
-                data-testid="dashboard-total-expenses"
-                className="text-3xl font-bold tracking-tight"
-              >
-                {formatArs(summaryState.summary.expenses)}
-              </div>
-            </CardContent>
-          </Card>
+          <>
+            <Card data-testid="dashboard-total">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total gastado
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  data-testid="dashboard-total-expenses"
+                  className="text-3xl font-bold tracking-tight"
+                >
+                  {formatArs(summaryState.summary.expenses)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <CategoryExpenseChart categories={summaryState.summary.categories} />
+          </>
         )}
 
         <Card data-testid="dashboard-recent-transactions">

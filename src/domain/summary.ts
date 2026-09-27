@@ -2,6 +2,12 @@ import { formatPeriod, type Period } from './period'
 import { Decimal, parseMoney } from './money'
 
 // Filas tal como las devuelve PostgREST: los montos son string (C2).
+export interface SummaryCategoryInfo {
+  id: string
+  name: string
+  color: string | null
+}
+
 export interface SummaryEntry {
   period: string // YYYY-MM-01
   installment_number: number
@@ -13,6 +19,7 @@ export interface SummaryEntry {
     account_id: string
     first_period: string
     deleted_at: string | null
+    category?: SummaryCategoryInfo | null
   }
 }
 
@@ -23,6 +30,14 @@ export interface SummaryDebt {
   transaction_first_period: string | null
 }
 
+export interface CategorySummaryItem {
+  id: string | null
+  name: string
+  color: string | null
+  amount: Decimal
+  percentage: Decimal
+}
+
 export interface MonthlySummary {
   expenses: Decimal
   income: Decimal
@@ -31,6 +46,7 @@ export interface MonthlySummary {
   netOfReimbursements: Decimal
   byCategory: Map<string | null, Decimal>
   byAccount: Map<string, Decimal>
+  categories: CategorySummaryItem[]
 }
 
 const add = <K,>(map: Map<K, Decimal>, key: K, value: Decimal) =>
@@ -40,6 +56,7 @@ export function computeMonthlySummary(
   entries: SummaryEntry[],
   debts: SummaryDebt[],
   period: Period,
+  knownCategories?: Array<{ id: string; name: string; color: string | null }>,
 ): MonthlySummary {
   const key = `${formatPeriod(period)}-01`
   let expenses = new Decimal(0)
@@ -47,6 +64,13 @@ export function computeMonthlySummary(
   let inherited = new Decimal(0)
   const byCategory = new Map<string | null, Decimal>()
   const byAccount = new Map<string, Decimal>()
+  const categoryMeta = new Map<string | null, { name: string; color: string | null }>()
+
+  if (knownCategories) {
+    for (const c of knownCategories) {
+      categoryMeta.set(c.id, { name: c.name, color: c.color })
+    }
+  }
 
   for (const e of entries) {
     if (e.period !== key || e.transaction.deleted_at) continue // I10
@@ -59,12 +83,47 @@ export function computeMonthlySummary(
     if (e.installment_number > 1) inherited = inherited.plus(amount)
     add(byCategory, e.transaction.category_id, amount)
     add(byAccount, e.transaction.account_id, amount)
+
+    if (e.transaction.category) {
+      categoryMeta.set(e.transaction.category_id, {
+        name: e.transaction.category.name,
+        color: e.transaction.category.color,
+      })
+    } else if (!categoryMeta.has(e.transaction.category_id)) {
+      categoryMeta.set(e.transaction.category_id, {
+        name: e.transaction.category_id ?? 'Sin categoría',
+        color: null,
+      })
+    }
   }
 
   // La deuda se imputa entera al mes de nacimiento de la compra (04-data-model, consulta 6).
   const reimbursed = debts
     .filter((d) => d.direction === 'owed_to_me' && d.transaction_first_period === key)
     .reduce((acc, d) => acc.plus(parseMoney(d.amount_ars)), new Decimal(0))
+
+  const categories: CategorySummaryItem[] = []
+  for (const [catId, catAmount] of byCategory.entries()) {
+    if (catAmount.lte(0)) continue
+    const meta = categoryMeta.get(catId) ?? { name: catId ?? 'Sin categoría', color: null }
+    const percentage = expenses.gt(0)
+      ? catAmount.times(100).div(expenses).toDecimalPlaces(1, Decimal.ROUND_HALF_UP)
+      : new Decimal(0)
+
+    categories.push({
+      id: catId,
+      name: meta.name,
+      color: meta.color,
+      amount: catAmount,
+      percentage,
+    })
+  }
+
+  categories.sort((a, b) => {
+    const cmp = b.amount.comparedTo(a.amount)
+    if (cmp !== 0) return cmp
+    return a.name.localeCompare(b.name)
+  })
 
   return {
     expenses,
@@ -74,5 +133,6 @@ export function computeMonthlySummary(
     netOfReimbursements: expenses.minus(reimbursed),
     byCategory,
     byAccount,
+    categories,
   }
 }

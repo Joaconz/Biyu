@@ -21,7 +21,12 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
         category_id,
         account_id,
         first_period,
-        deleted_at
+        deleted_at,
+        category:categories!transactions_category_fk (
+          id,
+          name,
+          color
+        )
       )
     `)
     .eq('period', dbPeriod)
@@ -43,6 +48,11 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
         account_id: string
         first_period: string
         deleted_at: string | null
+        category: {
+          id: string
+          name: string
+          color: string | null
+        } | null
       }
     }>
   ).map((row) => ({
@@ -56,6 +66,13 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
       account_id: row.transaction.account_id,
       first_period: row.transaction.first_period,
       deleted_at: row.transaction.deleted_at,
+      category: row.transaction.category
+        ? {
+            id: row.transaction.category.id,
+            name: row.transaction.category.name,
+            color: row.transaction.category.color,
+          }
+        : null,
     },
   }))
 }

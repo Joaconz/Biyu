@@ -74,4 +74,142 @@ describe('computeMonthlySummary', () => {
     expect(s.expenses.toFixed(2)).toBe('15000.00')
     expect(s.inheritedInstallments.toFixed(2)).toBe('15000.00')
   })
+
+  describe('US-27: gasto por categoría en barras', () => {
+    it('desagrega el gasto por categoría, calcula porcentaje y ordena de mayor a menor', () => {
+      const s = computeMonthlySummary(
+        [
+          entry({
+            amount_ars: '300.00',
+            tx: {
+              category_id: 'cat-transporte',
+              category: { id: 'cat-transporte', name: 'Transporte', color: '#3b82f6' },
+            },
+          }),
+          entry({
+            amount_ars: '600.00',
+            tx: {
+              category_id: 'cat-super',
+              category: { id: 'cat-super', name: 'Supermercado', color: '#10b981' },
+            },
+          }),
+          entry({
+            amount_ars: '100.00',
+            tx: {
+              category_id: 'cat-ocio',
+              category: { id: 'cat-ocio', name: 'Ocio', color: '#f59e0b' },
+            },
+          }),
+        ],
+        [],
+        P,
+      )
+
+      expect(s.categories).toHaveLength(3)
+      expect(s.categories[0]).toEqual({
+        id: 'cat-super',
+        name: 'Supermercado',
+        color: '#10b981',
+        amount: expect.anything(),
+        percentage: expect.anything(),
+      })
+      expect(s.categories[0].amount.toFixed(2)).toBe('600.00')
+      expect(s.categories[0].percentage.toFixed(1)).toBe('60.0')
+
+      expect(s.categories[1].name).toBe('Transporte')
+      expect(s.categories[1].amount.toFixed(2)).toBe('300.00')
+      expect(s.categories[1].percentage.toFixed(1)).toBe('30.0')
+
+      expect(s.categories[2].name).toBe('Ocio')
+      expect(s.categories[2].amount.toFixed(2)).toBe('100.00')
+      expect(s.categories[2].percentage.toFixed(1)).toBe('10.0')
+    })
+
+    it('incluye categorías archivadas con gastos en el período', () => {
+      const knownCategories = [
+        { id: 'cat-activa', name: 'Alquiler', color: '#6366f1' },
+        { id: 'cat-archivada', name: 'Gimnasio Antiguo', color: '#ec4899' },
+      ]
+
+      const s = computeMonthlySummary(
+        [
+          entry({
+            amount_ars: '50000.00',
+            tx: { category_id: 'cat-activa' },
+          }),
+          entry({
+            amount_ars: '15000.00',
+            tx: { category_id: 'cat-archivada' },
+          }),
+        ],
+        [],
+        P,
+        knownCategories,
+      )
+
+      expect(s.categories).toHaveLength(2)
+      const archivada = s.categories.find((c) => c.id === 'cat-archivada')
+      expect(archivada).toBeDefined()
+      expect(archivada?.name).toBe('Gimnasio Antiguo')
+      expect(archivada?.color).toBe('#ec4899')
+      expect(archivada?.amount.toFixed(2)).toBe('15000.00')
+      expect(archivada?.percentage.toFixed(1)).toBe('23.1')
+    })
+
+    it('excluye ingresos y transacciones con soft delete (I10)', () => {
+      const s = computeMonthlySummary(
+        [
+          entry({
+            amount_ars: '2000.00',
+            tx: { category_id: 'cat-comida', category: { id: 'cat-comida', name: 'Comida', color: null } },
+          }),
+          entry({
+            amount_ars: '5000.00',
+            tx: { type: 'income', category_id: 'cat-sueldo' },
+          }),
+          entry({
+            amount_ars: '3000.00',
+            tx: {
+              category_id: 'cat-borrada',
+              category: { id: 'cat-borrada', name: 'Borrada', color: null },
+              deleted_at: '2026-09-15T00:00:00Z',
+            },
+          }),
+        ],
+        [],
+        P,
+      )
+
+      expect(s.categories).toHaveLength(1)
+      expect(s.categories[0].name).toBe('Comida')
+      expect(s.categories[0].amount.toFixed(2)).toBe('2000.00')
+      expect(s.categories[0].percentage.toFixed(1)).toBe('100.0')
+    })
+
+    it('empate en monto ordena alfabéticamente por nombre', () => {
+      const s = computeMonthlySummary(
+        [
+          entry({
+            amount_ars: '2000.00',
+            tx: { category_id: 'c-restaurante', category: { id: 'c-restaurante', name: 'Restaurantes', color: null } },
+          }),
+          entry({
+            amount_ars: '2000.00',
+            tx: { category_id: 'c-farmacia', category: { id: 'c-farmacia', name: 'Farmacia', color: null } },
+          }),
+        ],
+        [],
+        P,
+      )
+
+      expect(s.categories).toHaveLength(2)
+      expect(s.categories[0].name).toBe('Farmacia')
+      expect(s.categories[1].name).toBe('Restaurantes')
+    })
+
+    it('período sin gastos devuelve lista vacía', () => {
+      const s = computeMonthlySummary([], [], P)
+      expect(s.categories).toEqual([])
+    })
+  })
 })

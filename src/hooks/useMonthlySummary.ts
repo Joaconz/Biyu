@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Period } from '@/domain/period'
 import { computeMonthlySummary, type MonthlySummary } from '@/domain/summary'
+import { fetchAllCategories } from '@/lib/catalog'
 import { fetchMonthlyLedgerEntries } from '@/lib/dashboard'
 
 export type MonthlySummaryState =
@@ -19,10 +20,10 @@ export function useMonthlySummary(period: Period): MonthlySummaryState {
     let cancelled = false
     setState({ status: 'loading' })
 
-    fetchMonthlyLedgerEntries(period)
-      .then((entries) => {
+    Promise.all([fetchMonthlyLedgerEntries(period), fetchAllCategories()])
+      .then(([entries, categories]) => {
         if (!cancelled) {
-          const summary = computeMonthlySummary(entries, [], period)
+          const summary = computeMonthlySummary(entries, [], period, categories)
           setState({ status: 'ready', summary })
         }
       })

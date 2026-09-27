@@ -17,6 +17,19 @@ export async function fetchActiveCategories(): Promise<Category[]> {
   return data
 }
 
+/**
+ * Trae todas las categorías del usuario, incluidas las archivadas.
+ * Útil para desgloses históricos como el gráfico de categorías del dashboard (US-27).
+ */
+export async function fetchAllCategories(): Promise<Category[]> {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, color')
+    .order('name')
+  if (error) throw error
+  return data
+}
+
 export async function fetchActiveAccounts(): Promise<Account[]> {
   const { data, error } = await supabase
     .from('accounts')
