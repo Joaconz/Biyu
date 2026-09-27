@@ -3,12 +3,12 @@ import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatArs } from '@/domain/money'
-import { formatPeriod } from '@/domain/period'
+import { formatPeriod, parsePeriod } from '@/domain/period'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 
 export function DashboardPage() {
-  const { period, shift } = usePeriodParam()
+  const { period, setPeriod, shift } = usePeriodParam()
   const summaryState = useMonthlySummary(period)
 
   return (
@@ -28,17 +28,34 @@ export function DashboardPage() {
               size="sm"
               onClick={() => shift(-1)}
               data-testid="dashboard-period-prev"
+              aria-label="Mes anterior"
             >
               ←
             </Button>
-            <span data-testid="dashboard-period" className="min-w-[5.5rem] text-center font-medium">
-              {formatPeriod(period)}
-            </span>
+            <label
+              htmlFor="dashboard-period-select"
+              className="relative flex items-center justify-center cursor-pointer rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-muted/50 transition-colors"
+            >
+              <span data-testid="dashboard-period">{formatPeriod(period)}</span>
+              <input
+                id="dashboard-period-select"
+                type="month"
+                value={formatPeriod(period)}
+                onChange={(e) => {
+                  const next = parsePeriod(e.target.value)
+                  if (next) setPeriod(next)
+                }}
+                data-testid="dashboard-period-select"
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                aria-label="Seleccionar mes"
+              />
+            </label>
             <Button
               variant="outline"
               size="sm"
               onClick={() => shift(1)}
               data-testid="dashboard-period-next"
+              aria-label="Mes siguiente"
             >
               →
             </Button>

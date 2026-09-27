@@ -57,4 +57,21 @@ describe('computeMonthlySummary', () => {
     )
     expect(s.expenses.toFixed(2)).toBe('12500.50')
   })
+  it('US-26: período futuro muestra cuotas comprometidas y excluye otros períodos (supuesto 9)', () => {
+    const futurePeriod = { year: 2026, month: 11 }
+    const s = computeMonthlySummary(
+      [
+        // Gasto del mes actual (no debe contar en el futuro)
+        entry({ period: '2026-09-01', amount_ars: '1000.00' }),
+        // Cuota 3 de compra previa que impacta en noviembre 2026
+        entry({ period: '2026-11-01', installment_number: 3, amount_ars: '15000.00' }),
+        // Cuota borrada que impactaba en noviembre 2026 (I10)
+        entry({ period: '2026-11-01', installment_number: 2, amount_ars: '5000.00', tx: { deleted_at: '2026-09-20T00:00:00Z' } }),
+      ],
+      [],
+      futurePeriod,
+    )
+    expect(s.expenses.toFixed(2)).toBe('15000.00')
+    expect(s.inheritedInstallments.toFixed(2)).toBe('15000.00')
+  })
 })
