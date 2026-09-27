@@ -1,15 +1,18 @@
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatArs } from '@/domain/money'
 import { formatPeriod, parsePeriod } from '@/domain/period'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
+import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 
 export function DashboardPage() {
   const { period, setPeriod, shift } = usePeriodParam()
   const summaryState = useMonthlySummary(period)
+  const transactionsState = useMonthlyTransactions(period, 10)
 
   return (
     <AppShell
@@ -91,6 +94,52 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         )}
+
+        <Card data-testid="dashboard-recent-transactions">
+          <CardHeader>
+            <CardTitle>Últimas transacciones</CardTitle>
+            <CardAction>
+              <Link
+                to={`/transactions?period=${formatPeriod(period)}`}
+                data-testid="dashboard-transactions-view-all"
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Ver todas
+              </Link>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            {transactionsState.status === 'loading' && (
+              <p data-testid="dashboard-transactions-loading" className="text-sm text-muted-foreground py-2">
+                Cargando transacciones…
+              </p>
+            )}
+
+            {transactionsState.status === 'error' && (
+              <p role="alert" data-testid="dashboard-transactions-error" className="text-sm text-destructive py-2">
+                No se pudieron cargar las transacciones: {transactionsState.message}
+              </p>
+            )}
+
+            {transactionsState.status === 'ready' && transactionsState.transactions.length === 0 && (
+              <p data-testid="dashboard-transactions-empty" className="text-sm text-muted-foreground py-4 text-center">
+                No hay transacciones en este período.
+              </p>
+            )}
+
+            {transactionsState.status === 'ready' && transactionsState.transactions.length > 0 && (
+              <div data-testid="dashboard-transactions-list" className="flex flex-col">
+                {transactionsState.transactions.map((tx) => (
+                  <TransactionItem
+                    key={tx.id}
+                    transaction={tx}
+                    testId="dashboard-transaction-item"
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AppShell>
   )

@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { TransactionsPage } from '@/pages/TransactionsPage'
 import { RedirectIfAuthed, RequireAuth } from '@/pages/RequireAuth'
 
 export const router = createBrowserRouter([
@@ -11,6 +12,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/register', element: <RegisterPage /> },
       { path: '/dashboard', element: <DashboardPage /> },
+      { path: '/transactions', element: <TransactionsPage /> },
     ],
   },
   {
