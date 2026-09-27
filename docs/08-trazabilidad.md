@@ -42,7 +42,7 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 | FR-17 | V2 | US-56, US-57, US-58 | [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene |
 | FR-18 | V2 | US-34 a US-36, US-41 | [#18](https://github.com/Joaconz/Biyu/issues/18) | Se mantiene |
 | FR-19 | V2 | US-30 | [#18](https://github.com/Joaconz/Biyu/issues/18) | **Ajustado**: el número principal del dashboard es el bruto y el neto de reembolsos es un KPI secundario (`02-behavior-spec.md` supuesto 4) |
-| FR-20 | V1 | US-16, US-23 a US-25, US-27 a US-29, US-31 a US-33 | [#14](https://github.com/Joaconz/Biyu/issues/14) | **Parcial**: el desglose por categoría y por cuenta entra en V1 (la pre-entrega lo ponía en V2). Los gráficos de torta y de evolución quedan en decisión: [#78](https://github.com/Joaconz/Biyu/issues/78) |
+| FR-20 | V1 | US-16, US-23 a US-25, US-27 a US-29, US-31 a US-33 | [#14](https://github.com/Joaconz/Biyu/issues/14) | **Ajustado por [#78](https://github.com/Joaconz/Biyu/issues/78)**: el desglose por categoría se muestra en barras, de acuerdo con US-27; se elimina el gráfico de torta. La evolución de los últimos meses queda fuera de FR-20 y se tratará en una historia específica posterior. |
 | FR-21 | V1 | US-26 | [#14](https://github.com/Joaconz/Biyu/issues/14) | Se mantiene, sin anticipar suscripciones (ver FR-16) |
 | FR-22 | V2 | US-47 | [#19](https://github.com/Joaconz/Biyu/issues/19) | Se mantiene |
 
