@@ -7,7 +7,8 @@ export default function App() {
   return (
     <AuthProvider>
       <RouterProvider router={router} />
-      <Toaster />
+      {/* Con viewport-fit=cover el toast quedaría sobre la barra de inicio del iPhone. */}
+      <Toaster mobileOffset={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }} />
     </AuthProvider>
   )
 }

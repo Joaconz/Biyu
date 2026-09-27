@@ -126,5 +126,36 @@
     }
   html {
     @apply font-sans;
+    /* Sin el destello gris del navegador al tocar: cada control da su propia respuesta (:active). */
+    -webkit-tap-highlight-color: transparent;
+    /* Sin agrandar el texto al girar el teléfono. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     }
+  /*
+    contain y no none: frena el pull-to-refresh de Android (recargar borraría un gasto a medio
+    cargar) pero deja el rebote nativo de iOS.
+  */
+  html,
+  body {
+    overscroll-behavior-y: contain;
+    }
+  /* Sin la demora de doble toque para hacer zoom. */
+  a, button, [role="button"], label, input, select, textarea {
+    touch-action: manipulation;
+    }
+  /* Mantener apretado un control no selecciona su texto; el contenido sigue seleccionable. */
+  button, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+    }
+  /*
+    iOS hace zoom al enfocar un campo de menos de 16px y no vuelve. Piso en la capa base: las
+    utilidades más grandes (text-2xl del monto) siguen ganando.
+  */
+  @media (pointer: coarse) {
+    input, select, textarea {
+      font-size: 16px;
+      }
+  }
 }

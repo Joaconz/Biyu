@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <!--
+      La app todavía no tiene modo oscuro (nada activa .dark): el header es blanco con cualquier
+      esquema del sistema. Cuando llegue el modo oscuro, el segundo valor pasa a --background de .dark.
+    -->
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#ffffff" />
     <title>scaffold</title>
   </head>
   <body>

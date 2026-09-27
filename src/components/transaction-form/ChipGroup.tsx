@@ -31,7 +31,7 @@ export function ChipGroup({ testId, labelId, describedBy, options, value, onChan
           key={option.id}
           value={option.id}
           data-testid={`${testId}-chip-${toTestIdSuffix(option.name)}`}
-          className="h-auto min-h-11 w-full whitespace-normal px-2 py-1.5 text-center leading-tight aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
+          className="h-auto min-h-11 w-full touch-manipulation whitespace-normal px-2 py-1.5 text-center leading-tight select-none transition-[scale,background-color,border-color,color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
         >
           {option.name}
         </ToggleGroupItem>
