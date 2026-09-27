@@ -274,4 +274,63 @@ describe('computeMonthlySummary', () => {
     expect(s.accountExpenses[1].percentage).toBe(30)
     expect(s.accountExpenses[1].isArchived).toBe(true)
   })
+
+  it('US-29: total de ingresos y balance (ingresos - gastos) positivo cuando ingresos > gastos', () => {
+    const s = computeMonthlySummary(
+      [
+        // Ingreso sueldo: 350.000
+        entry({ amount_ars: '350000.00', tx: { type: 'income', category_id: null } }),
+        // Ingreso freelance: 50.000
+        entry({ amount_ars: '50000.00', tx: { type: 'income', category_id: null } }),
+        // Gastos: 120.000
+        entry({ amount_ars: '120000.00', tx: { type: 'expense' } }),
+      ],
+      [],
+      P,
+    )
+
+    // Ingresos: 400.000, Gastos: 120.000, Balance: 280.000
+    expect(s.income.toFixed(2)).toBe('400000.00')
+    expect(s.expenses.toFixed(2)).toBe('120000.00')
+    expect(s.balance.toFixed(2)).toBe('280000.00')
+    expect(s.balance.isPositive()).toBe(true)
+  })
+
+  it('US-29: balance negativo cuando gastos > ingresos (déficit)', () => {
+    const s = computeMonthlySummary(
+      [
+        // Ingreso: 100.000
+        entry({ amount_ars: '100000.00', tx: { type: 'income', category_id: null } }),
+        // Gasto: 150.000
+        entry({ amount_ars: '150000.00', tx: { type: 'expense' } }),
+      ],
+      [],
+      P,
+    )
+
+    // Ingresos: 100.000, Gastos: 150.000, Balance: -50.000
+    expect(s.income.toFixed(2)).toBe('100000.00')
+    expect(s.expenses.toFixed(2)).toBe('150000.00')
+    expect(s.balance.toFixed(2)).toBe('-50000.00')
+    expect(s.balance.isNegative()).toBe(true)
+  })
+
+  it('US-29: ingresos ignora transacciones borradas (I10) y de otros períodos', () => {
+    const s = computeMonthlySummary(
+      [
+        // Ingreso válido del mes actual: 200.000
+        entry({ amount_ars: '200000.00', tx: { type: 'income', category_id: null } }),
+        // Ingreso borrado del mes actual: 80.000 (I10)
+        entry({ amount_ars: '80000.00', tx: { type: 'income', category_id: null, deleted_at: '2026-09-10T12:00:00Z' } }),
+        // Ingreso de otro mes: 100.000
+        entry({ period: '2026-10-01', amount_ars: '100000.00', tx: { type: 'income', category_id: null } }),
+      ],
+      [],
+      P,
+    )
+
+    expect(s.income.toFixed(2)).toBe('200000.00')
+    expect(s.expenses.toFixed(2)).toBe('0.00')
+    expect(s.balance.toFixed(2)).toBe('200000.00')
+  })
 })
