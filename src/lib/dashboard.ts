@@ -59,3 +59,92 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
     },
   }))
 }
+
+export interface DashboardTransaction {
+  id: string
+  type: 'expense' | 'income'
+  amount: string
+  currency: 'ARS' | 'USD'
+  fx_rate: string | null
+  amount_ars: string
+  installments_count: number
+  occurred_on: string
+  description: string | null
+  category: {
+    id: string
+    name: string
+    color: string | null
+  } | null
+  account: {
+    id: string
+    name: string
+    type: string
+  } | null
+}
+
+/**
+ * Trae las transacciones del período para el usuario autenticado (C7).
+ * Excluye transacciones con soft delete (I10) y ordena por occurred_on desc.
+ */
+export async function fetchMonthlyTransactions(
+  period: Period,
+  limit?: number,
+): Promise<DashboardTransaction[]> {
+  const dbPeriod = toDbDate(period)
+  let query = supabase
+    .from('transactions')
+    .select(`
+      id,
+      type,
+      amount,
+      currency,
+      fx_rate,
+      amount_ars,
+      installments_count,
+      occurred_on,
+      description,
+      category:categories!transactions_category_fk (id, name, color),
+      account:accounts!transactions_account_fk (id, name, type)
+    `)
+    .eq('first_period', dbPeriod)
+    .is('deleted_at', null)
+    .order('occurred_on', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  if (!data) return []
+
+  return (
+    data as unknown as Array<{
+      id: string
+      type: 'expense' | 'income'
+      amount: number | string
+      currency: 'ARS' | 'USD'
+      fx_rate: number | string | null
+      amount_ars: number | string
+      installments_count: number
+      occurred_on: string
+      description: string | null
+      category: { id: string; name: string; color: string | null } | null
+      account: { id: string; name: string; type: string } | null
+    }>
+  ).map((row) => ({
+    id: row.id,
+    type: row.type,
+    amount: String(row.amount),
+    currency: row.currency,
+    fx_rate: row.fx_rate ? String(row.fx_rate) : null,
+    amount_ars: String(row.amount_ars),
+    installments_count: row.installments_count,
+    occurred_on: row.occurred_on,
+    description: row.description,
+    category: row.category,
+    account: row.account,
+  }))
+}
+
