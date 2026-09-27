@@ -7,7 +7,7 @@ import { supabase } from './supabase'
 // por eso el cast vive únicamente en este borde.
 const asNumeric = (d: Decimal) => d.toFixed() as unknown as number
 
-export async function createTransaction(draft: TransactionDraft & { description?: string }) {
+export async function createTransaction(draft: TransactionDraft) {
   if (!draft.amount || !draft.accountId) throw new Error('Borrador incompleto: validalo antes de guardar')
   const { data, error } = await supabase.rpc('create_transaction', {
     p_type: draft.type,
@@ -18,7 +18,7 @@ export async function createTransaction(draft: TransactionDraft & { description?
     p_account_id: draft.accountId,
     p_installments_count: draft.installmentsCount,
     p_occurred_on: draft.occurredOn,
-    p_description: draft.description,
+    p_description: draft.description ?? undefined,
   })
   if (error) throw error
   return data

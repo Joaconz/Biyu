@@ -11,6 +11,7 @@ import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
 import { CategorySection } from './CategorySection'
 import { DateSection } from './DateSection'
+import { DescriptionSection } from './DescriptionSection'
 import type { SectionProps, Touched } from './types'
 
 interface TransactionFormProps {
@@ -85,6 +86,8 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
         */}
 
         <DateSection {...section} today={todayIso} />
+
+        <DescriptionSection {...section} />
 
         <Button type="submit" size="lg" className="h-11" disabled={!canSave} data-testid="transaction-form-submit">
           {saving ? 'Guardando…' : 'Guardar'}

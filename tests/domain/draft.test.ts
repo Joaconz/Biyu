@@ -11,6 +11,7 @@ describe('emptyDraftInput', () => {
     expect(emptyDraftInput(TODAY)).toEqual({
       type: 'expense', amount: '', currency: 'ARS', fxRate: '', categoryId: null,
       accountId: null, accountType: null, installmentsCount: 1, occurredOn: TODAY,
+      description: '',
     })
   })
   it('la fecha es el today que recibe, no la del reloj (C1)', () =>
@@ -73,3 +74,36 @@ describe('draftInputAfterSave (US-10)', () => {
   it('el formulario que queda no se puede volver a guardar sin cargar un monto', () =>
     expect(validateTransactionDraft(parseDraftInput(draftInputAfterSave(saved, TODAY)), TODAY)).toHaveProperty('amount'))
 })
+
+describe('guardar sin descripción (US-08)', () => {
+  it('la descripción arranca vacía', () => {
+    expect(emptyDraftInput(TODAY).description).toBe('')
+  })
+
+  it('descripción vacía parsea a null para la RPC', () => {
+    const draft = parseDraftInput({ ...emptyDraftInput(TODAY), description: '' })
+    expect(draft.description).toBeNull()
+  })
+
+  it('descripción con solo espacios parsea a null', () => {
+    const draft = parseDraftInput({ ...emptyDraftInput(TODAY), description: '   ' })
+    expect(draft.description).toBeNull()
+  })
+
+  it('descripción con texto se conserva trimeada', () => {
+    const draft = parseDraftInput({ ...emptyDraftInput(TODAY), description: '  Supermercado Coto  ' })
+    expect(draft.description).toBe('Supermercado Coto')
+  })
+
+  it('después de guardar, el formulario vuelve a tener descripción vacía', () => {
+    const saved: DraftInput = {
+      ...emptyDraftInput(TODAY),
+      amount: '1.500,00',
+      categoryId: 'c1',
+      accountId: 'a1',
+      description: 'Supermercado Coto',
+    }
+    expect(draftInputAfterSave(saved, TODAY).description).toBe('')
+  })
+})
+

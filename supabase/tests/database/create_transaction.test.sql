@@ -1,6 +1,6 @@
 -- create_transaction (C3, C4, C6): reparto de cuotas, rechazos por RPC directo, aislamiento y anon.
 begin;
-select plan(29);
+select plan(31);
 
 insert into auth.users (id, instance_id, aud, role, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','00000000-0000-0000-0000-000000000000','authenticated','authenticated','a@test.local'),
@@ -25,10 +25,12 @@ select is((select min(period) from ledger_entries), '2026-08-01'::date, 'la prim
 select is((select max(period) from ledger_entries), '2027-07-01'::date, 'la última imputación es 2027-07');
 select is((select sum(amount) from ledger_entries), 120000.00, 'la suma es exactamente 120000 (I1)');
 select is((select first_period from transactions), '2026-08-01'::date, 'first_period lo deriva el servidor');
+select is((select description from transactions where amount = 120000), 'Notebook', 'la descripción se guarda si se envía');
 
 -- Resto absorbido por la última cuota: 100000 en 3.
 select lives_ok($$select create_transaction('expense',100000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',3,'2026-08-15')$$, '100000 en 3 cuotas se guarda');
 select is((select array_agg(le.amount order by le.installment_number) from ledger_entries le join transactions t on t.id = le.transaction_id where t.amount = 100000), array[33333.33, 33333.33, 33333.34], 'las primeras dos de 33333.33 y la última de 33333.34');
+select is((select description from transactions where amount = 100000), null, 'la descripción queda null si se omite (US-08)');
 
 -- USD: I1' (prorrateo del total convertido) contra la columna generada.
 select lives_ok($$select create_transaction('expense',100,'USD',1250.5555,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',3,'2026-08-15')$$, 'USD 100 en 3 cuotas se guarda');

@@ -13,9 +13,10 @@ export interface TransactionDraft {
   accountType: 'credit_card' | 'debit_card' | 'cash' | 'bank_account' | 'wallet' | null
   installmentsCount: number
   occurredOn: string // YYYY-MM-DD
+  description: string | null
 }
 
-export type DraftField = 'amount' | 'fxRate' | 'categoryId' | 'accountId' | 'installmentsCount' | 'occurredOn'
+export type DraftField = 'amount' | 'fxRate' | 'categoryId' | 'accountId' | 'installmentsCount' | 'occurredOn' | 'description'
 export type DraftErrors = Partial<Record<DraftField, string>>
 
 // Copia UX de lo que valida create_transaction (C6): la fuente de verdad es Postgres.
