@@ -31,6 +31,7 @@ export interface MonthlySummary {
   netOfReimbursements: Decimal
   byCategory: Map<string | null, Decimal>
   byAccount: Map<string, Decimal>
+  hasData: boolean
 }
 
 const add = <K,>(map: Map<K, Decimal>, key: K, value: Decimal) =>
@@ -47,9 +48,11 @@ export function computeMonthlySummary(
   let inherited = new Decimal(0)
   const byCategory = new Map<string | null, Decimal>()
   const byAccount = new Map<string, Decimal>()
+  let hasData = false
 
   for (const e of entries) {
     if (e.period !== key || e.transaction.deleted_at) continue // I10
+    hasData = true
     const amount = parseMoney(e.amount_ars)
     if (e.transaction.type === 'income') {
       income = income.plus(amount)
@@ -74,5 +77,13 @@ export function computeMonthlySummary(
     netOfReimbursements: expenses.minus(reimbursed),
     byCategory,
     byAccount,
+    hasData,
   }
+}
+
+/**
+ * Determina si el resumen mensual tiene datos registrados (US-33).
+ */
+export function hasMonthlyData(summary: MonthlySummary): boolean {
+  return summary.hasData
 }

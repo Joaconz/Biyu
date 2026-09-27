@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeMonthlySummary, type SummaryEntry } from '@/domain/summary'
+import { computeMonthlySummary, hasMonthlyData, type SummaryEntry } from '@/domain/summary'
 
 const entry = (o: Partial<SummaryEntry> & { tx?: Partial<SummaryEntry['transaction']> }): SummaryEntry => ({
   period: '2026-09-01', installment_number: 1, amount_ars: '100.00',
@@ -9,11 +9,13 @@ const entry = (o: Partial<SummaryEntry> & { tx?: Partial<SummaryEntry['transacti
 const P = { year: 2026, month: 9 }
 
 describe('computeMonthlySummary', () => {
-  it('período vacío: todo en cero', () => {
+  it('período vacío: todo en cero y hasData en false', () => {
     const s = computeMonthlySummary([], [], P)
     expect(s.expenses.toFixed(2)).toBe('0.00')
     expect(s.balance.toFixed(2)).toBe('0.00')
     expect(s.byCategory.size).toBe(0)
+    expect(s.hasData).toBe(false)
+    expect(hasMonthlyData(s)).toBe(false)
   })
   it('gastos, ingresos y balance; ignora otros períodos', () => {
     const s = computeMonthlySummary([
@@ -73,5 +75,51 @@ describe('computeMonthlySummary', () => {
     )
     expect(s.expenses.toFixed(2)).toBe('15000.00')
     expect(s.inheritedInstallments.toFixed(2)).toBe('15000.00')
+  })
+  it('US-33: período sin datos retorna hasData en false', () => {
+    const s = computeMonthlySummary([], [], P)
+    expect(s.hasData).toBe(false)
+    expect(hasMonthlyData(s)).toBe(false)
+  })
+  it('US-33: período con solo transacciones borradas retorna hasData en false (I10)', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({ tx: { deleted_at: '2026-09-10T12:00:00Z' } }),
+        entry({ installment_number: 2, tx: { deleted_at: '2026-09-15T08:00:00Z' } }),
+      ],
+      [],
+      P,
+    )
+    expect(s.hasData).toBe(false)
+    expect(hasMonthlyData(s)).toBe(false)
+  })
+  it('US-33: período con movimientos en otros meses retorna hasData en false para el mes consultado', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({ period: '2026-08-01', amount_ars: '5000.00' }),
+        entry({ period: '2026-10-01', amount_ars: '8000.00' }),
+      ],
+      [],
+      P,
+    )
+    expect(s.hasData).toBe(false)
+    expect(hasMonthlyData(s)).toBe(false)
+  })
+  it('US-33: período con gastos o ingresos activos retorna hasData en true', () => {
+    const withExpense = computeMonthlySummary(
+      [entry({ period: '2026-09-01', amount_ars: '1500.00' })],
+      [],
+      P,
+    )
+    expect(withExpense.hasData).toBe(true)
+    expect(hasMonthlyData(withExpense)).toBe(true)
+
+    const withIncome = computeMonthlySummary(
+      [entry({ period: '2026-09-01', amount_ars: '50000.00', tx: { type: 'income' } })],
+      [],
+      P,
+    )
+    expect(withIncome.hasData).toBe(true)
+    expect(hasMonthlyData(withIncome)).toBe(true)
   })
 })

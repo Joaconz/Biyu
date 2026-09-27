@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatArs } from '@/domain/money'
 import { formatPeriod, parsePeriod } from '@/domain/period'
@@ -74,23 +74,42 @@ export function DashboardPage() {
           </p>
         )}
 
-        {summaryState.status === 'ready' && (
-          <Card data-testid="dashboard-total">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total gastado
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div
-                data-testid="dashboard-total-expenses"
-                className="text-3xl font-bold tracking-tight"
-              >
-                {formatArs(summaryState.summary.expenses)}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {summaryState.status === 'ready' &&
+          (summaryState.summary.hasData ? (
+            <Card data-testid="dashboard-total">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total gastado
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  data-testid="dashboard-total-expenses"
+                  className="text-3xl font-bold tracking-tight"
+                >
+                  {formatArs(summaryState.summary.expenses)}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card data-testid="dashboard-empty" className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <p
+                  data-testid="dashboard-empty-message"
+                  className="text-sm text-muted-foreground mb-4"
+                >
+                  No tenés movimientos registrados en este mes.
+                </p>
+                <Link
+                  to="/register"
+                  data-testid="dashboard-empty-register"
+                  className={buttonVariants({ variant: 'default' })}
+                >
+                  Registrar un gasto
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
       </div>
     </AppShell>
   )
