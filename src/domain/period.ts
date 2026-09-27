@@ -58,3 +58,10 @@ export function formatDisplayDate(isoDate: string): string {
   return `${day}/${month}/${year}`
 }
 
+/** Indica si el período a es estrictamente anterior al período b */
+export function isPeriodBefore(a: Period, b: Period): boolean {
+  if (a.year !== b.year) return a.year < b.year
+  return a.month < b.month
+}
+
+

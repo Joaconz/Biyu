@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,11 +10,13 @@ import { formatPeriod, parsePeriod } from '@/domain/period'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
+import type { DashboardTransaction } from '@/lib/dashboard'
 
 export function DashboardPage() {
   const { period, setPeriod, shift } = usePeriodParam()
   const summaryState = useMonthlySummary(period)
   const transactionsState = useMonthlyTransactions(period, 10)
+  const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
 
   return (
     <AppShell
@@ -134,13 +138,25 @@ export function DashboardPage() {
                     key={tx.id}
                     transaction={tx}
                     testId="dashboard-transaction-item"
+                    onDeleteRequest={setTxToDelete}
                   />
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+
+        <DeleteTransactionDialog
+          transaction={txToDelete}
+          isOpen={txToDelete !== null}
+          onClose={() => setTxToDelete(null)}
+          onDeleted={() => {
+            transactionsState.refresh()
+            summaryState.refresh()
+          }}
+        />
       </div>
     </AppShell>
   )
 }
+
