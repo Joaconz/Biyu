@@ -1,6 +1,5 @@
-import type { Period } from '@/domain/period'
-import { toDbDate } from '@/domain/period'
-import type { SummaryEntry } from '@/domain/summary'
+import { addMonths, toDbDate, type Period } from '@/domain/period'
+import type { ConsistencyTransaction, SummaryEntry } from '@/domain/summary'
 import { supabase } from './supabase'
 
 /**
@@ -84,6 +83,28 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
       account: row.transaction.account,
     },
   }))
+}
+
+/**
+ * Trae las transacciones del período (por occurred_on) para calcular días con registro (US-32, FR-20).
+ * Parte de transactions, no de ledger_entries (04-data-model, consulta 7).
+ */
+export async function fetchMonthlyConsistencyTransactions(
+  period: Period,
+): Promise<ConsistencyTransaction[]> {
+  const start = toDbDate(period)
+  const nextStart = toDbDate(addMonths(period, 1))
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('occurred_on, deleted_at')
+    .gte('occurred_on', start)
+    .lt('occurred_on', nextStart)
+
+  if (error) throw error
+  if (!data) return []
+
+  return data as ConsistencyTransaction[]
 }
 
 export interface DashboardTransaction {

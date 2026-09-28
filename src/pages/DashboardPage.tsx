@@ -219,6 +219,24 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
+        {summaryState.status === 'ready' && (
+          <Card data-testid="dashboard-days-with-transactions">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Días con registro
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div
+                data-testid="dashboard-days-count"
+                className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
+              >
+                {summaryState.daysWithTransactions}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <DeleteTransactionDialog
           transaction={txToDelete}
           isOpen={txToDelete !== null}
