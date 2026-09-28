@@ -34,9 +34,35 @@ export function parseDraftInput(input: DraftInput): TransactionDraft {
   return { ...input, amount: tryParseMoney(input.amount), fxRate: tryParseMoney(input.fxRate) }
 }
 
-/** Después de guardar: formulario en su estado inicial, conservando la última cuenta usada (US-10). */
-export function draftInputAfterSave(saved: DraftInput, today: string): DraftInput {
-  return emptyDraftInput(today, { accountId: saved.accountId, accountType: saved.accountType })
+export interface ActiveAccountOption {
+  id: string
+  type: DraftAccount['accountType'] | string
+}
+
+/**
+ * Resuelve la cuenta preseleccionada a partir de la última cuenta usada y la lista de cuentas activas (US-07).
+ * Si la última cuenta usada no existe o está archivada (no está entre las activas), no se preselecciona ninguna.
+ */
+export function resolvePreloadedAccount(
+  lastAccountId: string | null | undefined,
+  activeAccounts: ActiveAccountOption[],
+): DraftAccount {
+  if (!lastAccountId) return NO_ACCOUNT
+  const active = activeAccounts.find((a) => a.id === lastAccountId)
+  if (!active) return NO_ACCOUNT
+  return { accountId: active.id, accountType: active.type as DraftAccount['accountType'] }
+}
+
+/** Después de guardar: formulario en su estado inicial, conservando la última cuenta usada si sigue activa (US-10, US-07). */
+export function draftInputAfterSave(
+  saved: DraftInput,
+  today: string,
+  activeAccounts?: ActiveAccountOption[],
+): DraftInput {
+  const account: DraftAccount = activeAccounts
+    ? resolvePreloadedAccount(saved.accountId, activeAccounts)
+    : { accountId: saved.accountId, accountType: saved.accountType }
+  return emptyDraftInput(today, account)
 }
 
 /**

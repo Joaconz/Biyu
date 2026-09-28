@@ -1,5 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { applyDraftChange, draftInputAfterSave, emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
+import {
+  applyDraftChange,
+  draftInputAfterSave,
+  emptyDraftInput,
+  parseDraftInput,
+  resolvePreloadedAccount,
+  type DraftInput,
+} from '@/domain/draft'
 import { tryParseMoney } from '@/domain/money'
 import { toIsoDate } from '@/domain/period'
 import { validateTransactionDraft } from '@/domain/validation'
@@ -72,6 +79,91 @@ describe('draftInputAfterSave (US-10)', () => {
     expect(draftInputAfterSave(saved, '2026-08-16').occurredOn).toBe('2026-08-16'))
   it('el formulario que queda no se puede volver a guardar sin cargar un monto', () =>
     expect(validateTransactionDraft(parseDraftInput(draftInputAfterSave(saved, TODAY)), TODAY)).toHaveProperty('amount'))
+})
+
+describe('cuenta precargada con la última usada (US-07)', () => {
+  const activeAccounts = [
+    { id: 'acc-1', type: 'credit_card' as const },
+    { id: 'acc-2', type: 'cash' as const },
+  ]
+
+  describe('resolvePreloadedAccount', () => {
+    it('si no hay última cuenta usada (null o undefined), no preselecciona ninguna', () => {
+      expect(resolvePreloadedAccount(null, activeAccounts)).toEqual({ accountId: null, accountType: null })
+      expect(resolvePreloadedAccount(undefined, activeAccounts)).toEqual({ accountId: null, accountType: null })
+    })
+
+    it('si la última cuenta usada está entre las activas, la preselecciona con su tipo', () => {
+      expect(resolvePreloadedAccount('acc-1', activeAccounts)).toEqual({
+        accountId: 'acc-1',
+        accountType: 'credit_card',
+      })
+      expect(resolvePreloadedAccount('acc-2', activeAccounts)).toEqual({
+        accountId: 'acc-2',
+        accountType: 'cash',
+      })
+    })
+
+    it('si la última cuenta usada ya no existe, no preselecciona ninguna', () => {
+      expect(resolvePreloadedAccount('acc-inexistente', activeAccounts)).toEqual({
+        accountId: null,
+        accountType: null,
+      })
+    })
+
+    it('si la última cuenta usada está archivada (no está entre las activas), no preselecciona ninguna', () => {
+      // Las cuentas activas solo contienen las no archivadas (archived_at is null)
+      expect(resolvePreloadedAccount('acc-archivada', activeAccounts)).toEqual({
+        accountId: null,
+        accountType: null,
+      })
+    })
+
+    it('si la lista de cuentas activas está vacía, no preselecciona ninguna', () => {
+      expect(resolvePreloadedAccount('acc-1', [])).toEqual({
+        accountId: null,
+        accountType: null,
+      })
+    })
+  })
+
+  describe('draftInputAfterSave con cuentas activas', () => {
+    const saved: DraftInput = {
+      type: 'expense',
+      amount: '5000',
+      currency: 'ARS',
+      fxRate: '',
+      categoryId: 'c1',
+      accountId: 'acc-1',
+      accountType: 'credit_card',
+      installmentsCount: 1,
+      occurredOn: TODAY,
+    }
+
+    it('después de guardar, la cuenta queda seleccionada para la próxima carga si sigue activa', () => {
+      const next = draftInputAfterSave(saved, TODAY, activeAccounts)
+      expect(next.accountId).toBe('acc-1')
+      expect(next.accountType).toBe('credit_card')
+      expect(next.amount).toBe('')
+      expect(next.categoryId).toBeNull()
+    })
+
+    it('si la última cuenta usada fue archivada o eliminada tras guardar, no se preselecciona ninguna', () => {
+      const withoutAcc1 = [{ id: 'acc-2', type: 'cash' as const }]
+      const next = draftInputAfterSave(saved, TODAY, withoutAcc1)
+      expect(next.accountId).toBeNull()
+      expect(next.accountType).toBeNull()
+    })
+  })
+
+  describe('emptyDraftInput con cuenta precargada', () => {
+    it('crea el borrador inicial con la cuenta resuelta', () => {
+      const preloaded = resolvePreloadedAccount('acc-2', activeAccounts)
+      const draft = emptyDraftInput(TODAY, preloaded)
+      expect(draft.accountId).toBe('acc-2')
+      expect(draft.accountType).toBe('cash')
+    })
+  })
 })
 
 describe('moneda precargada en ARS (US-05)', () => {

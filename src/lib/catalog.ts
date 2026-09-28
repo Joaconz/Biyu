@@ -26,3 +26,51 @@ export async function fetchActiveAccounts(): Promise<Account[]> {
   if (error) throw error
   return data
 }
+
+const LAST_ACCOUNT_STORAGE_KEY = 'biyu:last_account_id'
+
+export function getStoredLastAccountId(): string | null {
+  try {
+    return localStorage.getItem(LAST_ACCOUNT_STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function setStoredLastAccountId(accountId: string | null): void {
+  try {
+    if (accountId) {
+      localStorage.setItem(LAST_ACCOUNT_STORAGE_KEY, accountId)
+    } else {
+      localStorage.removeItem(LAST_ACCOUNT_STORAGE_KEY)
+    }
+  } catch {
+    // Si localStorage no está disponible o falla la cuota, no rompemos el flujo
+  }
+}
+
+/**
+ * Trae el ID de la última cuenta usada por el usuario autenticado (US-07).
+ * Consulta transactions ordenadas por created_at desc excluyendo borradas (C10).
+ * Si no hay transacciones o falla la consulta, recurre al valor en localStorage si existe.
+ */
+export async function fetchLastUsedAccountId(): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('account_id')
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (!error && data?.account_id) {
+      setStoredLastAccountId(data.account_id)
+      return data.account_id
+    }
+  } catch {
+    // Fallback silencioso al cache local si falla la red
+  }
+  return getStoredLastAccountId()
+}
+
