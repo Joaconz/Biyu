@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { LogoutButton } from '@/components/LogoutButton'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,7 @@ export function TransactionsPage() {
           >
             Registrar
           </Link>
+          <LogoutButton testId="transactions-nav-logout" />
         </div>
       }
     >

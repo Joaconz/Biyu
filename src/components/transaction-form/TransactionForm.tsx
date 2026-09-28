@@ -1,18 +1,20 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
   applyDraftChange,
+  applyReferenceRateSuggestion,
   draftInputAfterSave,
   emptyDraftInput,
   parseDraftInput,
   resolvePreloadedAccount,
   type DraftInput,
 } from '@/domain/draft'
-import { toIsoDate } from '@/domain/period'
+import { formatPeriod, isSamePeriod, parsePeriod, toIsoDate, tryPeriodOf } from '@/domain/period'
 import { allowsInstallments, validateTransactionDraft } from '@/domain/validation'
 import { setStoredLastAccountId, type Account, type Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
+import { getReferenceRate } from '@/lib/fxRates'
 import { createTransaction } from '@/lib/transactions'
 import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
@@ -41,11 +43,59 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
   )
   const [touched, setTouched] = useState<Touched>({})
   const [saving, setSaving] = useState(false)
+  const [referenceRateStatus, setReferenceRateStatus] = useState<
+    'idle' | 'loading' | 'found' | 'missing' | 'error'
+  >('idle')
+  const [referenceRate, setReferenceRate] = useState<string | null>(null)
   const todayIso = toIsoDate(today())
+  const draftPeriod = tryPeriodOf(values.occurredOn)
+  const ratePeriodKey = draftPeriod ? formatPeriod(draftPeriod) : ''
   const draft = parseDraftInput(values)
   // Copia UX de lo que revalida create_transaction (C6): con errores no se emite ninguna escritura.
   const errors = validateTransactionDraft(draft, todayIso)
   const canSave = Object.keys(errors).length === 0
+
+  useEffect(() => {
+    const requestPeriod = parsePeriod(ratePeriodKey)
+    if (values.currency !== 'USD' || !requestPeriod) {
+      setReferenceRateStatus('idle')
+      setReferenceRate(null)
+      if (values.currency === 'USD') {
+        setValues((prev) => (prev.fxRate === '' ? prev : { ...prev, fxRate: '' }))
+      }
+      return
+    }
+
+    const request = { currency: values.currency, period: requestPeriod } as const
+    let cancelled = false
+    setReferenceRateStatus('loading')
+    setReferenceRate(null)
+    // Al cambiar de mes, no se conserva accidentalmente el TC sugerido del período anterior.
+    setValues((prev) => {
+      const previousPeriod = tryPeriodOf(prev.occurredOn)
+      return prev.currency === 'USD' && previousPeriod && isSamePeriod(previousPeriod, request.period)
+        ? { ...prev, fxRate: '' }
+        : prev
+    })
+
+    getReferenceRate(request.period)
+      .then((referenceRate) => {
+        if (cancelled) return
+        setValues((prev) => applyReferenceRateSuggestion(prev, request, referenceRate))
+        setReferenceRate(referenceRate)
+        setReferenceRateStatus(referenceRate === null ? 'missing' : 'found')
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setReferenceRate(null)
+          setReferenceRateStatus('error')
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [values.currency, ratePeriodKey])
 
   function change(patch: Partial<DraftInput>) {
     const next = applyDraftChange(values, patch)
@@ -91,7 +141,11 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
 
         <AmountSection {...section} />
 
-        <CurrencySection {...section} />
+        <CurrencySection
+          {...section}
+          referenceRateStatus={referenceRateStatus}
+          referenceRate={referenceRate}
+        />
 
         {values.type === 'expense' && (
           <CategorySection {...section} categories={categories} />

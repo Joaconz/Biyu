@@ -17,6 +17,21 @@ export async function listReferenceRates(limit = 12): Promise<ReferenceRate[]> {
   return data.map((r) => ({ period: r.period, arsPerUsd: r.ars_per_usd as unknown as string }))
 }
 
+/** Devuelve el numeric como string (C2); null significa que ese período no tiene TC configurado. */
+export async function getReferenceRate(period: Period): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('fx_rates')
+    .select('ars_per_usd_text:ars_per_usd::text')
+    .eq('period', toDbDate(period))
+    .maybeSingle()
+  if (error) throw error
+  if (!data) return null
+  if (typeof data.ars_per_usd_text !== 'string') {
+    throw new TypeError('PostgREST no devolvió el tipo de cambio como texto')
+  }
+  return data.ars_per_usd_text
+}
+
 // La escritura es una sola RPC; el payload numeric viaja como texto exacto (C2, C4, C6).
 export async function upsertReferenceRate(period: Period, arsPerUsd: Decimal): Promise<void> {
   const { error } = await supabase.rpc('upsert_fx_rate', {

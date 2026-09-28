@@ -1,14 +1,16 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import {
   applyDraftChange,
+  applyReferenceRateSuggestion,
   draftInputAfterSave,
   emptyDraftInput,
+  isReferenceRateOverridden,
   parseDraftInput,
   resolvePreloadedAccount,
   type DraftInput,
 } from '@/domain/draft'
 import { tryParseMoney } from '@/domain/money'
-import { toIsoDate } from '@/domain/period'
+import { toIsoDate, tryPeriodOf } from '@/domain/period'
 import { validateTransactionDraft } from '@/domain/validation'
 
 const TODAY = '2026-08-15'
@@ -269,5 +271,109 @@ describe('applyDraftChange (US-14)', () => {
   it('el borrador que queda después del reset se puede guardar', () => {
     const { values } = applyDraftChange(inSixOnCredit, { accountId: 'efectivo', accountType: 'cash' })
     expect(validateTransactionDraft(parseDraftInput(values), TODAY)).toEqual({})
+  })
+})
+
+describe('tryPeriodOf', () => {
+  it('devuelve el período de una fecha válida y null durante una edición incompleta', () => {
+    expect(tryPeriodOf('2026-09-28')).toEqual({ year: 2026, month: 9 })
+    expect(tryPeriodOf('')).toBeNull()
+    expect(tryPeriodOf('2026-09')).toBeNull()
+  })
+})
+
+describe('applyReferenceRateSuggestion (US-20)', () => {
+  const usdDraft: DraftInput = {
+    ...emptyDraftInput('2026-09-15'),
+    currency: 'USD',
+  }
+
+  it('precarga el TC de referencia del mes como string, sin convertirlo a number (C2)', () => {
+    expect(
+      applyReferenceRateSuggestion(
+        usdDraft,
+        { currency: 'USD', period: { year: 2026, month: 9 } },
+        '1350.1234',
+      ).fxRate,
+    ).toBe('1350.1234')
+  })
+
+  it('deja el campo vacío cuando el período no tiene TC de referencia', () => {
+    expect(
+      applyReferenceRateSuggestion(
+        usdDraft,
+        { currency: 'USD', period: { year: 2026, month: 9 } },
+        null,
+      ).fxRate,
+    ).toBe('')
+  })
+
+  it('no pisa un valor manual mientras llega la sugerencia', () => {
+    const edited = { ...usdDraft, fxRate: '1400' }
+    expect(
+      applyReferenceRateSuggestion(
+        edited,
+        { currency: 'USD', period: { year: 2026, month: 9 } },
+        '1350.1234',
+      ),
+    ).toBe(edited)
+  })
+
+  it('descarta una respuesta tardía de otro mes o de un borrador que volvió a ARS', () => {
+    const october = { ...usdDraft, occurredOn: '2026-10-01' }
+    expect(
+      applyReferenceRateSuggestion(
+        october,
+        { currency: 'USD', period: { year: 2026, month: 9 } },
+        '1350.1234',
+      ),
+    ).toBe(october)
+
+    const ars = { ...usdDraft, currency: 'ARS' as const }
+    expect(
+      applyReferenceRateSuggestion(
+        ars,
+        { currency: 'USD', period: { year: 2026, month: 9 } },
+        '1350.1234',
+      ),
+    ).toBe(ars)
+  })
+
+  it('descarta una respuesta tardía si la fecha quedó vacía durante la edición', () => {
+    const withoutDate = { ...usdDraft, occurredOn: '' }
+    expect(
+      applyReferenceRateSuggestion(
+        withoutDate,
+        { currency: 'USD', period: { year: 2026, month: 9 } },
+        '1350.1234',
+      ),
+    ).toBe(withoutDate)
+  })
+})
+
+describe('override manual del tipo de cambio (US-21)', () => {
+  it('reemplaza el TC sugerido en el borrador que se envía a la RPC', () => {
+    const withSuggestion: DraftInput = {
+      ...emptyDraftInput(TODAY),
+      amount: '100',
+      currency: 'USD',
+      fxRate: '1350.1234',
+      categoryId: 'c1',
+      accountId: 'a1',
+      accountType: 'cash',
+    }
+
+    const { values } = applyDraftChange(withSuggestion, { fxRate: '1400,50' })
+    const parsed = parseDraftInput(values)
+
+    expect(parsed.fxRate?.toFixed(2)).toBe('1400.50')
+    expect(validateTransactionDraft(parsed, TODAY)).toEqual({})
+  })
+
+  it('distingue un valor personalizado sin confundir formatos equivalentes', () => {
+    expect(isReferenceRateOverridden('1400,50', '1350.1234')).toBe(true)
+    expect(isReferenceRateOverridden('1.350,1234', '1350.1234')).toBe(false)
+    expect(isReferenceRateOverridden('', '1350.1234')).toBe(false)
+    expect(isReferenceRateOverridden('1400', null)).toBe(false)
   })
 })
