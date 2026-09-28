@@ -8,20 +8,22 @@ export function usePeriodParam() {
   const [params, setParams] = useSearchParams()
   const raw = params.get('period')
   const parsed = parsePeriod(raw)
-  const period: Period = parsed ?? currentPeriod(today())
+  const fallback = currentPeriod(today())
+  const fallbackKey = formatPeriod(fallback)
+  const period: Period = parsed ?? fallback
 
   useEffect(() => {
-    if (raw !== null && !parsed) {
+    if (!parsePeriod(raw)) {
       setParams(
         (prev) => {
           const next = new URLSearchParams(prev)
-          next.set('period', formatPeriod(currentPeriod(today())))
+          next.set('period', fallbackKey)
           return next
         },
         { replace: true },
       )
     }
-  }, [raw, parsed, setParams])
+  }, [raw, fallbackKey, setParams])
 
   const setPeriod = useCallback(
     (next: Period) =>

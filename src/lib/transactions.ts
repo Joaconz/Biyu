@@ -1,11 +1,11 @@
-import { Decimal } from '@/domain/money'
+import { Decimal, serializeMoney } from '@/domain/money'
 import type { TransactionDraft } from '@/domain/validation'
 import { supabase } from './supabase'
 
 // C4: crear una transacción es una sola llamada RPC, nunca inserts sueltos.
 // C2: los montos viajan como string; los tipos generados dicen `number` para numeric,
 // por eso el cast vive únicamente en este borde.
-const asNumeric = (d: Decimal) => d.toFixed() as unknown as number
+const asNumeric = (d: Decimal) => serializeMoney(d) as unknown as number
 
 export async function createTransaction(draft: TransactionDraft) {
   if (!draft.amount || !draft.accountId) throw new Error('Borrador incompleto: validalo antes de guardar')
