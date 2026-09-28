@@ -13,8 +13,11 @@ insert into categories (id, name) values
   ('c0000000-0000-0000-0000-000000000022', 'Compras ficticias');
 insert into accounts (id, name, type, currency) values
   ('a0000000-0000-0000-0000-000000000022', 'Tarjeta ficticia', 'credit_card', 'USD');
--- fx_rates solo se escribe por RPC desde 20260927200000 (revoke insert a authenticated).
-do $$ begin perform upsert_fx_rate('2026-08-01', 1250.0000); end $$;
+do $$
+begin
+  perform public.upsert_fx_rate('2026-08-01'::date, 1250.0000::numeric);
+end
+$$;
 
 select lives_ok(
   $$select create_transaction(
@@ -26,7 +29,11 @@ select lives_ok(
   'US-22: la transacción USD se registra por RPC con la cotización vigente'
 );
 
-do $$ begin perform upsert_fx_rate('2026-08-01', 1400.0000); end $$;
+do $$
+begin
+  perform public.upsert_fx_rate('2026-08-01'::date, 1400.0000::numeric);
+end
+$$;
 
 select is(
   (select ars_per_usd from fx_rates where period = '2026-08-01'),

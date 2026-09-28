@@ -2,6 +2,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { Currency } from '@/domain/fx'
+import { Link } from 'react-router'
 import { FieldError } from './FieldError'
 import type { SectionProps } from './types'
 
@@ -14,7 +15,17 @@ const CURRENCY_OPTIONS: { value: Currency; label: string }[] = [
  * Selector de moneda (US-05) y tipo de cambio (US-19 a US-21).
  * La moneda por defecto es ARS y en ARS no se muestra el campo de tipo de cambio.
  */
-export function CurrencySection({ values, errors, touched, onChange }: SectionProps) {
+interface CurrencySectionProps extends SectionProps {
+  referenceRateStatus: 'idle' | 'loading' | 'found' | 'missing' | 'error'
+}
+
+export function CurrencySection({
+  values,
+  errors,
+  touched,
+  onChange,
+  referenceRateStatus,
+}: CurrencySectionProps) {
   const errorId = 'transaction-form-fx-rate-error'
   const isUsd = values.currency === 'USD'
 
@@ -59,6 +70,8 @@ export function CurrencySection({ values, errors, touched, onChange }: SectionPr
             data-testid="transaction-form-fx-rate"
             inputMode="decimal"
             autoComplete="off"
+            required
+            aria-required="true"
             placeholder="0,00"
             className="h-11 text-base md:text-base"
             value={values.fxRate}
@@ -67,6 +80,27 @@ export function CurrencySection({ values, errors, touched, onChange }: SectionPr
             aria-describedby={errors.fxRate ? errorId : undefined}
           />
           <FieldError id={errorId} message={errors.fxRate} active={!!touched.fxRate} />
+          {referenceRateStatus === 'loading' && (
+            <p data-testid="transaction-form-fx-loading" className="text-sm text-muted-foreground" aria-live="polite">
+              Buscando el tipo de cambio de este mes…
+            </p>
+          )}
+          {(referenceRateStatus === 'missing' || referenceRateStatus === 'error') && (
+            <div className="rounded-lg border border-dashed px-3 py-2">
+              <p className="text-sm text-muted-foreground">
+                {referenceRateStatus === 'missing'
+                  ? 'No tenés un tipo de cambio configurado para este mes.'
+                  : 'No pudimos consultar el tipo de cambio de este mes.'}
+              </p>
+              <Link
+                to="/settings"
+                data-testid="transaction-form-fx-settings"
+                className="inline-flex min-h-11 touch-manipulation items-center rounded-md text-sm font-medium text-primary underline underline-offset-4 transition-transform duration-150 ease-out active:scale-[0.98]"
+              >
+                Ir a Configuración
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>

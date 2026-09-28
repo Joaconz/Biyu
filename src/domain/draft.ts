@@ -1,4 +1,5 @@
 import { tryParseMoney } from './money'
+import { isSamePeriod, tryPeriodOf, type Period } from './period'
 import { allowsInstallments, type TransactionDraft } from './validation'
 
 /**
@@ -85,4 +86,28 @@ export function applyDraftChange(
   const values = { ...prev, ...patch }
   const installmentsReset = values.installmentsCount > 1 && !allowsInstallments(values)
   return { values: installmentsReset ? { ...values, installmentsCount: 1 } : values, installmentsReset }
+}
+
+/**
+ * Aplica el TC de referencia que llegó de forma asíncrona solo si el usuario sigue en el mismo
+ * borrador USD y todavía no escribió un valor propio. Así una respuesta tardía no pisa un override
+ * manual ni el TC de otro mes (US-20, punto de extensión para US-21).
+ */
+export function applyReferenceRateSuggestion(
+  prev: DraftInput,
+  request: { currency: DraftInput['currency']; period: Period },
+  referenceRate: string | null,
+): DraftInput {
+  const draftPeriod = tryPeriodOf(prev.occurredOn)
+  if (
+    prev.currency !== 'USD' ||
+    request.currency !== 'USD' ||
+    !draftPeriod ||
+    !isSamePeriod(draftPeriod, request.period) ||
+    prev.fxRate !== ''
+  ) {
+    return prev
+  }
+
+  return referenceRate === null ? prev : { ...prev, fxRate: referenceRate }
 }
