@@ -13,6 +13,18 @@ export interface SummaryEntry {
     account_id: string
     first_period: string
     deleted_at: string | null
+    category?: {
+      id: string
+      name: string
+      color: string | null
+      archived_at: string | null
+    } | null
+    account?: {
+      id: string
+      name: string
+      type: string
+      archived_at: string | null
+    } | null
   }
 }
 
@@ -23,6 +35,24 @@ export interface SummaryDebt {
   transaction_first_period: string | null
 }
 
+export interface CategoryExpenseSummary {
+  id: string
+  name: string
+  color: string | null
+  isArchived: boolean
+  amount: Decimal
+  percentage: number // 0..100
+}
+
+export interface AccountExpenseSummary {
+  id: string
+  name: string
+  type: string
+  isArchived: boolean
+  amount: Decimal
+  percentage: number // 0..100
+}
+
 export interface MonthlySummary {
   expenses: Decimal
   income: Decimal
@@ -31,6 +61,8 @@ export interface MonthlySummary {
   netOfReimbursements: Decimal
   byCategory: Map<string | null, Decimal>
   byAccount: Map<string, Decimal>
+  categoryExpenses: CategoryExpenseSummary[]
+  accountExpenses: AccountExpenseSummary[]
 }
 
 const add = <K,>(map: Map<K, Decimal>, key: K, value: Decimal) =>
@@ -48,6 +80,26 @@ export function computeMonthlySummary(
   const byCategory = new Map<string | null, Decimal>()
   const byAccount = new Map<string, Decimal>()
 
+  const categoryMap = new Map<
+    string,
+    {
+      name: string
+      color: string | null
+      isArchived: boolean
+      amount: Decimal
+    }
+  >()
+
+  const accountMap = new Map<
+    string,
+    {
+      name: string
+      type: string
+      isArchived: boolean
+      amount: Decimal
+    }
+  >()
+
   for (const e of entries) {
     if (e.period !== key || e.transaction.deleted_at) continue // I10
     const amount = parseMoney(e.amount_ars)
@@ -59,7 +111,79 @@ export function computeMonthlySummary(
     if (e.installment_number > 1) inherited = inherited.plus(amount)
     add(byCategory, e.transaction.category_id, amount)
     add(byAccount, e.transaction.account_id, amount)
+
+    if (e.transaction.category_id) {
+      const catId = e.transaction.category_id
+      const existing = categoryMap.get(catId)
+      if (existing) {
+        existing.amount = existing.amount.plus(amount)
+      } else {
+        categoryMap.set(catId, {
+          name: e.transaction.category?.name ?? 'Sin categoría',
+          color: e.transaction.category?.color ?? null,
+          isArchived: Boolean(e.transaction.category?.archived_at),
+          amount,
+        })
+      }
+    }
+
+    if (e.transaction.account_id) {
+      const accId = e.transaction.account_id
+      const existing = accountMap.get(accId)
+      if (existing) {
+        existing.amount = existing.amount.plus(amount)
+      } else {
+        accountMap.set(accId, {
+          name: e.transaction.account?.name ?? 'Cuenta',
+          type: e.transaction.account?.type ?? 'other',
+          isArchived: Boolean(e.transaction.account?.archived_at),
+          amount,
+        })
+      }
+    }
   }
+
+  // Ordenadas de mayor a menor para identificar dónde se concentra el gasto (US-27)
+  const categoryExpenses: CategoryExpenseSummary[] = Array.from(categoryMap.entries())
+    .map(([id, info]) => {
+      const percentage = expenses.isZero()
+        ? 0
+        : info.amount
+            .dividedBy(expenses)
+            .times(100)
+            .toDecimalPlaces(1, Decimal.ROUND_HALF_UP)
+            .toNumber()
+      return {
+        id,
+        name: info.name,
+        color: info.color,
+        isArchived: info.isArchived,
+        amount: info.amount,
+        percentage,
+      }
+    })
+    .sort((a, b) => b.amount.comparedTo(a.amount))
+
+  // Ordenadas de mayor a menor para identificar el gasto por cuenta (US-28)
+  const accountExpenses: AccountExpenseSummary[] = Array.from(accountMap.entries())
+    .map(([id, info]) => {
+      const percentage = expenses.isZero()
+        ? 0
+        : info.amount
+            .dividedBy(expenses)
+            .times(100)
+            .toDecimalPlaces(1, Decimal.ROUND_HALF_UP)
+            .toNumber()
+      return {
+        id,
+        name: info.name,
+        type: info.type,
+        isArchived: info.isArchived,
+        amount: info.amount,
+        percentage,
+      }
+    })
+    .sort((a, b) => b.amount.comparedTo(a.amount))
 
   // La deuda se imputa entera al mes de nacimiento de la compra (04-data-model, consulta 6).
   const reimbursed = debts
@@ -74,5 +198,7 @@ export function computeMonthlySummary(
     netOfReimbursements: expenses.minus(reimbursed),
     byCategory,
     byAccount,
+    categoryExpenses,
+    accountExpenses,
   }
 }
