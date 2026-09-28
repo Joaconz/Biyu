@@ -48,21 +48,22 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 
 ## Requerimientos no funcionales
 
-La versión sale de `pre-entrega.md` §5. Todos pasan por el checklist de calidad de redacción
-([#73](https://github.com/Joaconz/Biyu/issues/73), `/speckit-checklist` sobre `specs/nfr/`), que decide si cada uno tiene umbral medible y
-en qué versión se prueba. Hasta entonces, esta tabla es la propuesta.
+La versión sale de `pre-entrega.md` §5. Todos pasaron por el checklist de calidad de redacción
+([#73](https://github.com/Joaconz/Biyu/issues/73), `specs/nfr/checklists/version-placement.md`,
+`/speckit-checklist` sobre `specs/nfr/`), que decidió si cada uno tiene umbral medible y en qué
+versión se prueba.
 
 | NFR | Atributo | Versión | Issue | Estado |
 |---|---|---|---|---|
-| NFR-01 a NFR-03 | Rendimiento | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | A revisar en [#73](https://github.com/Joaconz/Biyu/issues/73). `roadmap.md` §V2 fija además "< 1 s con 500 transacciones sintéticas" |
-| NFR-04, NFR-05 | Compatibilidad | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | A revisar en [#73](https://github.com/Joaconz/Biyu/issues/73) |
-| NFR-06 a NFR-08 | Usabilidad y accesibilidad | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | A revisar en [#73](https://github.com/Joaconz/Biyu/issues/73) |
-| NFR-09, NFR-10 | Confiabilidad | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | A revisar en [#73](https://github.com/Joaconz/Biyu/issues/73) |
-| NFR-11 | Confiabilidad | — | — | **No aplica**: sin API de cotización no hay falla que tolerar (ver FR-12) |
+| NFR-01 a NFR-03 | Rendimiento | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | Confirmado tras revisión de calidad (CHK001, CHK002): umbrales medibles con Lighthouse; el dispositivo "de gama media" y la carga concurrente se fijan recién al diseñar el caso de V2, no bloquean el NFR. `roadmap.md` §V2 fija además "< 1 s con 500 transacciones sintéticas" |
+| NFR-04, NFR-05 | Compatibilidad | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | Confirmado (CHK003): NFR-05 ya enumera las funciones centrales, no es ambiguo |
+| NFR-06 a NFR-08 | Usabilidad y accesibilidad | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | Confirmado (CHK004, CHK013): verificable por criterio objetivo; la muestra de la prueba de usabilidad manual (NFR-07) se define al diseñar el caso |
+| NFR-09, NFR-10 | Confiabilidad | V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | Confirmado (CHK005): falta fijar cuánto sobrevive el borrador local, gap menor que no bloquea V2 |
+| NFR-11 | Confiabilidad | — | — | **No aplica, confirmado (CHK009)**: NFR-11 referencia una API externa de cotización que la spec vigente eliminó (ver ajuste de FR-12); no hay falla que tolerar |
 | NFR-12 | Seguridad | V1 | [#72](https://github.com/Joaconz/Biyu/issues/72) | HTTPS lo da Vercel; se verifica en la prueba de humo |
-| NFR-13 | Seguridad | V1 | [#71](https://github.com/Joaconz/Biyu/issues/71), [#61](https://github.com/Joaconz/Biyu/issues/61) | Par pgTAP por tabla (C7) |
-| NFR-14 | Seguridad | V1 | [#63](https://github.com/Joaconz/Biyu/issues/63) | Delegado en Supabase Auth |
-| NFR-15 a NFR-18 | PWA | En decisión | [#77](https://github.com/Joaconz/Biyu/issues/77) | La pre-entrega los pone en V2; `02-behavior-spec.md` deja la PWA para V3+ |
+| NFR-13 | Seguridad | V1 | [#71](https://github.com/Joaconz/Biyu/issues/71), [#61](https://github.com/Joaconz/Biyu/issues/61) | Par pgTAP por tabla (C7). Ya implementado y verde (`rls_isolation.test.sql`) |
+| NFR-14 | Seguridad | V1 | [#63](https://github.com/Joaconz/Biyu/issues/63) | Delegado en Supabase Auth. Ya implementado (US-64, cierre de sesión manual) |
+| NFR-15 a NFR-18 | PWA | **V3+** | [#77](https://github.com/Joaconz/Biyu/issues/77) (cerrado) | **Decidido, [ADR-021](adr/021-pwa-diferida-a-v3.md)**: manda `02-behavior-spec.md` sobre la pre-entrega; no entra en V2 |
 | NFR-19, NFR-20 | Mantenibilidad | V3 | [#22](https://github.com/Joaconz/Biyu/issues/22) | Se mantiene |
 
 ## V1: historias y tareas por épica
