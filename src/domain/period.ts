@@ -110,3 +110,32 @@ export function relativeDay(isoDate: string, today: Date): RelativeDay {
   if (isoDate === addDays(todayIso, -1)) return 'yesterday'
   return 'other'
 }
+
+const WEEKDAY_NAMES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'] as const
+
+/** "27 sep": fecha corta para las filas de movimientos, sin el año del período que ya se está viendo. */
+export function formatDayShort(isoDate: string): string {
+  const [, month, day] = isoDate.split('-').map(Number)
+  return `${day} ${MONTH_SHORT[month - 1]}`
+}
+
+/** Encabezado de un día en la lista de movimientos: "Hoy", "Ayer" o "sábado 27 de septiembre" (C1: `today` por parámetro). */
+export function formatDayHeading(isoDate: string, today: Date): string {
+  const relative = relativeDay(isoDate, today)
+  if (relative === 'today') return 'Hoy'
+  if (relative === 'yesterday') return 'Ayer'
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay()
+  return `${WEEKDAY_NAMES[weekday]} ${day} de ${MONTH_NAMES[month - 1]}`
+}
+
+/**
+ * Días del período que ya pasaron, contando hoy: el mes entero si es pasado, 0 si es futuro.
+ * Es el denominador de "días con registro" (US-32).
+ */
+export function daysElapsedInPeriod(period: Period, today: Date): number {
+  const current = currentPeriod(today)
+  if (isPeriodBefore(current, period)) return 0
+  if (isSamePeriod(current, period)) return today.getDate()
+  return new Date(Date.UTC(period.year, period.month, 0)).getUTCDate()
+}

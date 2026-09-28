@@ -69,3 +69,13 @@ function formatWithSymbol(symbol: string, amount: Decimal): string {
   const formatted = `${symbol}${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
   return isNegative ? `-${formatted}` : formatted
 }
+
+/**
+ * Tipo de cambio en formato argentino, "1.350,00" o "1.350,2575": entre 2 y 4 decimales, los que
+ * tenga la columna numeric(14,4). No usa formatArs, que redondearía a 2.
+ */
+export function formatRate(rate: Decimal): string {
+  const fixed = rate.toFixed(4).replace(/0{1,2}$/, '')
+  const [int, dec] = fixed.split('.')
+  return `${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
+}

@@ -1,109 +1,50 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CategoryIcon } from '@/components/shared/CategoryIcon'
+import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { formatArs } from '@/domain/money'
 import type { CategoryExpenseSummary } from '@/domain/summary'
+import { displayCategoryColor } from '@/lib/visuals'
+import { BreakdownRow } from './BreakdownRow'
 
-const DEFAULT_PALETTE = [
-  '#3b82f6', // blue
-  '#10b981', // emerald
-  '#8b5cf6', // purple
-  '#f59e0b', // amber
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#f97316', // orange
-  '#64748b', // slate
-]
-
-interface CategoryExpenseBarsProps {
-  categories: CategoryExpenseSummary[]
-}
-
-export function CategoryExpenseBars({ categories }: CategoryExpenseBarsProps) {
+/** Gasto por categoría (US-27): una barra por categoría, en su tono apagado (ADR-023). */
+export function CategoryExpenseBars({ categories }: { categories: CategoryExpenseSummary[] }) {
   return (
-    <Card data-testid="dashboard-category-bars">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium">Gasto por categoría</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {categories.length === 0 ? (
-          <p
-            data-testid="dashboard-categories-empty"
-            className="text-sm text-muted-foreground py-4 text-center"
-          >
-            No hay gastos por categoría en este período.
-          </p>
-        ) : (
-          <div
-            data-testid="dashboard-categories-list"
-            role="list"
-            className="space-y-4 pt-1"
-          >
-            {categories.map((cat, index) => {
-              const barColor = cat.color || DEFAULT_PALETTE[index % DEFAULT_PALETTE.length]
-              return (
-                <div
-                  key={cat.id}
-                  data-testid={`dashboard-category-bar-${cat.id}`}
-                  role="listitem"
-                  className="space-y-1.5"
-                >
-                  <div className="flex items-center justify-between text-sm gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <span
-                        className="size-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: barColor }}
-                        aria-hidden="true"
-                      />
-                      <span
-                        data-testid="category-bar-name"
-                        className="font-medium truncate text-foreground"
-                      >
-                        {cat.name}
-                      </span>
-                      {cat.isArchived && (
-                        <span
-                          data-testid="category-bar-archived"
-                          className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium shrink-0"
-                        >
-                          archivada
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2.5 shrink-0 text-right">
-                      <span
-                        data-testid="category-bar-amount"
-                        className="font-semibold tabular-nums text-foreground"
-                      >
-                        {formatArs(cat.amount)}
-                      </span>
-                      <span
-                        data-testid="category-bar-percentage"
-                        className="text-xs text-muted-foreground tabular-nums min-w-[34px] text-right"
-                      >
-                        {cat.percentage}%
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">
-                    <div
-                      role="progressbar"
-                      aria-valuenow={cat.percentage}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-label={`${cat.name}: ${cat.percentage}%`}
-                      className="h-full rounded-full transition-all duration-500 ease-out"
-                      style={{
-                        width: `${Math.max(2, Math.min(100, cat.percentage))}%`,
-                        backgroundColor: barColor,
-                      }}
-                    />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <GroupedSection title="Por categoría" data-testid="dashboard-category-bars">
+      {categories.length === 0 ? (
+        <p data-testid="dashboard-categories-empty" className="px-1 text-callout text-muted-foreground">
+          No hay gastos por categoría en este mes.
+        </p>
+      ) : (
+        <GroupedCard data-testid="dashboard-categories-list" role="list">
+          {categories.map((cat) => (
+            <BreakdownRow
+              key={cat.id}
+              testId={`dashboard-category-bar-${cat.id}`}
+              icon={<CategoryIcon name={cat.name} color={cat.color} />}
+              label={
+                <>
+                  <span data-testid="category-bar-name" className="truncate text-callout font-medium text-foreground">
+                    {cat.name}
+                  </span>
+                  {cat.isArchived && (
+                    <span
+                      data-testid="category-bar-archived"
+                      className="shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+                    >
+                      archivada
+                    </span>
+                  )}
+                </>
+              }
+              amount={formatArs(cat.amount)}
+              amountTestId="category-bar-amount"
+              percentage={cat.percentage}
+              percentageTestId="category-bar-percentage"
+              barColor={displayCategoryColor(cat.color, cat.name)}
+              ariaLabel={`${cat.name}: ${cat.percentage}%`}
+            />
+          ))}
+        </GroupedCard>
+      )}
+    </GroupedSection>
   )
 }

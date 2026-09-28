@@ -1,5 +1,3 @@
-import { cn } from '@/lib/utils'
-
 interface FieldErrorProps {
   /** Se usa como id (para aria-describedby) y como data-testid. */
   id: string
@@ -8,11 +6,15 @@ interface FieldErrorProps {
   active: boolean
 }
 
-/** Motivo por el que un campo no deja guardar. Siempre visible mientras exista (US-11). */
+/**
+ * Motivo por el que un campo no deja guardar, junto al campo, una vez que el usuario lo tocó. Antes
+ * de tocarlo el motivo no desaparece (US-11): se resume junto a Guardar (TransactionForm), así el
+ * formulario vacío no arranca con cuatro errores.
+ */
 export function FieldError({ id, message, active }: FieldErrorProps) {
-  if (!message) return null
+  if (!message || !active) return null
   return (
-    <p id={id} data-testid={id} className={cn('text-footnote', active ? 'text-destructive' : 'text-muted-foreground')}>
+    <p id={id} data-testid={id} className="text-footnote text-destructive">
       {message}
     </p>
   )

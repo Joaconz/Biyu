@@ -26,9 +26,20 @@ de shadcn emite sombra. La jerarquía sale del tono de la superficie, los filete
 el material translúcido del cromo (utilidad `chrome`: fondo al 80% con `backdrop-filter`, con caída
 a sólido si el usuario pide menos transparencia o el navegador no lo soporta).
 
-**Tipografía.** Inter Variable (con eje óptico) para la interfaz y Playfair Display para títulos,
-el wordmark y el monto de la pantalla de registro. Escala propia (`text-display` … `text-tab`) en
+**Tipografía.** Inter Variable (con eje óptico) para toda la interfaz, incluidos los títulos de
+pantalla, en negrita y con tracking negativo como los títulos grandes de iOS. Playfair Display
+queda solo para la marca: el wordmark, el encabezado del login y el monto de la pantalla de
+registro. Una primera versión usaba Playfair también en títulos y rótulos de tarjeta, y el
+conjunto se leía antiguo, más "cafetería" que app. Escala propia (`text-display` … `text-tab`) en
 la que el interlineado y el tracking cambian con el tamaño. Montos con cifras tabulares (`tabular`).
+
+**Composición de las pantallas de lectura.** Listas agrupadas al estilo iOS (`GroupedSection`,
+`GroupedCard`): el rótulo sobre el fondo y las filas en una sola superficie de papel con filetes.
+En el Resumen, el total gastado va en la única superficie sólida verde de la pantalla, porque es
+la pregunta que responde la app (US-25), no el saldo. Las barras de categoría usan el tono de cada
+categoría; las de cuenta, todas en verde, para que el color quede reservado a las categorías. El
+mes se muestra como "septiembre 2026" y en la URL sigue siendo `YYYY-MM` (C11); `data-period`
+expone ese valor a la automatización.
 
 **Movimiento.** Tres duraciones (`--dur-press` 120 ms, `--dur-fade` 180 ms, `--dur-spring` 500 ms)
 y un resorte críticamente amortiguado sin rebote (`--ease-spring`). Los controles responden en
@@ -60,6 +71,8 @@ se esconde con el teclado abierto (`useVisualViewportInset`) para que "Guardar" 
   cromo del contenido sin eso. Si una hoja modal (V2) no se distingue lo suficiente, se reabre.
 - **Modo claro y oscuro desde V1.** Duplica los tokens y la verificación de contraste, y cada
   captura del informe de pruebas se vuelve doble. No hay ninguna historia que lo pida.
+- **Gráfico de dona para el gasto por categoría.** Es lo habitual en apps de finanzas, pero con
+  seis u ocho categorías los ángulos no se comparan a simple vista y CP-DAS-004 pide barras.
 - **Dos navegaciones (barra móvil y sidebar como componentes separados).** Más simple de
   maquetar, pero ambas quedan en el DOM y los `data-testid` se duplican: rompe la automatización
   de V3 (`docs/07-plan-de-testing.md` §2).
@@ -71,7 +84,8 @@ se esconde con el teclado abierto (`useVisualViewportInset`) para que "Guardar" 
 - Sin modo oscuro: quien use el teléfono en oscuro ve la app en claro. Agregarlo después implica
   redefinir todos los tokens y volver a verificar contrastes.
 - Sin sombras, la separación entre capas depende de disciplina en tonos y filetes; hay que
-  revisarla en cada pantalla nueva, sobre todo en hojas y diálogos.
+  revisarla en cada pantalla nueva, sobre todo en hojas y diálogos. El botón Guardar fijo ya lo
+  mostró: sobre material translúcido se leían los rótulos a través del botón, y pasó a fondo sólido.
 - Dos fuentes variables suman ~110 kB de woff2 (subconjunto latino) a la primera carga.
 - Respeta la convención de `data-testid` (`docs/07-plan-de-testing.md` §2) y el período en la
   URL (C11). No toca dominio, montos ni RLS.

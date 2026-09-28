@@ -1,17 +1,41 @@
 import { useState } from 'react'
+import { CalendarCheck, CirclePlus } from 'lucide-react'
 import { Link } from 'react-router'
 import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
+import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
-import { Button, buttonVariants } from '@/components/ui/button'
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatArs, formatUsd } from '@/domain/money'
-import { formatPeriod, parsePeriod } from '@/domain/period'
+import { buttonVariants } from '@/components/ui/button'
+import { formatArs, formatUsd, type Decimal } from '@/domain/money'
+import { daysElapsedInPeriod, formatPeriod, formatPeriodLong } from '@/domain/period'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
+import { today } from '@/lib/clock'
 import type { DashboardTransaction } from '@/lib/dashboard'
+import { cn } from '@/lib/utils'
+
+type BalanceTone = 'surplus' | 'deficit' | 'zero'
+
+function balanceTone(balance: Decimal): BalanceTone {
+  if (balance.isZero()) return 'zero'
+  return balance.isNegative() ? 'deficit' : 'surplus'
+}
+
+const BALANCE_BADGE: Record<BalanceTone, { label: string; className: string }> = {
+  surplus: { label: 'Superávit', className: 'bg-[color-mix(in_srgb,var(--income)_12%,var(--card))] text-income' },
+  deficit: { label: 'Déficit', className: 'bg-[color-mix(in_srgb,var(--deficit)_10%,var(--card))] text-deficit' },
+  zero: { label: 'En cero', className: 'bg-secondary text-muted-foreground' },
+}
+
+const BALANCE_TEXT: Record<BalanceTone, string> = {
+  surplus: 'text-income',
+  deficit: 'text-deficit',
+  zero: 'text-foreground',
+}
 
 export function DashboardPage() {
   const { period, setPeriod, shift } = usePeriodParam()
@@ -20,265 +44,182 @@ export function DashboardPage() {
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   // US-33: un mes sin imputaciones muestra el acceso al registro en vez de un dashboard de ceros.
   const isEmpty = summaryState.status === 'ready' && !summaryState.summary.hasData
+  const monthName = formatPeriodLong(period).split(' ')[0]
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => shift(-1)}
-              data-testid="dashboard-period-prev"
-              aria-label="Mes anterior"
-            >
-              ←
-            </Button>
-            <label
-              htmlFor="dashboard-period-select"
-              className="relative flex items-center justify-center cursor-pointer rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-muted/50 transition-colors"
-            >
-              <span data-testid="dashboard-period">{formatPeriod(period)}</span>
-              <input
-                id="dashboard-period-select"
-                type="month"
-                value={formatPeriod(period)}
-                onChange={(e) => {
-                  const next = parsePeriod(e.target.value)
-                  if (next) setPeriod(next)
-                }}
-                data-testid="dashboard-period-select"
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                aria-label="Seleccionar mes"
-              />
-            </label>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => shift(1)}
-              data-testid="dashboard-period-next"
-              aria-label="Mes siguiente"
-            >
-              →
-            </Button>
-          </div>
+    <div className="mx-auto flex w-full max-w-5xl flex-col">
+      <PageHeader title="Resumen" testId="dashboard-title" className="flex-wrap items-center">
+        <PeriodSwitcher screen="dashboard" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
+      </PageHeader>
+
+      {summaryState.status === 'loading' && (
+        <p data-testid="dashboard-loading" className="text-callout text-muted-foreground">
+          Cargando…
+        </p>
+      )}
+
+      {summaryState.status === 'error' && (
+        <p role="alert" data-testid="dashboard-error" className="text-callout text-destructive">
+          No se pudo cargar el resumen: {summaryState.message}
+        </p>
+      )}
+
+      {isEmpty && (
+        <div
+          data-testid="dashboard-empty"
+          className="flex flex-col items-center rounded-2xl border border-dashed border-input/50 px-6 py-14 text-center"
+        >
+          <p data-testid="dashboard-empty-message" className="mb-5 max-w-64 text-callout text-muted-foreground">
+            No tenés movimientos registrados en {monthName}.
+          </p>
+          <Link to="/register" data-testid="dashboard-empty-register" className={buttonVariants({ variant: 'default' })}>
+            <CirclePlus aria-hidden="true" strokeWidth={1.8} />
+            Registrar un gasto
+          </Link>
         </div>
+      )}
 
-        {summaryState.status === 'loading' && (
-          <p data-testid="dashboard-loading" className="text-muted-foreground">
-            Cargando…
-          </p>
-        )}
-
-        {summaryState.status === 'error' && (
-          <p role="alert" data-testid="dashboard-error" className="text-sm text-destructive">
-            No se pudo cargar el resumen: {summaryState.message}
-          </p>
-        )}
-
-        {isEmpty && (
-          <Card data-testid="dashboard-empty" className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <p
-                data-testid="dashboard-empty-message"
-                className="text-sm text-muted-foreground mb-4"
-              >
-                No tenés movimientos registrados en este mes.
-              </p>
-              <Link
-                to="/register"
-                data-testid="dashboard-empty-register"
-                className={buttonVariants({ variant: 'default' })}
-              >
-                Registrar un gasto
-              </Link>
-            </CardContent>
-          </Card>
-        )}
-
-        {summaryState.status === 'ready' && !isEmpty && (
-          <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <Card data-testid="dashboard-total">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Total gastado
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div
-                    data-testid="dashboard-total-expenses"
-                    className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
-                  >
-                    {formatArs(summaryState.summary.expenses)}
-                  </div>
-                  {summaryState.summary.expensesUsd.gt(0) && (
-                    <p
-                      data-testid="dashboard-total-usd"
-                      className="mt-1 text-sm text-muted-foreground"
-                    >
-                      Subtotal en USD: {formatUsd(summaryState.summary.expensesUsd)}
-                    </p>
-                  )}
-                  {/* US-16: parte del total que ya venía comprometida por cuotas de meses anteriores. */}
-                  <p
-                    data-testid="dashboard-inherited-installments"
-                    className="mt-1 text-sm text-muted-foreground"
-                  >
-                    Cuotas de meses anteriores:{' '}
-                    <span
-                      data-testid="dashboard-inherited-installments-amount"
-                      className="font-medium text-foreground tabular-nums"
-                    >
-                      {formatArs(summaryState.summary.inheritedInstallments)}
+      {summaryState.status === 'ready' && !isEmpty && (() => {
+        const { summary, daysWithTransactions } = summaryState
+        const tone = balanceTone(summary.balance)
+        const elapsed = daysElapsedInPeriod(period, today())
+        return (
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+            {/* Lo primero que se lee es cuánto se gastó (US-25): superficie sólida, la única de la pantalla. */}
+            <div
+              data-testid="dashboard-total"
+              className="flex flex-col justify-between gap-6 rounded-2xl bg-primary p-5 text-primary-foreground sm:p-6"
+            >
+              <div className="flex flex-col gap-1.5">
+                <span className="text-footnote font-medium text-primary-foreground/75 first-letter:uppercase">
+                  Gastado en {monthName}
+                </span>
+                <span
+                  data-testid="dashboard-total-expenses"
+                  className="tabular text-display font-bold"
+                  // Achica con el ancho: un total de ocho cifras entra en 360 px sin cortarse.
+                  style={{ fontSize: 'clamp(2rem, 11vw, 2.75rem)' }}
+                >
+                  {formatArs(summary.expenses)}
+                </span>
+                {summary.expensesUsd.gt(0) && (
+                  <span data-testid="dashboard-total-usd" className="tabular text-footnote text-primary-foreground/75">
+                    Incluye {formatUsd(summary.expensesUsd)} en dólares
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t border-primary-foreground/15 pt-4 text-footnote">
+                {/* US-16: parte del total que ya venía comprometida por cuotas de meses anteriores. */}
+                <span data-testid="dashboard-inherited-installments" className="text-primary-foreground/75">
+                  Cuotas de meses anteriores{' '}
+                  <span data-testid="dashboard-inherited-installments-amount" className="tabular font-semibold text-primary-foreground">
+                    {formatArs(summary.inheritedInstallments)}
+                  </span>
+                </span>
+                {/* US-32: hábito de carga, por occurred_on. */}
+                <span data-testid="dashboard-days-with-transactions" className="inline-flex items-center gap-1.5 text-primary-foreground/75">
+                  <CalendarCheck aria-hidden="true" className="size-4" strokeWidth={1.8} />
+                  <span>
+                    <span data-testid="dashboard-days-count" className="tabular font-semibold text-primary-foreground">
+                      {daysWithTransactions}
                     </span>
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card data-testid="dashboard-income">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Total ingresos
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div
-                    data-testid="dashboard-total-income"
-                    className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400"
-                  >
-                    {formatArs(summaryState.summary.income)}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card data-testid="dashboard-balance">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Balance
-                    </CardTitle>
-                    <span
-                      data-testid="dashboard-balance-badge"
-                      className={`text-[11px] px-1.5 py-0.5 rounded font-medium ${
-                        summaryState.summary.balance.isNegative() && !summaryState.summary.balance.isZero()
-                          ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                          : summaryState.summary.balance.isPositive() && !summaryState.summary.balance.isZero()
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      {summaryState.summary.balance.isNegative() && !summaryState.summary.balance.isZero()
-                        ? 'Déficit'
-                        : summaryState.summary.balance.isPositive() && !summaryState.summary.balance.isZero()
-                          ? 'Superávit'
-                          : 'En cero'}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div
-                    data-testid="dashboard-total-balance"
-                    className={`text-2xl sm:text-3xl font-bold tracking-tight ${
-                      summaryState.summary.balance.isNegative() && !summaryState.summary.balance.isZero()
-                        ? 'text-rose-600 dark:text-rose-400'
-                        : summaryState.summary.balance.isPositive() && !summaryState.summary.balance.isZero()
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-foreground'
-                    }`}
-                  >
-                    {formatArs(summaryState.summary.balance)}
-                  </div>
-                </CardContent>
-              </Card>
+                    {elapsed > 0 ? ` de ${elapsed} días con registro` : ' días con registro'}
+                  </span>
+                </span>
+              </div>
             </div>
 
-            <CategoryExpenseBars categories={summaryState.summary.categoryExpenses} />
-
-            <AccountExpenseBreakdown accounts={summaryState.summary.accountExpenses} />
-          </>
-        )}
-
-        {!isEmpty && (
-          <Card data-testid="dashboard-recent-transactions">
-            <CardHeader>
-              <CardTitle>Últimas transacciones</CardTitle>
-              <CardAction>
-                <Link
-                  to={`/transactions?period=${formatPeriod(period)}`}
-                  data-testid="dashboard-transactions-view-all"
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  Ver todas
-                </Link>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              {transactionsState.status === 'loading' && (
-                <p data-testid="dashboard-transactions-loading" className="text-sm text-muted-foreground py-2">
-                  Cargando transacciones…
-                </p>
-              )}
-
-              {transactionsState.status === 'error' && (
-                <p role="alert" data-testid="dashboard-transactions-error" className="text-sm text-destructive py-2">
-                  No se pudieron cargar las transacciones: {transactionsState.message}
-                </p>
-              )}
-
-              {transactionsState.status === 'ready' && transactionsState.transactions.length === 0 && (
-                <p data-testid="dashboard-transactions-empty" className="text-sm text-muted-foreground py-4 text-center">
-                  No hay transacciones en este período.
-                </p>
-              )}
-
-              {transactionsState.status === 'ready' && transactionsState.transactions.length > 0 && (
-                <div data-testid="dashboard-transactions-list" className="flex flex-col">
-                  {transactionsState.transactions.map((tx) => (
-                    <TransactionItem
-                      key={tx.id}
-                      transaction={tx}
-                      testId="dashboard-transaction-item"
-                      onDeleteRequest={setTxToDelete}
-                    />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {summaryState.status === 'ready' && !isEmpty && (
-          <Card data-testid="dashboard-days-with-transactions">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Días con registro
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div
-                data-testid="dashboard-days-count"
-                className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
-              >
-                {summaryState.daysWithTransactions}
+            <div className="grid grid-cols-[repeat(2,minmax(0,1fr))] gap-3 lg:grid-cols-[minmax(0,1fr)]">
+              <div data-testid="dashboard-income" className="flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
+                <span className="text-footnote font-medium text-muted-foreground">Ingresos</span>
+                <span data-testid="dashboard-total-income" className="tabular text-title-2 font-bold text-income sm:text-title-1">
+                  {formatArs(summary.income)}
+                </span>
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <div data-testid="dashboard-balance" className="flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-footnote font-medium text-muted-foreground">Balance</span>
+                  <span
+                    data-testid="dashboard-balance-badge"
+                    className={cn('rounded-md px-1.5 py-0.5 text-caption font-semibold', BALANCE_BADGE[tone].className)}
+                  >
+                    {BALANCE_BADGE[tone].label}
+                  </span>
+                </div>
+                <span
+                  data-testid="dashboard-total-balance"
+                  className={cn('tabular text-title-2 font-bold sm:text-title-1', BALANCE_TEXT[tone])}
+                >
+                  {formatArs(summary.balance)}
+                </span>
+              </div>
+            </div>
 
-        <DeleteTransactionDialog
-          transaction={txToDelete}
-          isOpen={txToDelete !== null}
-          onClose={() => setTxToDelete(null)}
-          onDeleted={() => {
-            transactionsState.refresh()
-            summaryState.refresh()
-          }}
-        />
-      </div>
-    </>
+            <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-7 lg:col-span-2 lg:grid-cols-[repeat(2,minmax(0,1fr))] lg:gap-5">
+              <CategoryExpenseBars categories={summary.categoryExpenses} />
+              <AccountExpenseBreakdown accounts={summary.accountExpenses} />
+            </div>
+          </div>
+        )
+      })()}
+
+      {!isEmpty && (
+        <GroupedSection
+          title="Últimos movimientos"
+          data-testid="dashboard-recent-transactions"
+          className="mt-7"
+          action={
+            <Link
+              to={`/transactions?period=${formatPeriod(period)}`}
+              data-testid="dashboard-transactions-view-all"
+              className="press -my-2 -mr-1 rounded-md px-1 py-2 text-callout font-medium text-primary hover:underline"
+            >
+              Ver todos
+            </Link>
+          }
+        >
+          {transactionsState.status === 'loading' && (
+            <p data-testid="dashboard-transactions-loading" className="px-1 text-callout text-muted-foreground">
+              Cargando movimientos…
+            </p>
+          )}
+
+          {transactionsState.status === 'error' && (
+            <p role="alert" data-testid="dashboard-transactions-error" className="px-1 text-callout text-destructive">
+              No se pudieron cargar los movimientos: {transactionsState.message}
+            </p>
+          )}
+
+          {transactionsState.status === 'ready' && transactionsState.transactions.length === 0 && (
+            <p data-testid="dashboard-transactions-empty" className="px-1 text-callout text-muted-foreground">
+              No hay movimientos en este mes.
+            </p>
+          )}
+
+          {transactionsState.status === 'ready' && transactionsState.transactions.length > 0 && (
+            <GroupedCard data-testid="dashboard-transactions-list">
+              {transactionsState.transactions.map((tx) => (
+                <TransactionItem
+                  key={`${tx.id}-${tx.installment_number}`}
+                  transaction={tx}
+                  testId="dashboard-transaction-item"
+                  onDeleteRequest={setTxToDelete}
+                />
+              ))}
+            </GroupedCard>
+          )}
+        </GroupedSection>
+      )}
+
+      <DeleteTransactionDialog
+        transaction={txToDelete}
+        isOpen={txToDelete !== null}
+        onClose={() => setTxToDelete(null)}
+        onDeleted={() => {
+          transactionsState.refresh()
+          summaryState.refresh()
+        }}
+      />
+    </div>
   )
 }
-

@@ -14,7 +14,8 @@
 @theme inline {
     --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-serif: 'Playfair Display Variable', Georgia, serif;
-    --font-heading: var(--font-serif);
+    /* Playfair queda para la marca (wordmark, monto de Registrar, login); los títulos de la interfaz van en Inter. */
+    --font-heading: var(--font-sans);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -80,7 +81,7 @@
     --text-amount--letter-spacing: -0.025em;
     --text-title-1: 1.75rem;
     --text-title-1--line-height: 1.15;
-    --text-title-1--letter-spacing: -0.015em;
+    --text-title-1--letter-spacing: -0.022em;
     --text-title-2: 1.25rem;
     --text-title-2--line-height: 1.25;
     --text-title-2--letter-spacing: -0.01em;

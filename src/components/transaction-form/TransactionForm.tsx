@@ -12,7 +12,7 @@ import {
   type DraftInput,
 } from '@/domain/draft'
 import { formatPeriod, isSamePeriod, parsePeriod, toIsoDate, tryPeriodOf } from '@/domain/period'
-import { allowsInstallments, validateTransactionDraft } from '@/domain/validation'
+import { allowsInstallments, validateTransactionDraft, type DraftErrors } from '@/domain/validation'
 import { setStoredLastAccountId, type Account, type Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
 import { getReferenceRate } from '@/lib/fxRates'
@@ -26,6 +26,21 @@ import { DescriptionSection } from './DescriptionSection'
 import { InstallmentsField } from './InstallmentsField'
 import { TypeSection } from './TypeSection'
 import type { SectionProps, Touched } from './types'
+
+// Cómo se nombra cada campo en el resumen de lo que falta, en el orden en que aparece en pantalla.
+const FIELD_NAMES: Partial<Record<keyof DraftErrors, string>> = {
+  amount: 'monto',
+  fxRate: 'tipo de cambio',
+  categoryId: 'categoría',
+  accountId: 'cuenta',
+  installmentsCount: 'cuotas',
+  occurredOn: 'fecha',
+}
+
+/** "monto", "monto y categoría", "monto, categoría y cuenta". */
+function joinSpanish(items: string[]): string {
+  return items.length <= 1 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} y ${items.at(-1)}`
+}
 
 interface TransactionFormProps {
   categories: Category[]
@@ -57,6 +72,10 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
   // Copia UX de lo que revalida create_transaction (C6): con errores no se emite ninguna escritura.
   const errors = validateTransactionDraft(draft, todayIso)
   const canSave = Object.keys(errors).length === 0
+  // US-11: los motivos de los campos que todavía no se tocaron se leen acá, junto a Guardar.
+  const pending = (Object.keys(FIELD_NAMES) as (keyof DraftErrors)[])
+    .filter((field) => errors[field] && !touched[field])
+    .map((field) => FIELD_NAMES[field] as string)
 
   useEffect(() => {
     const requestPeriod = parsePeriod(ratePeriodKey)
@@ -174,11 +193,18 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
       </fieldset>
 
       {/*
-        "Guardar" fijo abajo, sobre material translúcido, por encima de la barra de navegación. Con el
-        teclado abierto se apoya sobre el teclado (--kb-inset, useVisualViewportInset).
+        "Guardar" fijo abajo, por encima de la barra de navegación. Fondo sólido y no translúcido: con
+        material, los rótulos del formulario se leían a través del botón. Con el teclado abierto se
+        apoya sobre el teclado (--kb-inset, useVisualViewportInset).
       */}
-      <div className="chrome sticky z-20 -mx-5 mt-8 border-t border-hairline px-5 py-3 [bottom:calc(var(--app-nav-offset)+var(--kb-inset))] sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-lg lg:border lg:px-3">
+      <div className="sticky z-20 -mx-5 mt-8 flex flex-col gap-2 border-t border-hairline bg-background px-5 pt-2.5 pb-3 [bottom:calc(var(--app-nav-offset)+var(--kb-inset))] sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
+        {!canSave && pending.length > 0 && (
+          <p id="transaction-form-submit-hint" data-testid="transaction-form-submit-hint" className="text-center text-footnote text-muted-foreground">
+            Completá {joinSpanish(pending)} para guardar
+          </p>
+        )}
         <Button
+          aria-describedby={!canSave && pending.length > 0 ? 'transaction-form-submit-hint' : undefined}
           type="submit"
           size="lg"
           className="w-full"
