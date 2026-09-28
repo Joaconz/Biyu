@@ -33,14 +33,15 @@ Resultado esperado: Redirige a `/login?next=%2Fsettings`, conservando el destino
 
 **CP-ACC-003** — US-50 · FR-01, ADR-011 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Alta · Automatizable: V3
 Precondiciones: Email `nueva@test.local` sin cuenta previa.
-Pasos: 1) Ir a `/signup`. 2) Completar email y contraseña `clave123` (6 caracteres). 3) Enviar.
+Pasos: 1) Ir a `/signup`. 2) Completar email y contraseña `Clave123!` (cumple los 5 criterios de US-67), repetida en "Confirmar contraseña". 3) Enviar.
 Resultado esperado: Cuenta creada, sesión activa inmediatamente (sin paso de confirmación por email, ADR-011), redirige a `/register`.
+Nota de versión: reemplaza `clave123` (6 caracteres), desactualizado desde US-67 — ver nota de CP-ACC-004.
 
-**CP-ACC-004** — US-50 · FR-01 · Inv.: — · Técnica: Tabla de decisión · Tipo: Negativo · Prioridad: Alta · Automatizable: Sí
+**CP-ACC-004** — US-50, US-67 · FR-01 · Inv.: — · Técnica: Tabla de decisión · Tipo: Negativo · Prioridad: Alta · Automatizable: Sí
 Precondiciones: Email sin cuenta previa.
-Pasos: Intentar crear cuenta con: (a) contraseña de 7 caracteres con letra y número, (b) 8 caracteres solo letras, (c) 8 caracteres solo números, (d) exactamente 8 caracteres con letra y número.
-Resultado esperado — **derivado de FR-01** ("mínimo 8 caracteres, al menos una letra y un número"): (a), (b) y (c) rechazadas; (d) aceptada.
-⚠️ **Discrepancia detectada contra la implementación actual** (no contra el spec): `AuthForm.tsx` usa `minLength={6}` sin chequeo de complejidad, y Supabase Auth solo aplica `weak_password` por longitud. Tal como está hoy, (a) probablemente se acepta. Este caso **no se ajusta al código para que pase** — ver Ambigüedades al final: es una decisión de PO, no un caso mal diseñado.
+Pasos: Intentar crear cuenta con: (a) `abc1234` (7 caracteres, sin mayúscula ni especial), (b) `abcdefgh` (8 caracteres, solo minúsculas), (c) `12345678` (8 caracteres, solo números), (d) `abcd1234` (8 caracteres, minúscula+número, sin mayúscula ni especial), (e) `Abcd123!` (8 caracteres, cumple los 5 criterios de US-67).
+Resultado esperado — **derivado de US-67** (mínimo 8 caracteres, mayúscula, minúscula, número y carácter especial — ver `unmetPasswordCriteria` en `passwordPolicy.ts`): (a), (b), (c) y (d) rechazadas, cada una con el mensaje que indica específicamente qué falta; (e) aceptada.
+Nota de versión: reemplaza la versión anterior de este caso (derivada solo de FR-01, "letra y número"), desactualizada desde que se agregó US-67 al spec — ver `08-trazabilidad.md`, fila FR-01.
 
 **CP-ACC-005** — US-50 · FR-01 · Inv.: — · Técnica: Adivinación de errores · Tipo: Negativo · Prioridad: Alta · Automatizable: Sí
 Precondiciones: Ya existe una cuenta con `prueba@biyu.local`.
@@ -195,7 +196,7 @@ Resultado esperado: Confirmación breve, formulario vuelve a su estado inicial c
 Precondiciones: Ninguna.
 Pasos: 1) Dejar el monto vacío e intentar guardar. 2) Ingresar `0`. 3) Ingresar `-500`. 4) Ingresar `0,01`.
 Resultado esperado: Vacío, `0` y `-500` → botón Guardar deshabilitado, no se emite ninguna escritura. `0,01` → aceptado (mínimo válido).
-Variante API: `create_transaction` con `p_amount = 0` o negativo → rechazado por `transactions_amount_positive` (I4), sin pasar por el cliente.
+Variante API: `create_transaction` con `p_amount = 0` o negativo → rechazado por la RPC con `23514 "I4: el monto debe ser mayor a cero"`, sin pasar por el cliente. (Ejecutado en #75: confirmado — el rechazo lo hace la validación explícita dentro de la función, no un `check` de tabla.)
 
 **CP-REG-011** — US-11 · FR-06 · Inv.: I4 · Técnica: Valores límite · Tipo: Límite · Prioridad: Media · Automatizable: Sí
 Precondiciones: Ninguna.
@@ -255,7 +256,7 @@ Resultado esperado: Dos cuotas de $33.333,33 y la última de $33.333,34. Suma ex
 **CP-CUO-006** — US-15 · FR-09 · Inv.: — · Técnica: Tabla de decisión · Tipo: Límite · Prioridad: Alta · Automatizable: Sí
 Precondiciones: Cuenta `credit_card`.
 Pasos: Intentar guardar con cantidad de cuotas = 0, 1, 2, 12 y 13.
-Resultado esperado: 0 → rechazado. 1 → aceptado (transacción sin cuotas, técnicamente 1 imputación). 2 → aceptado. 12 → aceptado (tope). 13 → rechazado (`transactions_installments_max`, ADR-020).
+Resultado esperado: 0 → rechazado. 1 → aceptado (transacción sin cuotas, técnicamente 1 imputación). 2 → aceptado. 12 → aceptado (tope). 13 → rechazado. (Ejecutado en #75: confirmado por API — 0 y 13 dan `23514 "las cuotas van de 1 a 12"`, mensaje de la RPC `create_transaction`, no de un check `transactions_installments_max` como sugería ADR-020.)
 
 **CP-CUO-007** — US-16 · FR-20 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Media · Automatizable: V3
 Precondiciones: Gasto de $120.000 en 12 cuotas registrado en 2026-08.
@@ -423,14 +424,14 @@ no hay una regla que rechace algo ahí, forzar un negativo sería un caso sin or
 
 ## Ambigüedades para el Product Owner
 
-1. **CP-ACC-004 — la contraseña mínima no coincide con FR-01.** `pre-entrega.md` pide "mínimo 8
-   caracteres, al menos una letra y un número"; la implementación actual (`AuthForm.tsx`,
-   `minLength={6}`, sin chequeo de complejidad) no lo aplica. El caso se diseñó **contra el spec**,
-   no contra el código (como pide `new-test-case`), así que casi con seguridad va a fallar al
-   ejecutarse en #75 — a propósito: eso es lo que un caso bien diseñado tiene que detectar. El PO
-   decide: ¿se relaja FR-01 a 6 caracteres sin complejidad (y se actualiza `pre-entrega.md` /
-   `08-trazabilidad.md`), o se corrige la validación de contraseña antes de cerrar V1? No se
-   resolvió acá porque es una decisión de producto, no de testing.
+1. ~~**CP-ACC-004 — la contraseña mínima no coincide con FR-01.**~~ **Parcialmente resuelto**:
+   US-67 (#132, política completa de 8+mayúscula+minúscula+número+especial) sí llegó a
+   producción. **US-67 (#131, confirmar contraseña) no llegó** — quedó huérfano por un error de
+   merge (#136 contra la rama equivocada) hasta que la ejecución de #75 lo detectó como DEF-003;
+   el fix está en #141. El caso se actualizó al oráculo de US-67 (ver CP-ACC-004 arriba).
+   **Confirmado por la ejecución de #75 (DEF-005): el servidor (Supabase Auth) no aplica esta
+   política** — acepta por API cualquier contraseña de 6+ caracteres, contradiciendo el "y en el
+   servidor" de FR-01 (C6). Sigue sin resolver.
 2. **CP-REG-011** (monto con 3 decimales): la spec no dice explícitamente si el rechazo es solo
    de cliente o si el servidor también lo valida antes de que `numeric(14,2)` trunque en
    silencio. Se prueba como límite, no como negativo duro, hasta que el PO lo confirme.

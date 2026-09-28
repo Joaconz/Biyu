@@ -190,9 +190,12 @@ P2 entra si alcanza el sprint.
 ## Huecos conocidos
 
 - Catálogo de V1 diseñado en `10-catalogo-casos-v1.md` (68 casos, revisado por `spec-critic`,
-  [#74](https://github.com/Joaconz/Biyu/issues/74)). Pendiente: ejecutarlo y reportar
-  ([#75](https://github.com/Joaconz/Biyu/issues/75)) y cargar los defectos que salgan
-  ([#76](https://github.com/Joaconz/Biyu/issues/76)) — incluida la decisión de PO pendiente sobre
-  la política de contraseña de US-50 (ver "Ambigüedades" del catálogo).
+  [#74](https://github.com/Joaconz/Biyu/issues/74)). Los 37 casos `Alta` ya se ejecutaron
+  ([#75](https://github.com/Joaconz/Biyu/issues/75), reporte en `11-reporte-ejecucion-v1.md`) y
+  se cargaron 16 defectos ([#76](https://github.com/Joaconz/Biyu/issues/76), el más grave DEF-004,
+  Crítica). **V1 todavía no cumple sus criterios de salida** (DEF-004 abierto, CP-REG-013
+  bloqueado) — no cerrar la épica [#16](https://github.com/Joaconz/Biyu/issues/16) ni el
+  milestone V1 hasta resolverlos. Los casos `Media`/`Baja` (31 restantes) quedan para una
+  pasada siguiente.
 - Historias 34 a 41 (deudas) y 52 a 63 (suscripciones) sin issue propio hasta el sprint de V2.
 - US-47 (export) sin issue propio: queda en su épica [#19](https://github.com/Joaconz/Biyu/issues/19).
