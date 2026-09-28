@@ -126,6 +126,14 @@ la pre-entrega, que no tenían historia (ver `08-trazabilidad.md`)._
 
 65. Como usuario, quiero eliminar una transacción que cargué mal, con un aviso si eso cambia los totales de meses ya cerrados, para corregir el registro sin perder el historial.
 
+_Las dos siguientes amplían FR-01 (`pre-entrega.md`): quedaron implícitas en "contraseña que cumpla
+con ciertos criterios de seguridad" pero sin historia propia. Se agregan al comparar contra el
+criterio de aceptación de referencia de la cátedra (ver hallazgo de `spec-critic` en
+`10-catalogo-casos-v1.md`, caso CP-ACC-004)._
+
+66. Como usuario nuevo, quiero confirmar mi contraseña al registrarme escribiéndola dos veces, para no crear la cuenta con una contraseña mal tipeada que después no puedo reproducir.
+67. Como usuario nuevo, quiero que la app me diga con claridad qué le falta a mi contraseña (mayúscula, minúscula, número, carácter especial, largo mínimo) cuando no cumple los criterios, para poder corregirla sin adivinar.
+
 ---
 
 ## Behavior Detail
