@@ -37,10 +37,10 @@ select is((select count(*) from ledger_entries), 0::bigint, 'B no ve ledger_entr
 select is((select count(*) from debts), 0::bigint, 'B no ve debts de A');
 select is((select count(*) from transactions where id = '70000000-0000-0000-0000-000000000001'), 0::bigint, 'pedir por id una transacción ajena da vacío, no error');
 
--- B no puede modificar ni borrar filas de A (0 filas afectadas).
+-- B no puede modificar ni borrar filas de A. fx_rates es de escritura exclusiva por RPC.
 with u as (update categories set name = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza categories de A');
 with u as (update accounts set name = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza accounts de A');
-with u as (update fx_rates set ars_per_usd = 1 returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza fx_rates de A');
+select throws_ok($$update fx_rates set ars_per_usd = 1$$, '42501', null, 'authenticated no actualiza fx_rates directo');
 with u as (update subscriptions set name = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza subscriptions de A');
 with u as (update debts set person = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza debts de A');
 with d as (delete from categories returning 1) select is((select count(*) from d), 0::bigint, 'B no borra categories de A');

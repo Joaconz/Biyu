@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { resolveFxRate } from '@/domain/fx'
-import { convertToArs, formatArs, formatUsd, parseMoney } from '@/domain/money'
+import { resolveFxRate, validateFxRateInput } from '@/domain/fx'
+import { convertToArs, formatArs, formatUsd, parseMoney, serializeMoney } from '@/domain/money'
 import { addMonths, currentPeriod, formatDisplayDate, formatPeriod, fromDbDate, parsePeriod, toDbDate } from '@/domain/period'
 
 describe('period', () => {
@@ -30,6 +30,7 @@ describe('period', () => {
 describe('money', () => {
   it('convertToArs redondea half-up', () => {
     expect(convertToArs(parseMoney('100'), parseMoney('1250'))).toEqual(parseMoney('125000'))
+    expect(convertToArs(parseMoney('100'), parseMoney('1250.5555'))).toEqual(parseMoney('125055.55'))
     expect(convertToArs(parseMoney('0.01'), parseMoney('1.5'))).toEqual(parseMoney('0.02'))
   })
   it('parseMoney acepta formato argentino y PostgREST', () => {
@@ -47,6 +48,9 @@ describe('money', () => {
     expect(formatUsd(parseMoney('33.34'))).toBe('US$33,34')
     expect(formatUsd(parseMoney('-50'))).toBe('-US$50,00')
   })
+  it('serializa Decimal como texto exacto para RPC', () => {
+    expect(serializeMoney(parseMoney('1400.1234'))).toBe('1400.1234')
+  })
 })
 
 describe('resolveFxRate', () => {
@@ -58,4 +62,24 @@ describe('resolveFxRate', () => {
     expect(resolveFxRate({ currency: 'USD', override: o, referenceRate: ref })).toEqual({ kind: 'rate', value: o })
   })
   it('USD sin ninguno queda missing, sin default', () => expect(resolveFxRate({ currency: 'USD' })).toEqual({ kind: 'missing' }))
+})
+
+describe('validateFxRateInput', () => {
+  it.each(['', 'texto'])('rechaza el TC inválido %j', (value) => {
+    expect(validateFxRateInput(value).rate).toBeNull()
+  })
+  it.each(['0', '-1'])('rechaza el TC no positivo %j', (value) => {
+    expect(validateFxRateInput(value).error).toBe('El tipo de cambio debe ser mayor a cero')
+  })
+  it('rechaza más de cuatro decimales', () => {
+    expect(validateFxRateInput('1400.12345').error).toBe('Usá hasta 4 decimales')
+  })
+  it('rechaza valores fuera de numeric(14,4)', () => {
+    expect(validateFxRateInput('10000000000').error).toBe('El tipo de cambio es demasiado grande')
+  })
+  it.each(['1.400,5', '1400.1234'])('devuelve Decimal para %j', (value) => {
+    const result = validateFxRateInput(value)
+    expect(result.error).toBeNull()
+    expect(result.rate?.eq(value === '1.400,5' ? '1400.5' : '1400.1234')).toBe(true)
+  })
 })

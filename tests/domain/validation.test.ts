@@ -19,8 +19,14 @@ describe('validateTransactionDraft', () => {
   it.each([['0'], ['-5'], [null]])('monto %j inválido (I4)', (a) =>
     expect(v({ amount: a === null ? null : parseMoney(a) }).amount).toBeDefined())
   it('más de 2 decimales', () => expect(v({ amount: parseMoney('1.234') }).amount).toBeDefined())
-  it('USD sin tipo de cambio (I5)', () => expect(v({ currency: 'USD' }).fxRate).toBeDefined())
-  it('ARS con tipo de cambio (I5)', () => expect(v({ fxRate: parseMoney('1250') }).fxRate).toBeDefined())
+  it.each([
+    { currency: 'ARS' as const, fxRate: null, expectedError: undefined, caseName: 'ARS sin TC se acepta' },
+    { currency: 'ARS' as const, fxRate: parseMoney('1250'), expectedError: 'Una transacción en ARS no lleva tipo de cambio', caseName: 'ARS con TC se rechaza' },
+    { currency: 'USD' as const, fxRate: null, expectedError: 'Falta el tipo de cambio', caseName: 'USD sin TC se rechaza' },
+    { currency: 'USD' as const, fxRate: parseMoney('1250'), expectedError: undefined, caseName: 'USD con TC manual se acepta' },
+  ])('I5: $caseName', ({ currency, fxRate, expectedError }) => {
+    expect(v({ currency, fxRate }).fxRate).toBe(expectedError)
+  })
   it('gasto sin categoría (I8), ingreso sí puede', () => {
     expect(v({ categoryId: null }).categoryId).toBeDefined()
     expect(v({ type: 'income', categoryId: null }).categoryId).toBeUndefined()

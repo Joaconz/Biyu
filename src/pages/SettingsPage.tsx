@@ -30,8 +30,9 @@ import {
 } from '@/lib/categories'
 import { isUniqueViolation } from '@/lib/errors'
 import { today } from '@/lib/clock'
-import { parseMoney } from '@/domain/money'
-import { currentPeriod, formatPeriod, parsePeriod } from '@/domain/period'
+import { validateFxRateInput } from '@/domain/fx'
+import { formatPeriod, parsePeriod } from '@/domain/period'
+import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { listReferenceRates, upsertReferenceRate, type ReferenceRate } from '@/lib/fxRates'
 
 export function SettingsPage() {
@@ -55,10 +56,10 @@ export function SettingsPage() {
 }
 
 function FxRatesSection() {
+  const { period, setPeriod } = usePeriodParam()
   const [rates, setRates] = useState<ReferenceRate[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const defaultPeriod = formatPeriod(currentPeriod(today()))
 
   useEffect(() => {
     listReferenceRates().then(setRates).catch((e: Error) => setError(e.message))
@@ -71,17 +72,18 @@ function FxRatesSection() {
     // se guarda la referencia acá para poder resetear el form más abajo.
     const formEl = e.currentTarget
     const form = new FormData(formEl)
-    const period = parsePeriod(String(form.get('period')))
+    const selectedPeriod = parsePeriod(String(form.get('period')))
     const rawRate = String(form.get('ars_per_usd')).trim()
-    if (!period) return setError('Elegí un mes válido')
-    const arsPerUsd = rawRate ? parseMoney(rawRate) : null
-    if (!arsPerUsd || !arsPerUsd.isFinite() || arsPerUsd.lte(0)) return setError('El tipo de cambio debe ser mayor a cero')
+    if (!selectedPeriod) return setError('Elegí un mes válido')
+    const validation = validateFxRateInput(rawRate)
+    if (!validation.rate) return setError(validation.error)
     setSubmitting(true)
     try {
-      await upsertReferenceRate(period, arsPerUsd)
+      await upsertReferenceRate(selectedPeriod, validation.rate)
       const updated = await listReferenceRates()
       setRates(updated)
-      formEl.reset()
+      const rateInput = formEl.elements.namedItem('ars_per_usd')
+      if (rateInput instanceof HTMLInputElement) rateInput.value = ''
     } catch {
       setError('No se pudo guardar el tipo de cambio')
     } finally {
@@ -92,6 +94,9 @@ function FxRatesSection() {
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-lg font-medium">Tipo de cambio de referencia</h2>
+      <p className="text-sm text-muted-foreground">
+        Cambiar la referencia no modifica las transacciones que ya guardaste.
+      </p>
       <ul data-testid="settings-fx-list" className="flex flex-col gap-1">
         {(rates ?? []).map((rate) => (
           <li key={rate.period} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
@@ -108,17 +113,31 @@ function FxRatesSection() {
             name="period"
             type="month"
             required
-            defaultValue={defaultPeriod}
+            value={formatPeriod(period)}
+            onChange={(event) => {
+              const next = parsePeriod(event.target.value)
+              if (next) setPeriod(next)
+            }}
             data-testid="settings-fx-period"
+            className="h-11"
           />
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="settings-fx-rate">ARS por USD</Label>
-          <Input id="settings-fx-rate" name="ars_per_usd" required inputMode="decimal" placeholder="1250" data-testid="settings-fx-rate" />
+          <Input
+            id="settings-fx-rate"
+            name="ars_per_usd"
+            required
+            inputMode="decimal"
+            enterKeyHint="done"
+            placeholder="Ej. 1.400,50"
+            data-testid="settings-fx-rate"
+            className="h-12 text-base"
+          />
         </div>
         {error && <p role="alert" data-testid="settings-fx-error" className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" disabled={submitting} data-testid="settings-fx-submit">
-          Guardar
+        <Button type="submit" disabled={submitting} data-testid="settings-fx-submit" className="h-12">
+          {submitting ? 'Guardando…' : 'Guardar tipo de cambio'}
         </Button>
       </form>
     </section>
