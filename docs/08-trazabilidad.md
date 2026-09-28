@@ -85,73 +85,73 @@ P2 entra si alcanza el sprint.
 
 | Historia | Issue | Trazabilidad | Prioridad | Casos |
 |---|---|---|---|---|
-| US-48 · La app pide login | [#61](https://github.com/Joaconz/Biyu/issues/61) | FR-02 · C7 · NFR-13 | P0 | — |
-| US-49 · Sesión persistente en el celular | [#62](https://github.com/Joaconz/Biyu/issues/62) | FR-03 | P1 | — |
-| US-50 · Crear cuenta con email y contraseña | [#63](https://github.com/Joaconz/Biyu/issues/63) | FR-01 · ADR-011 | P0 | — |
-| US-51 · Entrar directo tras registrarse | [#64](https://github.com/Joaconz/Biyu/issues/64) | FR-01 · ADR-011 | P1 | — |
-| US-64 · Cerrar sesión | [#65](https://github.com/Joaconz/Biyu/issues/65) | FR-03 | P1 | — |
+| US-48 · La app pide login | [#61](https://github.com/Joaconz/Biyu/issues/61) | FR-02 · C7 · NFR-13 | P0 | CP-ACC-001, CP-ACC-002, CP-ACC-011 |
+| US-49 · Sesión persistente en el celular | [#62](https://github.com/Joaconz/Biyu/issues/62) | FR-03 | P1 | CP-ACC-010 |
+| US-50 · Crear cuenta con email y contraseña | [#63](https://github.com/Joaconz/Biyu/issues/63) | FR-01 · ADR-011 | P0 | CP-ACC-003, CP-ACC-004, CP-ACC-005 |
+| US-51 · Entrar directo tras registrarse | [#64](https://github.com/Joaconz/Biyu/issues/64) | FR-01 · ADR-011 | P1 | CP-ACC-006, CP-ACC-007, CP-ACC-008 |
+| US-64 · Cerrar sesión | [#65](https://github.com/Joaconz/Biyu/issues/65) | FR-03 | P1 | CP-ACC-009 |
 
 ### Configuración mínima · [#10](https://github.com/Joaconz/Biyu/issues/10)
 
 | Historia | Issue | Trazabilidad | Prioridad | Casos |
 |---|---|---|---|---|
-| US-42 · Crear, renombrar y elegir color de categorías | [#56](https://github.com/Joaconz/Biyu/issues/56) | FR-05 | P1 | — |
-| US-43 · Set inicial de categorías y cuentas | [#57](https://github.com/Joaconz/Biyu/issues/57) | FR-04 · ADR-014 | P0 | — |
-| US-44 · Archivar una categoría sin perder historia | [#58](https://github.com/Joaconz/Biyu/issues/58) | FR-05 | P1 | — |
-| US-45 · Crear cuentas indicando su tipo | [#59](https://github.com/Joaconz/Biyu/issues/59) | FR-05 · I6 | P0 | — |
-| US-46 · Cargar el TC de referencia de cada mes | [#60](https://github.com/Joaconz/Biyu/issues/60) | FR-12 | P1 | — |
+| US-42 · Crear, renombrar y elegir color de categorías | [#56](https://github.com/Joaconz/Biyu/issues/56) | FR-05 | P1 | CP-CFG-001, CP-CFG-002, CP-CFG-003, CP-CFG-005 |
+| US-43 · Set inicial de categorías y cuentas | [#57](https://github.com/Joaconz/Biyu/issues/57) | FR-04 · ADR-014 | P0 | CP-ACC-008, CP-CFG-008 |
+| US-44 · Archivar una categoría sin perder historia | [#58](https://github.com/Joaconz/Biyu/issues/58) | FR-05 | P1 | CP-CFG-004, CP-CFG-005 |
+| US-45 · Crear cuentas indicando su tipo | [#59](https://github.com/Joaconz/Biyu/issues/59) | FR-05 · I6 | P0 | CP-CFG-006, CP-CFG-007 |
+| US-46 · Cargar el TC de referencia de cada mes | [#60](https://github.com/Joaconz/Biyu/issues/60) | FR-12 | P1 | CP-CFG-009, CP-CFG-010 |
 
 ### Registro de transacciones · [#11](https://github.com/Joaconz/Biyu/issues/11)
 
 | Historia | Issue | Trazabilidad | Prioridad | Casos |
 |---|---|---|---|---|
-| US-01 · El registro es la pantalla de inicio | [#24](https://github.com/Joaconz/Biyu/issues/24) | FR-06 | P0 | — |
-| US-02 · El monto recibe el foco y abre el teclado numérico | [#25](https://github.com/Joaconz/Biyu/issues/25) | FR-06 · NFR-07 | P1 | — |
-| US-03 · La fecha viene precargada con hoy | [#26](https://github.com/Joaconz/Biyu/issues/26) | FR-06 · C1 | P1 | — |
-| US-04 · El tipo viene precargado en gasto | [#27](https://github.com/Joaconz/Biyu/issues/27) | FR-06 | P2 | — |
-| US-05 · La moneda viene precargada en ARS | [#28](https://github.com/Joaconz/Biyu/issues/28) | FR-06 | P2 | — |
-| US-06 · Categoría por chips en una grilla visible | [#29](https://github.com/Joaconz/Biyu/issues/29) | FR-06 · I8 | P1 | — |
-| US-07 · La cuenta viene precargada con la última usada | [#30](https://github.com/Joaconz/Biyu/issues/30) | FR-06 | P2 | — |
-| US-08 · Guardar sin descripción | [#31](https://github.com/Joaconz/Biyu/issues/31) | FR-06 | P2 | — |
-| US-09 · Registrar un gasto con fecha pasada | [#32](https://github.com/Joaconz/Biyu/issues/32) | FR-06 | P1 | — |
-| US-10 · Confirmación breve y formulario vacío tras guardar | [#33](https://github.com/Joaconz/Biyu/issues/33) | FR-06 | P1 | — |
-| US-11 · No se puede guardar monto cero o negativo | [#34](https://github.com/Joaconz/Biyu/issues/34) | FR-06 · I4 · C6 | P0 | — |
+| US-01 · El registro es la pantalla de inicio | [#24](https://github.com/Joaconz/Biyu/issues/24) | FR-06 | P0 | CP-REG-001 |
+| US-02 · El monto recibe el foco y abre el teclado numérico | [#25](https://github.com/Joaconz/Biyu/issues/25) | FR-06 · NFR-07 | P1 | CP-REG-016 |
+| US-03 · La fecha viene precargada con hoy | [#26](https://github.com/Joaconz/Biyu/issues/26) | FR-06 · C1 | P1 | CP-REG-002 |
+| US-04 · El tipo viene precargado en gasto | [#27](https://github.com/Joaconz/Biyu/issues/27) | FR-06 | P2 | CP-REG-003 |
+| US-05 · La moneda viene precargada en ARS | [#28](https://github.com/Joaconz/Biyu/issues/28) | FR-06 | P2 | CP-REG-003 |
+| US-06 · Categoría por chips en una grilla visible | [#29](https://github.com/Joaconz/Biyu/issues/29) | FR-06 · I8 | P1 | CP-REG-004, CP-REG-005 |
+| US-07 · La cuenta viene precargada con la última usada | [#30](https://github.com/Joaconz/Biyu/issues/30) | FR-06 | P2 | CP-REG-006 |
+| US-08 · Guardar sin descripción | [#31](https://github.com/Joaconz/Biyu/issues/31) | FR-06 | P2 | CP-REG-007 |
+| US-09 · Registrar un gasto con fecha pasada | [#32](https://github.com/Joaconz/Biyu/issues/32) | FR-06 | P1 | CP-REG-008 |
+| US-10 · Confirmación breve y formulario vacío tras guardar | [#33](https://github.com/Joaconz/Biyu/issues/33) | FR-06 | P1 | CP-REG-009 |
+| US-11 · No se puede guardar monto cero o negativo | [#34](https://github.com/Joaconz/Biyu/issues/34) | FR-06 · I4 · C6 | P0 | CP-REG-010, CP-REG-011 |
 
 ### Cuotas · [#12](https://github.com/Joaconz/Biyu/issues/12)
 
 | Historia | Issue | Trazabilidad | Prioridad | Casos |
 |---|---|---|---|---|
-| US-12 · Indicar cantidad de cuotas con tarjeta de crédito | [#35](https://github.com/Joaconz/Biyu/issues/35) | FR-09 · I2 · I3 | P0 | — |
-| US-13 · Previsualizar impacto mensual antes de guardar | [#36](https://github.com/Joaconz/Biyu/issues/36) | FR-09 | P0 | — |
-| US-14 · El selector de cuotas solo aparece con tarjeta de crédito | [#37](https://github.com/Joaconz/Biyu/issues/37) | I6 | P0 | — |
-| US-15 · El reparto de cuotas no pierde ni inventa centavos | [#38](https://github.com/Joaconz/Biyu/issues/38) | FR-10 · FR-11 · I1 · I1' · C3 · ADR-013 | P0 | — |
-| US-16 · Ver cuotas de meses anteriores en el dashboard | [#39](https://github.com/Joaconz/Biyu/issues/39) | FR-20 | P1 | — |
-| US-17 · Ver número de cuota en el listado (3/12) | [#40](https://github.com/Joaconz/Biyu/issues/40) | FR-20 | P2 | — |
-| US-18 · Borrar una compra en cuotas saca todas sus cuotas | [#41](https://github.com/Joaconz/Biyu/issues/41) | FR-08 · I10 | P0 | — |
+| US-12 · Indicar cantidad de cuotas con tarjeta de crédito | [#35](https://github.com/Joaconz/Biyu/issues/35) | FR-09 · I2 · I3 | P0 | CP-CUO-001, CP-CUO-012 |
+| US-13 · Previsualizar impacto mensual antes de guardar | [#36](https://github.com/Joaconz/Biyu/issues/36) | FR-09 | P0 | CP-CUO-002 |
+| US-14 · El selector de cuotas solo aparece con tarjeta de crédito | [#37](https://github.com/Joaconz/Biyu/issues/37) | I6 | P0 | CP-CUO-003 |
+| US-15 · El reparto de cuotas no pierde ni inventa centavos | [#38](https://github.com/Joaconz/Biyu/issues/38) | FR-10 · FR-11 · I1 · I1' · C3 · ADR-013 | P0 | CP-CUO-004, CP-CUO-005, CP-CUO-006, CP-CUO-010, CP-CUO-013 |
+| US-16 · Ver cuotas de meses anteriores en el dashboard | [#39](https://github.com/Joaconz/Biyu/issues/39) | FR-20 | P1 | CP-CUO-007 |
+| US-17 · Ver número de cuota en el listado (3/12) | [#40](https://github.com/Joaconz/Biyu/issues/40) | FR-20 | P2 | CP-CUO-008 |
+| US-18 · Borrar una compra en cuotas saca todas sus cuotas | [#41](https://github.com/Joaconz/Biyu/issues/41) | FR-08 · I10 | P0 | CP-CUO-009 |
 
 ### Monedas · [#13](https://github.com/Joaconz/Biyu/issues/13)
 
 | Historia | Issue | Trazabilidad | Prioridad | Casos |
 |---|---|---|---|---|
-| US-19 · Registrar un gasto en USD sin convertir a mano | [#42](https://github.com/Joaconz/Biyu/issues/42) | FR-12 · I5 | P0 | — |
-| US-20 · Sugerir el tipo de cambio de referencia del mes | [#43](https://github.com/Joaconz/Biyu/issues/43) | FR-12 | P1 | — |
-| US-21 · Pisar el tipo de cambio sugerido en una transacción | [#44](https://github.com/Joaconz/Biyu/issues/44) | FR-12 | P1 | — |
-| US-22 · Cambiar el TC de referencia no altera meses cargados | [#45](https://github.com/Joaconz/Biyu/issues/45) | C5 · ADR-002 | P0 | — |
-| US-23 · Total del mes en ARS incluye USD convertido | [#46](https://github.com/Joaconz/Biyu/issues/46) | FR-20 · I1' | P1 | — |
-| US-24 · Ver por separado el gasto en USD nativo | [#47](https://github.com/Joaconz/Biyu/issues/47) | FR-20 | P2 | — |
+| US-19 · Registrar un gasto en USD sin convertir a mano | [#42](https://github.com/Joaconz/Biyu/issues/42) | FR-12 · I5 | P0 | CP-MON-001, CP-MON-002 |
+| US-20 · Sugerir el tipo de cambio de referencia del mes | [#43](https://github.com/Joaconz/Biyu/issues/43) | FR-12 | P1 | CP-MON-003 |
+| US-21 · Pisar el tipo de cambio sugerido en una transacción | [#44](https://github.com/Joaconz/Biyu/issues/44) | FR-12 | P1 | CP-MON-003 |
+| US-22 · Cambiar el TC de referencia no altera meses cargados | [#45](https://github.com/Joaconz/Biyu/issues/45) | C5 · ADR-002 | P0 | CP-MON-004 |
+| US-23 · Total del mes en ARS incluye USD convertido | [#46](https://github.com/Joaconz/Biyu/issues/46) | FR-20 · I1' | P1 | CP-MON-005 |
+| US-24 · Ver por separado el gasto en USD nativo | [#47](https://github.com/Joaconz/Biyu/issues/47) | FR-20 | P2 | CP-MON-006 |
 
 ### Dashboard mensual · [#14](https://github.com/Joaconz/Biyu/issues/14)
 
 | Historia | Issue | Trazabilidad | Prioridad | Casos |
 |---|---|---|---|---|
-| US-25 · Total gastado del mes actual al entrar | [#48](https://github.com/Joaconz/Biyu/issues/48) | FR-20 · I10 | P0 | — |
-| US-26 · Cambiar de mes con un selector | [#49](https://github.com/Joaconz/Biyu/issues/49) | FR-21 · C11 | P0 | — |
-| US-27 · Gasto por categoría en barras | [#50](https://github.com/Joaconz/Biyu/issues/50) | FR-20 | P1 | — |
-| US-28 · Gasto por cuenta | [#51](https://github.com/Joaconz/Biyu/issues/51) | FR-20 | P1 | — |
-| US-29 · Ingresos y balance del mes | [#52](https://github.com/Joaconz/Biyu/issues/52) | FR-20 | P1 | — |
-| US-31 · Últimas transacciones con acceso a la lista completa | [#53](https://github.com/Joaconz/Biyu/issues/53) | FR-20 | P1 | — |
-| US-32 · Días del mes con al menos un registro | [#54](https://github.com/Joaconz/Biyu/issues/54) | FR-20 | P2 | — |
-| US-33 · Estado vacío con acceso al registro | [#55](https://github.com/Joaconz/Biyu/issues/55) | FR-20 | P1 | — |
+| US-25 · Total gastado del mes actual al entrar | [#48](https://github.com/Joaconz/Biyu/issues/48) | FR-20 · I10 | P0 | CP-DAS-001 |
+| US-26 · Cambiar de mes con un selector | [#49](https://github.com/Joaconz/Biyu/issues/49) | FR-21 · C11 | P0 | CP-DAS-002, CP-DAS-003 |
+| US-27 · Gasto por categoría en barras | [#50](https://github.com/Joaconz/Biyu/issues/50) | FR-20 | P1 | CP-DAS-004 |
+| US-28 · Gasto por cuenta | [#51](https://github.com/Joaconz/Biyu/issues/51) | FR-20 | P1 | CP-DAS-005 |
+| US-29 · Ingresos y balance del mes | [#52](https://github.com/Joaconz/Biyu/issues/52) | FR-20 | P1 | CP-DAS-006, CP-DAS-007 |
+| US-31 · Últimas transacciones con acceso a la lista completa | [#53](https://github.com/Joaconz/Biyu/issues/53) | FR-20 | P1 | CP-DAS-008 |
+| US-32 · Días del mes con al menos un registro | [#54](https://github.com/Joaconz/Biyu/issues/54) | FR-20 | P2 | CP-DAS-009 |
+| US-33 · Estado vacío con acceso al registro | [#55](https://github.com/Joaconz/Biyu/issues/55) | FR-20 | P1 | CP-DAS-010 |
 
 | Tarea | Issue | Prioridad |
 |---|---|---|
@@ -161,7 +161,7 @@ P2 entra si alcanza el sprint.
 
 | Historia | Issue | Trazabilidad | Prioridad | Casos |
 |---|---|---|---|---|
-| US-65 · Eliminar una transacción con aviso si toca meses cerrados | [#66](https://github.com/Joaconz/Biyu/issues/66) | FR-08 · C10 · I10 | P0 | — |
+| US-65 · Eliminar una transacción con aviso si toca meses cerrados | [#66](https://github.com/Joaconz/Biyu/issues/66) | FR-08 · C10 · I10 | P0 | CP-REG-012, CP-REG-013 |
 
 ### Calidad V1: catálogo, ejecución y reporte · [#16](https://github.com/Joaconz/Biyu/issues/16)
 
@@ -186,6 +186,10 @@ P2 entra si alcanza el sprint.
 
 ## Huecos conocidos
 
-- Ningún caso de prueba diseñado todavía: la columna "Casos" está vacía hasta [#74](https://github.com/Joaconz/Biyu/issues/74).
+- Catálogo de V1 diseñado en `10-catalogo-casos-v1.md` (68 casos, revisado por `spec-critic`,
+  [#74](https://github.com/Joaconz/Biyu/issues/74)). Pendiente: ejecutarlo y reportar
+  ([#75](https://github.com/Joaconz/Biyu/issues/75)) y cargar los defectos que salgan
+  ([#76](https://github.com/Joaconz/Biyu/issues/76)) — incluida la decisión de PO pendiente sobre
+  la política de contraseña de US-50 (ver "Ambigüedades" del catálogo).
 - Historias 34 a 41 (deudas) y 52 a 63 (suscripciones) sin issue propio hasta el sprint de V2.
 - US-47 (export) sin issue propio: queda en su épica [#19](https://github.com/Joaconz/Biyu/issues/19).
