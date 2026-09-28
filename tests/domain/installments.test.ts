@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateLedgerEntries, previewInstallments } from '@/domain/installments'
+import { formatInstallmentLabel, generateLedgerEntries, previewInstallments } from '@/domain/installments'
 import { Decimal, parseMoney } from '@/domain/money'
 import { addMonths } from '@/domain/period'
 import { validateTransactionDraft, type TransactionDraft } from '@/domain/validation'
@@ -148,4 +148,24 @@ describe('previewInstallments (US-13)', () => {
     ['fecha malformada', { occurredOn: '15/08/2026' }],
     ['fecha futura', { occurredOn: '2026-11-30' }],
   ])('%s: no muestra nada', (_, patch) => expect(preview(patch)).toBeNull())
+})
+
+describe('formatInstallmentLabel (US-17)', () => {
+  it('cuota 3 de 12 → "3/12"', () => {
+    expect(formatInstallmentLabel(3, 12)).toBe('3/12')
+  })
+  it('primera y última cuota', () => {
+    expect(formatInstallmentLabel(1, 12)).toBe('1/12')
+    expect(formatInstallmentLabel(12, 12)).toBe('12/12')
+  })
+  it('pago único: sin etiqueta', () => {
+    expect(formatInstallmentLabel(1, 1)).toBeNull()
+  })
+  it('la etiqueta de cada imputación generada sale de su installmentNumber', () => {
+    const labels = generateLedgerEntries(parseMoney('120000'), null, 12, P(2026, 8)).map((e) =>
+      formatInstallmentLabel(e.installmentNumber, 12),
+    )
+    expect(labels[1]).toBe('2/12')
+    expect(labels[2]).toBe('3/12')
+  })
 })
