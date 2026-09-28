@@ -1,161 +1,282 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter/opsz.css";
+@import "@fontsource-variable/playfair-display";
 
+/* Solo modo claro (ADR-023): la variante existe para que las clases dark: de shadcn compilen, pero nada la activa. */
 @custom-variant dark (&:is(.dark *));
 
+/*
+  Sistema de diseño "heritage moderno" (ADR-023): ecru, espresso y verde cazador; oro solo en
+  microdetalles. Sin sombras ni degradados; la jerarquía sale del tono, los filetes y el material.
+*/
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Playfair Display Variable', Georgia, serif;
+    --font-heading: var(--font-serif);
+
     --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    --color-gold: var(--gold);
+    --color-income: var(--income);
+    --color-deficit: var(--deficit);
+    --color-warning: var(--warning);
+    --color-warning-surface: var(--warning-surface);
+    --color-hairline: var(--hairline);
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-2xl: 8px;
+    --radius-3xl: 8px;
+    --radius-4xl: 8px;
+}
+
+@theme {
+    /* "Sin sombras": cualquier shadow-* que quede en un primitivo no emite nada. */
+    --shadow-*: initial;
+    --inset-shadow-*: initial;
+    --drop-shadow-*: initial;
+    --text-shadow-*: initial;
+
+    /* Escala tipográfica: el tracking y el interlineado cambian con el tamaño (apple-design §15). */
+    --text-display: 2.75rem;
+    --text-display--line-height: 1;
+    --text-display--letter-spacing: -0.025em;
+    --text-amount: 3rem;
+    --text-amount--line-height: 1.05;
+    --text-amount--letter-spacing: -0.025em;
+    --text-title-1: 1.75rem;
+    --text-title-1--line-height: 1.15;
+    --text-title-1--letter-spacing: -0.015em;
+    --text-title-2: 1.25rem;
+    --text-title-2--line-height: 1.25;
+    --text-title-2--letter-spacing: -0.01em;
+    --text-headline: 1.0625rem;
+    --text-headline--line-height: 1.3;
+    --text-headline--letter-spacing: -0.01em;
+    --text-callout: 0.9375rem;
+    --text-callout--line-height: 1.4;
+    --text-footnote: 0.8125rem;
+    --text-footnote--line-height: 1.35;
+    --text-footnote--letter-spacing: 0.005em;
+    --text-caption: 0.75rem;
+    --text-caption--line-height: 1.2;
+    --text-caption--letter-spacing: 0.01em;
+    --text-tab: 0.6875rem;
+    --text-tab--line-height: 1.1;
+    --text-tab--letter-spacing: 0.01em;
+
+    --ease-out-quick: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    /* Resorte críticamente amortiguado (damping 1.0, response 0.35 s), sin rebote. Llega al 94% a la mitad. */
+    --ease-spring: linear(0, 0.109 6.2%, 0.309 12.5%, 0.501 18.8%, 0.656 25%, 0.77 31.2%, 0.849 37.5%, 0.903 43.8%, 0.938 50%, 0.961 56.2%, 0.976 62.5%, 0.985 68.8%, 0.991 75%, 0.994 81.2%, 0.997 87.5%, 0.998 93.8%, 1);
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    color-scheme: light;
+
+    --background: #f9f6f0; /* ecru */
+    --foreground: #2b1e19; /* espresso */
+    --card: #fdfbf7; /* papel: grupos y hojas, nunca blanco puro */
+    --card-foreground: #2b1e19;
+    --popover: #fdfbf7;
+    --popover-foreground: #2b1e19;
+    --primary: #1b4d3e; /* verde cazador, 8,9:1 con texto ecru */
+    --primary-foreground: #f9f6f0;
+    --secondary: #f1ebe0; /* lino */
+    --secondary-foreground: #2b1e19;
+    --muted: #f1ebe0;
+    --muted-foreground: #6e625a; /* 5,5:1 sobre ecru */
+    --accent: #efe8dc;
+    --accent-foreground: #2b1e19;
+    --destructive: #8b2e2e; /* bordó, 7,7:1 */
+    --border: #e6dfd3; /* filete decorativo */
+    --hairline: #e6dfd3;
+    --input: #948877; /* borde de control, 3,2:1 (WCAG 1.4.11) */
+    --ring: #9a7b1f; /* oro profundo, 3,7:1: el #d4af37 no alcanza 3:1 para foco */
+    --gold: #d4af37; /* solo decorativo: filetes e íconos chicos, nunca texto */
+    --income: #1b4d3e;
+    --deficit: #8b2e2e;
+    --warning: #7a5c12;
+    --warning-surface: #f3ebd6;
+    --chart-1: #b5653a;
+    --chart-2: #3e5c76;
+    --chart-3: #4a7a6d;
+    --chart-4: #6b4e71;
+    --chart-5: #a68a3e;
+    --radius: 8px;
+    --sidebar: #f9f6f0;
+    --sidebar-foreground: #2b1e19;
+    --sidebar-primary: #1b4d3e;
+    --sidebar-primary-foreground: #f9f6f0;
+    --sidebar-accent: #f1ebe0;
+    --sidebar-accent-foreground: #2b1e19;
+    --sidebar-border: #e6dfd3;
+    --sidebar-ring: #9a7b1f;
+
+    --dur-press: 120ms;
+    --dur-fade: 180ms;
+    --dur-spring: 500ms;
+
+    /* Alturas del cromo. Sin la barra (desktop o teclado abierto), el offset es 0. */
+    --app-header-h: 3.25rem;
+    --app-nav-h: 3.5rem;
+    --app-nav-offset: calc(var(--app-nav-h) + env(safe-area-inset-bottom, 0px));
+    --kb-inset: 0px;
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+@media (min-width: 64rem) {
+    :root {
+        --app-nav-offset: 0px;
+    }
+}
+
+/* Teclado abierto (useVisualViewportInset): la barra se va y "Guardar" se apoya sobre el teclado. */
+html[data-keyboard="open"] {
+    --app-nav-offset: 0px;
+}
+
+/* Material translúcido del cromo (apple-design §12): el contenido pasa por debajo, sin sombra. */
+@utility chrome {
+    background-color: color-mix(in srgb, var(--background) 80%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+    @media (prefers-reduced-transparency: reduce) {
+        background-color: var(--background);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        background-color: var(--background);
+    }
+}
+
+/* Respuesta en pointer-down (apple-design §1): el control se hunde al tocarlo, no al soltarlo. */
+@utility press {
+    transition-property: scale, background-color, border-color, color, opacity;
+    transition-duration: var(--dur-press);
+    transition-timing-function: var(--ease-out-quick);
+    &:active:not(:disabled, [aria-disabled="true"], [data-disabled]) {
+        scale: 0.97;
+    }
+}
+
+@utility tabular {
+    font-variant-numeric: tabular-nums lining-nums;
+}
+
+@utility serif-numerals {
+    font-variant-numeric: lining-nums proportional-nums;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border;
     }
-  body {
-    @apply bg-background text-foreground;
+    html {
+        @apply bg-background font-sans text-foreground;
+        font-optical-sizing: auto;
+        -webkit-font-smoothing: antialiased;
+        /* Sin el destello gris del navegador al tocar: cada control da su propia respuesta (:active). */
+        -webkit-tap-highlight-color: transparent;
+        /* Sin agrandar el texto al girar el teléfono. */
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
     }
-  html {
-    @apply font-sans;
-    /* Sin el destello gris del navegador al tocar: cada control da su propia respuesta (:active). */
-    -webkit-tap-highlight-color: transparent;
-    /* Sin agrandar el texto al girar el teléfono. */
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+    body {
+        @apply min-h-dvh bg-background text-foreground;
     }
-  /*
-    contain y no none: frena el pull-to-refresh de Android (recargar borraría un gasto a medio
-    cargar) pero deja el rebote nativo de iOS.
-  */
-  html,
-  body {
-    overscroll-behavior-y: contain;
+    /*
+      contain y no none: frena el pull-to-refresh de Android (recargar borraría un gasto a medio
+      cargar) pero deja el rebote nativo de iOS.
+    */
+    html,
+    body {
+        overscroll-behavior-y: contain;
     }
-  /* Sin la demora de doble toque para hacer zoom. */
-  a, button, [role="button"], label, input, select, textarea {
-    touch-action: manipulation;
+    h1,
+    h2,
+    h3 {
+        text-wrap: balance;
     }
-  /* Mantener apretado un control no selecciona su texto; el contenido sigue seleccionable. */
-  button, [role="button"] {
-    -webkit-user-select: none;
-    user-select: none;
+    /* Foco: un anillo de oro profundo, el mismo en todos los controles (reemplaza los ring-3 de shadcn). */
+    :focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
     }
-  /*
-    iOS hace zoom al enfocar un campo de menos de 16px y no vuelve. Piso en la capa base: las
-    utilidades más grandes (text-2xl del monto) siguen ganando.
-  */
-  @media (pointer: coarse) {
-    input, select, textarea {
-      font-size: 16px;
-      }
-  }
+    /* Sin la demora de doble toque para hacer zoom. */
+    a, button, [role="button"], label, input, select, textarea {
+        touch-action: manipulation;
+    }
+    /* Mantener apretado un control no selecciona su texto; el contenido sigue seleccionable. */
+    button, [role="button"] {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+    /*
+      iOS hace zoom al enfocar un campo de menos de 16px y no vuelve. Piso en la capa base: las
+      utilidades más grandes (el monto) siguen ganando.
+    */
+    @media (pointer: coarse) {
+        input, select, textarea {
+            font-size: 16px;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            /* Sin desplazamientos ni escalas animadas: los cambios de posición son instantáneos y solo se funde el color. */
+            transition-property: opacity, color, background-color, border-color !important;
+            transition-duration: var(--dur-fade) !important;
+            animation-duration: 1ms !important;
+        }
+    }
+}
+
+@layer components {
+    /* Con el teclado abierto la barra baja y se va: no sube junto al teclado en Android. */
+    .app-nav {
+        transition: translate 240ms var(--ease-drawer), visibility 240ms;
+    }
+    @media (max-width: 63.999rem) {
+        html[data-keyboard="open"] .app-nav {
+            translate: 0 100%;
+            visibility: hidden;
+        }
+    }
 }

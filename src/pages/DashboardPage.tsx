@@ -2,8 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
-import { AppShell } from '@/components/layout/AppShell'
-import { LogoutButton } from '@/components/LogoutButton'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -24,19 +22,7 @@ export function DashboardPage() {
   const isEmpty = summaryState.status === 'ready' && !summaryState.summary.hasData
 
   return (
-    <AppShell
-      actions={
-        <div className="flex items-center gap-3">
-          <Link to="/settings" data-testid="dashboard-nav-settings" className="text-sm underline">
-            Configuración
-          </Link>
-          <Link to="/register" data-testid="dashboard-nav-register" className="text-sm underline">
-            Registrar
-          </Link>
-          <LogoutButton testId="dashboard-nav-logout" />
-        </div>
-      }
-    >
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Dashboard</h1>
@@ -292,7 +278,7 @@ export function DashboardPage() {
           }}
         />
       </div>
-    </AppShell>
+    </>
   )
 }
 

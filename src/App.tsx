@@ -7,8 +7,8 @@ export default function App() {
   return (
     <AuthProvider>
       <RouterProvider router={router} />
-      {/* Con viewport-fit=cover el toast quedaría sobre la barra de inicio del iPhone. */}
-      <Toaster mobileOffset={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }} />
+      {/* Arriba: abajo chocaría con la barra y con "Guardar gasto". Respeta el notch (viewport-fit=cover). */}
+      <Toaster position="top-center" offset={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }} mobileOffset={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }} />
     </AuthProvider>
   )
 }

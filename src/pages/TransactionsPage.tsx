@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
-import { AppShell } from '@/components/layout/AppShell'
-import { LogoutButton } from '@/components/LogoutButton'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button } from '@/components/ui/button'
@@ -17,27 +14,7 @@ export function TransactionsPage() {
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
 
   return (
-    <AppShell
-      actions={
-        <div className="flex items-center gap-3">
-          <Link
-            to={`/dashboard?period=${formatPeriod(period)}`}
-            data-testid="transactions-nav-dashboard"
-            className="text-sm underline"
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/register"
-            data-testid="transactions-nav-register"
-            className="text-sm underline"
-          >
-            Registrar
-          </Link>
-          <LogoutButton testId="transactions-nav-logout" />
-        </div>
-      }
-    >
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Transacciones</h1>
@@ -130,6 +107,6 @@ export function TransactionsPage() {
           }}
         />
       </div>
-    </AppShell>
+    </>
   )
 }

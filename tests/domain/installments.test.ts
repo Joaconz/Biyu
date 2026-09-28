@@ -111,29 +111,29 @@ describe('previewInstallments (US-13)', () => {
 
   it('120000 en 12 desde 2026-08-15: el texto del happy path, sin aclaración', () =>
     expect(preview({})).toEqual({
-      summary: '12 cuotas de $10.000,00 — de 2026-08 a 2027-07',
+      summary: '12 cuotas de $10.000,00 · de ago 2026 a jul 2027',
       installments: '12 cuotas de $10.000,00',
-      range: 'de 2026-08 a 2027-07',
+      range: 'de ago 2026 a jul 2027',
       lastInstallment: null,
     }))
   it('100000 en 3: la línea muestra la cuota base y aparte la última, que absorbe el resto', () =>
     expect(preview({ amount: parseMoney('100000'), installmentsCount: 3 })).toMatchObject({
-      summary: '3 cuotas de $33.333,33 — de 2026-08 a 2026-10',
+      summary: '3 cuotas de $33.333,33 · de ago 2026 a oct 2026',
       lastInstallment: 'La última es de $33.333,34',
     }))
   it('los montos coinciden con generateLedgerEntries (misma regla que la RPC)', () => {
     const entries = generateLedgerEntries(parseMoney('1.00'), null, 8, P(2026, 8))
     expect(preview({ amount: parseMoney('1.00'), installmentsCount: 8 })).toMatchObject({
-      summary: '8 cuotas de $0,12 — de 2026-08 a 2027-03',
+      summary: '8 cuotas de $0,12 · de ago 2026 a mar 2027',
       lastInstallment: `La última es de $${entries[7].amount.toFixed(2).replace('.', ',')}`,
     })
   })
   it('el período sale de la fecha y cruza el año', () =>
     expect(preview({ installmentsCount: 3, occurredOn: '2025-11-30' })?.summary).toBe(
-      '3 cuotas de $40.000,00 — de 2025-11 a 2026-01'))
+      '3 cuotas de $40.000,00 · de nov 2025 a ene 2026'))
   it('en USD muestra la moneda original, con o sin tipo de cambio cargado', () => {
     const usd = { currency: 'USD' as const, amount: parseMoney('100'), installmentsCount: 3 }
-    const expected = { summary: '3 cuotas de US$33,33 — de 2026-08 a 2026-10', lastInstallment: 'La última es de US$33,34' }
+    const expected = { summary: '3 cuotas de US$33,33 · de ago 2026 a oct 2026', lastInstallment: 'La última es de US$33,34' }
     expect(preview({ ...usd, fxRate: parseMoney('1250.5555') })).toMatchObject(expected)
     expect(preview({ ...usd, fxRate: null })).toMatchObject(expected)
   })

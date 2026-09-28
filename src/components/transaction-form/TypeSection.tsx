@@ -1,48 +1,20 @@
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import type { SectionProps } from './types'
 
 const TYPE_OPTIONS = [
-  { value: 'expense' as const, label: 'Gasto' },
-  { value: 'income' as const, label: 'Ingreso' },
+  { value: 'expense' as const, label: 'Gasto', testId: 'transaction-form-type-expense' },
+  { value: 'income' as const, label: 'Ingreso', testId: 'transaction-form-type-income' },
 ]
 
-/**
- * Selector de tipo de transacción: Gasto o Ingreso (US-04).
- * Viene precargado en "Gasto" (expense).
- */
+/** Gasto | Ingreso (US-04), precargado en Gasto. Pasar a ingreso limpia la categoría. */
 export function TypeSection({ values, onChange }: SectionProps) {
   return (
-    <div className="grid gap-2">
-      <span id="transaction-form-type-label" className="text-sm font-medium">
-        Tipo
-      </span>
-      <ToggleGroup
-        data-testid="transaction-form-type"
-        aria-labelledby="transaction-form-type-label"
-        variant="outline"
-        className="grid w-full grid-cols-2 gap-2"
-        value={[values.type]}
-        onValueChange={(next) => {
-          const nextType = next[0] as 'expense' | 'income' | undefined
-          if (!nextType || nextType === values.type) return
-          if (nextType === 'income') {
-            onChange({ type: 'income', categoryId: null })
-          } else {
-            onChange({ type: 'expense' })
-          }
-        }}
-      >
-        {TYPE_OPTIONS.map((opt) => (
-          <ToggleGroupItem
-            key={opt.value}
-            value={opt.value}
-            data-testid={`transaction-form-type-${opt.value}`}
-            className="h-auto min-h-11 w-full select-none touch-manipulation px-2 py-2 text-center text-sm font-medium leading-tight transition-[scale,background-color,border-color,color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
-          >
-            {opt.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-    </div>
+    <SegmentedControl
+      testId="transaction-form-type"
+      aria-label="Tipo"
+      value={values.type}
+      options={TYPE_OPTIONS}
+      onValueChange={(next) => onChange(next === 'income' ? { type: 'income', categoryId: null } : { type: 'expense' })}
+    />
   )
 }

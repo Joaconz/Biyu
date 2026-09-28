@@ -1,16 +1,17 @@
 import { supabase } from './supabase'
+import { CATEGORY_PALETTE } from './visuals'
 
 // FR-04 (pre-entrega.md §3): set inicial de categorías y medios de pago para no arrancar
 // con una pantalla vacía (US-43).
 export const INITIAL_CATEGORIES: ReadonlyArray<{ name: string; color: string }> = [
-  { name: 'Comida y supermercado', color: '#f97316' },
-  { name: 'Transporte', color: '#3b82f6' },
-  { name: 'Servicios', color: '#14b8a6' },
-  { name: 'Entretenimiento', color: '#a855f7' },
-  { name: 'Salud', color: '#ef4444' },
-  { name: 'Educación', color: '#eab308' },
-  { name: 'Indumentaria', color: '#ec4899' },
-  { name: 'Otros', color: '#64748b' },
+  { name: 'Comida y supermercado', color: CATEGORY_PALETTE.comida },
+  { name: 'Transporte', color: CATEGORY_PALETTE.transporte },
+  { name: 'Servicios', color: CATEGORY_PALETTE.servicios },
+  { name: 'Entretenimiento', color: CATEGORY_PALETTE.entretenimiento },
+  { name: 'Salud', color: CATEGORY_PALETTE.salud },
+  { name: 'Educación', color: CATEGORY_PALETTE.educacion },
+  { name: 'Indumentaria', color: CATEGORY_PALETTE.indumentaria },
+  { name: 'Otros', color: CATEGORY_PALETTE.otros },
 ]
 
 export const INITIAL_ACCOUNTS: ReadonlyArray<{
