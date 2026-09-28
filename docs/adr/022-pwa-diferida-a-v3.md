@@ -1,4 +1,4 @@
-# ADR-021 — PWA (NFR-15 a NFR-18) diferida a V3+, no V2
+# ADR-022 — PWA (NFR-15 a NFR-18) diferida a V3+, no V2
 
 **Estado:** aceptada · **Fecha:** 2026-09-28
 

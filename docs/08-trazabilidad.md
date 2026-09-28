@@ -63,7 +63,7 @@ versión se prueba.
 | NFR-12 | Seguridad | V1 | [#72](https://github.com/Joaconz/Biyu/issues/72) | HTTPS lo da Vercel; se verifica en la prueba de humo |
 | NFR-13 | Seguridad | V1 | [#71](https://github.com/Joaconz/Biyu/issues/71), [#61](https://github.com/Joaconz/Biyu/issues/61) | Par pgTAP por tabla (C7). Ya implementado y verde (`rls_isolation.test.sql`) |
 | NFR-14 | Seguridad | V1 | [#63](https://github.com/Joaconz/Biyu/issues/63) | Delegado en Supabase Auth. Ya implementado (US-64, cierre de sesión manual) |
-| NFR-15 a NFR-18 | PWA | **V3+** | [#77](https://github.com/Joaconz/Biyu/issues/77) (cerrado) | **Decidido, [ADR-021](adr/021-pwa-diferida-a-v3.md)**: manda `02-behavior-spec.md` sobre la pre-entrega; no entra en V2 |
+| NFR-15 a NFR-18 | PWA | **V3+** | [#77](https://github.com/Joaconz/Biyu/issues/77) (cerrado) | **Decidido, [ADR-022](adr/022-pwa-diferida-a-v3.md)**: manda `02-behavior-spec.md` sobre la pre-entrega; no entra en V2 |
 | NFR-19, NFR-20 | Mantenibilidad | V3 | [#22](https://github.com/Joaconz/Biyu/issues/22) | Se mantiene |
 
 ## V1: historias y tareas por épica
