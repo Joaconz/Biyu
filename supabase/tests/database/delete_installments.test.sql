@@ -15,7 +15,7 @@ insert into categories (id, user_id, name) values
 insert into accounts (id, user_id, name, type, currency) values
   ('a0000000-0000-0000-0000-000000000001','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Visa','credit_card','ARS'),
   ('a0000000-0000-0000-0000-000000000002','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Efectivo','cash','ARS'),
-  ('a0000000-0000-0000-0000-000000000003','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','Ajena','cash','ARS');
+  ('a0000000-0000-0000-0000-000000000003','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','Ajena','credit_card','ARS');
 
 create temporary table _test_context (compra_id uuid);
 grant all on _test_context to public;
@@ -37,13 +37,14 @@ select lives_ok(
   'el gasto de contado (control) de usuario A se registra'
 );
 
--- Usuario B registra un gasto propio en 2027-01, para confirmar que RLS no lo mezcla con A.
+-- Usuario B registra una compra propia en 5 cuotas desde 2026-09, cuya última imputación cae en
+-- 2027-01, para confirmar que RLS no la mezcla con A. Fecha pasada: FR-06 no admite fechas futuras.
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","role":"authenticated"}';
 
 select lives_ok(
-  $$select create_transaction('expense', 8000, 'ARS', null, 'c0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000003', 1, '2027-01-10', 'Gasto ajeno de enero')$$,
-  'el gasto de usuario B en 2027-01 se registra (control de aislamiento)'
+  $$select create_transaction('expense', 40000, 'ARS', null, 'c0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000003', 5, '2026-09-10', 'Compra ajena en cuotas')$$,
+  'la compra de usuario B con cuota en 2027-01 se registra (control de aislamiento)'
 );
 
 -- Volvemos a la sesión de A para evaluar los totales tal como los ve el dashboard bajo RLS.
