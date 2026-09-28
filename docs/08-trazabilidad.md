@@ -22,7 +22,7 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 
 | FR | Versión | Historias | Issue | Estado |
 |---|---|---|---|---|
-| FR-01 | V1 | US-50, US-51 | [#9](https://github.com/Joaconz/Biyu/issues/9) | Se mantiene |
+| FR-01 | V1 | US-50, US-51, US-66, US-67 | [#9](https://github.com/Joaconz/Biyu/issues/9) | **Ampliado**: "contraseña que cumpla con ciertos criterios de seguridad" quedaba implícito sin historia propia para la confirmación de contraseña ni para el detalle de qué criterios exactos exige. Detectado al contrastar contra el criterio de aceptación de referencia de la cátedra (`spec-critic`, `10-catalogo-casos-v1.md` CP-ACC-004) |
 | FR-02 | V1 | US-48 | [#9](https://github.com/Joaconz/Biyu/issues/9), [#71](https://github.com/Joaconz/Biyu/issues/71) | Se mantiene. Se prueba con el par pgTAP por tabla (C7) |
 | FR-03 | V1 | US-49, US-64 | [#9](https://github.com/Joaconz/Biyu/issues/9) | Se mantiene. US-64 se agregó porque cerrar sesión no tenía historia. Plazo de inactividad a confirmar al implementar (sugerido: 30 días) |
 | FR-04 | V1 | US-43 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene (ADR-014) |
@@ -90,6 +90,8 @@ P2 entra si alcanza el sprint.
 | US-50 · Crear cuenta con email y contraseña | [#63](https://github.com/Joaconz/Biyu/issues/63) | FR-01 · ADR-011 | P0 | — |
 | US-51 · Entrar directo tras registrarse | [#64](https://github.com/Joaconz/Biyu/issues/64) | FR-01 · ADR-011 | P1 | — |
 | US-64 · Cerrar sesión | [#65](https://github.com/Joaconz/Biyu/issues/65) | FR-03 | P1 | — |
+| US-66 · Confirmar contraseña al registrarse | [#131](https://github.com/Joaconz/Biyu/issues/131) | FR-01 | P1 | — |
+| US-67 · Mensaje claro de qué criterio de contraseña falta | [#132](https://github.com/Joaconz/Biyu/issues/132) | FR-01 | P1 | — |
 
 ### Configuración mínima · [#10](https://github.com/Joaconz/Biyu/issues/10)
 
