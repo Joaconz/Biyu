@@ -78,7 +78,7 @@ Organizados por módulo y con un identificador (FR-xx) para poder trazarlos cont
 
 ### Dashboard y navegación
 
-- **FR-20. Dashboard mensual:** muestra total gastado, total de ingresos, balance, monto de cuotas heredadas de compras anteriores, desglose por categoría, desglose por medio de pago, las últimas 10 transacciones y al menos dos gráficos (uno de torta por categoría y uno de barras con la evolución de los últimos meses).
+- **FR-20. Dashboard mensual:** muestra total gastado, total de ingresos, balance, monto de cuotas heredadas de compras anteriores, desglose por categoría en un gráfico de barras, desglose por cuenta y las últimas 10 transacciones. La evolución de los últimos meses queda fuera de este requerimiento y se tratará en una historia específica posterior.
 - **FR-21. Navegación entre meses:** el usuario puede navegar a cualquier mes, pasado o futuro; los meses futuros muestran las cuotas y suscripciones ya comprometidas aunque todavía no exista una transacción real.
 
 ### Exportación (opcional)
@@ -134,13 +134,13 @@ Organizados por atributo de calidad (mismo criterio de ISO/IEC 25010 usado en la
 
 ### V1 — Núcleo funcional mínimo, ya testeable
 
-Registro y login. ABM de categorías y medios de pago. Registro de transacciones con monto, moneda, tipo, categoría, cuenta y fecha. Cuotas con prorrateo y absorción de resto. Multimoneda con tipo de cambio congelado. Dashboard mensual con totales, ingresos, balance y cuotas heredadas. Baja lógica.
+Registro y login. ABM de categorías y medios de pago. Registro de transacciones con monto, moneda, tipo, categoría, cuenta y fecha. Cuotas con prorrateo y absorción de resto. Multimoneda con tipo de cambio congelado. Dashboard mensual con totales, ingresos, balance, cuotas heredadas y desgloses por categoría y por cuenta. Baja lógica.
 
 **Foco de testing:** casos felices, negativos y de borde sobre el cálculo de cuotas, la conversión de moneda y las validaciones de alta.
 
 ### V2 — Evolución a MVP usable
 
-- **Funcional:** edición de una transacción existente, con recálculo de cuotas y aviso si afecta meses ya cerrados · desglose del dashboard por categoría y por medio de pago · suscripciones (puesta al día, pausa, reactivación, cancelación) · gastos compartidos y gestión de deudas · exportación a CSV.
+- **Funcional:** edición de una transacción existente, con recálculo de cuotas y aviso si afecta meses ya cerrados · suscripciones (puesta al día, pausa, reactivación, cancelación) · gastos compartidos y gestión de deudas · exportación a CSV.
 - **Interfaz:** estados vacíos con acción, previsualización del impacto de cuotas, retroalimentación de carga y error.
 - **No funcional:** rendimiento del dashboard bajo volumen de datos (NFR-01 a NFR-03), compatibilidad entre Chrome Android, Safari iOS y Chrome/Edge desktop (NFR-04, NFR-05), accesibilidad WCAG 2.1 AA en los flujos críticos (NFR-06 a NFR-08), comportamiento ante pérdida de conexión al registrar un gasto sin sincronización automática (NFR-09, NFR-10) e instalabilidad como PWA (NFR-15 a NFR-18).
 
