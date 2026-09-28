@@ -76,8 +76,29 @@ jamás va en el cliente (C8).
 | `npm test` | Tests del dominio (Vitest). No necesita Docker |
 | `npm run test:db` | Tests de la base (pgTAP). Necesita `supabase start` |
 | `npm run build` | Lo mismo que corre Vercel; tiene que compilar sin errores |
+| `SMOKE_URL=<url> npm run test:e2e` | Prueba de humo (Playwright) contra un deploy. Ver abajo |
 
 Antes de abrir un PR: `npm test`, `npm run test:db` y `npm run build` en verde. La CI corre lo mismo.
+
+**El deploy.** Vercel despliega `main` en <https://biyu-joaconzs-projects.vercel.app> y arma un
+Preview por cada PR (la URL aparece en el PR). Los dos usan el proyecto de Supabase hosteado, cuyas
+`VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` viven en las variables de entorno de Vercel, no en el
+repo ni en la CI (C8, C13). Tu `.env` sigue apuntando a la base local.
+
+**La prueba de humo** (`e2e/smoke.spec.ts`, nivel 4 de `02-behavior-spec.md` §Testing Decisions) crea
+un usuario nuevo, registra un gasto en 3 cuotas y mira el total del mes en el dashboard, en Chromium,
+WebKit y Firefox. No corre en la CI: se lanza a mano contra el Preview del PR o contra producción.
+La primera vez instalá los navegadores con `npx playwright install chromium webkit firefox`.
+
+```bash
+SMOKE_URL=https://<preview-o-produccion>.vercel.app npm run test:e2e
+```
+
+**Si tu PR trae una migración**, Vercel despliega el front pero no toca la base: después del merge
+alguien con acceso al proyecto la aplica con `supabase link --project-ref <ref>` (una vez) y
+`supabase db push`, y corre la prueba de humo contra producción. La configuración de Auth del proyecto
+hosteado (confirmación de email apagada, ADR-011; política de contraseñas) se maneja desde el panel
+de Supabase: `supabase/config.toml` solo aplica a la base local.
 
 ## 5. Trabajar con Codex o Antigravity
 

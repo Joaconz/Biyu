@@ -7,10 +7,11 @@ español rioplatense; nombres de código en inglés.
 
 ## Estado
 
-Fundación técnica hecha (épica #8, sin el deploy #72): Vite + React + TypeScript, Tailwind + shadcn/ui,
+Fundación técnica hecha (épica #8): Vite + React + TypeScript, Tailwind + shadcn/ui,
 rutas con React Router y sesión de Supabase, dominio puro en `src/domain/`, la RPC `create_transaction`
 (`supabase/migrations/`, ADR-020) y tests (Vitest en `tests/domain/`, pgTAP en `supabase/tests/database/`).
-CI en `.github/workflows/ci.yml`. Deploy en Vercel (`vercel.json`). Las pantallas son esqueletos: el
+CI en `.github/workflows/ci.yml`. Deploy en Vercel (`vercel.json`) contra Supabase hosteado, con prueba de
+humo Playwright en `e2e/` (`docs/09-guia-de-inicio.md` §4). Las pantallas son esqueletos: el
 registro y el dashboard reales llegan con las historias US-nn.
 
 Stack planificado: React (Vite) + TypeScript + PWA · Supabase (Postgres, Auth, RLS, Edge Functions)
@@ -26,6 +27,7 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 | `npm run preview` | Sirve `dist/` localmente |
 | `npm test` | Vitest sobre `tests/domain/` (no necesita Docker) |
 | `npm run test:db` | pgTAP con `supabase test db` (necesita Docker y `supabase start`) |
+| `SMOKE_URL=<url> npm run test:e2e` | Prueba de humo Playwright contra un deploy (Chromium, WebKit, Firefox). No corre en la CI |
 | `npm run gen:types` | Regenera `src/lib/database.types.ts` desde Supabase local (`supabase start` antes) |
 | `/speckit-checklist <foco>` | Checklist de calidad de redacción de los NFR; la feature es `specs/nfr/`, que apunta a `docs/pre-entrega.md` §4 |
 
