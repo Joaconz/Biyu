@@ -60,7 +60,7 @@ export function CurrencySection({
             key={opt.value}
             value={opt.value}
             data-testid={`transaction-form-currency-${opt.value.toLowerCase()}`}
-            className="h-auto min-h-11 w-full select-none touch-manipulation px-2 py-2 text-center text-sm font-medium leading-tight transition-[transform,background-color,border-color,color] duration-150 ease-out active:scale-[0.98] aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
+            className="h-auto min-h-11 w-full select-none touch-manipulation px-2 py-2 text-center text-sm font-medium leading-tight transition-[scale,background-color,border-color,color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground"
           >
             {opt.label}
           </ToggleGroupItem>
