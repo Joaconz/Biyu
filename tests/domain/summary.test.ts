@@ -90,6 +90,47 @@ describe('computeMonthlySummary', () => {
     )
     expect(s.expenses.toFixed(2)).toBe('12500.50')
   })
+  it('US-23: total del período combina ARS y USD usando el amount_ars congelado', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({ amount: '80000.00', amount_ars: '80000.00', tx: { currency: 'ARS' } }),
+        entry({ amount: '100.00', amount_ars: '125055.55', tx: { currency: 'USD' } }),
+        entry({
+          period: '2026-10-01',
+          amount: '50.00',
+          amount_ars: '65000.00',
+          tx: { currency: 'USD' },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    expect(s.expenses.toFixed(2)).toBe('205055.55')
+  })
+  it("US-23: suma el resto materializado en la última cuota para conservar I1'", () => {
+    const s = computeMonthlySummary(
+      [
+        entry({ amount: '33.33', amount_ars: '41685.18', tx: { currency: 'USD' } }),
+        entry({
+          installment_number: 2,
+          amount: '33.33',
+          amount_ars: '41685.18',
+          tx: { currency: 'USD' },
+        }),
+        entry({
+          installment_number: 3,
+          amount: '33.34',
+          amount_ars: '41685.19',
+          tx: { currency: 'USD' },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    expect(s.expenses.toFixed(2)).toBe('125055.55')
+  })
   it('US-26: período futuro muestra cuotas comprometidas y excluye otros períodos (supuesto 9)', () => {
     const futurePeriod = { year: 2026, month: 11 }
     const s = computeMonthlySummary(
