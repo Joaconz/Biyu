@@ -1,4 +1,4 @@
-import { addMonths, formatPeriod, parsePeriod, type Period } from './period'
+import { addMonths, formatPeriodShort, parsePeriod, type Period } from './period'
 import { convertToArs, formatArs, formatUsd, prorate, type Decimal } from './money'
 import type { DraftErrors, TransactionDraft } from './validation'
 
@@ -32,11 +32,11 @@ export function generateLedgerEntries(
 }
 
 export interface InstallmentsPreview {
-  /** "12 cuotas de $10.000,00 — de 2026-08 a 2027-07": `${installments} — ${range}` */
+  /** "12 cuotas de $10.000,00 · de ago 2026 a jul 2027": `${installments} · ${range}` */
   summary: string
   /** "12 cuotas de $10.000,00" */
   installments: string
-  /** "de 2026-08 a 2027-07". Separado para que la UI no lo corte en el guion del período. */
+  /** "de ago 2026 a jul 2027". Separado para que la UI no lo corte a mitad del rango. */
   range: string
   /** "La última es de $33.333,34" cuando el prorrateo deja resto (C3); si no, null. */
   lastInstallment: string | null
@@ -59,9 +59,9 @@ export function previewInstallments(draft: TransactionDraft, errors: DraftErrors
   const last = entries[entries.length - 1]
   const format = currency === 'USD' ? formatUsd : formatArs
   const installments = `${installmentsCount} cuotas de ${format(first.amount)}`
-  const range = `de ${formatPeriod(first.period)} a ${formatPeriod(last.period)}`
+  const range = `de ${formatPeriodShort(first.period)} a ${formatPeriodShort(last.period)}`
   return {
-    summary: `${installments} — ${range}`,
+    summary: `${installments} · ${range}`,
     installments,
     range,
     lastInstallment: last.amount.eq(first.amount) ? null : `La última es de ${format(last.amount)}`,

@@ -12,7 +12,7 @@ interface FieldErrorProps {
 export function FieldError({ id, message, active }: FieldErrorProps) {
   if (!message) return null
   return (
-    <p id={id} data-testid={id} className={cn('text-sm', active ? 'text-destructive' : 'text-muted-foreground')}>
+    <p id={id} data-testid={id} className={cn('text-footnote', active ? 'text-destructive' : 'text-muted-foreground')}>
       {message}
     </p>
   )

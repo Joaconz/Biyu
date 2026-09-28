@@ -57,6 +57,9 @@ aunque el commit lo haga otra herramienta o una persona.
 | Skill | `gh`, `playwright-cli`, `find-skills` | GitHub CLI · automatización de navegador y tests · descubrir skills |
 | Skill (externa) | `supabase`, `supabase-postgres-best-practices` | Buenas prácticas de Supabase/Postgres, antes de tocar migraciones |
 | Skill (externa) | `emil-design-eng`, `mobile-native` | Detalle de UI · que la PWA se sienta nativa en el celular |
+| Skill (externa) | `apple-design` | Movimiento con resortes, hojas arrastrables, materiales translúcidos, tipografía (ADR-023) |
+| Skill (externa) | `design-taste-frontend`, `ui-ux-pro-max` | Criterio visual anti-plantilla · guías de UX, paletas y accesibilidad |
+| Skill (externa) | `shadcn` | Agregar y ajustar componentes shadcn (`base-nova` sobre Base UI) |
 | Agente | `spec-critic`, `spec-consistency-checker`, `docs-writer` | Atacar specs · coherencia de `docs/` · redactar reportes |
 | Agente | `rls-migration-reviewer`, `test-adversary` | Revisar migraciones y RLS · probar la app buscando romperla |
 | Agente | `domain-purity-reviewer` | Revisa `src/` contra C1, C2, C5 |

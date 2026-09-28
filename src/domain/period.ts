@@ -75,3 +75,38 @@ export function isPeriodBefore(a: Period, b: Period): boolean {
 }
 
 
+// Nombres fijos y no Intl: los datos CLDR recientes abrevian septiembre como "sept." y cambiarían el
+// texto según el navegador.
+const MONTH_NAMES = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+] as const
+const MONTH_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'] as const
+
+/** "septiembre 2026": el período como se lee en pantalla. La URL sigue en `YYYY-MM` (C11). */
+export function formatPeriodLong({ year, month }: Period): string {
+  return `${MONTH_NAMES[month - 1]} ${year}`
+}
+
+/** "sep 2026", para rangos como la vista previa de cuotas. */
+export function formatPeriodShort({ year, month }: Period): string {
+  return `${MONTH_SHORT[month - 1]} ${year}`
+}
+
+/** Suma días a una fecha calendario `YYYY-MM-DD`. Aritmética en UTC: sin corrimientos por zona horaria. */
+export function addDays(isoDate: string, delta: number): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const shifted = new Date(Date.UTC(year, month - 1, day + delta))
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${String(shifted.getUTCFullYear()).padStart(4, '0')}-${pad(shifted.getUTCMonth() + 1)}-${pad(shifted.getUTCDate())}`
+}
+
+export type RelativeDay = 'today' | 'yesterday' | 'other'
+
+/** Qué opción de "Hoy | Ayer | Otra" corresponde a una fecha, con `today` como parámetro (C1). */
+export function relativeDay(isoDate: string, today: Date): RelativeDay {
+  const todayIso = toIsoDate(today)
+  if (isoDate === todayIso) return 'today'
+  if (isoDate === addDays(todayIso, -1)) return 'yesterday'
+  return 'other'
+}

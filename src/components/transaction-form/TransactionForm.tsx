@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -43,6 +44,8 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
   )
   const [touched, setTouched] = useState<Touched>({})
   const [saving, setSaving] = useState(false)
+  const [justSaved, setJustSaved] = useState(false)
+  const savedTimer = useRef<number | undefined>(undefined)
   const [referenceRateStatus, setReferenceRateStatus] = useState<
     'idle' | 'loading' | 'found' | 'missing' | 'error'
   >('idle')
@@ -121,6 +124,11 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
       })
       setValues(draftInputAfterSave(values, toIsoDate(today()), accounts))
       setTouched({})
+      // Confirmación en el mismo botón (feedback de completado): vuelve solo después de un momento.
+      setJustSaved(true)
+      window.clearTimeout(savedTimer.current)
+      savedTimer.current = window.setTimeout(() => setJustSaved(false), 1400)
+      document.getElementById('transaction-form-amount')?.focus()
     } catch (error) {
       toast.error('No se pudo guardar', {
         description: (error as { message?: string }).message,
@@ -133,10 +141,14 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
 
   const section: SectionProps = { values, errors, touched, onChange: change }
 
+  useEffect(() => () => window.clearTimeout(savedTimer.current), [])
+
+  const submitLabel = saving ? 'Guardando…' : values.type === 'income' ? 'Guardar ingreso' : 'Guardar gasto'
+
   return (
-    <form data-testid="transaction-form" onSubmit={onSubmit} noValidate>
+    <form data-testid="transaction-form" onSubmit={onSubmit} noValidate className="mx-auto w-full max-w-xl">
       {/* Mientras guarda, el fieldset deshabilitado evita cambios que el reset pisaría. */}
-      <fieldset disabled={saving} className="flex flex-col gap-5">
+      <fieldset disabled={saving} className="flex min-w-0 flex-col gap-7">
         <TypeSection {...section} />
 
         <AmountSection {...section} />
@@ -159,11 +171,35 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
         <DateSection {...section} today={todayIso} />
 
         <DescriptionSection {...section} />
-
-        <Button type="submit" size="lg" className="h-11" disabled={!canSave} data-testid="transaction-form-submit">
-          {saving ? 'Guardando…' : 'Guardar'}
-        </Button>
       </fieldset>
+
+      {/*
+        "Guardar" fijo abajo, sobre material translúcido, por encima de la barra de navegación. Con el
+        teclado abierto se apoya sobre el teclado (--kb-inset, useVisualViewportInset).
+      */}
+      <div className="chrome sticky z-20 -mx-5 mt-8 border-t border-hairline px-5 py-3 [bottom:calc(var(--app-nav-offset)+var(--kb-inset))] sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-lg lg:border lg:px-3">
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={!canSave || saving}
+          data-testid="transaction-form-submit"
+        >
+          <span
+            key={justSaved ? 'saved' : 'idle'}
+            className="inline-flex items-center gap-2 transition-[opacity,filter] duration-200 starting:opacity-0 starting:blur-[2px]"
+          >
+            {justSaved && !saving ? (
+              <>
+                <Check aria-hidden="true" className="size-5" strokeWidth={2.2} />
+                Guardado
+              </>
+            ) : (
+              submitLabel
+            )}
+          </span>
+        </Button>
+      </div>
     </form>
   )
 }

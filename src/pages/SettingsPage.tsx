@@ -1,7 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link } from 'react-router'
-import { AppShell } from '@/components/layout/AppShell'
 import { LogoutButton } from '@/components/LogoutButton'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -37,21 +36,14 @@ import { listReferenceRates, upsertReferenceRate, type ReferenceRate } from '@/l
 
 export function SettingsPage() {
   return (
-    <AppShell
-      actions={
-        <div className="flex items-center gap-3">
-          <Link to="/register" data-testid="settings-nav-register" className="text-sm underline">
-            Registrar
-          </Link>
-          <LogoutButton testId="settings-nav-logout" />
-        </div>
-      }
-    >
-      <h1 data-testid="settings-title" className="text-2xl font-semibold">Configuración</h1>
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-8">
+      <PageHeader title="Ajustes" testId="settings-title" className="pb-0 lg:pb-0" />
       <CategoriesSection />
       <AccountsSection />
       <FxRatesSection />
-    </AppShell>
+      {/* US-64: cerrar sesión vive en Ajustes (ADR-023). */}
+      <LogoutButton testId="settings-nav-logout" />
+    </div>
   )
 }
 
