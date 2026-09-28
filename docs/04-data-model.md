@@ -138,7 +138,7 @@ El evento económico. Una compra, un ingreso. **No es lo que suma el dashboard.*
 | installments_count | int | default 1, entre 1 y 12 (`transactions_installments_max`, ADR-020) |
 | first_period | date | día 1 del mes de la primera imputación |
 | description | text | opcional |
-| occurred_on | date | fecha real del evento |
+| occurred_on | date | fecha real del evento; no posterior a hoy en Argentina (FR-06, `create_transaction`, ADR-021) |
 | subscription_id | uuid FK → subscriptions | **opcional** — null si la cargó el usuario a mano |
 | subscription_period | date | día 1. `CHECK ((subscription_id is null) = (subscription_period is null))` |
 | deleted_at | timestamptz | soft delete |
