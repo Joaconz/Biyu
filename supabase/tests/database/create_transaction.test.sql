@@ -1,6 +1,6 @@
 -- create_transaction (C3, C4, C6): reparto de cuotas, rechazos por RPC directo, aislamiento y anon.
 begin;
-select plan(39);
+select plan(41);
 
 insert into auth.users (id, instance_id, aud, role, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','00000000-0000-0000-0000-000000000000','authenticated','authenticated','a@test.local'),
@@ -36,6 +36,8 @@ select is((select description from transactions where amount = 100000), null, 'l
 
 -- USD: I1' (prorrateo del total convertido) contra la columna generada.
 select lives_ok($$select create_transaction('expense',100,'USD',1250.5555,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',3,'2026-08-15')$$, 'USD 100 en 3 cuotas se guarda');
+select is((select fx_rate from transactions where currency = 'USD' and amount = 100), 1250.5555::numeric, 'US-19: USD guarda el tipo de cambio manual exacto');
+select is((select amount_ars from transactions where currency = 'USD' and amount = 100), 125055.55::numeric, 'US-19: USD guarda amount_ars como monto por tipo de cambio exacto');
 select is((select sum(le.amount_ars) from ledger_entries le join transactions t on t.id = le.transaction_id where t.currency = 'USD'), 125055.55, 'la suma de amount_ars es exactamente la conversión (I1'')');
 -- La última cuota absorbe el resto en cada serie por separado (US-15, ADR-013).
 select is((select array_agg(le.amount order by le.installment_number) from ledger_entries le join transactions t on t.id = le.transaction_id where t.currency = 'USD'), array[33.33, 33.33, 33.34], 'USD: amount 33.33, 33.33 y la última 33.34');
