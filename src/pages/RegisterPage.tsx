@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { LogoutButton } from '@/components/LogoutButton'
 import { TransactionForm } from '@/components/transaction-form/TransactionForm'
 import { useCatalog } from '@/hooks/useCatalog'
 
@@ -9,9 +10,15 @@ export function RegisterPage() {
   return (
     <AppShell
       actions={
-        <Link to="/dashboard" data-testid="register-nav-dashboard" className="text-sm underline">
-          Dashboard
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/settings" data-testid="register-nav-settings" className="text-sm underline">
+            Configuración
+          </Link>
+          <Link to="/dashboard" data-testid="register-nav-dashboard" className="text-sm underline">
+            Dashboard
+          </Link>
+          <LogoutButton testId="register-nav-logout" />
+        </div>
       }
     >
       <h1 data-testid="register-title" className="text-2xl font-semibold">Registrar un gasto</h1>

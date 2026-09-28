@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import {
+  applyDraftChange,
   draftInputAfterSave,
   emptyDraftInput,
   parseDraftInput,
@@ -165,3 +166,75 @@ describe('cuenta precargada con la última usada (US-07)', () => {
   })
 })
 
+describe('moneda precargada en ARS (US-05)', () => {
+  it('la moneda por defecto es ARS en un borrador vacío', () => {
+    expect(emptyDraftInput(TODAY).currency).toBe('ARS')
+  })
+
+  it('el borrador por defecto en ARS no tiene tipo de cambio (fxRate vacío y parsea a null, I5)', () => {
+    const draft = emptyDraftInput(TODAY)
+    expect(draft.currency).toBe('ARS')
+    expect(draft.fxRate).toBe('')
+    expect(parseDraftInput(draft).fxRate).toBeNull()
+  })
+
+  it('después de guardar vuelve a ARS y sin tipo de cambio aunque se haya guardado en USD', () => {
+    const savedUsd: DraftInput = {
+      ...emptyDraftInput(TODAY),
+      currency: 'USD',
+      fxRate: '1350',
+      amount: '100',
+      accountId: 'acc-1',
+    }
+    const after = draftInputAfterSave(savedUsd, TODAY)
+    expect(after.currency).toBe('ARS')
+    expect(after.fxRate).toBe('')
+  })
+})
+
+describe('tipo precargado en gasto (US-04)', () => {
+  it('el tipo por defecto es expense en un borrador vacío', () => {
+    expect(emptyDraftInput(TODAY).type).toBe('expense')
+  })
+
+  it('después de guardar vuelve a expense aunque se haya guardado un ingreso', () => {
+    const savedIncome: DraftInput = {
+      ...emptyDraftInput(TODAY),
+      type: 'income',
+      amount: '50000',
+      accountId: 'acc-1',
+    }
+    expect(draftInputAfterSave(savedIncome, TODAY).type).toBe('expense')
+  })
+})
+
+describe('applyDraftChange (US-14)', () => {
+  const inSixOnCredit: DraftInput = {
+    ...emptyDraftInput(TODAY), amount: '600', categoryId: 'c1',
+    accountId: 'visa', accountType: 'credit_card', installmentsCount: 6,
+  }
+  it('un cambio cualquiera se aplica tal cual y no resetea las cuotas', () =>
+    expect(applyDraftChange(inSixOnCredit, { amount: '700' })).toEqual({
+      values: { ...inSixOnCredit, amount: '700' }, installmentsReset: false,
+    }))
+  it.each(['cash', 'debit_card', 'bank_account', 'wallet'] as const)(
+    'pasar de tarjeta de crédito a %s con 6 cuotas las vuelve a 1 y avisa', (accountType) => {
+      const r = applyDraftChange(inSixOnCredit, { accountId: 'otra', accountType })
+      expect(r.installmentsReset).toBe(true)
+      expect(r.values).toEqual({ ...inSixOnCredit, accountId: 'otra', accountType, installmentsCount: 1 })
+    })
+  it('pasar a ingreso con cuotas también las vuelve a 1 (I6)', () => {
+    const r = applyDraftChange(inSixOnCredit, { type: 'income' })
+    expect(r).toMatchObject({ installmentsReset: true, values: { installmentsCount: 1 } })
+  })
+  it('con 1 cuota cambiar de cuenta no avisa: no había nada que restablecer', () =>
+    expect(applyDraftChange({ ...inSixOnCredit, installmentsCount: 1 }, { accountId: 'efectivo', accountType: 'cash' }))
+      .toMatchObject({ installmentsReset: false, values: { installmentsCount: 1 } }))
+  it('cambiar entre dos tarjetas de crédito conserva las cuotas', () =>
+    expect(applyDraftChange(inSixOnCredit, { accountId: 'master', accountType: 'credit_card' }))
+      .toMatchObject({ installmentsReset: false, values: { installmentsCount: 6 } }))
+  it('el borrador que queda después del reset se puede guardar', () => {
+    const { values } = applyDraftChange(inSixOnCredit, { accountId: 'efectivo', accountType: 'cash' })
+    expect(validateTransactionDraft(parseDraftInput(values), TODAY)).toEqual({})
+  })
+})
