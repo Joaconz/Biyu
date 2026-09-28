@@ -32,6 +32,11 @@ export function tryParseMoney(value: string): Decimal | null {
   return MONEY_INPUT_RE.test(v) ? parseMoney(v) : null
 }
 
+/** Decimal → texto exacto para los bordes JSON/RPC; nunca produce un number (C2). */
+export function serializeMoney(value: Decimal): string {
+  return value.toFixed()
+}
+
 /**
  * Prorrateo: cuotas 1..n-1 = total/n truncado a 2 decimales; la última absorbe el resto
  * (C3, ADR-013). Con half-up la última podría quedar menor que las demás.

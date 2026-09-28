@@ -1,4 +1,4 @@
-import type { Decimal } from '@/domain/money'
+import { serializeMoney, type Decimal } from '@/domain/money'
 import { toDbDate, type Period } from '@/domain/period'
 import { supabase } from './supabase'
 
@@ -17,10 +17,11 @@ export async function listReferenceRates(limit = 12): Promise<ReferenceRate[]> {
   return data.map((r) => ({ period: r.period, arsPerUsd: r.ars_per_usd as unknown as string }))
 }
 
-// Único (user_id, period): upsert, no altera meses cargados salvo que se pise a propósito (US-46).
+// La escritura es una sola RPC; el payload numeric viaja como texto exacto (C2, C4, C6).
 export async function upsertReferenceRate(period: Period, arsPerUsd: Decimal): Promise<void> {
-  const { error } = await supabase
-    .from('fx_rates')
-    .upsert({ period: toDbDate(period), ars_per_usd: arsPerUsd.toFixed() as unknown as number }, { onConflict: 'user_id,period' })
+  const { error } = await supabase.rpc('upsert_fx_rate', {
+    p_period: toDbDate(period),
+    p_ars_per_usd: serializeMoney(arsPerUsd) as unknown as number,
+  })
   if (error) throw error
 }
