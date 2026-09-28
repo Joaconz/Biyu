@@ -12,9 +12,11 @@ interface ChipGroupProps<T extends { id: string; name: string }> {
   options: T[]
   value: string | null
   onChange: (id: string) => void
-  /** `tiles`: grilla de 4 con ícono arriba (categorías). `chips`: fila que se envuelve (cuentas). */
+  /** `tiles`: grilla de 4 con ícono arriba (categorías). `chips`: grilla de 2 de ancho parejo (cuentas). */
   layout: 'tiles' | 'chips'
   renderIcon?: (option: T) => ReactNode
+  /** Cualquier toque en un chip, también el ya elegido (que no dispara onChange): el paso de categoría avanza con él. */
+  onPick?: (id: string) => void
 }
 
 /**
@@ -30,6 +32,7 @@ export function ChipGroup<T extends { id: string; name: string }>({
   onChange,
   layout,
   renderIcon,
+  onPick,
 }: ChipGroupProps<T>) {
   return (
     <ToggleGroup
@@ -38,18 +41,19 @@ export function ChipGroup<T extends { id: string; name: string }>({
       aria-describedby={describedBy}
       value={value ? [value] : []}
       onValueChange={(next) => next[0] && onChange(next[0])}
-      className={cn(layout === 'tiles' ? 'grid grid-cols-4 gap-2' : 'flex flex-wrap gap-2')}
+      className={cn('grid gap-2', layout === 'tiles' ? 'grid-cols-4' : 'grid-cols-2')}
     >
       {options.map((option) => (
         <Toggle
           key={option.id}
           value={option.id}
+          onClick={() => onPick?.(option.id)}
           data-testid={`${testId}-chip-${toTestIdSuffix(option.name)}`}
           className={cn(
             'press rounded-lg border border-hairline bg-card text-foreground hover:border-input aria-pressed:border-primary aria-pressed:bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))] aria-pressed:ring-1 aria-pressed:ring-primary aria-pressed:ring-inset',
             layout === 'tiles'
               ? 'flex min-h-[5.25rem] flex-col items-center justify-start gap-1.5 px-1 pt-2.5 pb-2'
-              : 'inline-flex min-h-11 items-center gap-2 px-3.5 text-callout font-medium aria-pressed:text-primary',
+              : 'flex min-h-12 min-w-0 items-center gap-2.5 px-3.5 py-2 text-left text-callout leading-tight font-medium aria-pressed:text-primary [&>span]:line-clamp-2',
           )}
         >
           {renderIcon?.(option)}

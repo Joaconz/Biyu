@@ -14,13 +14,15 @@ punto de partida.
 
 ## 2. Login y registro de cuenta, demasiado vacíos — hecho
 
-Panel verde con la marca y un ejemplo del mes; el formulario sube como hoja desde abajo. Problema original:
+Panel verde con la marca y tres líneas sobre qué hace la app; el formulario sube como hoja desde abajo. Problema original:
 
 `/login` y `/signup` (`AuthForm.tsx`, `AuthLayout.tsx`) tienen mucho espacio muerto: wordmark,
 lema y un formulario suelto. Falta presencia de marca o una composición que llene la pantalla sin
 agregar ruido.
 
-## 3. Registrar un gasto paso a paso
+## 3. Registrar un gasto paso a paso — hecho
+
+Monto → categoría (avanza sola) → detalles, sobre un único borrador (ADR-024). Problema original:
 
 Hoy todos los campos están en una sola pantalla. La idea: que el registro arranque desde un botón
 y se complete pantalla por pantalla (monto → categoría → …).

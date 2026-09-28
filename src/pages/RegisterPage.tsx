@@ -1,24 +1,21 @@
 import { TransactionForm } from '@/components/transaction-form/TransactionForm'
 import { useCatalog } from '@/hooks/useCatalog'
 
-// Pantalla de inicio (US-01): `/` y el login redirigen acá. El monto es el protagonista (ADR-023).
+// Pantalla de inicio (US-01): `/` y el login redirigen acá y abre en el primer paso del registro (ADR-024).
 export function RegisterPage() {
   const catalog = useCatalog()
   return (
-    <div className="pt-4 lg:pt-0">
+    <div className="pt-2 lg:pt-0">
       <h1 data-testid="register-title" className="sr-only">
         Registrar un gasto
       </h1>
       {catalog.status === 'loading' && (
         <div data-testid="register-loading" aria-busy="true" className="mx-auto flex w-full max-w-xl flex-col gap-7">
           <span className="sr-only">Cargando…</span>
+          {/* Misma forma que el primer paso: barra de progreso, Gasto | Ingreso y el monto. */}
+          <div className="h-1 animate-pulse rounded-full bg-muted" />
           <div className="h-12 animate-pulse rounded-lg bg-muted" />
-          <div className="mx-auto h-16 w-48 animate-pulse rounded-lg bg-muted" />
-          <div className="grid grid-cols-4 gap-2">
-            {Array.from({ length: 8 }, (_, i) => (
-              <div key={i} className="h-[5.25rem] animate-pulse rounded-lg bg-muted" />
-            ))}
-          </div>
+          <div className="mx-auto mt-16 h-16 w-40 animate-pulse rounded-lg bg-muted" />
         </div>
       )}
       {catalog.status === 'error' && (

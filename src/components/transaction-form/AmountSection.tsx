@@ -30,7 +30,7 @@ export function AmountSection({ values, errors, touched, onChange }: SectionProp
           data-testid="transaction-form-amount"
           autoFocus
           inputMode="decimal"
-          enterKeyHint="done"
+          enterKeyHint="next"
           autoComplete="off"
           placeholder="0"
           style={{ width }}
