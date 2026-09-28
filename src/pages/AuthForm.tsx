@@ -23,6 +23,10 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
     const form = new FormData(e.currentTarget)
     const credentials = { email: String(form.get('email')).trim(), password: String(form.get('password')) }
     if (mode === 'signup') {
+      const confirmPassword = String(form.get('confirmPassword'))
+      if (credentials.password !== confirmPassword) {
+        return setError('Las contraseñas no son iguales')
+      }
       const unmet = unmetPasswordCriteria(credentials.password)
       if (unmet.length > 0) {
         return setError(`Falta que la contraseña cumpla: ${unmet.map((c) => c.label.replace(/^Al menos /, '')).join(', ')}.`)
@@ -75,16 +79,29 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           />
         </div>
         {mode === 'signup' && (
-          <ul id="signup-password-criteria" data-testid="signup-password-criteria" className="flex flex-col gap-1 text-sm text-muted-foreground">
-            {PASSWORD_CRITERIA.map((c) => {
-              const met = c.test(password)
-              return (
-                <li key={c.key} className={met ? 'text-foreground' : undefined} aria-label={`${c.label}: ${met ? 'cumplido' : 'pendiente'}`}>
-                  {met ? '✓' : '○'} {c.label}
-                </li>
-              )
-            })}
-          </ul>
+          <>
+            <ul id="signup-password-criteria" data-testid="signup-password-criteria" className="flex flex-col gap-1 text-sm text-muted-foreground">
+              {PASSWORD_CRITERIA.map((c) => {
+                const met = c.test(password)
+                return (
+                  <li key={c.key} className={met ? 'text-foreground' : undefined} aria-label={`${c.label}: ${met ? 'cumplido' : 'pendiente'}`}>
+                    {met ? '✓' : '○'} {c.label}
+                  </li>
+                )
+              })}
+            </ul>
+            <div className="grid gap-2">
+              <Label htmlFor="signup-confirm-password">Confirmar contraseña</Label>
+              <Input
+                id="signup-confirm-password"
+                name="confirmPassword"
+                type="password"
+                required
+                autoComplete="new-password"
+                data-testid="signup-form-confirm-password"
+              />
+            </div>
+          </>
         )}
         {error && <p role="alert" data-testid={`${prefix}-form-error`} className="text-sm text-destructive">{error}</p>}
         <Button type="submit" disabled={submitting} data-testid={`${prefix}-form-submit`}>
