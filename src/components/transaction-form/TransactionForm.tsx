@@ -327,8 +327,13 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
               Completá {joinSpanish(pending)} para {isLastStep ? 'guardar' : 'seguir'}
             </p>
           )}
+          {/*
+            Keys distintas: sin ellas React reusa el mismo <button> y, al avanzar al último paso,
+            le cambia el type a "submit" durante el clic; la activación nativa lo lee y guarda de golpe.
+          */}
           {isLastStep ? (
             <Button
+              key="submit"
               aria-describedby={showHint ? hintId : undefined}
               type="submit"
               size="lg"
@@ -352,6 +357,7 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
             </Button>
           ) : (
             <Button
+              key="next"
               aria-describedby={showHint ? hintId : undefined}
               type="button"
               size="lg"
