@@ -111,3 +111,17 @@ export function applyReferenceRateSuggestion(
 
   return referenceRate === null ? prev : { ...prev, fxRate: referenceRate }
 }
+
+/**
+ * Indica si el TC válido del borrador difiere de la referencia mensual (US-21).
+ * La comparación pasa por Decimal para que formatos equivalentes (punto o coma) no parezcan un override.
+ */
+export function isReferenceRateOverridden(
+  fxRateInput: string,
+  referenceRate: string | null,
+): boolean {
+  if (referenceRate === null) return false
+  const fxRate = tryParseMoney(fxRateInput)
+  const reference = tryParseMoney(referenceRate)
+  return fxRate !== null && reference !== null && !fxRate.eq(reference)
+}

@@ -46,6 +46,7 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
   const [referenceRateStatus, setReferenceRateStatus] = useState<
     'idle' | 'loading' | 'found' | 'missing' | 'error'
   >('idle')
+  const [referenceRate, setReferenceRate] = useState<string | null>(null)
   const todayIso = toIsoDate(today())
   const draftPeriod = tryPeriodOf(values.occurredOn)
   const ratePeriodKey = draftPeriod ? formatPeriod(draftPeriod) : ''
@@ -58,6 +59,7 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
     const requestPeriod = parsePeriod(ratePeriodKey)
     if (values.currency !== 'USD' || !requestPeriod) {
       setReferenceRateStatus('idle')
+      setReferenceRate(null)
       if (values.currency === 'USD') {
         setValues((prev) => (prev.fxRate === '' ? prev : { ...prev, fxRate: '' }))
       }
@@ -67,6 +69,7 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
     const request = { currency: values.currency, period: requestPeriod } as const
     let cancelled = false
     setReferenceRateStatus('loading')
+    setReferenceRate(null)
     // Al cambiar de mes, no se conserva accidentalmente el TC sugerido del período anterior.
     setValues((prev) => {
       const previousPeriod = tryPeriodOf(prev.occurredOn)
@@ -79,10 +82,14 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
       .then((referenceRate) => {
         if (cancelled) return
         setValues((prev) => applyReferenceRateSuggestion(prev, request, referenceRate))
+        setReferenceRate(referenceRate)
         setReferenceRateStatus(referenceRate === null ? 'missing' : 'found')
       })
       .catch(() => {
-        if (!cancelled) setReferenceRateStatus('error')
+        if (!cancelled) {
+          setReferenceRate(null)
+          setReferenceRateStatus('error')
+        }
       })
 
     return () => {
@@ -134,7 +141,11 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
 
         <AmountSection {...section} />
 
-        <CurrencySection {...section} referenceRateStatus={referenceRateStatus} />
+        <CurrencySection
+          {...section}
+          referenceRateStatus={referenceRateStatus}
+          referenceRate={referenceRate}
+        />
 
         {values.type === 'expense' && (
           <CategorySection {...section} categories={categories} />
