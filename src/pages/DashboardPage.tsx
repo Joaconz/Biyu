@@ -8,7 +8,7 @@ import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransac
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatArs } from '@/domain/money'
+import { formatArs, formatUsd } from '@/domain/money'
 import { formatPeriod, parsePeriod } from '@/domain/period'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
@@ -128,6 +128,14 @@ export function DashboardPage() {
                   >
                     {formatArs(summaryState.summary.expenses)}
                   </div>
+                  {summaryState.summary.expensesUsd.gt(0) && (
+                    <p
+                      data-testid="dashboard-total-usd"
+                      className="mt-1 text-sm text-muted-foreground"
+                    >
+                      Subtotal en USD: {formatUsd(summaryState.summary.expensesUsd)}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 

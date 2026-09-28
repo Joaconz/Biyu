@@ -7,8 +7,8 @@ import {
 } from '@/domain/summary'
 
 const entry = (o: Partial<SummaryEntry> & { tx?: Partial<SummaryEntry['transaction']> }): SummaryEntry => ({
-  period: '2026-09-01', installment_number: 1, amount_ars: '100.00',
-  transaction: { id: 't', type: 'expense', category_id: 'c1', account_id: 'a1', first_period: '2026-09-01', deleted_at: null, ...o.tx },
+  period: '2026-09-01', installment_number: 1, amount: '100.00', amount_ars: '100.00',
+  transaction: { id: 't', type: 'expense', currency: 'ARS', category_id: 'c1', account_id: 'a1', first_period: '2026-09-01', deleted_at: null, ...o.tx },
   ...o,
 })
 const P = { year: 2026, month: 9 }
@@ -17,6 +17,7 @@ describe('computeMonthlySummary', () => {
   it('período vacío: todo en cero y hasData en false', () => {
     const s = computeMonthlySummary([], [], P)
     expect(s.expenses.toFixed(2)).toBe('0.00')
+    expect(s.expensesUsd.toFixed(2)).toBe('0.00')
     expect(s.balance.toFixed(2)).toBe('0.00')
     expect(s.byCategory.size).toBe(0)
     expect(s.hasData).toBe(false)
@@ -80,6 +81,42 @@ describe('computeMonthlySummary', () => {
     )
     expect(s.expenses.toFixed(2)).toBe('15000.00')
     expect(s.inheritedInstallments.toFixed(2)).toBe('15000.00')
+  })
+  it('US-24: subtotal en USD de imputaciones en dólares computa por separado', () => {
+    const s = computeMonthlySummary(
+      [
+        // Gasto en USD (100 USD @ 1250 = 125000 ARS)
+        entry({ amount: '100.00', amount_ars: '125000.00', tx: { currency: 'USD' } }),
+        // Gasto en USD (50.50 USD @ 1200 = 60600 ARS)
+        entry({ amount: '50.50', amount_ars: '60600.00', tx: { currency: 'USD' } }),
+        // Gasto en ARS (no debe sumar a USD)
+        entry({ amount: '25000.00', amount_ars: '25000.00', tx: { currency: 'ARS' } }),
+        // Ingreso en USD (no es gasto, no debe sumar a expensesUsd)
+        entry({ amount: '500.00', amount_ars: '625000.00', tx: { type: 'income', currency: 'USD' } }),
+        // Gasto en USD con borrado lógico (I10: no debe contar)
+        entry({ amount: '200.00', amount_ars: '250000.00', tx: { currency: 'USD', deleted_at: '2026-09-15T00:00:00Z' } }),
+        // Gasto en USD de otro período (no debe contar en este mes)
+        entry({ period: '2026-10-01', amount: '80.00', amount_ars: '100000.00', tx: { currency: 'USD' } }),
+      ],
+      [],
+      P,
+    )
+    // expenses suma amount_ars de los gastos no borrados de septiembre: 125000 + 60600 + 25000 = 210600.00
+    expect(s.expenses.toFixed(2)).toBe('210600.00')
+    // expensesUsd suma solo las imputaciones de gastos activos en USD de septiembre: 100.00 + 50.50 = 150.50
+    expect(s.expensesUsd.toFixed(2)).toBe('150.50')
+  })
+  it('US-24: compra en cuotas en USD suma la imputación correspondiente al período', () => {
+    // Compra de 100 USD en 3 cuotas (33.33, 33.33, 33.34): en septiembre entra la cuota 1
+    const s = computeMonthlySummary(
+      [
+        entry({ installment_number: 1, amount: '33.33', amount_ars: '41666.66', tx: { currency: 'USD' } }),
+        entry({ period: '2026-10-01', installment_number: 2, amount: '33.33', amount_ars: '41666.66', tx: { currency: 'USD' } }),
+      ],
+      [],
+      P,
+    )
+    expect(s.expensesUsd.toFixed(2)).toBe('33.33')
   })
   it('US-33: período sin datos retorna hasData en false', () => {
     const s = computeMonthlySummary([], [], P)
