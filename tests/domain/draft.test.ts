@@ -4,6 +4,7 @@ import {
   applyReferenceRateSuggestion,
   draftInputAfterSave,
   emptyDraftInput,
+  isReferenceRateOverridden,
   parseDraftInput,
   resolvePreloadedAccount,
   type DraftInput,
@@ -347,5 +348,32 @@ describe('applyReferenceRateSuggestion (US-20)', () => {
         '1350.1234',
       ),
     ).toBe(withoutDate)
+  })
+})
+
+describe('override manual del tipo de cambio (US-21)', () => {
+  it('reemplaza el TC sugerido en el borrador que se envía a la RPC', () => {
+    const withSuggestion: DraftInput = {
+      ...emptyDraftInput(TODAY),
+      amount: '100',
+      currency: 'USD',
+      fxRate: '1350.1234',
+      categoryId: 'c1',
+      accountId: 'a1',
+      accountType: 'cash',
+    }
+
+    const { values } = applyDraftChange(withSuggestion, { fxRate: '1400,50' })
+    const parsed = parseDraftInput(values)
+
+    expect(parsed.fxRate?.toFixed(2)).toBe('1400.50')
+    expect(validateTransactionDraft(parsed, TODAY)).toEqual({})
+  })
+
+  it('distingue un valor personalizado sin confundir formatos equivalentes', () => {
+    expect(isReferenceRateOverridden('1400,50', '1350.1234')).toBe(true)
+    expect(isReferenceRateOverridden('1.350,1234', '1350.1234')).toBe(false)
+    expect(isReferenceRateOverridden('', '1350.1234')).toBe(false)
+    expect(isReferenceRateOverridden('1400', null)).toBe(false)
   })
 })

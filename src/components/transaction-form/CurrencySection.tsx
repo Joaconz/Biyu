@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { isReferenceRateOverridden } from '@/domain/draft'
 import type { Currency } from '@/domain/fx'
 import { Link } from 'react-router'
 import { FieldError } from './FieldError'
@@ -17,6 +18,7 @@ const CURRENCY_OPTIONS: { value: Currency; label: string }[] = [
  */
 interface CurrencySectionProps extends SectionProps {
   referenceRateStatus: 'idle' | 'loading' | 'found' | 'missing' | 'error'
+  referenceRate: string | null
 }
 
 export function CurrencySection({
@@ -25,9 +27,12 @@ export function CurrencySection({
   touched,
   onChange,
   referenceRateStatus,
+  referenceRate,
 }: CurrencySectionProps) {
   const errorId = 'transaction-form-fx-rate-error'
+  const helpId = 'transaction-form-fx-rate-help'
   const isUsd = values.currency === 'USD'
+  const hasOverride = isReferenceRateOverridden(values.fxRate, referenceRate)
 
   return (
     <div className="grid gap-2">
@@ -77,8 +82,17 @@ export function CurrencySection({
             value={values.fxRate}
             onChange={(e) => onChange({ fxRate: e.target.value })}
             aria-invalid={(touched.fxRate && !!errors.fxRate) || undefined}
-            aria-describedby={errors.fxRate ? errorId : undefined}
+            aria-describedby={errors.fxRate ? `${helpId} ${errorId}` : helpId}
           />
+          <p
+            id={helpId}
+            data-testid="transaction-form-fx-rate-status"
+            className="text-sm text-muted-foreground"
+          >
+            {hasOverride
+              ? 'Estás usando un valor distinto al de referencia. Se aplica solo a esta transacción.'
+              : 'Podés cambiarlo: el valor que ingreses se aplica solo a esta transacción.'}
+          </p>
           <FieldError id={errorId} message={errors.fxRate} active={!!touched.fxRate} />
           {referenceRateStatus === 'loading' && (
             <p data-testid="transaction-form-fx-loading" className="text-sm text-muted-foreground" aria-live="polite">
