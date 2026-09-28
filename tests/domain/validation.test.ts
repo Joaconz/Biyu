@@ -6,11 +6,16 @@ const TODAY = '2026-08-15'
 const ok: TransactionDraft = {
   type: 'expense', amount: parseMoney('1000'), currency: 'ARS', fxRate: null,
   categoryId: 'c1', accountId: 'a1', accountType: 'credit_card', installmentsCount: 1, occurredOn: TODAY,
+  description: null,
 }
 const v = (patch: Partial<TransactionDraft>) => validateTransactionDraft({ ...ok, ...patch }, TODAY)
 
 describe('validateTransactionDraft', () => {
   it('un borrador válido no tiene errores', () => expect(v({})).toEqual({}))
+  it('la descripción es opcional (US-08)', () => {
+    expect(v({ description: null })).toEqual({})
+    expect(v({ description: 'Café con medialunas' })).toEqual({})
+  })
   it.each([['0'], ['-5'], [null]])('monto %j inválido (I4)', (a) =>
     expect(v({ amount: a === null ? null : parseMoney(a) }).amount).toBeDefined())
   it('más de 2 decimales', () => expect(v({ amount: parseMoney('1.234') }).amount).toBeDefined())

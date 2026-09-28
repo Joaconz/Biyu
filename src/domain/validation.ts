@@ -13,9 +13,10 @@ export interface TransactionDraft {
   accountType: 'credit_card' | 'debit_card' | 'cash' | 'bank_account' | 'wallet' | null
   installmentsCount: number
   occurredOn: string // YYYY-MM-DD
+  description: string | null
 }
 
-export type DraftField = 'amount' | 'fxRate' | 'categoryId' | 'accountId' | 'installmentsCount' | 'occurredOn'
+export type DraftField = 'amount' | 'fxRate' | 'categoryId' | 'accountId' | 'installmentsCount' | 'occurredOn' | 'description'
 export type DraftErrors = Partial<Record<DraftField, string>>
 
 /** I6: solo un gasto con tarjeta de crédito admite más de una cuota (US-14). */

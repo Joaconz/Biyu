@@ -19,6 +19,7 @@ import { AmountSection } from './AmountSection'
 import { CategorySection } from './CategorySection'
 import { CurrencySection } from './CurrencySection'
 import { DateSection } from './DateSection'
+import { DescriptionSection } from './DescriptionSection'
 import { InstallmentsField } from './InstallmentsField'
 import { TypeSection } from './TypeSection'
 import type { SectionProps, Touched } from './types'
@@ -102,6 +103,8 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
         {allowsInstallments(values) && <InstallmentsField {...section} />}
 
         <DateSection {...section} today={todayIso} />
+
+        <DescriptionSection {...section} />
 
         <Button type="submit" size="lg" className="h-11" disabled={!canSave} data-testid="transaction-form-submit">
           {saving ? 'Guardando…' : 'Guardar'}

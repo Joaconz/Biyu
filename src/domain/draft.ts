@@ -5,9 +5,10 @@ import { allowsInstallments, type TransactionDraft } from './validation'
  * Lo que el formulario de registro tiene cargado, antes de parsear. Los montos quedan como el
  * texto que tipeó el usuario hasta pasar por decimal.js (C2); el resto ya es el valor final.
  */
-export interface DraftInput extends Omit<TransactionDraft, 'amount' | 'fxRate'> {
+export interface DraftInput extends Omit<TransactionDraft, 'amount' | 'fxRate' | 'description'> {
   amount: string
   fxRate: string
+  description: string
 }
 
 export type DraftAccount = Pick<DraftInput, 'accountId' | 'accountType'>
@@ -26,12 +27,19 @@ export function emptyDraftInput(today: string, account: DraftAccount = NO_ACCOUN
     accountType: account.accountType,
     installmentsCount: 1,
     occurredOn: today,
+    description: '',
   }
 }
 
 /** Borrador listo para validateTransactionDraft y createTransaction: montos vacíos o inválidos → null. */
 export function parseDraftInput(input: DraftInput): TransactionDraft {
-  return { ...input, amount: tryParseMoney(input.amount), fxRate: tryParseMoney(input.fxRate) }
+  const trimmed = input.description?.trim()
+  return {
+    ...input,
+    amount: tryParseMoney(input.amount),
+    fxRate: tryParseMoney(input.fxRate),
+    description: trimmed ? trimmed : null,
+  }
 }
 
 export interface ActiveAccountOption {
