@@ -41,6 +41,7 @@ tablero (ver [`docs/roadmap.md`](docs/roadmap.md) y [`docs/08-trazabilidad.md`](
 | [`docs/01-domain-glossary.md`](docs/01-domain-glossary.md) | Vocabulario cerrado del dominio |
 | [`docs/02-behavior-spec.md`](docs/02-behavior-spec.md) | Qué tiene que hacer el sistema |
 | [`docs/03-architecture-spec.md`](docs/03-architecture-spec.md) | Cómo tiene que estar construido, stack y constraints |
+| [`docs/arquitectura.html`](docs/arquitectura.html) | Diagrama interactivo de la arquitectura (complementa el documento anterior) |
 | [`docs/04-data-model.md`](docs/04-data-model.md) | Schema, invariantes, aislamiento por usuario |
 | [`docs/05-repo-publico.md`](docs/05-repo-publico.md) | Reglas de higiene del repositorio público |
 | [`docs/06-suscripciones.md`](docs/06-suscripciones.md) | Spec de dominio de gastos recurrentes |
