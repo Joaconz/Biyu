@@ -53,6 +53,13 @@ describe('validateTransactionDraft', () => {
     expect(v({ occurredOn: '2026-08-16' }).occurredOn).toBeDefined()
     expect(v({ occurredOn: '15/08/2026' }).occurredOn).toBeDefined()
   })
+  it.each([['2026-08-15', 'hoy'], ['2026-08-14', 'ayer'], ['2026-07-31', 'el mes anterior'], ['2025-12-31', 'el año anterior']])(
+    'US-09: %s (%s) es una fecha válida', (occurredOn) => expect(v({ occurredOn })).toEqual({}))
+  it('US-09: el 1 de enero, el 31 de diciembre anterior vale y el 2 de enero no', () => {
+    const newYear = (occurredOn: string) => validateTransactionDraft({ ...ok, occurredOn }, '2027-01-01')
+    expect(newYear('2026-12-31')).toEqual({})
+    expect(newYear('2027-01-02').occurredOn).toBe('La fecha no puede ser futura')
+  })
 })
 
 describe('allowsInstallments (I6, US-14)', () => {

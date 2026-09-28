@@ -31,7 +31,7 @@ set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","r
 
 insert into _test_context (tx_id)
 select create_transaction('expense',120000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',12,'2026-08-15','Notebook');
-do $$ begin perform create_transaction('expense',5000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-10-02','Cable'); end $$;
+do $$ begin perform create_transaction('expense',5000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-09-02','Cable'); end $$;
 
 select results_eq(
   $$select description, installment_number, installments_count, amount_ars from pg_temp.listing('2026-08-01')$$,
@@ -39,9 +39,9 @@ select results_eq(
   '2026-08: la compra aparece como cuota 1/12 por 10000'
 );
 select results_eq(
-  $$select description, installment_number, installments_count, amount_ars from pg_temp.listing('2026-10-01')$$,
-  $$values ('Cable'::text, 1, 1, 5000.00::numeric), ('Notebook'::text, 3, 12, 10000.00::numeric)$$,
-  '2026-10: la compra de agosto aparece como 3/12 junto al pago único del mes'
+  $$select description, installment_number, installments_count, amount_ars from pg_temp.listing('2026-09-01')$$,
+  $$values ('Cable'::text, 1, 1, 5000.00::numeric), ('Notebook'::text, 2, 12, 10000.00::numeric)$$,
+  '2026-09: la compra de agosto aparece como 2/12 junto al pago único del mes'
 );
 select results_eq(
   $$select installment_number from pg_temp.listing('2027-07-01')$$,
@@ -55,15 +55,15 @@ select is_empty(
 
 -- C7: otra sesión no ve el listado ajeno.
 set local request.jwt.claims = '{"sub":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","role":"authenticated"}';
-select is_empty($$select 1 from pg_temp.listing('2026-10-01')$$, 'otra sesión ve el listado vacío (C7)');
+select is_empty($$select 1 from pg_temp.listing('2026-09-01')$$, 'otra sesión ve el listado vacío (C7)');
 
 -- I10: borrada, la compra desaparece de todos los meses donde tenía cuota.
 set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}';
 select lives_ok(format('select delete_transaction(%L::uuid)', (select tx_id from _test_context)), 'se borra la compra en cuotas');
 select results_eq(
-  $$select description from pg_temp.listing('2026-10-01')$$,
+  $$select description from pg_temp.listing('2026-09-01')$$,
   $$values ('Cable'::text)$$,
-  'borrada, la cuota 3/12 sale del listado (I10)'
+  'borrada, la cuota 2/12 sale del listado (I10)'
 );
 
 select * from finish();
