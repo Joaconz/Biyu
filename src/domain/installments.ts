@@ -67,3 +67,12 @@ export function previewInstallments(draft: TransactionDraft, errors: DraftErrors
     lastInstallment: last.amount.eq(first.amount) ? null : `La última es de ${format(last.amount)}`,
   }
 }
+
+/**
+ * Etiqueta "n/N" de una imputación en el listado (US-17): "3/12" es la cuota 3 de 12.
+ * Devuelve null para un pago único (N = 1), que no se muestra como cuota.
+ */
+export function formatInstallmentLabel(installmentNumber: number, installmentsCount: number): string | null {
+  if (installmentsCount <= 1) return null
+  return `${installmentNumber}/${installmentsCount}`
+}

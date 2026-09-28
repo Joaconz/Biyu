@@ -1,5 +1,6 @@
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { formatInstallmentLabel } from '@/domain/installments'
 import { formatArs, parseMoney } from '@/domain/money'
 import { formatDisplayDate } from '@/domain/period'
 import type { DashboardTransaction } from '@/lib/dashboard'
@@ -16,7 +17,12 @@ export function TransactionItem({
   onDeleteRequest,
 }: TransactionItemProps) {
   const isIncome = transaction.type === 'income'
-  const amountArs = formatArs(parseMoney(transaction.amount_ars))
+  // Lo que la imputación impacta en el mes listado: la cuota, no el total de la compra.
+  const amountArs = formatArs(parseMoney(transaction.entry_amount_ars))
+  const installmentLabel = formatInstallmentLabel(
+    transaction.installment_number,
+    transaction.installments_count,
+  )
   const dateFormatted = formatDisplayDate(transaction.occurred_on)
   const title =
     transaction.description ||
@@ -32,9 +38,13 @@ export function TransactionItem({
       <div className="flex flex-col min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="font-medium text-sm truncate">{title}</span>
-          {transaction.installments_count > 1 && (
-            <span className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium shrink-0">
-              {transaction.installments_count} cuotas
+          {installmentLabel !== null && (
+            <span
+              data-testid={`${baseTestId}-installment`}
+              aria-label={`Cuota ${transaction.installment_number} de ${transaction.installments_count}`}
+              className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium tabular-nums shrink-0"
+            >
+              {installmentLabel}
             </span>
           )}
         </div>
@@ -66,7 +76,7 @@ export function TransactionItem({
           </span>
           {transaction.currency === 'USD' && (
             <span className="text-xs text-muted-foreground tabular-nums">
-              USD {parseMoney(transaction.amount).toFixed(2)}
+              USD {parseMoney(transaction.entry_amount).toFixed(2)}
             </span>
           )}
         </div>
