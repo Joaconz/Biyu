@@ -6,7 +6,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { LogoutButton } from '@/components/LogoutButton'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatArs } from '@/domain/money'
 import { formatPeriod, parsePeriod } from '@/domain/period'
@@ -20,6 +20,8 @@ export function DashboardPage() {
   const summaryState = useMonthlySummary(period)
   const transactionsState = useMonthlyTransactions(period, 10)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
+  // US-33: un mes sin imputaciones muestra el acceso al registro en vez de un dashboard de ceros.
+  const isEmpty = summaryState.status === 'ready' && !summaryState.summary.hasData
 
   return (
     <AppShell
@@ -90,7 +92,27 @@ export function DashboardPage() {
           </p>
         )}
 
-        {summaryState.status === 'ready' && (
+        {isEmpty && (
+          <Card data-testid="dashboard-empty" className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <p
+                data-testid="dashboard-empty-message"
+                className="text-sm text-muted-foreground mb-4"
+              >
+                No tenés movimientos registrados en este mes.
+              </p>
+              <Link
+                to="/register"
+                data-testid="dashboard-empty-register"
+                className={buttonVariants({ variant: 'default' })}
+              >
+                Registrar un gasto
+              </Link>
+            </CardContent>
+          </Card>
+        )}
+
+        {summaryState.status === 'ready' && !isEmpty && (
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Card data-testid="dashboard-total">
@@ -172,54 +194,56 @@ export function DashboardPage() {
           </>
         )}
 
-        <Card data-testid="dashboard-recent-transactions">
-          <CardHeader>
-            <CardTitle>Últimas transacciones</CardTitle>
-            <CardAction>
-              <Link
-                to={`/transactions?period=${formatPeriod(period)}`}
-                data-testid="dashboard-transactions-view-all"
-                className="text-xs font-medium text-primary hover:underline"
-              >
-                Ver todas
-              </Link>
-            </CardAction>
-          </CardHeader>
-          <CardContent>
-            {transactionsState.status === 'loading' && (
-              <p data-testid="dashboard-transactions-loading" className="text-sm text-muted-foreground py-2">
-                Cargando transacciones…
-              </p>
-            )}
+        {!isEmpty && (
+          <Card data-testid="dashboard-recent-transactions">
+            <CardHeader>
+              <CardTitle>Últimas transacciones</CardTitle>
+              <CardAction>
+                <Link
+                  to={`/transactions?period=${formatPeriod(period)}`}
+                  data-testid="dashboard-transactions-view-all"
+                  className="text-xs font-medium text-primary hover:underline"
+                >
+                  Ver todas
+                </Link>
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              {transactionsState.status === 'loading' && (
+                <p data-testid="dashboard-transactions-loading" className="text-sm text-muted-foreground py-2">
+                  Cargando transacciones…
+                </p>
+              )}
 
-            {transactionsState.status === 'error' && (
-              <p role="alert" data-testid="dashboard-transactions-error" className="text-sm text-destructive py-2">
-                No se pudieron cargar las transacciones: {transactionsState.message}
-              </p>
-            )}
+              {transactionsState.status === 'error' && (
+                <p role="alert" data-testid="dashboard-transactions-error" className="text-sm text-destructive py-2">
+                  No se pudieron cargar las transacciones: {transactionsState.message}
+                </p>
+              )}
 
-            {transactionsState.status === 'ready' && transactionsState.transactions.length === 0 && (
-              <p data-testid="dashboard-transactions-empty" className="text-sm text-muted-foreground py-4 text-center">
-                No hay transacciones en este período.
-              </p>
-            )}
+              {transactionsState.status === 'ready' && transactionsState.transactions.length === 0 && (
+                <p data-testid="dashboard-transactions-empty" className="text-sm text-muted-foreground py-4 text-center">
+                  No hay transacciones en este período.
+                </p>
+              )}
 
-            {transactionsState.status === 'ready' && transactionsState.transactions.length > 0 && (
-              <div data-testid="dashboard-transactions-list" className="flex flex-col">
-                {transactionsState.transactions.map((tx) => (
-                  <TransactionItem
-                    key={tx.id}
-                    transaction={tx}
-                    testId="dashboard-transaction-item"
-                    onDeleteRequest={setTxToDelete}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              {transactionsState.status === 'ready' && transactionsState.transactions.length > 0 && (
+                <div data-testid="dashboard-transactions-list" className="flex flex-col">
+                  {transactionsState.transactions.map((tx) => (
+                    <TransactionItem
+                      key={tx.id}
+                      transaction={tx}
+                      testId="dashboard-transaction-item"
+                      onDeleteRequest={setTxToDelete}
+                    />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-        {summaryState.status === 'ready' && (
+        {summaryState.status === 'ready' && !isEmpty && (
           <Card data-testid="dashboard-days-with-transactions">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">

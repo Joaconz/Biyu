@@ -63,6 +63,7 @@ export interface MonthlySummary {
   byAccount: Map<string, Decimal>
   categoryExpenses: CategoryExpenseSummary[]
   accountExpenses: AccountExpenseSummary[]
+  hasData: boolean
 }
 
 const add = <K,>(map: Map<K, Decimal>, key: K, value: Decimal) =>
@@ -79,6 +80,7 @@ export function computeMonthlySummary(
   let inherited = new Decimal(0)
   const byCategory = new Map<string | null, Decimal>()
   const byAccount = new Map<string, Decimal>()
+  let hasData = false
 
   const categoryMap = new Map<
     string,
@@ -102,6 +104,7 @@ export function computeMonthlySummary(
 
   for (const e of entries) {
     if (e.period !== key || e.transaction.deleted_at) continue // I10
+    hasData = true
     const amount = parseMoney(e.amount_ars)
     if (e.transaction.type === 'income') {
       income = income.plus(amount)
@@ -200,7 +203,15 @@ export function computeMonthlySummary(
     byAccount,
     categoryExpenses,
     accountExpenses,
+    hasData,
   }
+}
+
+/**
+ * Determina si el resumen mensual tiene datos registrados (US-33).
+ */
+export function hasMonthlyData(summary: MonthlySummary): boolean {
+  return summary.hasData
 }
 
 export interface ConsistencyTransaction {
