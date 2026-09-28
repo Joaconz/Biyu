@@ -33,6 +33,16 @@ export function periodOf(date: string): Period {
   return fromDbDate(date)
 }
 
+/** Período de un input date; durante la edición el valor puede estar vacío o incompleto. */
+export function tryPeriodOf(date: string): Period | null {
+  if (!/^\d{4}-(0[1-9]|1[0-2])-\d{2}$/.test(date)) return null
+  return parsePeriod(date.slice(0, 7))
+}
+
+export function isSamePeriod(a: Period, b: Period): boolean {
+  return a.year === b.year && a.month === b.month
+}
+
 /** El período actual, a partir de un `today` que entra como parámetro (C1). */
 export function currentPeriod(today: Date): Period {
   return { year: today.getFullYear(), month: today.getMonth() + 1 }
