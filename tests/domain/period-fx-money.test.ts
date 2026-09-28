@@ -30,6 +30,7 @@ describe('period', () => {
 describe('money', () => {
   it('convertToArs redondea half-up', () => {
     expect(convertToArs(parseMoney('100'), parseMoney('1250'))).toEqual(parseMoney('125000'))
+    expect(convertToArs(parseMoney('100'), parseMoney('1250.5555'))).toEqual(parseMoney('125055.55'))
     expect(convertToArs(parseMoney('0.01'), parseMoney('1.5'))).toEqual(parseMoney('0.02'))
   })
   it('parseMoney acepta formato argentino y PostgREST', () => {
