@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { generateLedgerEntries } from '@/domain/installments'
+import { generateLedgerEntries, previewInstallments } from '@/domain/installments'
 import { Decimal, parseMoney } from '@/domain/money'
+import { addMonths } from '@/domain/period'
+import { validateTransactionDraft, type TransactionDraft } from '@/domain/validation'
 
 const sum = (xs: Decimal[]) => xs.reduce((a, b) => a.plus(b), new Decimal(0))
 const P = (year: number, month: number) => ({ year, month })
@@ -47,6 +49,36 @@ describe('generateLedgerEntries', () => {
     expect(sum(r.map((e) => e.amountArs)).eq('125055.55')).toBe(true)
   })
 
+  it('12 cuotas desde diciembre: numeradas 1..12 sin huecos (I2) y períodos consecutivos cruzando el año (I3)', () => {
+    const r = generateLedgerEntries(parseMoney('120000'), null, 12, P(2026, 12))
+    expect(r.map((e) => e.installmentNumber)).toEqual(Array.from({ length: 12 }, (_, i) => i + 1))
+    expect(r.map((e) => e.period)).toEqual(Array.from({ length: 12 }, (_, i) => addMonths(P(2026, 12), i)))
+    expect(r[1].period).toEqual(P(2027, 1))
+    expect(r[11].period).toEqual(P(2027, 11))
+  })
+
+  // US-15: la última cuota absorbe el resto en cada serie por separado (ADR-013).
+  const series = (r: ReturnType<typeof generateLedgerEntries>) => ({
+    amount: r.map((e) => e.amount.toFixed(2)),
+    amountArs: r.map((e) => e.amountArs.toFixed(2)),
+  })
+  it('USD 100 x 1250.5555 en 3: resto en las dos series, cada una con el suyo', () =>
+    expect(series(generateLedgerEntries(parseMoney('100'), parseMoney('1250.5555'), 3, P(2026, 8)))).toEqual({
+      amount: ['33.33', '33.33', '33.34'],
+      amountArs: ['41685.18', '41685.18', '41685.19'], // 125055.55 / 3
+    }))
+  it('USD 100 x 1200 en 3: resto solo en la moneda original, ARS exacto', () =>
+    expect(series(generateLedgerEntries(parseMoney('100'), parseMoney('1200'), 3, P(2026, 8)))).toEqual({
+      amount: ['33.33', '33.33', '33.34'],
+      amountArs: ['40000.00', '40000.00', '40000.00'],
+    }))
+  it('USD 3 x 1000.0034 en 3: resto solo en ARS, que no sale de convertir cada cuota', () =>
+    // convertir cuota a cuota daría 1000.00 x 3 = 3000.00, un centavo menos que amount_ars (I1')
+    expect(series(generateLedgerEntries(parseMoney('3'), parseMoney('1000.0034'), 3, P(2026, 8)))).toEqual({
+      amount: ['1.00', '1.00', '1.00'],
+      amountArs: ['1000.00', '1000.00', '1000.01'], // 3000.0102 → 3000.01
+    }))
+
   it('propiedad: la suma siempre es el total, en ambas series', () => {
     let seed = 42
     const rnd = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31
@@ -65,4 +97,55 @@ describe('generateLedgerEntries', () => {
   it('rechaza cantidades de cuotas inválidas', () => {
     expect(() => generateLedgerEntries(parseMoney('10'), null, 0, P(2026, 1))).toThrow(RangeError)
   })
+})
+
+describe('previewInstallments (US-13)', () => {
+  const draft: TransactionDraft = {
+    type: 'expense', amount: parseMoney('120000'), currency: 'ARS', fxRate: null, categoryId: 'c1',
+    accountId: 'visa', accountType: 'credit_card', installmentsCount: 12, occurredOn: '2026-08-15',
+  }
+  const preview = (patch: Partial<TransactionDraft>) => {
+    const d = { ...draft, ...patch }
+    return previewInstallments(d, validateTransactionDraft(d, '2026-09-26'))
+  }
+
+  it('120000 en 12 desde 2026-08-15: el texto del happy path, sin aclaración', () =>
+    expect(preview({})).toEqual({
+      summary: '12 cuotas de $10.000,00 — de 2026-08 a 2027-07',
+      installments: '12 cuotas de $10.000,00',
+      range: 'de 2026-08 a 2027-07',
+      lastInstallment: null,
+    }))
+  it('100000 en 3: la línea muestra la cuota base y aparte la última, que absorbe el resto', () =>
+    expect(preview({ amount: parseMoney('100000'), installmentsCount: 3 })).toMatchObject({
+      summary: '3 cuotas de $33.333,33 — de 2026-08 a 2026-10',
+      lastInstallment: 'La última es de $33.333,34',
+    }))
+  it('los montos coinciden con generateLedgerEntries (misma regla que la RPC)', () => {
+    const entries = generateLedgerEntries(parseMoney('1.00'), null, 8, P(2026, 8))
+    expect(preview({ amount: parseMoney('1.00'), installmentsCount: 8 })).toMatchObject({
+      summary: '8 cuotas de $0,12 — de 2026-08 a 2027-03',
+      lastInstallment: `La última es de $${entries[7].amount.toFixed(2).replace('.', ',')}`,
+    })
+  })
+  it('el período sale de la fecha y cruza el año', () =>
+    expect(preview({ installmentsCount: 3, occurredOn: '2025-11-30' })?.summary).toBe(
+      '3 cuotas de $40.000,00 — de 2025-11 a 2026-01'))
+  it('en USD muestra la moneda original, con o sin tipo de cambio cargado', () => {
+    const usd = { currency: 'USD' as const, amount: parseMoney('100'), installmentsCount: 3 }
+    const expected = { summary: '3 cuotas de US$33,33 — de 2026-08 a 2026-10', lastInstallment: 'La última es de US$33,34' }
+    expect(preview({ ...usd, fxRate: parseMoney('1250.5555') })).toMatchObject(expected)
+    expect(preview({ ...usd, fxRate: null })).toMatchObject(expected)
+  })
+  it('con 1 cuota no hay nada que previsualizar', () => expect(preview({ installmentsCount: 1 })).toBeNull())
+  it.each([
+    ['sin monto', { amount: null }],
+    ['monto cero', { amount: parseMoney('0') }],
+    ['más de 2 decimales', { amount: parseMoney('10.005') }],
+    ['cuota menor a 0,01', { amount: parseMoney('0.02'), installmentsCount: 3 }],
+    ['13 cuotas', { installmentsCount: 13 }],
+    ['cuotas sobre efectivo (I6)', { accountType: 'cash' as const }],
+    ['fecha malformada', { occurredOn: '15/08/2026' }],
+    ['fecha futura', { occurredOn: '2026-11-30' }],
+  ])('%s: no muestra nada', (_, patch) => expect(preview(patch)).toBeNull())
 })
