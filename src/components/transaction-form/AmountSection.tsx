@@ -9,20 +9,20 @@ const CURRENCY_OPTIONS: { value: Currency; label: string; testId: string; ariaLa
 ]
 
 /**
- * El monto es el protagonista (ADR-023): Playfair grande y centrado, con la moneda debajo (US-05).
+ * El monto es el protagonista (ADR-023): grande, en negrita y centrado, con la moneda debajo (US-05).
  * Toma el foco al montar y pide el teclado numérico con coma (US-02). La fuente supera los 16px,
  * así que iOS no hace zoom al enfocar.
  */
 export function AmountSection({ values, errors, touched, onChange }: SectionProps) {
   const errorId = 'transaction-form-amount-error'
-  const width = `${Math.max(values.amount.length, 4) + 0.5}ch`
+  const width = `${Math.max(values.amount.length, 1) + 0.6}ch`
   return (
     <div className="flex flex-col items-center gap-4 py-2">
       <label htmlFor="transaction-form-amount" className="sr-only">
         Monto
       </label>
-      <div className="flex max-w-full items-baseline justify-center gap-1.5 font-serif text-foreground">
-        <span aria-hidden="true" className="text-title-1 font-medium text-muted-foreground">
+      <div className="flex max-w-full items-baseline justify-center gap-1 text-foreground">
+        <span aria-hidden="true" className="text-title-1 font-semibold text-muted-foreground">
           {values.currency === 'USD' ? 'US$' : '$'}
         </span>
         <input
@@ -32,9 +32,9 @@ export function AmountSection({ values, errors, touched, onChange }: SectionProp
           inputMode="decimal"
           enterKeyHint="done"
           autoComplete="off"
-          placeholder="0,00"
+          placeholder="0"
           style={{ width }}
-          className="serif-numerals min-w-0 max-w-[calc(100vw-6rem)] bg-transparent text-left text-amount font-semibold caret-primary outline-none placeholder:text-muted-foreground/45 focus-visible:outline-none"
+          className="tabular min-w-0 max-w-[calc(100vw-6rem)] bg-transparent text-left text-amount font-bold caret-primary outline-none placeholder:text-muted-foreground/45 focus-visible:outline-none"
           value={values.amount}
           onChange={(e) => onChange({ amount: e.target.value })}
           aria-invalid={(touched.amount && !!errors.amount) || undefined}

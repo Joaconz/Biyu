@@ -54,8 +54,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
 
   return (
     <AuthLayout>
-      <form onSubmit={onSubmit} data-testid={`${prefix}-form`} className="flex flex-col gap-4">
-        <h1 className="font-serif text-title-1 font-semibold">{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</h1>
+      <form onSubmit={onSubmit} data-testid={`${prefix}-form`} className="flex flex-col gap-3.5">
+        <div className="mb-1 flex flex-col gap-1">
+          <h1 className="text-title-1 font-bold">{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</h1>
+          <p className="text-callout text-muted-foreground">
+            {mode === 'login' ? 'Seguí donde lo dejaste.' : 'Pesos, dólares y cuotas, en un solo lugar.'}
+          </p>
+        </div>
         <div className="grid gap-2">
           <Label htmlFor={`${prefix}-email`}>Email</Label>
           <Input id={`${prefix}-email`} name="email" type="email" required autoComplete="email" data-testid={`${prefix}-form-email`} />

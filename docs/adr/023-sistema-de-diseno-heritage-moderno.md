@@ -26,12 +26,15 @@ de shadcn emite sombra. La jerarquía sale del tono de la superficie, los filete
 el material translúcido del cromo (utilidad `chrome`: fondo al 80% con `backdrop-filter`, con caída
 a sólido si el usuario pide menos transparencia o el navegador no lo soporta).
 
-**Tipografía.** Inter Variable (con eje óptico) para toda la interfaz, incluidos los títulos de
-pantalla, en negrita y con tracking negativo como los títulos grandes de iOS. Playfair Display
-queda solo para la marca: el wordmark, el encabezado del login y el monto de la pantalla de
-registro. Una primera versión usaba Playfair también en títulos y rótulos de tarjeta, y el
-conjunto se leía antiguo, más "cafetería" que app. Escala propia (`text-display` … `text-tab`) en
-la que el interlineado y el tracking cambian con el tamaño. Montos con cifras tabulares (`tabular`).
+**Tipografía.** Una sola familia sans para toda la interfaz, con la fuente del sistema primero
+(`-apple-system`: SF Pro en iPhone y Mac, con su tamaño óptico y su tracking) e Inter Variable
+para Android y Windows, que tiene métricas casi iguales. La marca sale del peso, no de otra
+fuente: el wordmark es "biyu" en negrita, apretado, con un punto dorado. El monto de Registrar va
+en negrita grande con cifras tabulares. Escala propia (`text-display` … `text-tab`) en la que el
+interlineado y el tracking cambian con el tamaño.
+
+Una primera versión usaba Playfair Display para títulos, wordmark y monto. El conjunto se leía
+antiguo, más "cafetería" que app, y se sacó (también ahorra ~38 kB de fuente).
 
 **Composición de las pantallas de lectura.** Listas agrupadas al estilo iOS (`GroupedSection`,
 `GroupedCard`): el rótulo sobre el fondo y las filas en una sola superficie de papel con filetes.
@@ -73,6 +76,9 @@ se esconde con el teclado abierto (`useVisualViewportInset`) para que "Guardar" 
   captura del informe de pruebas se vuelve doble. No hay ninguna historia que lo pida.
 - **Gráfico de dona para el gasto por categoría.** Es lo habitual en apps de finanzas, pero con
   seis u ocho categorías los ángulos no se comparan a simple vista y CP-DAS-004 pide barras.
+- **Serif de marca (Playfair) junto a la sans.** Daba carácter, pero dos familias con
+  personalidades opuestas en una pantalla chica compiten; el peso de una sola sans alcanza para
+  la jerarquía (apple-design §15).
 - **Dos navegaciones (barra móvil y sidebar como componentes separados).** Más simple de
   maquetar, pero ambas quedan en el DOM y los `data-testid` se duplican: rompe la automatización
   de V3 (`docs/07-plan-de-testing.md` §2).
@@ -86,6 +92,6 @@ se esconde con el teclado abierto (`useVisualViewportInset`) para que "Guardar" 
 - Sin sombras, la separación entre capas depende de disciplina en tonos y filetes; hay que
   revisarla en cada pantalla nueva, sobre todo en hojas y diálogos. El botón Guardar fijo ya lo
   mostró: sobre material translúcido se leían los rótulos a través del botón, y pasó a fondo sólido.
-- Dos fuentes variables suman ~110 kB de woff2 (subconjunto latino) a la primera carga.
+- En Android y Windows, Inter suma ~73 kB de woff2 (subconjunto latino) a la primera carga; en iPhone y Mac no se descarga porque gana la fuente del sistema.
 - Respeta la convención de `data-testid` (`docs/07-plan-de-testing.md` §2) y el período en la
   URL (C11). No toca dominio, montos ni RLS.

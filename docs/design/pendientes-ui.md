@@ -3,14 +3,18 @@
 Notas del rediseño de V1 (ADR-023) que quedaron para la última etapa. Al retomarlas, trabajarlas
 con las skills `emil-design-eng` y `apple-design`.
 
-## 1. Tipografía
+## 1. Tipografía — hecho
+
+Se pasó a la fuente del sistema con Inter de respaldo y se sacó Playfair (ADR-023). Problema original:
 
 La tipografía todavía no convence. Revisar la elección de fuentes (Inter + Playfair), la escala
 (`text-display` … `text-tab` en `src/index.css`), los pesos y la jerarquía en todas las pantallas.
 Evaluar la fuente del sistema (`system-ui`, SF Pro en iOS), que `apple-design` §15 recomienda como
 punto de partida.
 
-## 2. Login y registro de cuenta, demasiado vacíos
+## 2. Login y registro de cuenta, demasiado vacíos — hecho
+
+Panel verde con la marca y un ejemplo del mes; el formulario sube como hoja desde abajo. Problema original:
 
 `/login` y `/signup` (`AuthForm.tsx`, `AuthLayout.tsx`) tienen mucho espacio muerto: wordmark,
 lema y un formulario suelto. Falta presencia de marca o una composición que llene la pantalla sin
