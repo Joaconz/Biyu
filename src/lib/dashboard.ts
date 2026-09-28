@@ -1,6 +1,5 @@
-import type { Period } from '@/domain/period'
-import { toDbDate } from '@/domain/period'
-import type { SummaryEntry } from '@/domain/summary'
+import { addMonths, toDbDate, type Period } from '@/domain/period'
+import type { ConsistencyTransaction, SummaryEntry } from '@/domain/summary'
 import { supabase } from './supabase'
 
 /**
@@ -23,7 +22,19 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
         category_id,
         account_id,
         first_period,
-        deleted_at
+        deleted_at,
+        category:categories!transactions_category_fk (
+          id,
+          name,
+          color,
+          archived_at
+        ),
+        account:accounts!transactions_account_fk (
+          id,
+          name,
+          type,
+          archived_at
+        )
       )
     `)
     .eq('period', dbPeriod)
@@ -47,6 +58,18 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
         account_id: string
         first_period: string
         deleted_at: string | null
+        category: {
+          id: string
+          name: string
+          color: string | null
+          archived_at: string | null
+        } | null
+        account: {
+          id: string
+          name: string
+          type: string
+          archived_at: string | null
+        } | null
       }
     }>
   ).map((row) => ({
@@ -62,8 +85,32 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
       account_id: row.transaction.account_id,
       first_period: row.transaction.first_period,
       deleted_at: row.transaction.deleted_at,
+      category: row.transaction.category,
+      account: row.transaction.account,
     },
   }))
+}
+
+/**
+ * Trae las transacciones del período (por occurred_on) para calcular días con registro (US-32, FR-20).
+ * Parte de transactions, no de ledger_entries (04-data-model, consulta 7).
+ */
+export async function fetchMonthlyConsistencyTransactions(
+  period: Period,
+): Promise<ConsistencyTransaction[]> {
+  const start = toDbDate(period)
+  const nextStart = toDbDate(addMonths(period, 1))
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('occurred_on, deleted_at')
+    .gte('occurred_on', start)
+    .lt('occurred_on', nextStart)
+
+  if (error) throw error
+  if (!data) return []
+
+  return data as ConsistencyTransaction[]
 }
 
 export interface DashboardTransaction {

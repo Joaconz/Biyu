@@ -37,8 +37,16 @@ describe('money', () => {
     expect(parseMoney('1234.56').eq('1234.56')).toBe(true)
     expect(parseMoney('10,5').eq('10.5')).toBe(true)
   })
-  it('formatea en argentino', () => expect(formatArs(parseMoney('1234567.5'))).toBe('$1.234.567,50'))
-  it('formatea en USD', () => expect(formatUsd(parseMoney('1234.5'))).toBe('USD 1.234,50'))
+  it('formatea en argentino', () => {
+    expect(formatArs(parseMoney('1234567.5'))).toBe('$1.234.567,50')
+    expect(formatArs(parseMoney('-50000'))).toBe('-$50.000,00')
+    expect(formatArs(parseMoney('0'))).toBe('$0,00')
+  })
+  it('formatea dólares con el mismo formato', () => {
+    expect(formatUsd(parseMoney('1234567.5'))).toBe('US$1.234.567,50')
+    expect(formatUsd(parseMoney('33.34'))).toBe('US$33,34')
+    expect(formatUsd(parseMoney('-50'))).toBe('-US$50,00')
+  })
 })
 
 describe('resolveFxRate', () => {

@@ -11,8 +11,12 @@ export type MonthlyTransactionsState =
  * Carga las transacciones del período con un límite opcional.
  * Vuelve a cargar si cambia el período o el límite.
  */
-export function useMonthlyTransactions(period: Period, limit?: number): MonthlyTransactionsState {
+export function useMonthlyTransactions(
+  period: Period,
+  limit?: number,
+): MonthlyTransactionsState & { refresh: () => void } {
   const [state, setState] = useState<MonthlyTransactionsState>({ status: 'loading' })
+  const [version, setVersion] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -33,7 +37,10 @@ export function useMonthlyTransactions(period: Period, limit?: number): MonthlyT
     return () => {
       cancelled = true
     }
-  }, [period.year, period.month, limit])
+  }, [period.year, period.month, limit, version])
 
-  return state
+  return {
+    ...state,
+    refresh: () => setVersion((v) => v + 1),
+  }
 }

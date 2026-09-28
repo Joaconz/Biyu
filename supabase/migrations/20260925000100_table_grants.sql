@@ -11,7 +11,7 @@ from anon, authenticated;
 grant select on
   categories, accounts, fx_rates, subscriptions, transactions, ledger_entries, debts,
   ledger_integrity_violations
-to authenticated;
+to authenticated, service_role;
 
 -- Escritura directa solo donde no hay una RPC que la reemplace. transactions y ledger_entries
 -- se escriben únicamente vía create_transaction (C4, C10).
