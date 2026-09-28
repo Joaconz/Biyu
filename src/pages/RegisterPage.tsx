@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
+import { LogoutButton } from '@/components/LogoutButton'
 import { TransactionForm } from '@/components/transaction-form/TransactionForm'
 import { useCatalog } from '@/hooks/useCatalog'
 
@@ -16,6 +17,7 @@ export function RegisterPage() {
           <Link to="/dashboard" data-testid="register-nav-dashboard" className="text-sm underline">
             Dashboard
           </Link>
+          <LogoutButton testId="register-nav-logout" />
         </div>
       }
     >

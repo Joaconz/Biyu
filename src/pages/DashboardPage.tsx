@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
 import { AppShell } from '@/components/layout/AppShell'
+import { LogoutButton } from '@/components/LogoutButton'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,7 @@ export function DashboardPage() {
           <Link to="/register" data-testid="dashboard-nav-register" className="text-sm underline">
             Registrar
           </Link>
+          <LogoutButton testId="dashboard-nav-logout" />
         </div>
       }
     >
