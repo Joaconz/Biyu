@@ -27,6 +27,9 @@ Mes calendario, identificado como `YYYY-MM`. Es la unidad temporal de todo el da
 ### Cuota (`Installment`)
 Cada una de las N partes en que se paga una transacción. `installment_number` va de 1 a `installments_count`. Una compra de contado tiene `installments_count = 1` — no es un caso especial, es el caso general con N=1.
 
+### Mes cerrado
+Cualquier período estrictamente anterior al mes actual (`period < currentPeriod`). No tiene relación con el ciclo real de cierre de tarjeta, que está fuera de alcance (ver "Fecha de imputación" abajo y Asunción 2 de `02-behavior-spec.md`). Es la definición operacional que usan FR-07, FR-08 y sus casos de prueba (`10-catalogo-casos-v1.md`, CP-REG-012/013) para decidir cuándo avisar antes de borrar o editar.
+
 ### Fecha de imputación
 El período al que pertenece la primera imputación. Por defecto es el período de la fecha de la transacción. **No se modela el ciclo de cierre de la tarjeta**: una compra del 28 de enero imputa a enero aunque el resumen la cobre en febrero. Es una simplificación consciente (ver ADR-001, sección Consecuencias).
 
