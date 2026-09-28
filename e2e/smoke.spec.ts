@@ -9,7 +9,8 @@ const FIRST_INSTALLMENT = '$333,33'
 const PASSWORD = 'Smoke-Test-2026'
 
 test('alta, gasto en 3 cuotas con tarjeta de crédito y total del mes en el dashboard', async ({ page }, testInfo) => {
-  const email = `smoke+${Date.now()}-${testInfo.project.name}@biyu.test`
+  // workerIndex: dos workers en paralelo pueden arrancar en el mismo milisegundo (--repeat-each).
+  const email = `smoke+${Date.now()}-${testInfo.workerIndex}@biyu.test`
 
   await page.goto('/signup')
   await page.getByTestId('signup-form-email').fill(email)
