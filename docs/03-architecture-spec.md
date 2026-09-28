@@ -2,6 +2,10 @@
 
 _Cómo tiene que estar construido. Documento separado del spec de comportamiento a propósito: las reglas de acá sobreviven a los cambios de features._
 
+> **Complemento visual:** [`arquitectura.html`](arquitectura.html) — diagrama interactivo (React ↔
+> Supabase API ↔ Postgres), generado con la skill Archify, con las fuentes citadas en cada nodo.
+> Este documento sigue siendo la fuente de verdad textual; el HTML no la reemplaza.
+
 > **Reescrito otra vez.** La versión anterior separaba una API de Python (FastAPI) del
 > frontend (ADR-016). Esa decisión se revirtió: el equipo volvió a **Supabase** (Postgres +
 > Auth + Row Level Security + Edge Functions) como backend, con un único frontend
