@@ -12,6 +12,7 @@ import { AmountSection } from './AmountSection'
 import { CategorySection } from './CategorySection'
 import { DateSection } from './DateSection'
 import { InstallmentsField } from './InstallmentsField'
+import { TypeSection } from './TypeSection'
 import type { SectionProps, Touched } from './types'
 
 interface TransactionFormProps {
@@ -73,6 +74,8 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
     <form data-testid="transaction-form" onSubmit={onSubmit} noValidate>
       {/* Mientras guarda, el fieldset deshabilitado evita cambios que el reset pisaría. */}
       <fieldset disabled={saving} className="flex flex-col gap-5">
+        <TypeSection {...section} />
+
         <AmountSection {...section} />
 
         {/*
@@ -81,7 +84,9 @@ export function TransactionForm({ categories, accounts }: TransactionFormProps) 
           (texto, como `amount`); I5 ya lo valida validateTransactionDraft.
         */}
 
-        <CategorySection {...section} categories={categories} />
+        {values.type === 'expense' && (
+          <CategorySection {...section} categories={categories} />
+        )}
 
         <AccountSection {...section} accounts={accounts} />
 

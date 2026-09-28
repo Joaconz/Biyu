@@ -74,6 +74,22 @@ describe('draftInputAfterSave (US-10)', () => {
     expect(validateTransactionDraft(parseDraftInput(draftInputAfterSave(saved, TODAY)), TODAY)).toHaveProperty('amount'))
 })
 
+describe('tipo precargado en gasto (US-04)', () => {
+  it('el tipo por defecto es expense en un borrador vacío', () => {
+    expect(emptyDraftInput(TODAY).type).toBe('expense')
+  })
+
+  it('después de guardar vuelve a expense aunque se haya guardado un ingreso', () => {
+    const savedIncome: DraftInput = {
+      ...emptyDraftInput(TODAY),
+      type: 'income',
+      amount: '50000',
+      accountId: 'acc-1',
+    }
+    expect(draftInputAfterSave(savedIncome, TODAY).type).toBe('expense')
+  })
+})
+
 describe('applyDraftChange (US-14)', () => {
   const inSixOnCredit: DraftInput = {
     ...emptyDraftInput(TODAY), amount: '600', categoryId: 'c1',
