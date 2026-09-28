@@ -73,6 +73,18 @@ cp .env.example .env                        # completá URL y ANON_KEY con esa s
 npm run dev
 ```
 
+### Deploy
+
+`main` se despliega solo en Vercel: <https://biyu-joaconzs-projects.vercel.app>, contra un proyecto de
+Supabase hosteado. Cada PR tiene su deploy de Preview. La prueba de humo (Playwright, en Chromium,
+WebKit y Firefox) corre a mano contra cualquiera de los dos:
+
+```bash
+SMOKE_URL=https://biyu-joaconzs-projects.vercel.app npm run test:e2e
+```
+
+Detalle, y qué hacer cuando un PR trae una migración: [`docs/09-guia-de-inicio.md`](docs/09-guia-de-inicio.md) §4.
+
 ## Licencia
 
 [MIT](LICENSE).
