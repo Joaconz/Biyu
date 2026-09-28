@@ -50,9 +50,17 @@ export function convertToArs(amount: Decimal, fxRate: Decimal | null): Decimal {
 
 /** Formato argentino: $1.234,56 o -$1.234,56 */
 export function formatArs(amount: Decimal): string {
+  return formatWithSymbol('$', amount)
+}
+
+/** Dólares con el mismo formato argentino: US$1.234,56 o -US$1.234,56 */
+export function formatUsd(amount: Decimal): string {
+  return formatWithSymbol('US$', amount)
+}
+
+function formatWithSymbol(symbol: string, amount: Decimal): string {
   const isNegative = amount.isNegative() && !amount.isZero()
-  const abs = amount.abs()
-  const [int, dec] = abs.toFixed(2).split('.')
-  const formatted = `$${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
+  const [int, dec] = amount.abs().toFixed(2).split('.')
+  const formatted = `${symbol}${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
   return isNegative ? `-${formatted}` : formatted
 }

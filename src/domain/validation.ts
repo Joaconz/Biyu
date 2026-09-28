@@ -1,5 +1,5 @@
 import type { Currency } from './fx'
-import type { Decimal } from './money'
+import { convertToArs, prorate, type Decimal } from './money'
 
 export const MAX_INSTALLMENTS = 12
 
@@ -17,6 +17,11 @@ export interface TransactionDraft {
 
 export type DraftField = 'amount' | 'fxRate' | 'categoryId' | 'accountId' | 'installmentsCount' | 'occurredOn'
 export type DraftErrors = Partial<Record<DraftField, string>>
+
+/** I6: solo un gasto con tarjeta de crédito admite más de una cuota (US-14). */
+export function allowsInstallments({ type, accountType }: Pick<TransactionDraft, 'type' | 'accountType'>): boolean {
+  return type === 'expense' && accountType === 'credit_card'
+}
 
 // Copia UX de lo que valida create_transaction (C6): la fuente de verdad es Postgres.
 export function validateTransactionDraft(draft: TransactionDraft, today: string): DraftErrors {
@@ -40,13 +45,20 @@ export function validateTransactionDraft(draft: TransactionDraft, today: string)
     draft.installmentsCount > MAX_INSTALLMENTS
   ) {
     errors.installmentsCount = `Las cuotas van de 1 a ${MAX_INSTALLMENTS}`
-  } else if (
-    draft.installmentsCount > 1 &&
-    !(draft.type === 'expense' && draft.accountType === 'credit_card')
-  ) {
+  } else if (draft.installmentsCount > 1 && !allowsInstallments(draft)) {
     errors.installmentsCount = 'Solo los gastos con tarjeta de crédito admiten cuotas' // I6
+  } else if (!errors.amount && !errors.fxRate && draft.amount && hasEmptyInstallment(draft)) {
+    errors.installmentsCount = 'Con ese monto, cada cuota daría menos de 0,01' // I4 por cuota
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.occurredOn)) errors.occurredOn = 'Fecha inválida'
   else if (draft.occurredOn > today) errors.occurredOn = 'La fecha no puede ser futura'
   return errors
+}
+
+// Misma regla que create_transaction: la cuota base (truncada) tiene que ser al menos 0,01, en
+// la moneda de la transacción y en ARS por separado (C3, ADR-013).
+function hasEmptyInstallment({ amount, currency, fxRate, installmentsCount }: TransactionDraft): boolean {
+  if (!amount) return false
+  const totals = currency === 'USD' && fxRate ? [amount, convertToArs(amount, fxRate)] : [amount]
+  return totals.some((total) => prorate(total, installmentsCount)[0].lte(0))
 }

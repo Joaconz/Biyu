@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { draftInputAfterSave, emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
+import { applyDraftChange, draftInputAfterSave, emptyDraftInput, parseDraftInput, type DraftInput } from '@/domain/draft'
 import { tryParseMoney } from '@/domain/money'
 import { toIsoDate } from '@/domain/period'
 import { validateTransactionDraft } from '@/domain/validation'
@@ -72,4 +72,35 @@ describe('draftInputAfterSave (US-10)', () => {
     expect(draftInputAfterSave(saved, '2026-08-16').occurredOn).toBe('2026-08-16'))
   it('el formulario que queda no se puede volver a guardar sin cargar un monto', () =>
     expect(validateTransactionDraft(parseDraftInput(draftInputAfterSave(saved, TODAY)), TODAY)).toHaveProperty('amount'))
+})
+
+describe('applyDraftChange (US-14)', () => {
+  const inSixOnCredit: DraftInput = {
+    ...emptyDraftInput(TODAY), amount: '600', categoryId: 'c1',
+    accountId: 'visa', accountType: 'credit_card', installmentsCount: 6,
+  }
+  it('un cambio cualquiera se aplica tal cual y no resetea las cuotas', () =>
+    expect(applyDraftChange(inSixOnCredit, { amount: '700' })).toEqual({
+      values: { ...inSixOnCredit, amount: '700' }, installmentsReset: false,
+    }))
+  it.each(['cash', 'debit_card', 'bank_account', 'wallet'] as const)(
+    'pasar de tarjeta de crédito a %s con 6 cuotas las vuelve a 1 y avisa', (accountType) => {
+      const r = applyDraftChange(inSixOnCredit, { accountId: 'otra', accountType })
+      expect(r.installmentsReset).toBe(true)
+      expect(r.values).toEqual({ ...inSixOnCredit, accountId: 'otra', accountType, installmentsCount: 1 })
+    })
+  it('pasar a ingreso con cuotas también las vuelve a 1 (I6)', () => {
+    const r = applyDraftChange(inSixOnCredit, { type: 'income' })
+    expect(r).toMatchObject({ installmentsReset: true, values: { installmentsCount: 1 } })
+  })
+  it('con 1 cuota cambiar de cuenta no avisa: no había nada que restablecer', () =>
+    expect(applyDraftChange({ ...inSixOnCredit, installmentsCount: 1 }, { accountId: 'efectivo', accountType: 'cash' }))
+      .toMatchObject({ installmentsReset: false, values: { installmentsCount: 1 } }))
+  it('cambiar entre dos tarjetas de crédito conserva las cuotas', () =>
+    expect(applyDraftChange(inSixOnCredit, { accountId: 'master', accountType: 'credit_card' }))
+      .toMatchObject({ installmentsReset: false, values: { installmentsCount: 6 } }))
+  it('el borrador que queda después del reset se puede guardar', () => {
+    const { values } = applyDraftChange(inSixOnCredit, { accountId: 'efectivo', accountType: 'cash' })
+    expect(validateTransactionDraft(parseDraftInput(values), TODAY)).toEqual({})
+  })
 })
