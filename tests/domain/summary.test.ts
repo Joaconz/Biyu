@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { computeMonthlySummary, hasMonthlyData, type SummaryEntry } from '@/domain/summary'
+import {
+  computeMonthlySummary,
+  countDaysWithTransactions,
+  hasMonthlyData,
+  type SummaryEntry,
+} from '@/domain/summary'
 
 const entry = (o: Partial<SummaryEntry> & { tx?: Partial<SummaryEntry['transaction']> }): SummaryEntry => ({
   period: '2026-09-01', installment_number: 1, amount_ars: '100.00',
@@ -122,4 +127,305 @@ describe('computeMonthlySummary', () => {
     expect(withIncome.hasData).toBe(true)
     expect(hasMonthlyData(withIncome)).toBe(true)
   })
+
+  it('US-27: categoryExpenses desagrega gastos en barras, calcula porcentaje y ordena de mayor a menor', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({
+          amount_ars: '20000.00',
+          tx: {
+            category_id: 'c1',
+            category: { id: 'c1', name: 'Supermercado', color: '#10b981', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '60000.00',
+          tx: {
+            category_id: 'c2',
+            category: { id: 'c2', name: 'Alquiler', color: '#6366f1', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '20000.00',
+          tx: {
+            category_id: 'c1',
+            category: { id: 'c1', name: 'Supermercado', color: '#10b981', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    // Total expenses: 100.000 (Alquiler: 60.000 = 60%, Supermercado: 40.000 = 40%)
+    expect(s.expenses.toFixed(2)).toBe('100000.00')
+    expect(s.categoryExpenses).toHaveLength(2)
+
+    // Primero el mayor (Alquiler)
+    expect(s.categoryExpenses[0].id).toBe('c2')
+    expect(s.categoryExpenses[0].name).toBe('Alquiler')
+    expect(s.categoryExpenses[0].amount.toFixed(2)).toBe('60000.00')
+    expect(s.categoryExpenses[0].percentage).toBe(60)
+    expect(s.categoryExpenses[0].isArchived).toBe(false)
+
+    // Segundo Supermercado
+    expect(s.categoryExpenses[1].id).toBe('c1')
+    expect(s.categoryExpenses[1].name).toBe('Supermercado')
+    expect(s.categoryExpenses[1].amount.toFixed(2)).toBe('40000.00')
+    expect(s.categoryExpenses[1].percentage).toBe(40)
+    expect(s.categoryExpenses[1].isArchived).toBe(false)
+  })
+
+  it('US-27: categoryExpenses incluye categorías archivadas y las marca visualmente (isArchived)', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({
+          amount_ars: '30000.00',
+          tx: {
+            category_id: 'c-archived',
+            category: { id: 'c-archived', name: 'Salidas (antigua)', color: null, archived_at: '2026-08-01T00:00:00Z' },
+          },
+        }),
+        entry({
+          amount_ars: '10000.00',
+          tx: {
+            category_id: 'c-active',
+            category: { id: 'c-active', name: 'Comida', color: '#22c55e', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    expect(s.categoryExpenses).toHaveLength(2)
+    const archivedCat = s.categoryExpenses.find((c) => c.id === 'c-archived')
+    expect(archivedCat).toBeDefined()
+    expect(archivedCat!.isArchived).toBe(true)
+    expect(archivedCat!.name).toBe('Salidas (antigua)')
+    expect(archivedCat!.amount.toFixed(2)).toBe('30000.00')
+    expect(archivedCat!.percentage).toBe(75)
+
+    const activeCat = s.categoryExpenses.find((c) => c.id === 'c-active')
+    expect(activeCat).toBeDefined()
+    expect(activeCat!.isArchived).toBe(false)
+  })
+
+  it('US-28: accountExpenses desagrega gastos por cuenta, calcula porcentaje y ordena de mayor a menor', () => {
+    const s = computeMonthlySummary(
+      [
+        entry({
+          amount_ars: '30000.00',
+          tx: {
+            account_id: 'acc-bbva',
+            account: { id: 'acc-bbva', name: 'BBVA Visa', type: 'credit_card', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '50000.00',
+          tx: {
+            account_id: 'acc-mp',
+            account: { id: 'acc-mp', name: 'Mercado Pago', type: 'wallet', archived_at: null },
+          },
+        }),
+        entry({
+          amount_ars: '20000.00',
+          tx: {
+            account_id: 'acc-bbva',
+            account: { id: 'acc-bbva', name: 'BBVA Visa', type: 'credit_card', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    // Total expenses: 100.000 (BBVA Visa: 50.000 = 50%, Mercado Pago: 50.000 = 50%)
+    expect(s.expenses.toFixed(2)).toBe('100000.00')
+    expect(s.accountExpenses).toHaveLength(2)
+
+    // Ambos tienen 50.000
+    const bbva = s.accountExpenses.find((a) => a.id === 'acc-bbva')
+    expect(bbva).toBeDefined()
+    expect(bbva!.name).toBe('BBVA Visa')
+    expect(bbva!.type).toBe('credit_card')
+    expect(bbva!.amount.toFixed(2)).toBe('50000.00')
+    expect(bbva!.percentage).toBe(50)
+    expect(bbva!.isArchived).toBe(false)
+
+    const mp = s.accountExpenses.find((a) => a.id === 'acc-mp')
+    expect(mp).toBeDefined()
+    expect(mp!.name).toBe('Mercado Pago')
+    expect(mp!.type).toBe('wallet')
+    expect(mp!.amount.toFixed(2)).toBe('50000.00')
+    expect(mp!.percentage).toBe(50)
+    expect(mp!.isArchived).toBe(false)
+  })
+
+  it('US-28: accountExpenses ordena de mayor a menor, incluye cuentas archivadas y excluye ingresos y borradas', () => {
+    const s = computeMonthlySummary(
+      [
+        // Gasto en tarjeta de crédito activa: 70.000
+        entry({
+          amount_ars: '70000.00',
+          tx: {
+            type: 'expense',
+            account_id: 'acc-santander',
+            account: { id: 'acc-santander', name: 'Santander Crédito', type: 'credit_card', archived_at: null },
+          },
+        }),
+        // Gasto en cuenta archivada: 30.000
+        entry({
+          amount_ars: '30000.00',
+          tx: {
+            type: 'expense',
+            account_id: 'acc-galicia-old',
+            account: { id: 'acc-galicia-old', name: 'Galicia Débito (cerrada)', type: 'debit_card', archived_at: '2026-07-01T00:00:00Z' },
+          },
+        }),
+        // Ingreso en la misma cuenta: 200.000 (no debe contar como gasto por cuenta)
+        entry({
+          amount_ars: '200000.00',
+          tx: {
+            type: 'income',
+            account_id: 'acc-santander',
+            account: { id: 'acc-santander', name: 'Santander Crédito', type: 'credit_card', archived_at: null },
+          },
+        }),
+        // Gasto borrado: 15.000 (I10)
+        entry({
+          amount_ars: '15000.00',
+          tx: {
+            type: 'expense',
+            deleted_at: '2026-09-15T00:00:00Z',
+            account_id: 'acc-santander',
+            account: { id: 'acc-santander', name: 'Santander Crédito', type: 'credit_card', archived_at: null },
+          },
+        }),
+      ],
+      [],
+      P,
+    )
+
+    // Total gastos: 100.000 (70.000 + 30.000)
+    expect(s.expenses.toFixed(2)).toBe('100000.00')
+    expect(s.accountExpenses).toHaveLength(2)
+
+    // 1º lugar: Santander Crédito (70.000 = 70%)
+    expect(s.accountExpenses[0].id).toBe('acc-santander')
+    expect(s.accountExpenses[0].name).toBe('Santander Crédito')
+    expect(s.accountExpenses[0].type).toBe('credit_card')
+    expect(s.accountExpenses[0].amount.toFixed(2)).toBe('70000.00')
+    expect(s.accountExpenses[0].percentage).toBe(70)
+    expect(s.accountExpenses[0].isArchived).toBe(false)
+
+    // 2º lugar: Galicia Débito (30.000 = 30%)
+    expect(s.accountExpenses[1].id).toBe('acc-galicia-old')
+    expect(s.accountExpenses[1].name).toBe('Galicia Débito (cerrada)')
+    expect(s.accountExpenses[1].type).toBe('debit_card')
+    expect(s.accountExpenses[1].amount.toFixed(2)).toBe('30000.00')
+    expect(s.accountExpenses[1].percentage).toBe(30)
+    expect(s.accountExpenses[1].isArchived).toBe(true)
+  })
+
+  it('US-29: total de ingresos y balance (ingresos - gastos) positivo cuando ingresos > gastos', () => {
+    const s = computeMonthlySummary(
+      [
+        // Ingreso sueldo: 350.000
+        entry({ amount_ars: '350000.00', tx: { type: 'income', category_id: null } }),
+        // Ingreso freelance: 50.000
+        entry({ amount_ars: '50000.00', tx: { type: 'income', category_id: null } }),
+        // Gastos: 120.000
+        entry({ amount_ars: '120000.00', tx: { type: 'expense' } }),
+      ],
+      [],
+      P,
+    )
+
+    // Ingresos: 400.000, Gastos: 120.000, Balance: 280.000
+    expect(s.income.toFixed(2)).toBe('400000.00')
+    expect(s.expenses.toFixed(2)).toBe('120000.00')
+    expect(s.balance.toFixed(2)).toBe('280000.00')
+    expect(s.balance.isPositive()).toBe(true)
+  })
+
+  it('US-29: balance negativo cuando gastos > ingresos (déficit)', () => {
+    const s = computeMonthlySummary(
+      [
+        // Ingreso: 100.000
+        entry({ amount_ars: '100000.00', tx: { type: 'income', category_id: null } }),
+        // Gasto: 150.000
+        entry({ amount_ars: '150000.00', tx: { type: 'expense' } }),
+      ],
+      [],
+      P,
+    )
+
+    // Ingresos: 100.000, Gastos: 150.000, Balance: -50.000
+    expect(s.income.toFixed(2)).toBe('100000.00')
+    expect(s.expenses.toFixed(2)).toBe('150000.00')
+    expect(s.balance.toFixed(2)).toBe('-50000.00')
+    expect(s.balance.isNegative()).toBe(true)
+  })
+
+  it('US-29: ingresos ignora transacciones borradas (I10) y de otros períodos', () => {
+    const s = computeMonthlySummary(
+      [
+        // Ingreso válido del mes actual: 200.000
+        entry({ amount_ars: '200000.00', tx: { type: 'income', category_id: null } }),
+        // Ingreso borrado del mes actual: 80.000 (I10)
+        entry({ amount_ars: '80000.00', tx: { type: 'income', category_id: null, deleted_at: '2026-09-10T12:00:00Z' } }),
+        // Ingreso de otro mes: 100.000
+        entry({ period: '2026-10-01', amount_ars: '100000.00', tx: { type: 'income', category_id: null } }),
+      ],
+      [],
+      P,
+    )
+
+    expect(s.income.toFixed(2)).toBe('200000.00')
+    expect(s.expenses.toFixed(2)).toBe('0.00')
+    expect(s.balance.toFixed(2)).toBe('200000.00')
+  })
 })
+
+describe('countDaysWithTransactions (US-32: Días del mes con al menos un registro)', () => {
+  it('devuelve 0 si la lista de transacciones está vacía', () => {
+    expect(countDaysWithTransactions([], P)).toBe(0)
+  })
+
+  it('cuenta correctamente días distintos con transacciones activas dentro del período', () => {
+    const transactions = [
+      { occurred_on: '2026-09-01', deleted_at: null },
+      { occurred_on: '2026-09-01', deleted_at: null },
+      { occurred_on: '2026-09-15', deleted_at: null },
+    ]
+    expect(countDaysWithTransactions(transactions, P)).toBe(2)
+  })
+
+  it('ignora transacciones borradas (soft delete, I10)', () => {
+    const transactions = [
+      { occurred_on: '2026-09-01', deleted_at: null },
+      { occurred_on: '2026-09-10', deleted_at: '2026-09-10T12:00:00Z' },
+      { occurred_on: '2026-09-20', deleted_at: null },
+    ]
+    expect(countDaysWithTransactions(transactions, P)).toBe(2)
+  })
+
+  it('si todas las transacciones de un día están borradas, no suma ese día', () => {
+    const transactions = [
+      { occurred_on: '2026-09-01', deleted_at: '2026-09-01T15:00:00Z' },
+      { occurred_on: '2026-09-15', deleted_at: null },
+    ]
+    expect(countDaysWithTransactions(transactions, P)).toBe(1)
+  })
+
+  it('ignora transacciones que corresponden a otros períodos', () => {
+    const transactions = [
+      { occurred_on: '2026-08-31', deleted_at: null },
+      { occurred_on: '2026-09-05', deleted_at: null },
+      { occurred_on: '2026-10-01', deleted_at: null },
+    ]
+    expect(countDaysWithTransactions(transactions, P)).toBe(1)
+  })
+})
+

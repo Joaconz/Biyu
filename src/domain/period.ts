@@ -51,3 +51,17 @@ export function toIsoDate(instant: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${String(instant.getFullYear()).padStart(4, '0')}-${pad(instant.getMonth() + 1)}-${pad(instant.getDate())}`
 }
+
+/** Formato de fecha para visualización en Argentina: DD/MM/AAAA */
+export function formatDisplayDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-')
+  return `${day}/${month}/${year}`
+}
+
+/** Indica si el período a es estrictamente anterior al período b */
+export function isPeriodBefore(a: Period, b: Period): boolean {
+  if (a.year !== b.year) return a.year < b.year
+  return a.month < b.month
+}
+
+
