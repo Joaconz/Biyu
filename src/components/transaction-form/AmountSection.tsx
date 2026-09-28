@@ -3,6 +3,10 @@ import { Label } from '@/components/ui/label'
 import { FieldError } from './FieldError'
 import type { SectionProps } from './types'
 
+/**
+ * Monto (US-02): toma el foco al montar el formulario y pide el teclado numérico con coma decimal.
+ * La fuente queda en 24px: debajo de 16px iOS Safari hace zoom al enfocar.
+ */
 export function AmountSection({ values, errors, touched, onChange }: SectionProps) {
   const errorId = 'transaction-form-amount-error'
   return (
@@ -11,6 +15,7 @@ export function AmountSection({ values, errors, touched, onChange }: SectionProp
       <Input
         id="transaction-form-amount"
         data-testid="transaction-form-amount"
+        autoFocus
         inputMode="decimal"
         autoComplete="off"
         placeholder="0,00"
