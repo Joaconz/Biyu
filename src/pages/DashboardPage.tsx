@@ -136,6 +136,19 @@ export function DashboardPage() {
                       Subtotal en USD: {formatUsd(summaryState.summary.expensesUsd)}
                     </p>
                   )}
+                  {/* US-16: parte del total que ya venía comprometida por cuotas de meses anteriores. */}
+                  <p
+                    data-testid="dashboard-inherited-installments"
+                    className="mt-1 text-sm text-muted-foreground"
+                  >
+                    Cuotas de meses anteriores:{' '}
+                    <span
+                      data-testid="dashboard-inherited-installments-amount"
+                      className="font-medium text-foreground tabular-nums"
+                    >
+                      {formatArs(summaryState.summary.inheritedInstallments)}
+                    </span>
+                  </p>
                 </CardContent>
               </Card>
 

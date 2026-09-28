@@ -5,6 +5,9 @@ import {
   hasMonthlyData,
   type SummaryEntry,
 } from '@/domain/summary'
+import { generateLedgerEntries } from '@/domain/installments'
+import { Decimal } from '@/domain/money'
+import { formatPeriod } from '@/domain/period'
 
 const entry = (o: Partial<SummaryEntry> & { tx?: Partial<SummaryEntry['transaction']> }): SummaryEntry => ({
   period: '2026-09-01', installment_number: 1, amount: '100.00', amount_ars: '100.00',
@@ -43,6 +46,28 @@ describe('computeMonthlySummary', () => {
     const s = computeMonthlySummary([entry({ installment_number: 2, amount_ars: '10000' }), entry({ amount_ars: '50' })], [], P)
     expect(s.inheritedInstallments.toFixed(2)).toBe('10000.00')
     expect(s.expenses.toFixed(2)).toBe('10050.00')
+  })
+  it('US-16 BDD: 120000 en 12 cuotas de 2026-08 → en 2026-09 el KPI de cuotas heredadas es 10000', () => {
+    const entries = generateLedgerEntries(new Decimal('120000'), null, 12, { year: 2026, month: 8 }).map((le) =>
+      entry({
+        period: `${formatPeriod(le.period)}-01`,
+        installment_number: le.installmentNumber,
+        amount: le.amount.toFixed(2),
+        amount_ars: le.amountArs.toFixed(2),
+        tx: { first_period: '2026-08-01' },
+      }),
+    )
+    const sep = computeMonthlySummary(entries, [], P)
+    expect(sep.expenses.toFixed(2)).toBe('10000.00')
+    expect(sep.inheritedInstallments.toFixed(2)).toBe('10000.00')
+    // En el mes de nacimiento la cuota 1 no es heredada.
+    const aug = computeMonthlySummary(entries, [], { year: 2026, month: 8 })
+    expect(aug.expenses.toFixed(2)).toBe('10000.00')
+    expect(aug.inheritedInstallments.toFixed(2)).toBe('0.00')
+  })
+  it('cuotas heredadas: los ingresos no cuentan aunque tengan installment_number > 1', () => {
+    const s = computeMonthlySummary([entry({ installment_number: 2, amount_ars: '500', tx: { type: 'income' } })], [], P)
+    expect(s.inheritedInstallments.toFixed(2)).toBe('0.00')
   })
   it('neto de reembolsos: bruto 120000 con deuda de 60000 → 60000', () => {
     const s = computeMonthlySummary(
