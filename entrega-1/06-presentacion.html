@@ -117,6 +117,9 @@ body.show-notes .notes { display: block; }
 .zone.hl > p, .zone.hl li span:last-child { color: var(--green-ink); opacity: .82; }
 @media (max-width: 980px) { .map { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zone:nth-child(3) { border-left: 0; padding-left: 0; } .zone.hl { padding-left: 20px; } }
 @media (max-width: 560px) { .map { grid-template-columns: minmax(0, 1fr); } .zone + .zone { border-left: 0; padding-left: 0; border-top: 1px solid var(--hair); } .zone.hl { padding-left: 20px; } .path { white-space: normal; word-break: break-all; } }
+.link { color: var(--green); font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+.cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; margin-right: 14px; background: var(--green); color: var(--green-ink); border-radius: 8px; text-decoration: none; }
 </style>
 
 <nav class="toolbar" aria-label="Controles">
@@ -586,6 +589,7 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
       <tr><td>Reporte de ejecución</td><td><span class="path">entrega-1/05-reporte-de-ejecucion.md</span></td></tr>
       <tr><td>Evidencia de cada caso</td><td><span class="path">entrega-1/evidencia/</span> y <span class="path">ejecucion/resultados.json</span></td></tr>
       <tr><td>La app funcionando</td><td><span class="path">src/</span> y <span class="path">supabase/</span>, deploy en biyu-rust.vercel.app</td></tr>
+      <tr><td>Arquitectura y componentes</td><td><a class="link" href="https://claude.ai/artifact/EP1CktFvBU79kATwKBPN4S" target="_blank" rel="noopener">Diagrama interactivo (Archify)</a>, archivo <span class="path">docs/arquitectura.html</span></td></tr>
       <tr><td>Requerimientos y trazabilidad</td><td><span class="path">docs/02-behavior-spec.md</span> y <span class="path">docs/08-trazabilidad.md</span></td></tr>
       <tr><td>Setup de IA: reglas, agentes, skills</td><td><span class="path">CLAUDE.md</span>, <span class="path">.claude/</span> y <span class="path">.agents/</span></td></tr>
     </tbody>
@@ -638,6 +642,7 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
     </div>
   </div>
   <p class="muted">Y <span class="path">entrega-1/</span> junta lo que se entrega hoy: sale de estas cuatro zonas.</p>
+  <p><a class="link cta" href="https://claude.ai/artifact/EP1CktFvBU79kATwKBPN4S" target="_blank" rel="noopener">Abrir el diagrama de arquitectura</a> <span class="muted">Cómo se conectan la app, Supabase Auth, la API y Postgres, con la fuente de cada nodo.</span></p>
   <div class="notes">El repo refleja el proceso. Requerimientos primero, en docs. Después el producto, con la lógica de negocio separada de la UI para poder probarla sola. La calidad corre en la CI con cada PR. Y el setup de IA es lo que hace que cinco personas con agentes distintos trabajen con las mismas reglas.</div>
 </section>
 
