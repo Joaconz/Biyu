@@ -1,6 +1,6 @@
 # Proyecto Biyu – Entrega 1 · Reportes de defectos (V1)
 
-Planilla: `04-reportes-de-defectos.xlsx` (una hoja por defecto, formato "Defect report" de la cátedra). Cada defecto existe también como issue en GitHub con la etiqueta `bug`, salvo los nuevos de esta entrega, que quedan listos para cargar.
+Planilla: `04-reportes-de-defectos.xlsx` (un índice y una hoja por defecto, con el formato "Defect Report - Template" de la cátedra). Cada defecto existe también como issue en GitHub con la etiqueta `bug`, salvo los nuevos de esta entrega, que quedan listos para cargar.
 
 Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severidad la fija quien reporta; **prioridad la fija el PO** (la que figura acá es la sugerida por quien reportó).
 
@@ -9,8 +9,8 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | ID | Título | Severidad | Prioridad sugerida | Estado | Caso | Historia |
 |---|---|---|---|---|---|---|
 | DEF-001 | Ruta inexistente muestra el error crudo del router, sin salida a la app | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-48 · La app pide login (navegación) |
-| DEF-002 | <html lang="en"> y título de pestaña "scaffold" en toda la app | Baja | A definir por el PO | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) | — (ataque libre) | Transversal (NFR-06, accesibilidad) |
-| DEF-003 | US-66 (confirmar contraseña) nunca llegó a producción por un error de merge | Media | A definir por el PO | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) | — (ataque libre; US-66 no tenía caso propio en el catálogo) | US-66 · Confirmar contraseña al registrarse |
+| DEF-002 | <html lang="en"> y título de pestaña "scaffold" en toda la app | Baja | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre) | Transversal (NFR-06, accesibilidad) |
+| DEF-003 | US-66 (confirmar contraseña) nunca llegó a producción por un error de merge | Media | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre; US-66 no tenía caso propio en el catálogo) | US-66 · Confirmar contraseña al registrarse |
 | DEF-004 | NaN como monto se guarda y rompe el dashboard ("$NaN,undefined") | Crítica | A definir por el PO (sugerida: Alta dado que integridad de datos es I4) | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-11 · No se puede guardar monto cero o negativo |
 | DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
 | DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
@@ -24,12 +24,14 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
 | DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
 | DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
-| DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Abierto · nuevo en la Entrega 1 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
+| DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
 | DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
 | DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
 | DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Abierto · reportado el 2026-09-29 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
+| DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; verificado en local (falta aplicar las migraciones en producción) | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 1 · Media: 8 · Baja: 9 · Total abiertos: 18.
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 8 · Baja: 8 · Total abiertos: 16.
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -61,7 +63,7 @@ Ruta inexistente muestra el error crudo del router, sin salida a la app.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) |
+| Estado | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75 (ataque libre). |
@@ -88,7 +90,7 @@ Ruta inexistente muestra el error crudo del router, sin salida a la app.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) |
+| Estado | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75 (ataque libre — probó los criterios de US-66/US-67 en /signup). |
@@ -462,13 +464,13 @@ No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURI
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · nuevo en la Entrega 1 |
+| Estado | Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29 |
 | Severidad | Alta |
 | Prioridad (sugerida) | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) |
 | Encontrado en | Ejecución de la Entrega 1, caso CP-CFG-011 |
 | Caso de prueba | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) |
 | Historia | US-68 · Configuración inicial al crear la cuenta |
-| Issue | A crear |
+| Issue | #165 |
 | Reportó | Ejecución de la Entrega 1 (runner Playwright, Claude Code), supervisada por Joaquin Nuñez |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -574,3 +576,63 @@ El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve 
 **Evidencia.** evidencia/CP-MON-003-tc-sugerido.jpg
 
 **Notas.** Cosmético: si el usuario edita el valor igual se interpreta bien. Se registra aparte para no marcar como FAILED un caso cuyo oráculo (el TC sugerido es 1250) se cumple.
+
+## DEF-021 · Los montos grandes se salen de sus casilleros en el Resumen (celular)
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · reportado el 2026-09-29 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | uso manual en producción desde un iPhone, fuera del catálogo escrito. |
+| Caso de prueba | — (uso manual; relacionado con DEF-012, montos extremos) |
+| Historia | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
+| Issue | #167 |
+| Reportó | Uso manual en producción, equipo Biyu |
+| Entorno | Producción (Vercel), Safari en iPhone, ancho ~390 px, 2026-09-29 |
+
+Con montos de 9 cifras o más, los totales del Resumen no entran en sus tarjetas: se cortan o desbordan el contenedor, y el porcentaje de "Por categoría" baja de línea.
+
+**Pasos para reproducir**
+
+1. Tener un gasto o ingreso con un monto de 9 o más cifras.
+2. Abrir /dashboard en un celular (ancho ~390 px).
+3. Mirar la tarjeta "Gastado en…", las tarjetas Ingresos y Balance y la lista "Por categoría".
+
+**Resultado esperado.** Ningún monto se corta ni desborda su contenedor, a cualquier ancho y con montos de hasta el máximo que permite numeric(14,2).
+
+**Resultado obtenido.** El total gastado ($2.165.003.118,…) queda cortado por el borde de la tarjeta; Ingresos ($81.818.491.500) y Balance ($79.653.488.381,50) desbordan su casillero; en "Por categoría" el porcentaje "100,0 %" baja de línea.
+
+**Evidencia.** Captura de pantalla del usuario (no se sube al repo: muestra totales de una cuenta de prueba).
+
+**Notas.** Relacionado con DEF-012: los montos enormes entran al sistema y la UI no los soporta. El issue se había creado como DEF-018 y se renumeró a DEF-021 porque DEF-018 ya estaba asignado.
+
+## DEF-022 · El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo
+
+| Campo | Contenido |
+|---|---|
+| Estado | Cerrado · corregido en #176 el 2026-09-29; verificado en local (falta aplicar las migraciones en producción) |
+| Severidad | Crítica |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | uso en producción después del merge de #173 (US-68), fuera del catálogo escrito. |
+| Caso de prueba | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) |
+| Historia | US-68 · Configuración inicial al crear la cuenta |
+| Issue | #175 |
+| Reportó | Uso en producción (usuario con cuenta previa), analizado con Claude Code, equipo Biyu |
+| Entorno | Producción (Vercel + Supabase hosteado), 2026-09-29. Reproducido y verificado en local: Vite http://localhost:5180 + Supabase local, main 7812350 |
+
+Después del merge de US-68, las cuentas creadas antes de esa historia tenían que hacer el setup otra vez, y al terminar el setup la app no avanzaba: volvía a /setup sin mensaje. Causa: "sin fila en user_setup" se leía como "setup pendiente" (las cuentas previas no tienen fila) y cualquier error al leer o guardar el estado mandaba de vuelta a /setup, un bucle sin salida cuando la escritura falla (por ejemplo, con la migración sin aplicar en la base hosteada).
+
+**Pasos para reproducir**
+
+1. Entrar con una cuenta creada antes de US-68.
+2. Observar la pantalla que se abre.
+3. Con una cuenta nueva, completar o saltear los 4 pasos del setup con la escritura en user_setup fallando.
+
+**Resultado esperado.** Una cuenta existente entra directo a la app (US-01). Terminar el setup lleva a Registrar y el setup no vuelve a aparecer (US-68).
+
+**Resultado obtenido.** La cuenta existente es obligada a hacer el setup. Al terminarlo, la app se queda en /setup: el botón vuelve a habilitarse sin ningún mensaje.
+
+**Evidencia.** Tests de regresión en rojo antes de la corrección: e2e/setup.spec.ts (fallan "si guardar el setup falla", "si leer el estado falla" y "cuenta sin fila") y e2e/smoke.spec.ts (esperaba /register después del signup). Después de #176: e2e 28/28 en Chromium y WebKit, pgTAP 175/175, Vitest 246/246.
+
+**Notas.** No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Pendiente: correr supabase db push en producción.

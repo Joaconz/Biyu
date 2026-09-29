@@ -26,7 +26,7 @@
     "issue": "#143",
     "severidad": "Baja",
     "prioridad": "A definir por el PO",
-    "estado": "Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue)",
+    "estado": "Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29",
     "reporter": "Sesión test-adversary (#75), coordinada por Joaquin Nuñez",
     "encontrado": "ejecución adversarial de #75 (ataque libre).",
     "caso": "— (ataque libre)",
@@ -48,7 +48,7 @@
     "issue": "#144",
     "severidad": "Media",
     "prioridad": "A definir por el PO",
-    "estado": "Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue)",
+    "estado": "Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29",
     "reporter": "Sesión test-adversary (#75), coordinada por Joaquin Nuñez",
     "encontrado": "ejecución adversarial de #75 (ataque libre — probó los criterios de US-66/US-67 en /signup).",
     "caso": "— (ataque libre; US-66 no tenía caso propio en el catálogo)",
@@ -349,10 +349,10 @@
   {
     "id": "DEF-017",
     "titulo": "Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar)",
-    "issue": "",
+    "issue": "#165",
     "severidad": "Alta",
     "prioridad": "A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1)",
-    "estado": "Abierto · nuevo en la Entrega 1",
+    "estado": "Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29",
     "reporter": "Ejecución de la Entrega 1 (runner Playwright, Claude Code), supervisada por Joaquin Nuñez",
     "encontrado": "Ejecución de la Entrega 1, caso CP-CFG-011",
     "caso": "CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015)",
@@ -436,5 +436,51 @@
     "obtenido": "\"1250.0000\".",
     "evidencia": "evidencia/CP-MON-003-tc-sugerido.jpg",
     "notas": "Cosmético: si el usuario edita el valor igual se interpreta bien. Se registra aparte para no marcar como FAILED un caso cuyo oráculo (el TC sugerido es 1250) se cumple."
+  },
+  {
+    "id": "DEF-021",
+    "titulo": "Los montos grandes se salen de sus casilleros en el Resumen (celular)",
+    "issue": "#167",
+    "severidad": "Media",
+    "prioridad": "A definir por el PO",
+    "estado": "Abierto · reportado el 2026-09-29",
+    "reporter": "Uso manual en producción, equipo Biyu",
+    "encontrado": "uso manual en producción desde un iPhone, fuera del catálogo escrito.",
+    "caso": "— (uso manual; relacionado con DEF-012, montos extremos)",
+    "historia": "US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras",
+    "entorno": "Producción (Vercel), Safari en iPhone, ancho ~390 px, 2026-09-29",
+    "descripcion": "Con montos de 9 cifras o más, los totales del Resumen no entran en sus tarjetas: se cortan o desbordan el contenedor, y el porcentaje de \"Por categoría\" baja de línea.",
+    "pasos": [
+      "Tener un gasto o ingreso con un monto de 9 o más cifras.",
+      "Abrir /dashboard en un celular (ancho ~390 px).",
+      "Mirar la tarjeta \"Gastado en…\", las tarjetas Ingresos y Balance y la lista \"Por categoría\"."
+    ],
+    "esperado": "Ningún monto se corta ni desborda su contenedor, a cualquier ancho y con montos de hasta el máximo que permite numeric(14,2).",
+    "obtenido": "El total gastado ($2.165.003.118,…) queda cortado por el borde de la tarjeta; Ingresos ($81.818.491.500) y Balance ($79.653.488.381,50) desbordan su casillero; en \"Por categoría\" el porcentaje \"100,0 %\" baja de línea.",
+    "evidencia": "Captura de pantalla del usuario (no se sube al repo: muestra totales de una cuenta de prueba).",
+    "notas": "Relacionado con DEF-012: los montos enormes entran al sistema y la UI no los soporta. El issue se había creado como DEF-018 y se renumeró a DEF-021 porque DEF-018 ya estaba asignado."
+  },
+  {
+    "id": "DEF-022",
+    "titulo": "El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo",
+    "issue": "#175",
+    "severidad": "Crítica",
+    "prioridad": "A definir por el PO",
+    "estado": "Cerrado · corregido en #176 el 2026-09-29; verificado en local (falta aplicar las migraciones en producción)",
+    "reporter": "Uso en producción (usuario con cuenta previa), analizado con Claude Code, equipo Biyu",
+    "encontrado": "uso en producción después del merge de #173 (US-68), fuera del catálogo escrito.",
+    "caso": "— (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts)",
+    "historia": "US-68 · Configuración inicial al crear la cuenta",
+    "entorno": "Producción (Vercel + Supabase hosteado), 2026-09-29. Reproducido y verificado en local: Vite http://localhost:5180 + Supabase local, main 7812350",
+    "descripcion": "Después del merge de US-68, las cuentas creadas antes de esa historia tenían que hacer el setup otra vez, y al terminar el setup la app no avanzaba: volvía a /setup sin mensaje. Causa: \"sin fila en user_setup\" se leía como \"setup pendiente\" (las cuentas previas no tienen fila) y cualquier error al leer o guardar el estado mandaba de vuelta a /setup, un bucle sin salida cuando la escritura falla (por ejemplo, con la migración sin aplicar en la base hosteada).",
+    "pasos": [
+      "Entrar con una cuenta creada antes de US-68.",
+      "Observar la pantalla que se abre.",
+      "Con una cuenta nueva, completar o saltear los 4 pasos del setup con la escritura en user_setup fallando."
+    ],
+    "esperado": "Una cuenta existente entra directo a la app (US-01). Terminar el setup lleva a Registrar y el setup no vuelve a aparecer (US-68).",
+    "obtenido": "La cuenta existente es obligada a hacer el setup. Al terminarlo, la app se queda en /setup: el botón vuelve a habilitarse sin ningún mensaje.",
+    "evidencia": "Tests de regresión en rojo antes de la corrección: e2e/setup.spec.ts (fallan \"si guardar el setup falla\", \"si leer el estado falla\" y \"cuenta sin fila\") y e2e/smoke.spec.ts (esperaba /register después del signup). Después de #176: e2e 28/28 en Chromium y WebKit, pgTAP 175/175, Vitest 246/246.",
+    "notas": "No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Pendiente: correr supabase db push en producción."
   }
 ]
