@@ -103,6 +103,20 @@ body.show-notes .notes { display: block; }
   html { scroll-snap-type: none; }
   .phone img { height: auto; width: min(34vw, 190px); }
 }
+.path { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; color: var(--green); white-space: nowrap; }
+.map { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--green); }
+.zone { padding: 18px 20px 18px 0; display: grid; align-content: start; gap: 12px; min-width: 0; }
+.zone + .zone { padding-left: 20px; border-left: 1px solid var(--hair); }
+.zone h3 { margin: 0; font-family: var(--display); font-size: 24px; font-weight: 600; color: var(--green); }
+.zone > p { font-size: 15px; color: var(--muted); }
+.zone ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.zone li { display: grid; gap: 1px; }
+.zone li span:last-child { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.zone.hl { background: var(--green); color: var(--green-ink); padding-left: 20px; border-radius: 0 0 8px 8px; }
+.zone.hl h3, .zone.hl .path { color: var(--green-ink); }
+.zone.hl > p, .zone.hl li span:last-child { color: var(--green-ink); opacity: .82; }
+@media (max-width: 980px) { .map { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zone:nth-child(3) { border-left: 0; padding-left: 0; } .zone.hl { padding-left: 20px; } }
+@media (max-width: 560px) { .map { grid-template-columns: minmax(0, 1fr); } .zone + .zone { border-left: 0; padding-left: 0; border-top: 1px solid var(--hair); } .zone.hl { padding-left: 20px; } .path { white-space: normal; word-break: break-all; } }
 </style>
 
 <nav class="toolbar" aria-label="Controles">
@@ -331,7 +345,7 @@ body.show-notes .notes { display: block; }
   <div class="grid2">
     <div class="card"><span class="tag">CLAUDE.md</span><h3>Reglas no negociables</h3><p>Montos en Decimal, escrituras por RPC, today como parámetro, data-testid en todo.</p></div>
     <div class="card"><span class="tag">7 subagentes</span><h3>Revisores con un solo foco</h3><p>rls-migration-reviewer, domain-purity-reviewer, pgtap-writer, spec-critic, test-adversary…</p></div>
-    <div class="card"><span class="tag">17 skills</span><h3>Conocimiento empaquetado</h3><p>supabase, new-test-case, new-adr, mobile-native, emil-design-eng, playwright-cli…</p></div>
+    <div class="card"><span class="tag">18 skills</span><h3>Conocimiento empaquetado</h3><p>supabase, new-test-case, new-adr, mobile-native, emil-design-eng, playwright-cli…</p></div>
     <div class="card"><span class="tag">hooks + pre-commit</span><h3>Barreras automáticas</h3><p>Bloquean secretos, .env y datos reales en un repo público; lint de migraciones.</p></div>
   </div>
   <div class="notes">El setup es lo que hace que el vibe coding sea controlable. Las reglas viven en CLAUDE.md. Los subagentes son revisores con un solo trabajo: el de migraciones revisa RLS y atomicidad antes de cada commit de SQL. Los hooks frenan secretos antes de que lleguen a git. Además usamos el MCP context7 para documentación de librerías.</div>
@@ -556,6 +570,75 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
   </table></div>
   <p class="muted">Dos caminos: implementar US-68, o que el PO la pase a V2 con la justificación escrita.</p>
   <div class="notes">En la pasada anterior fallaban dos criterios: el defecto crítico y un caso Alta bloqueado. Los dos se resolvieron: el NaN se corrigió y CP-REG-013 se ejecutó con un reloj simulado. Hoy solo falta decidir qué hacemos con US-68.</div>
+</section>
+
+
+<section class="slide" id="guia">
+  <div class="section-mark">Guía de la entrega</div>
+  <h2>Dónde está cada cosa</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Lo que pide el enunciado</th><th>Archivo</th></tr></thead>
+    <tbody>
+      <tr><td>Historias de usuario de la V1</td><td><span class="path">entrega-1/01-historias-de-usuario.md</span></td></tr>
+      <tr><td>Especificación de casos de prueba</td><td><span class="path">entrega-1/02-especificacion-casos-de-prueba.xlsx</span></td></tr>
+      <tr><td>Ejecución de casos de prueba</td><td><span class="path">entrega-1/03-ejecucion-casos-de-prueba.xlsx</span></td></tr>
+      <tr><td>Reportes de defectos</td><td><span class="path">entrega-1/04-reportes-de-defectos.xlsx</span></td></tr>
+      <tr><td>Reporte de ejecución</td><td><span class="path">entrega-1/05-reporte-de-ejecucion.md</span></td></tr>
+      <tr><td>Evidencia de cada caso</td><td><span class="path">entrega-1/evidencia/</span> y <span class="path">ejecucion/resultados.json</span></td></tr>
+      <tr><td>La app funcionando</td><td><span class="path">src/</span> y <span class="path">supabase/</span>, deploy en biyu-rust.vercel.app</td></tr>
+      <tr><td>Requerimientos y trazabilidad</td><td><span class="path">docs/02-behavior-spec.md</span> y <span class="path">docs/08-trazabilidad.md</span></td></tr>
+      <tr><td>Setup de IA: reglas, agentes, skills</td><td><span class="path">CLAUDE.md</span>, <span class="path">.claude/</span> y <span class="path">.agents/</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Cada documento de la Parte B está en .md para leer y en .xlsx con la plantilla de la cátedra. Todo entró en el PR #164.</p>
+  <div class="notes">Esta es la guía para el docente: cada punto del enunciado tiene su archivo. Los IDs son los mismos en todos: la historia US-nn lleva al caso CP-xxx, al resultado y, si falló, al defecto DEF-nnn.</div>
+</section>
+
+<section class="slide" id="mapa-repo">
+  <div class="section-mark">Cómo está organizado el repositorio</div>
+  <h2>Un repo, cuatro zonas</h2>
+  <div class="map">
+    <div class="zone">
+      <h3>Producto</h3>
+      <p>La app que usa la gente.</p>
+      <ul>
+        <li><span class="path">src/domain/</span><span>Reglas puras: cuotas, montos, validación. Sin reloj ni UI</span></li>
+        <li><span class="path">src/pages, src/components</span><span>Pantallas de React con data-testid</span></li>
+        <li><span class="path">supabase/migrations/</span><span>Schema, RLS y las RPC de Postgres</span></li>
+      </ul>
+    </div>
+    <div class="zone">
+      <h3>Calidad</h3>
+      <p>Lo que prueba que funciona.</p>
+      <ul>
+        <li><span class="path">tests/</span><span>Vitest: 239 tests de dominio</span></li>
+        <li><span class="path">supabase/tests/</span><span>pgTAP: 158 tests de invariantes y RLS</span></li>
+        <li><span class="path">e2e/</span><span>Prueba de humo contra el deploy</span></li>
+        <li><span class="path">.github/workflows/</span><span>CI en cada PR</span></li>
+      </ul>
+    </div>
+    <div class="zone">
+      <h3>Requerimientos</h3>
+      <p>La fuente de verdad, antes del código.</p>
+      <ul>
+        <li><span class="path">docs/00 a 11</span><span>Brief, spec, arquitectura, modelo, plan de testing, trazabilidad, catálogo</span></li>
+        <li><span class="path">docs/adr/</span><span>24 decisiones con su porqué</span></li>
+        <li><span class="path">specs/nfr/</span><span>Checklist de calidad de los NFR</span></li>
+      </ul>
+    </div>
+    <div class="zone hl">
+      <h3>Setup de IA</h3>
+      <p>Cómo trabaja el agente.</p>
+      <ul>
+        <li><span class="path">CLAUDE.md, AGENTS.md</span><span>Reglas que no se negocian</span></li>
+        <li><span class="path">.claude/agents/</span><span>7 subagentes revisores</span></li>
+        <li><span class="path">.claude/skills/</span><span>18 skills, copiadas en .agents/ para otras IA</span></li>
+        <li><span class="path">.claude/hooks/</span><span>Frenan secretos y revisan migraciones</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="muted">Y <span class="path">entrega-1/</span> junta lo que se entrega hoy: sale de estas cuatro zonas.</p>
+  <div class="notes">El repo refleja el proceso. Requerimientos primero, en docs. Después el producto, con la lógica de negocio separada de la UI para poder probarla sola. La calidad corre en la CI con cada PR. Y el setup de IA es lo que hace que cinco personas con agentes distintos trabajen con las mismas reglas.</div>
 </section>
 
 <!-- ============ DEMO ============ -->

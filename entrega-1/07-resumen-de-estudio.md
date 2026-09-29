@@ -80,8 +80,8 @@ generada. El costo es que la lógica difícil vive en SQL y se prueba con pgTAP.
 - `CLAUDE.md` con las reglas que no se negocian.
 - 7 subagentes: `spec-critic`, `spec-consistency-checker`, `rls-migration-reviewer`,
   `domain-purity-reviewer`, `pgtap-writer`, `test-adversary` y `docs-writer`.
-- 17 skills, entre ellas `supabase`, `supabase-postgres-best-practices`, `new-test-case`, `new-adr`,
-  `speckit-checklist`, `to-spec`, `mobile-native`, `emil-design-eng` y `playwright-cli`.
+- 18 skills, entre ellas `supabase`, `supabase-postgres-best-practices`, `new-test-case`, `new-adr`,
+  `speckit-checklist`, `to-spec`, `mobile-native`, `emil-design-eng`, `playwright-cli` y `frontend-design` (esta última, para las slides).
 - Hooks que bloquean secretos y `.env` (el repo es público) y hacen lint de las migraciones.
 - MCP `context7` para documentación de librerías.
 
