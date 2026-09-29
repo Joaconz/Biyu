@@ -145,13 +145,6 @@ body.show-notes .notes { display: block; }
   <p>Las funcionalidades que ya se pueden usar. La demo va al final.</p>
 </section>
 
-<section class="slide" id="identidad" data-label="Identidad">
-  <div class="section-mark">Identidad</div>
-  <h2>Una marca, no solo una app</h2>
-  <figure class="board"><img src="evidencia/brandkit-biyu.jpg" alt="Brand kit de Biyu: wordmark con punto dorado, construcción del logo, pantalla con cuotas, tagline Tu mes, claro, paleta, tipografía, aplicaciones físicas, foto editorial y chips ARS, US$ y 3/12"></figure>
-  <div class="notes">El sistema visual de la app (ADR-023, "heritage moderno") no es decoración: crema como base, verde cazador para lo que se toca y espresso para el texto. El punto dorado del logo es el único oro de toda la interfaz. La lámina se generó con IA (skill brandkit + Gemini) a partir de esa paleta, como parte del proceso end-to-end.</div>
-</section>
-
 <section class="slide" id="problema">
   <div class="section-mark">El problema</div>
   <h2>El problema no es la plata, es no verla</h2>
@@ -370,68 +363,30 @@ body.show-notes .notes { display: block; }
 
 <section class="slide" id="impl-prompts">
   <div class="section-mark">Prompts utilizados</div>
-  <h2>Tres familias de prompts</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Tipo</th><th>Qué pedía</th><th>Cuándo</th></tr></thead>
-    <tbody>
-      <tr><td><b>Setup 1</b></td><td>Instalar automatizaciones y copiarlas a .agents/ para cualquier IA; revisar skills de frontend</td><td>21/09</td></tr>
-      <tr><td><b>Setup 2</b></td><td>Armar épicas, historias y tareas en el Kanban con gh, y el plan con spec-kit</td><td>25/09</td></tr>
-      <tr><td><b>Proyecto 1–4</b></td><td>Historias como issues · casos de prueba · implementación · ejecución y reportes</td><td>17/09</td></tr>
-      <tr><td><b>Por issue</b></td><td>Misma plantilla: contexto, rama, reglas, detalle, tests, PR, "no diseñes casos"</td><td>26–28/09</td></tr>
-    </tbody>
-  </table></div>
-  <div class="notes">Los prompts de proyecto se escribieron con la skill optimizador-prompts a partir de la consigna y se pasaron por el humanizador. Los de cada issue siguen una misma plantilla: qué leer, en qué rama, qué reglas no romper, qué herramientas usar, qué tests correr y qué no hacer. Esa plantilla es la que hizo que 70 PRs salieran con la misma forma.</div>
-</section>
-
-<section class="slide" id="prompt-ej1">
-  <div class="section-mark">Issues #35 a #38 (cuotas)</div>
-  <pre class="prompt">Implementá los issues <mark>#35, #37, #36 y #38</mark> de Joaconz/Biyu, en ese orden, en esta sesión.
-Van en una sola rama `us/35-cuotas` y un solo PR.
-
-Contexto: leé AGENTS.md y CLAUDE.md completos, después `gh issue view` de cada issue
-y solo los docs que citan (FR, I*, C*, ADR).
-Verificá que el formulario de registro ya esté en main; <mark>si no, pará y avisame</mark>.
-
-Reglas: montos con Decimal (nunca number); lógica en `src/domain/` o Postgres;
-escrituras solo por RPC; `data-testid` en todo elemento interactivo; datos ficticios.
-
-- Agregá las cuotas como un componente propio enchufado al formulario, sin reescribirlo.
-  <mark>Mariana agrega en paralelo los campos de USD: no toques esa parte.</mark>
-- #38: la lógica de prorrateo ya existe y está testeada. No la reescribas.
-
-Antes del PR corré `npm test`, `npm run test:db` y `npm run build`.
-<mark>No diseñes ni ejecutes casos de prueba CP-*</mark>: eso es #74 y #75, en otra sesión.</pre>
-  <div class="notes">Prompt real del 26/09, resumido. Tres cosas que funcionaron: le decimos qué leer y qué no, marcamos el límite con el trabajo en paralelo de otra compañera, y le prohibimos diseñar casos de prueba. El resultado fue el PR #99, con un commit por issue y los tests de pgTAP pasando de 29 a 37.</div>
-</section>
-
-<section class="slide" id="prompt-ej2">
-  <div class="section-mark">Issue #41 (baja de compra en cuotas)</div>
-  <pre class="prompt">Implementá el issue #41 de Joaconz/Biyu. Trabajá solo este issue, en la rama
-`us/41-baja-compra-en-cuotas`.
-
-Este issue <mark>depende del #66 (Valentina)</mark>: tiene que estar mergeado en main con la RPC
-`delete_transaction`. Si no está, pará y avisame. <mark>No crees otra RPC de baja: reusá esa.</mark>
-
-Herramientas de `.agents/`:
-- Agregás un test de base: agente `pgtap-writer`.
-- Si tocás `supabase/migrations/`: skill `supabase-postgres-best-practices` antes de escribir,
-  agente `rls-migration-reviewer` antes de commitear.
-
-Detalle: al eliminar una compra en cuotas, <mark>ninguna de sus imputaciones cuenta en ningún KPI</mark>,
-incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
-  <div class="notes">Segundo ejemplo, del 28/09. Muestra cómo el prompt encadena dependencias entre integrantes, reutiliza lo que ya existe en vez de dejar que el agente invente otra RPC, y nombra qué agente o skill usar en cada situación. El criterio de aceptación viene directo del escenario BDD de la spec.</div>
-</section>
-
-<section class="slide" id="impl-problemas">
-  <div class="section-mark">Problemas encontrados</div>
-  <h2>Lo que salió mal, y qué aprendimos</h2>
+  <h2>Dos plantillas: una para la máquina, una por issue</h2>
   <div class="grid2">
-    <div class="card"><span class="tag">ADR-016/018 → ADR-019</span><h3>Volvimos a Supabase</h3><p>Una API propia en Python sumaba despliegues, CORS y auth propia. Se revirtió.</p></div>
-    <div class="card"><span class="tag">PR #136 → #141 · DEF-003</span><h3>Una historia se perdió en un merge</h3><p>US-66 se mergeó contra una rama ya mergeada y nunca llegó a producción.</p></div>
-    <div class="card"><span class="tag">PR #85 · PR #134 · PR #108</span><h3>Trabajo en paralelo</h3><p>Un revert de rutas, dos ADR con el mismo número y un PR duplicado.</p></div>
-    <div class="card"><span class="tag">PR #161 · ADR-024</span><h3>Rediseño tardío</h3><p>Registro en pasos después de diseñar los casos: hubo que actualizar pasos y oráculos.</p></div>
+    <pre class="prompt">Quiero dejar listo mi entorno para Joaconz/Biyu.
+Leé <mark>docs/09-guia-de-inicio.md</mark> y seguila
+conmigo paso a paso, de la sección 1 a la 4.
+- Corré vos los comandos. Pará solo cuando haga
+  falta algo mío: gh auth login, Docker, credenciales.
+- En .env usá <mark>solo claves de la base LOCAL</mark>.
+  Nunca commitees .env.
+- Activá el pre-commit (.agents/hooks/git).
+- Al final corré npm test, test:db y build.</pre>
+    <pre class="prompt">Implementá el issue <mark>#NN</mark>. Solo este issue.
+1. Leé AGENTS.md, CLAUDE.md, el issue y solo
+   los docs que cita.
+2. Rama us/NN-slug. <mark>Si depende de algo que no
+   está en main, pará y avisame.</mark>
+3. Solo los criterios de aceptación. Montos con
+   Decimal, lógica en src/domain o Postgres,
+   escrituras por RPC, data-testid.
+4. Skills y agentes de .agents/ según lo que toque.
+5. npm test, test:db y build en verde. PR "Closes #NN".
+<mark>No diseñes ni ejecutes casos CP-*.</mark></pre>
   </div>
-  <div class="notes">El más instructivo es el de US-66: GitHub mostraba el PR como mergeado, pero contra una rama que ya se había mergeado 11 segundos antes, así que el código quedó huérfano. Lo detectó la ejecución de pruebas, no la implementación. También tuvimos colisiones por trabajar en paralelo, como dos ADR con el mismo número. Y el rediseño de la UI llegó después del catálogo, así que varios casos tuvieron que actualizar sus pasos.</div>
+  <div class="notes">Usamos dos plantillas. La primera prepara la máquina una sola vez: la IA sigue la guía de inicio, corre los comandos y solo nos pide lo que es nuestro, como iniciar sesión en GitHub o abrir Docker, y nunca usa claves que no sean locales. La segunda es la de cada issue: qué leer, en qué rama, qué reglas no romper, qué skill o agente usar según lo que toque, qué tests correr y qué no hacer. Lo más importante es la última línea: la IA que implementa no diseña los casos de prueba, así las pruebas salen de la spec y no del código. Con esa plantilla todos los PRs salieron con la misma forma.</div>
 </section>
 
 <!-- ============ d) CASOS ============ -->
@@ -458,46 +413,6 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
   </table></div>
   <p class="muted">68 del catálogo de V1 y 6 nuevos para US-66 y US-68. Hay 39 positivos, 19 negativos y 16 de límite; 36 son de camino feliz.</p>
   <div class="notes">El catálogo se diseñó con la skill new-test-case antes de ejecutar nada, y lo revisó spec-critic. Para esta entrega sumamos 6 casos a las dos historias que no tenían ninguno: US-66 (confirmar contraseña) y US-68 (configuración inicial).</div>
-</section>
-
-<section class="slide" id="casos-anatomia">
-  <div class="section-mark">Anatomía de un caso</div>
-  <div class="row">
-    <div style="display:grid;gap:16px">
-      <h2>CP-CUO-005</h2>
-      <p class="lead">El resto lo absorbe la última cuota</p>
-      <ul class="points">
-        <li><b>Historia:</b> US-15 · FR-10, FR-11</li>
-        <li><b>Invariante:</b> I1, la suma es exacta</li>
-        <li><b>Técnica:</b> valores límite · Prioridad Alta</li>
-      </ul>
-    </div>
-    <div class="tbl"><table>
-      <thead><tr><th>Paso</th><th>Resultado esperado</th></tr></thead>
-      <tbody>
-        <tr><td>Guardar $100.000 en 3 cuotas</td><td>$33.333,33 + $33.333,33 + <b>$33.333,34</b></td></tr>
-        <tr><td>Sumar las imputaciones</td><td>Exactamente $100.000,00</td></tr>
-      </tbody>
-    </table></div>
-  </div>
-  <div class="notes">Cada caso declara historia, invariante, técnica, tipo, prioridad, precondiciones, datos, pasos y un resultado esperado concreto. Un resultado como "el monto correcto" no alcanza: escribimos el número. Los casos negativos llevan además una variante API: el mismo ataque directo contra Supabase, salteando la UI.</div>
-</section>
-
-<section class="slide" id="casos-tabla">
-  <div class="section-mark">Técnica: tabla de decisión</div>
-  <h2>Moneda × tipo de cambio: seis casos</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Moneda</th><th>TC de referencia</th><th>TC a mano</th><th>Esperado</th></tr></thead>
-    <tbody>
-      <tr><td>ARS</td><td>—</td><td>no</td><td><span class="pill ok">Se guarda</span></td></tr>
-      <tr><td>ARS</td><td>—</td><td>sí</td><td><span class="pill bad">Rechazado (I5)</span></td></tr>
-      <tr><td>USD</td><td>existe</td><td>no</td><td><span class="pill ok">Usa la referencia</span></td></tr>
-      <tr><td>USD</td><td>existe</td><td>sí</td><td><span class="pill ok">Gana el manual</span></td></tr>
-      <tr><td>USD</td><td>no existe</td><td>no</td><td><span class="pill bad">Rechazado, pide TC</span></td></tr>
-      <tr><td>USD</td><td>no existe</td><td>sí</td><td><span class="pill ok">Usa el manual</span></td></tr>
-    </tbody>
-  </table></div>
-  <div class="notes">La fila "ARS con tipo de cambio" es la que nadie escribe si improvisa, y es un caso negativo real. CP-MON-002 recorre las seis filas por la UI, y las dos que se rechazan se prueban además directo contra la base.</div>
 </section>
 
 <!-- ============ e) REPORTE ============ -->
@@ -576,28 +491,6 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
 </section>
 
 
-<section class="slide" id="guia">
-  <div class="section-mark">Guía de la entrega</div>
-  <h2>Dónde está cada cosa</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Lo que pide el enunciado</th><th>Archivo</th></tr></thead>
-    <tbody>
-      <tr><td>Historias de usuario de la V1</td><td><span class="path">entrega-1/01-historias-de-usuario.md</span></td></tr>
-      <tr><td>Especificación de casos de prueba</td><td><span class="path">entrega-1/02-especificacion-casos-de-prueba.xlsx</span></td></tr>
-      <tr><td>Ejecución de casos de prueba</td><td><span class="path">entrega-1/03-ejecucion-casos-de-prueba.xlsx</span></td></tr>
-      <tr><td>Reportes de defectos</td><td><span class="path">entrega-1/04-reportes-de-defectos.xlsx</span></td></tr>
-      <tr><td>Reporte de ejecución</td><td><span class="path">entrega-1/05-reporte-de-ejecucion.md</span></td></tr>
-      <tr><td>Evidencia de cada caso</td><td><span class="path">entrega-1/evidencia/</span> y <span class="path">ejecucion/resultados.json</span></td></tr>
-      <tr><td>La app funcionando</td><td><span class="path">src/</span> y <span class="path">supabase/</span>, deploy en biyu-rust.vercel.app</td></tr>
-      <tr><td>Arquitectura y componentes</td><td><a class="link" href="https://claude.ai/artifact/EP1CktFvBU79kATwKBPN4S" target="_blank" rel="noopener">Diagrama interactivo (Archify)</a>, archivo <span class="path">docs/arquitectura.html</span></td></tr>
-      <tr><td>Requerimientos y trazabilidad</td><td><span class="path">docs/02-behavior-spec.md</span> y <span class="path">docs/08-trazabilidad.md</span></td></tr>
-      <tr><td>Setup de IA: reglas, agentes, skills</td><td><span class="path">CLAUDE.md</span>, <span class="path">.claude/</span> y <span class="path">.agents/</span></td></tr>
-    </tbody>
-  </table></div>
-  <p class="muted">Cada documento de la Parte B está en .md para leer y en .xlsx con la plantilla de la cátedra. Todo entró en el PR #164.</p>
-  <div class="notes">Esta es la guía para el docente: cada punto del enunciado tiene su archivo. Los IDs son los mismos en todos: la historia US-nn lleva al caso CP-xxx, al resultado y, si falló, al defecto DEF-nnn.</div>
-</section>
-
 <section class="slide" id="mapa-repo">
   <div class="section-mark">Cómo está organizado el repositorio</div>
   <h2>Un repo, cuatro zonas</h2>
@@ -647,20 +540,6 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
 </section>
 
 <!-- ============ DEMO ============ -->
-<section class="slide divider" id="demo">
-  <div class="kicker">Para cerrar</div>
-  <h2>La app, en vivo</h2>
-  <ul class="points">
-    <li>Crear cuenta y ver los criterios de contraseña</li>
-    <li>Registrar un gasto en 12 cuotas con la tarjeta</li>
-    <li>Un gasto en dólares con el TC del mes</li>
-    <li>El resumen del mes y las cuotas heredadas</li>
-    <li>Eliminar una compra con cuotas en meses cerrados</li>
-  </ul>
-  <p>biyu-rust.vercel.app</p>
-  <div class="notes">Guion de 3 minutos, con montos ficticios: 1) crear una cuenta y mostrar cómo se marcan los criterios; 2) registrar $120.000 en 12 cuotas y mostrar la previsualización; 3) registrar USD 100 con el tipo de cambio sugerido; 4) ir al Resumen y moverse de mes; 5) eliminar una compra en cuotas desde un mes posterior para mostrar el aviso. Tener una cuenta de demo ya creada por si falla la red.</div>
-</section>
-
 <script>
 (() => {
   const slides = [...document.querySelectorAll('.slide')];
