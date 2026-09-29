@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "biyu-dev",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "VITE_SUPABASE_URL=http://127.0.0.1:54321 VITE_SUPABASE_ANON_KEY=\"$(supabase status -o json 2>/dev/null | jq -r .ANON_KEY)\" npx vite --port 5173 --strictPort --host"
+      ],
+      "port": 5173
+    }
+  ]
+}

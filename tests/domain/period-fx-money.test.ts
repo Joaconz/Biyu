@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { resolveFxRate, validateFxRateInput } from '@/domain/fx'
 import { convertToArs, formatArs, formatUsd, parseMoney, serializeMoney } from '@/domain/money'
-import { addMonths, currentPeriod, formatDisplayDate, formatPeriod, fromDbDate, parsePeriod, toDbDate } from '@/domain/period'
+import {
+  addDays,
+  addMonths,
+  currentPeriod,
+  formatDisplayDate,
+  formatPeriod,
+  formatPeriodLong,
+  formatPeriodShort,
+  fromDbDate,
+  parsePeriod,
+  relativeDay,
+  toDbDate,
+} from '@/domain/period'
 
 describe('period', () => {
   it.each(['2026-13', '2026-00', '26-01', '2026-1', '', 'abcd-ef', '2026-01-01'])('parsePeriod rechaza %j', (v) => {
@@ -24,6 +36,33 @@ describe('period', () => {
   })
   it('formatDisplayDate formatea YYYY-MM-DD a DD/MM/AAAA', () => {
     expect(formatDisplayDate('2026-09-15')).toBe('15/09/2026')
+  })
+})
+
+describe('etiquetas de período (ADR-023)', () => {
+  it('nombre largo y corto de los 12 meses, sin depender de Intl', () => {
+    expect(formatPeriodLong({ year: 2026, month: 9 })).toBe('septiembre 2026')
+    expect(formatPeriodLong({ year: 2027, month: 1 })).toBe('enero 2027')
+    expect(formatPeriodShort({ year: 2026, month: 9 })).toBe('sep 2026')
+    const shorts = Array.from({ length: 12 }, (_, i) => formatPeriodShort({ year: 2026, month: i + 1 }).slice(0, 3))
+    expect(shorts).toEqual(['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'])
+  })
+})
+
+describe('días relativos (Hoy | Ayer | Otra)', () => {
+  it('addDays cruza fin de mes, de año y el 29 de febrero', () => {
+    expect(addDays('2026-09-01', -1)).toBe('2026-08-31')
+    expect(addDays('2027-01-01', -1)).toBe('2026-12-31')
+    expect(addDays('2028-02-28', 1)).toBe('2028-02-29')
+  })
+
+  it('relativeDay usa el día local de today (C1)', () => {
+    const today = new Date(2026, 8, 28, 22, 30) // 22:30 local: en UTC ya sería el 29
+    expect(relativeDay('2026-09-28', today)).toBe('today')
+    expect(relativeDay('2026-09-27', today)).toBe('yesterday')
+    expect(relativeDay('2026-09-20', today)).toBe('other')
+    expect(relativeDay('2026-10-01', new Date(2026, 9, 1))).toBe('today')
+    expect(relativeDay('2026-09-30', new Date(2026, 9, 1))).toBe('yesterday')
   })
 })
 

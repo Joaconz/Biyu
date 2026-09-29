@@ -1,24 +1,21 @@
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { SectionLabel } from './SectionLabel'
 import type { SectionProps } from './types'
 
-/**
- * Descripción opcional de la transacción (US-08, FR-06).
- * El usuario puede guardar sin completar este campo porque la categoría suele alcanzar.
- */
+/** Nota opcional (US-08): la categoría suele alcanzar, así que se puede guardar sin completarla. */
 export function DescriptionSection({ values, onChange }: SectionProps) {
   return (
-    <div className="grid gap-2">
-      <Label htmlFor="transaction-form-description">
-        Descripción <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
-      </Label>
+    <div className="grid gap-2.5">
+      <label htmlFor="transaction-form-description">
+        <SectionLabel id="transaction-form-description-label">Nota (opcional)</SectionLabel>
+      </label>
       <Input
         id="transaction-form-description"
         data-testid="transaction-form-description"
         type="text"
         autoComplete="off"
-        placeholder="Opcional"
-        className="h-11"
+        enterKeyHint="done"
+        placeholder="Almuerzo con Sofi"
         value={values.description}
         onChange={(e) => onChange({ description: e.target.value })}
       />

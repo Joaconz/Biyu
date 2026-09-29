@@ -248,3 +248,8 @@ export function countDaysWithTransactions(
 
   return distinctDays.size
 }
+
+/** Porcentaje del desglose con coma decimal y siempre un decimal (es-AR): "54,4 %", "10,0 %". */
+export function formatPercentage(value: number): string {
+  return `${value.toFixed(1).replace('.', ',')} %`
+}

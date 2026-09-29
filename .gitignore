@@ -51,6 +51,19 @@ htmlcov/
 .claude/settings.local.json
 .claude/worktrees/
 
+# --- Skills externas: solo se versionan las instrucciones (.md) ---
+# Los datos, scripts y tests de ui-ux-pro-max (~130k líneas) se reinstalan con `npx skills add`.
+.claude/skills/ui-ux-pro-max/data/
+.claude/skills/ui-ux-pro-max/scripts/
+.agents/skills/ui-ux-pro-max/data/
+.agents/skills/ui-ux-pro-max/scripts/
+.claude/skills/shadcn/assets/
+.claude/skills/shadcn/evals/
+.claude/skills/shadcn/agents/
+.agents/skills/shadcn/assets/
+.agents/skills/shadcn/evals/
+.agents/skills/shadcn/agents/
+
 # --- Playwright ---
 test-results/
 playwright-report/

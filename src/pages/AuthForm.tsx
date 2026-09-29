@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { AppShell } from '@/components/layout/AppShell'
+import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -57,9 +57,14 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   }
 
   return (
-    <AppShell>
-      <form onSubmit={onSubmit} data-testid={`${prefix}-form`} className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold">{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</h1>
+    <AuthLayout>
+      <form onSubmit={onSubmit} data-testid={`${prefix}-form`} className="flex flex-col gap-3.5">
+        <div className="mb-1 flex flex-col gap-1">
+          <h1 className="text-title-1 font-bold">{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</h1>
+          <p className="text-callout text-muted-foreground">
+            {mode === 'login' ? 'Seguí donde lo dejaste.' : 'Pesos, dólares y cuotas, en un solo lugar.'}
+          </p>
+        </div>
         <div className="grid gap-2">
           <Label htmlFor={`${prefix}-email`}>Email</Label>
           <Input id={`${prefix}-email`} name="email" type="email" required autoComplete="email" data-testid={`${prefix}-form-email`} />
@@ -104,13 +109,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           </>
         )}
         {error && <p role="alert" data-testid={`${prefix}-form-error`} className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" disabled={submitting} data-testid={`${prefix}-form-submit`}>
+        <Button type="submit" size="lg" disabled={submitting} data-testid={`${prefix}-form-submit`}>
           {mode === 'login' ? 'Entrar' : 'Crear cuenta'}
         </Button>
-        <Link to={mode === 'login' ? '/signup' : '/login'} data-testid={`${prefix}-form-switch`} className="text-sm underline">
+        <Link to={mode === 'login' ? '/signup' : '/login'} data-testid={`${prefix}-form-switch`} className="press inline-flex min-h-11 items-center self-center text-callout font-medium text-primary underline-offset-4 hover:underline">
           {mode === 'login' ? 'Crear una cuenta' : 'Ya tengo cuenta'}
         </Link>
       </form>
-    </AppShell>
+    </AuthLayout>
   )
 }

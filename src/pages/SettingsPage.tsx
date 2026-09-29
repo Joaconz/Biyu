@@ -1,7 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link } from 'react-router'
-import { AppShell } from '@/components/layout/AppShell'
+import { Archive, Pencil } from 'lucide-react'
 import { LogoutButton } from '@/components/LogoutButton'
+import { AccountIcon } from '@/components/shared/AccountIcon'
+import { CategoryIcon } from '@/components/shared/CategoryIcon'
+import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,27 +34,23 @@ import {
 import { isUniqueViolation } from '@/lib/errors'
 import { today } from '@/lib/clock'
 import { validateFxRateInput } from '@/domain/fx'
-import { formatPeriod, parsePeriod } from '@/domain/period'
+import { formatRate, parseMoney } from '@/domain/money'
+import { formatPeriod, formatPeriodLong, fromDbDate, parsePeriod } from '@/domain/period'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { listReferenceRates, upsertReferenceRate, type ReferenceRate } from '@/lib/fxRates'
 
 export function SettingsPage() {
   return (
-    <AppShell
-      actions={
-        <div className="flex items-center gap-3">
-          <Link to="/register" data-testid="settings-nav-register" className="text-sm underline">
-            Registrar
-          </Link>
-          <LogoutButton testId="settings-nav-logout" />
-        </div>
-      }
-    >
-      <h1 data-testid="settings-title" className="text-2xl font-semibold">Configuración</h1>
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-9">
+      <PageHeader title="Ajustes" testId="settings-title" className="pb-0 lg:pb-0" />
       <CategoriesSection />
       <AccountsSection />
       <FxRatesSection />
-    </AppShell>
+      {/* US-64: cerrar sesión vive en Ajustes (ADR-023). */}
+      <GroupedCard>
+        <LogoutButton testId="settings-nav-logout" />
+      </GroupedCard>
+    </div>
   )
 }
 
@@ -92,20 +91,23 @@ function FxRatesSection() {
   }
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-medium">Tipo de cambio de referencia</h2>
-      <p className="text-sm text-muted-foreground">
-        Cambiar la referencia no modifica las transacciones que ya guardaste.
-      </p>
-      <ul data-testid="settings-fx-list" className="flex flex-col gap-1">
-        {(rates ?? []).map((rate) => (
-          <li key={rate.period} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
-            <span>{rate.period.slice(0, 7)}</span>
-            <span>{rate.arsPerUsd}</span>
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={onSubmit} data-testid="settings-fx-form" className="flex flex-col gap-2">
+    <GroupedSection
+      title="Tipo de cambio de referencia"
+      footer="Pesos por dólar de cada mes. Cambiar la referencia no modifica las transacciones que ya guardaste."
+    >
+      {rates && rates.length > 0 && (
+        <GroupedCard>
+          <ul data-testid="settings-fx-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+            {rates.map((rate) => (
+              <li key={rate.period} className="flex min-h-12 items-center justify-between gap-3 px-4 text-callout">
+                <span className="first-letter:uppercase">{formatPeriodLong(fromDbDate(rate.period))}</span>
+                <span className="tabular font-medium">$ {formatRate(parseMoney(rate.arsPerUsd))}</span>
+              </li>
+            ))}
+          </ul>
+        </GroupedCard>
+      )}
+      <form onSubmit={onSubmit} data-testid="settings-fx-form" className="flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
         <div className="grid gap-1.5">
           <Label htmlFor="settings-fx-period">Mes</Label>
           <Input
@@ -136,11 +138,11 @@ function FxRatesSection() {
           />
         </div>
         {error && <p role="alert" data-testid="settings-fx-error" className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" disabled={submitting} data-testid="settings-fx-submit" className="h-12">
+        <Button type="submit" disabled={submitting} data-testid="settings-fx-submit">
           {submitting ? 'Guardando…' : 'Guardar tipo de cambio'}
         </Button>
       </form>
-    </section>
+    </GroupedSection>
   )
 }
 
@@ -203,54 +205,51 @@ function CategoriesSection() {
   }
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-medium">Categorías</h2>
-      <ul data-testid="settings-categories-list" className="flex flex-col gap-1">
-        {(categories ?? []).map((category) =>
-          editingId === category.id ? (
-            <CategoryEditRow
-              key={category.id}
-              category={category}
-              onSave={(changes) => onSave(category.id, changes)}
-              onCancel={() => setEditingId(null)}
-            />
-          ) : (
-            <li key={category.id} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
-              <span className="flex items-center gap-2">
-                <span
-                  aria-hidden
-                  className="size-3 rounded-full"
-                  style={{ backgroundColor: category.color ?? undefined }}
-                />
-                {category.name}
-              </span>
-              <div className="flex gap-1">
+    <GroupedSection title="Categorías">
+      <GroupedCard>
+        <ul data-testid="settings-categories-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+          {(categories ?? []).map((category) =>
+            editingId === category.id ? (
+              <CategoryEditRow
+                key={category.id}
+                category={category}
+                onSave={(changes) => onSave(category.id, changes)}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <li key={category.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
+                <CategoryIcon name={category.name} color={category.color} size="sm" />
+                <span className="min-w-0 flex-1 truncate text-callout font-medium">{category.name}</span>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   data-testid="settings-categories-edit"
+                  aria-label={`Editar ${category.name}`}
+                  className="text-muted-foreground hover:text-foreground"
                   onClick={() => setEditingId(category.id)}
                 >
-                  Editar
+                  <Pencil strokeWidth={1.6} />
                 </Button>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   data-testid="settings-categories-archive"
+                  aria-label={`Archivar ${category.name}`}
+                  className="text-muted-foreground hover:text-foreground"
                   onClick={() => onArchive(category.id)}
                 >
-                  Archivar
+                  <Archive strokeWidth={1.6} />
                 </Button>
-              </div>
-            </li>
-          ),
-        )}
-      </ul>
-      <form onSubmit={onCreate} data-testid="settings-categories-form" className="flex flex-col gap-2">
+              </li>
+            ),
+          )}
+        </ul>
+      </GroupedCard>
+      <form onSubmit={onCreate} data-testid="settings-categories-form" className="mt-2 flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
         <div className="grid gap-1.5">
-          <Label htmlFor="settings-categories-name">Nombre</Label>
+          <Label htmlFor="settings-categories-name">Nueva categoría</Label>
           <Input id="settings-categories-name" name="name" required data-testid="settings-categories-name" placeholder="Tecnología" />
         </div>
         <ColorSwatchPicker name="color" defaultColor={CATEGORY_COLOR_PALETTE[0]} testId="settings-categories-color" />
@@ -259,7 +258,7 @@ function CategoriesSection() {
           Crear categoría
         </Button>
       </form>
-    </section>
+    </GroupedSection>
   )
 }
 
@@ -275,7 +274,7 @@ function CategoryEditRow({
   const [name, setName] = useState(category.name)
   const [color, setColor] = useState(category.color ?? CATEGORY_COLOR_PALETTE[0])
   return (
-    <li className="flex flex-col gap-2 rounded-lg border px-3 py-2">
+    <li className="flex flex-col gap-3 bg-secondary/40 p-4">
       <Input
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -324,7 +323,7 @@ function ColorSwatchPicker({
     onChange?.(color)
   }
   return (
-    <div className="flex flex-wrap gap-1.5" data-testid={testId} role="radiogroup" aria-label="Color">
+    <div className="flex flex-wrap gap-2.5" data-testid={testId} role="radiogroup" aria-label="Color">
       {name && <input type="hidden" name={name} value={current} />}
       {CATEGORY_COLOR_PALETTE.map((color) => (
         <button
@@ -334,7 +333,7 @@ function ColorSwatchPicker({
           aria-checked={current === color}
           aria-label={color}
           onClick={() => select(color)}
-          className="size-6 rounded-full ring-offset-2 outline-none aria-checked:ring-2 aria-checked:ring-ring focus-visible:ring-2 focus-visible:ring-ring"
+          className="press size-8 rounded-full ring-offset-2 ring-offset-card outline-none aria-checked:ring-2 aria-checked:ring-foreground focus-visible:ring-2 focus-visible:ring-ring"
           style={{ backgroundColor: color }}
         />
       ))}
@@ -375,19 +374,29 @@ function AccountsSection() {
   }
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-medium">Cuentas</h2>
-      <ul data-testid="settings-accounts-list" className="flex flex-col gap-1">
-        {(accounts ?? []).map((account) => (
-          <li key={account.id} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
-            <span>{account.name}</span>
-            <span className="text-muted-foreground">{ACCOUNT_TYPE_LABELS[account.type]}</span>
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={onSubmit} data-testid="settings-accounts-form" className="flex flex-col gap-2">
+    <GroupedSection title="Cuentas">
+      <GroupedCard>
+        <ul data-testid="settings-accounts-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+          {(accounts ?? []).map((account) => (
+            <li key={account.id} className="flex min-h-14 items-center gap-3 py-2 pr-4 pl-3.5">
+              <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                <AccountIcon type={account.type} className="size-4" />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-callout font-medium">{account.name}</span>
+                {/* El tipo solo cuando dice algo que el nombre no dice. */}
+                {ACCOUNT_TYPE_LABELS[account.type] !== account.name && (
+                  <span className="truncate text-footnote text-muted-foreground">{ACCOUNT_TYPE_LABELS[account.type]}</span>
+                )}
+              </span>
+              {account.currency === 'USD' && <span className="text-footnote font-medium text-muted-foreground">US$</span>}
+            </li>
+          ))}
+        </ul>
+      </GroupedCard>
+      <form onSubmit={onSubmit} data-testid="settings-accounts-form" className="mt-2 flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
         <div className="grid gap-1.5">
-          <Label htmlFor="settings-accounts-name">Nombre</Label>
+          <Label htmlFor="settings-accounts-name">Nueva cuenta</Label>
           <Input id="settings-accounts-name" name="name" required data-testid="settings-accounts-name" placeholder="Visa BBVA" />
         </div>
         <div className="grid gap-1.5">
@@ -422,6 +431,6 @@ function AccountsSection() {
           Crear cuenta
         </Button>
       </form>
-    </section>
+    </GroupedSection>
   )
 }

@@ -10,11 +10,12 @@ export interface ReferenceRate {
 export async function listReferenceRates(limit = 12): Promise<ReferenceRate[]> {
   const { data, error } = await supabase
     .from('fx_rates')
-    .select('period, ars_per_usd')
+    // Sin el cast, PostgREST devuelve el numeric como número JSON (C2): mismo criterio que getReferenceRate.
+    .select('period, ars_per_usd_text:ars_per_usd::text')
     .order('period', { ascending: false })
     .limit(limit)
   if (error) throw error
-  return data.map((r) => ({ period: r.period, arsPerUsd: r.ars_per_usd as unknown as string }))
+  return data.map((r) => ({ period: r.period, arsPerUsd: String(r.ars_per_usd_text) }))
 }
 
 /** Devuelve el numeric como string (C2); null significa que ese período no tiene TC configurado. */

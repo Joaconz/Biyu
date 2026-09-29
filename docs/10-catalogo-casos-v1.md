@@ -147,7 +147,7 @@ Resultado esperado: Cae directo en `/register`, sin pasos intermedios.
 
 **CP-REG-002** — US-03 · FR-06, C1 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Media · Automatizable: Sí
 Precondiciones: Hoy = 2026-09-28 (fijo como dato de precondición, C1).
-Pasos: 1) Abrir `/register`. 2) Observar el campo fecha.
+Pasos: 1) Abrir `/register`. 2) Cargar un monto y avanzar hasta el paso de detalles (ADR-024). 3) Observar el campo fecha.
 Resultado esperado: Precargado con 2026-09-28.
 
 **CP-REG-003** — US-04, US-05 · FR-06 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Baja · Automatizable: Sí
@@ -162,18 +162,18 @@ Resultado esperado: El campo de monto ya tiene el foco y el teclado numérico es
 
 **CP-REG-004** — US-06 · FR-06, I8 · Inv.: I8 · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Media · Automatizable: Sí
 Precondiciones: Categorías activas sembradas.
-Pasos: 1) Tocar el chip "Transporte". 2) Guardar un gasto.
+Pasos: 1) Cargar un monto y tocar Siguiente. 2) Tocar el chip "Transporte" (avanza solo al paso de detalles). 3) Guardar.
 Resultado esperado: La transacción queda con `category_id` de "Transporte", sin abrir ningún `select`.
 
 **CP-REG-005** — US-06 · FR-06 · Inv.: — · Técnica: Adivinación de errores · Tipo: Negativo · Prioridad: Media · Automatizable: Sí
 Precondiciones: Categoría "Salidas" archivada (ver CP-CFG-004).
-Pasos: 1) Abrir `/register`. 2) Buscar el chip "Salidas" en la grilla.
+Pasos: 1) Abrir `/register`, cargar un monto y tocar Siguiente. 2) Buscar el chip "Salidas" en la grilla.
 Resultado esperado: No aparece — el formulario solo muestra categorías activas.
 Variante API: `create_transaction` con el `p_category_id` de "Salidas" (archivada) → rechazado con "la categoría no existe, no es tuya o está archivada" (`create_transaction_rpc.sql`, chequeo explícito de `archived_at is null`). Confirmado en el código de la función, no es una ambigüedad.
 
 **CP-REG-006** — US-07 · FR-06 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Baja · Automatizable: Sí
 Precondiciones: Se guardó la última transacción con la cuenta "Visa BBVA".
-Pasos: 1) Volver a abrir `/register`.
+Pasos: 1) Volver a abrir `/register` y avanzar hasta el paso de detalles.
 Resultado esperado: Cuenta precargada en "Visa BBVA".
 
 **CP-REG-007** — US-08 · FR-06 · Inv.: — · Técnica: Valores límite · Tipo: Límite · Prioridad: Baja · Automatizable: Sí
@@ -190,12 +190,12 @@ Variante API: `create_transaction` con `occurred_on` futuro y sin `subscription_
 **CP-REG-009** — US-10 · FR-06 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Media · Automatizable: Sí
 Precondiciones: Formulario completo.
 Pasos: 1) Guardar. 2) Observar.
-Resultado esperado: Confirmación breve, formulario vuelve a su estado inicial conservando la última cuenta usada (CP-REG-006).
+Resultado esperado: Confirmación breve, formulario vuelve a su estado inicial en el paso del monto (ADR-024), conservando la última cuenta usada (CP-REG-006).
 
 **CP-REG-010** — US-11 · FR-06, I4, C6 · Inv.: I4 · Técnica: Valores límite · Tipo: Negativo · Prioridad: Alta · Automatizable: Sí
 Precondiciones: Ninguna.
 Pasos: 1) Dejar el monto vacío e intentar guardar. 2) Ingresar `0`. 3) Ingresar `-500`. 4) Ingresar `0,01`.
-Resultado esperado: Vacío, `0` y `-500` → botón Guardar deshabilitado, no se emite ninguna escritura. `0,01` → aceptado (mínimo válido).
+Resultado esperado: Vacío, `0` y `-500` → el botón del paso (Siguiente en el paso del monto, ADR-024) queda deshabilitado, no se emite ninguna escritura. `0,01` → aceptado (mínimo válido).
 Variante API: `create_transaction` con `p_amount = 0` o negativo → rechazado por la RPC con `23514 "I4: el monto debe ser mayor a cero"`, sin pasar por el cliente. (Ejecutado en #75: confirmado — el rechazo lo hace la validación explícita dentro de la función, no un `check` de tabla.)
 
 **CP-REG-011** — US-11 · FR-06 · Inv.: I4 · Técnica: Valores límite · Tipo: Límite · Prioridad: Media · Automatizable: Sí

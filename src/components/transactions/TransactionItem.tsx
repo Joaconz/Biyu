@@ -1,101 +1,84 @@
-import { Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowDownLeft, Trash2 } from 'lucide-react'
+import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { formatInstallmentLabel } from '@/domain/installments'
-import { formatArs, parseMoney } from '@/domain/money'
-import { formatDisplayDate } from '@/domain/period'
+import { formatArs, formatUsd, parseMoney } from '@/domain/money'
+import { formatDayShort } from '@/domain/period'
 import type { DashboardTransaction } from '@/lib/dashboard'
 
 interface TransactionItemProps {
   transaction: DashboardTransaction
   testId?: string
   onDeleteRequest?: (transaction: DashboardTransaction) => void
+  /** En la lista agrupada por día la fecha ya está en el encabezado. */
+  showDate?: boolean
 }
 
-export function TransactionItem({
-  transaction,
-  testId,
-  onDeleteRequest,
-}: TransactionItemProps) {
+/**
+ * Fila de movimiento: el ícono dice la categoría, así el renglón secundario queda para la fecha y
+ * la cuenta y no se trunca en tres pedazos. El monto es la cuota que impacta en el mes (US-17).
+ */
+export function TransactionItem({ transaction, testId, onDeleteRequest, showDate = true }: TransactionItemProps) {
   const isIncome = transaction.type === 'income'
-  // Lo que la imputación impacta en el mes listado: la cuota, no el total de la compra.
   const amountArs = formatArs(parseMoney(transaction.entry_amount_ars))
-  const installmentLabel = formatInstallmentLabel(
-    transaction.installment_number,
-    transaction.installments_count,
-  )
-  const dateFormatted = formatDisplayDate(transaction.occurred_on)
-  const title =
-    transaction.description ||
-    (transaction.category ? transaction.category.name : isIncome ? 'Ingreso' : 'Gasto')
-
+  const installmentLabel = formatInstallmentLabel(transaction.installment_number, transaction.installments_count)
+  const categoryName = transaction.category?.name
+  const title = transaction.description || categoryName || (isIncome ? 'Ingreso' : 'Gasto')
+  const meta = [showDate ? formatDayShort(transaction.occurred_on) : null, transaction.account?.name].filter(Boolean).join(' · ')
   const baseTestId = testId ?? 'transaction-item'
 
   return (
-    <div
-      data-testid={baseTestId}
-      className="flex items-center justify-between py-3 border-b border-border/40 last:border-b-0 gap-3"
-    >
-      <div className="flex flex-col min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-sm truncate">{title}</span>
+    <div data-testid={baseTestId} className="flex min-h-16 items-center gap-3 py-2.5 pr-1 pl-3.5">
+      {isIncome ? (
+        <span
+          aria-hidden="true"
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--income)_12%,var(--card))] text-income"
+        >
+          <ArrowDownLeft className="size-[1.125rem]" strokeWidth={1.8} />
+        </span>
+      ) : (
+        <CategoryIcon name={categoryName ?? 'Otros'} color={transaction.category?.color} />
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-callout font-medium text-foreground">{title}</span>
           {installmentLabel !== null && (
             <span
               data-testid={`${baseTestId}-installment`}
               aria-label={`Cuota ${transaction.installment_number} de ${transaction.installments_count}`}
-              className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium tabular-nums shrink-0"
+              className="tabular shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
             >
               {installmentLabel}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-          <span>{dateFormatted}</span>
-          {transaction.category && transaction.description && (
-            <>
-              <span>•</span>
-              <span className="truncate">{transaction.category.name}</span>
-            </>
-          )}
-          {transaction.account && (
-            <>
-              <span>•</span>
-              <span className="truncate">{transaction.account.name}</span>
-            </>
-          )}
-        </div>
+        <span className="truncate text-footnote text-muted-foreground">
+          {/* La categoría se ve en el ícono; el lector de pantalla la escucha acá. */}
+          {categoryName && transaction.description && <span className="sr-only">{categoryName} · </span>}
+          {meta}
+        </span>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        <div className="flex flex-col items-end text-right">
-          <span
-            className={`font-semibold text-sm tabular-nums ${
-              isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'
-            }`}
-          >
-            {isIncome ? `+${amountArs}` : `-${amountArs}`}
-          </span>
-          {transaction.currency === 'USD' && (
-            <span className="text-xs text-muted-foreground tabular-nums">
-              USD {parseMoney(transaction.entry_amount).toFixed(2)}
-            </span>
-          )}
-        </div>
-
-        {onDeleteRequest && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => onDeleteRequest(transaction)}
-            data-testid={`${baseTestId}-delete`}
-            aria-label="Eliminar transacción"
-            title="Eliminar"
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-          >
-            <Trash2 className="size-3.5" />
-          </Button>
+      <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+        <span className={`tabular text-callout font-semibold ${isIncome ? 'text-income' : 'text-foreground'}`}>
+          {isIncome ? `+${amountArs}` : `-${amountArs}`}
+        </span>
+        {transaction.currency === 'USD' && (
+          <span className="tabular text-footnote text-muted-foreground">{formatUsd(parseMoney(transaction.entry_amount))}</span>
         )}
       </div>
+
+      {onDeleteRequest && (
+        <button
+          type="button"
+          onClick={() => onDeleteRequest(transaction)}
+          data-testid={`${baseTestId}-delete`}
+          aria-label={`Eliminar ${title}`}
+          className="press -ml-1 flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/8 hover:text-destructive"
+        >
+          <Trash2 aria-hidden="true" className="size-4" strokeWidth={1.6} />
+        </button>
+      )}
     </div>
   )
 }

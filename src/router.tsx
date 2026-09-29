@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { RegisterPage } from '@/pages/RegisterPage'
@@ -11,10 +12,16 @@ export const router = createBrowserRouter([
   {
     element: <RequireAuth />,
     children: [
-      { path: '/register', element: <RegisterPage /> },
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/transactions', element: <TransactionsPage /> },
-      { path: '/settings', element: <SettingsPage /> },
+      {
+        // ADR-023: un layout compartido con la navegación global; queda montado entre pestañas.
+        element: <AppLayout />,
+        children: [
+          { path: '/register', element: <RegisterPage /> },
+          { path: '/dashboard', element: <DashboardPage /> },
+          { path: '/transactions', element: <TransactionsPage /> },
+          { path: '/settings', element: <SettingsPage /> },
+        ],
+      },
     ],
   },
   {
