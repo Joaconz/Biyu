@@ -47,3 +47,11 @@ de celular: el panel verde de `AuthLayout.tsx` se estira a casi toda la pantalla
 las tres líneas abajo y un vacío grande en el medio; el formulario queda como una hoja angosta al pie.
 Definir el corte: pasar antes a las dos columnas de desktop, o limitar el alto del panel y centrar el
 contenido en tablet.
+
+## 5. Página para rutas que no existen
+
+Una URL desconocida (p. ej. `/no-existe`) muestra la pantalla de error por defecto de React Router
+("Unexpected Application Error! 404 Not Found"), en inglés y sin estilo. No expone datos: las rutas
+privadas ya redirigen a `/login` sin sesión. Falta una ruta `*` en `src/router.tsx` (y un
+`errorElement` para errores de render) con una pantalla en castellano, con el sistema de diseño y un
+acceso a Registrar (o a Entrar si no hay sesión).
