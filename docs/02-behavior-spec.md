@@ -134,6 +134,16 @@ criterio de aceptación de referencia de la cátedra (ver hallazgo de `spec-crit
 66. Como usuario nuevo, quiero confirmar mi contraseña al registrarme escribiéndola dos veces, para no crear la cuenta con una contraseña mal tipeada que después no puedo reproducir.
 67. Como usuario nuevo, quiero que la app me diga con claridad qué le falta a mi contraseña (mayúscula, minúscula, número, carácter especial, largo mínimo) cuando no cumple los criterios, para poder corregirla sin adivinar.
 
+_La siguiente amplía FR-04 y FR-05 (`pre-entrega.md`): la siembra de US-43 evita la pantalla vacía,
+pero no deja ajustar el catálogo ni enseña a registrar antes del primer uso
+([#159](https://github.com/Joaconz/Biyu/issues/159)). Es opcional y no reemplaza a US-01: saltearla
+deja la siembra de US-43 y la app abre en el registro como siempre. El primer gasto se registra con
+`create_transaction` (C4); saltearlo no crea nada. La cuenta que se elige ahí es la que queda
+precargada según US-07, no una regla de precarga nueva. La pregunta de para qué se usa la app es
+informativa: no son metas ni presupuestos (Out of Scope)._
+
+68. Como usuario nuevo, quiero una configuración inicial breve al registrarme —para qué uso la app, qué categorías y qué cuentas (medios de pago) uso, cuál viene precargada al registrar y un primer gasto guiado—, que pueda saltear en cualquier paso, para dejar la app como la uso y registrar mi primer gasto sabiendo cómo funciona.
+
 ---
 
 ## Behavior Detail
