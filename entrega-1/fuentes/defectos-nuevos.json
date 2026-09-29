@@ -2,17 +2,21 @@
   {
     "id": "DEF-017",
     "titulo": "Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar)",
-    "issue": "",
+    "issue": "#165",
     "severidad": "Alta",
     "prioridad": "A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1)",
-    "estado": "Abierto · nuevo en la Entrega 1",
+    "estado": "Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29",
     "reporter": "Ejecución de la Entrega 1 (runner Playwright, Claude Code), supervisada por Joaquin Nuñez",
     "encontrado": "Ejecución de la Entrega 1, caso CP-CFG-011",
     "caso": "CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015)",
     "historia": "US-68 · Configuración inicial al crear la cuenta",
     "entorno": "Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28",
     "descripcion": "La historia US-68 entra en el alcance de la Entrega 1 pero no tiene implementación: no hay ruta, pantalla ni componentes de setup en src/. El issue #159 sigue abierto.",
-    "pasos": ["Ir a /signup.", "Crear una cuenta con un email nuevo y la contraseña Clave123! repetida en \"Confirmar contraseña\".", "Observar la pantalla que se abre."],
+    "pasos": [
+      "Ir a /signup.",
+      "Crear una cuenta con un email nuevo y la contraseña Clave123! repetida en \"Confirmar contraseña\".",
+      "Observar la pantalla que se abre."
+    ],
     "esperado": "US-68: después de crear la cuenta se muestra el setup (para qué la usás, categorías, cuentas y primer gasto), con elementos data-testid de prefijo setup-.",
     "obtenido": "La app va directo a /register. No hay ningún elemento con data-testid que empiece con setup-.",
     "evidencia": "evidencia/CP-CFG-011-sin-setup.jpg",
@@ -31,7 +35,11 @@
     "historia": "US-21 · Pisar el tipo de cambio sugerido",
     "entorno": "Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28",
     "descripcion": "En Ajustes el tipo de cambio de referencia se valida a 4 decimales (\"Usá hasta 4 decimales\"), pero en el formulario de registro no: se puede guardar un TC con 5 decimales y la base lo redondea en silencio.",
-    "pasos": ["Abrir /register, cargar USD 100 y escribir 1250,55555 como tipo de cambio.", "Completar categoría y cuenta y guardar.", "Consultar la transacción guardada."],
+    "pasos": [
+      "Abrir /register, cargar USD 100 y escribir 1250,55555 como tipo de cambio.",
+      "Completar categoría y cuenta y guardar.",
+      "Consultar la transacción guardada."
+    ],
     "esperado": "Misma validación que en Ajustes: rechazar más de 4 decimales con un mensaje (C6: el cliente anticipa lo que la base va a hacer), o guardar exactamente lo que se mostró.",
     "obtenido": "Se guarda sin aviso con fx_rate 1250.5556 y amount_ars 125055.56. El equivalente en pesos que mostraba el formulario se calculó con el valor sin redondear.",
     "evidencia": "Consulta a la base: fx_rate|amount_ars = 1250.5556|125055.56 (resultados.json, EXP-01).",
@@ -50,7 +58,10 @@
     "historia": "US-42 · Crear, renombrar y elegir color de categorías",
     "entorno": "Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28",
     "descripcion": "La regla de CP-CFG-003 (no dos categorías activas con el mismo nombre) compara el nombre exacto. Cambiando solo mayúsculas se crea un duplicado que en la grilla del registro se ve como dos chips casi iguales.",
-    "pasos": ["Con la categoría activa \"Salud\" (sembrada), ir a Ajustes.", "Crear una categoría llamada \"salud\"."],
+    "pasos": [
+      "Con la categoría activa \"Salud\" (sembrada), ir a Ajustes.",
+      "Crear una categoría llamada \"salud\"."
+    ],
     "esperado": "Rechazado con \"Ya existe una categoría activa con ese nombre\", igual que \"Salud\".",
     "obtenido": "Se acepta. Quedan activas \"salud\" y \"Salud\".",
     "evidencia": "evidencia/EXP-02-salud-duplicada.jpg",
@@ -69,10 +80,60 @@
     "historia": "US-20 · Sugerir el tipo de cambio de referencia del mes",
     "entorno": "Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28",
     "descripcion": "El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve PostgREST, con punto decimal y 4 decimales, mientras el resto de la app usa formato argentino (Ajustes muestra \"$ 1.250,00\").",
-    "pasos": ["Cargar 1250 como tipo de cambio de referencia del mes en Ajustes.", "Abrir /register, cargar un monto y elegir US$.", "Mirar el campo \"Tipo de cambio (ARS por US$)\"."],
+    "pasos": [
+      "Cargar 1250 como tipo de cambio de referencia del mes en Ajustes.",
+      "Abrir /register, cargar un monto y elegir US$.",
+      "Mirar el campo \"Tipo de cambio (ARS por US$)\"."
+    ],
     "esperado": "\"1.250\" o \"1.250,00\", con el mismo formato que Ajustes y que el equivalente \"≈ $125.000,00\".",
     "obtenido": "\"1250.0000\".",
     "evidencia": "evidencia/CP-MON-003-tc-sugerido.jpg",
     "notas": "Cosmético: si el usuario edita el valor igual se interpreta bien. Se registra aparte para no marcar como FAILED un caso cuyo oráculo (el TC sugerido es 1250) se cumple."
+  },
+  {
+    "id": "DEF-021",
+    "titulo": "Los montos grandes se salen de sus casilleros en el Resumen (celular)",
+    "issue": "#167",
+    "severidad": "Media",
+    "prioridad": "A definir por el PO",
+    "estado": "Abierto · reportado el 2026-09-29",
+    "reporter": "Uso manual en producción, equipo Biyu",
+    "encontrado": "uso manual en producción desde un iPhone, fuera del catálogo escrito.",
+    "caso": "— (uso manual; relacionado con DEF-012, montos extremos)",
+    "historia": "US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras",
+    "entorno": "Producción (Vercel), Safari en iPhone, ancho ~390 px, 2026-09-29",
+    "descripcion": "Con montos de 9 cifras o más, los totales del Resumen no entran en sus tarjetas: se cortan o desbordan el contenedor, y el porcentaje de \"Por categoría\" baja de línea.",
+    "pasos": [
+      "Tener un gasto o ingreso con un monto de 9 o más cifras.",
+      "Abrir /dashboard en un celular (ancho ~390 px).",
+      "Mirar la tarjeta \"Gastado en…\", las tarjetas Ingresos y Balance y la lista \"Por categoría\"."
+    ],
+    "esperado": "Ningún monto se corta ni desborda su contenedor, a cualquier ancho y con montos de hasta el máximo que permite numeric(14,2).",
+    "obtenido": "El total gastado ($2.165.003.118,…) queda cortado por el borde de la tarjeta; Ingresos ($81.818.491.500) y Balance ($79.653.488.381,50) desbordan su casillero; en \"Por categoría\" el porcentaje \"100,0 %\" baja de línea.",
+    "evidencia": "Captura de pantalla del usuario (no se sube al repo: muestra totales de una cuenta de prueba).",
+    "notas": "Relacionado con DEF-012: los montos enormes entran al sistema y la UI no los soporta. El issue se había creado como DEF-018 y se renumeró a DEF-021 porque DEF-018 ya estaba asignado."
+  },
+  {
+    "id": "DEF-022",
+    "titulo": "El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo",
+    "issue": "#175",
+    "severidad": "Crítica",
+    "prioridad": "A definir por el PO",
+    "estado": "Cerrado · corregido en #176 el 2026-09-29; verificado en local (falta aplicar las migraciones en producción)",
+    "reporter": "Uso en producción (usuario con cuenta previa), analizado con Claude Code, equipo Biyu",
+    "encontrado": "uso en producción después del merge de #173 (US-68), fuera del catálogo escrito.",
+    "caso": "— (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts)",
+    "historia": "US-68 · Configuración inicial al crear la cuenta",
+    "entorno": "Producción (Vercel + Supabase hosteado), 2026-09-29. Reproducido y verificado en local: Vite http://localhost:5180 + Supabase local, main 7812350",
+    "descripcion": "Después del merge de US-68, las cuentas creadas antes de esa historia tenían que hacer el setup otra vez, y al terminar el setup la app no avanzaba: volvía a /setup sin mensaje. Causa: \"sin fila en user_setup\" se leía como \"setup pendiente\" (las cuentas previas no tienen fila) y cualquier error al leer o guardar el estado mandaba de vuelta a /setup, un bucle sin salida cuando la escritura falla (por ejemplo, con la migración sin aplicar en la base hosteada).",
+    "pasos": [
+      "Entrar con una cuenta creada antes de US-68.",
+      "Observar la pantalla que se abre.",
+      "Con una cuenta nueva, completar o saltear los 4 pasos del setup con la escritura en user_setup fallando."
+    ],
+    "esperado": "Una cuenta existente entra directo a la app (US-01). Terminar el setup lleva a Registrar y el setup no vuelve a aparecer (US-68).",
+    "obtenido": "La cuenta existente es obligada a hacer el setup. Al terminarlo, la app se queda en /setup: el botón vuelve a habilitarse sin ningún mensaje.",
+    "evidencia": "Tests de regresión en rojo antes de la corrección: e2e/setup.spec.ts (fallan \"si guardar el setup falla\", \"si leer el estado falla\" y \"cuenta sin fila\") y e2e/smoke.spec.ts (esperaba /register después del signup). Después de #176: e2e 28/28 en Chromium y WebKit, pgTAP 175/175, Vitest 246/246.",
+    "notas": "No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Pendiente: correr supabase db push en producción."
   }
 ]

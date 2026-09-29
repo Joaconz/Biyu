@@ -4,9 +4,11 @@ desde tres fuentes: casos.json (exportado de casos.mjs), ../ejecucion/resultados
 Uso (desde la raíz del repo):
   node -e "import('./entrega-1/fuentes/casos.mjs').then(m=>process.stdout.write(JSON.stringify(m.CASOS)))" > entrega-1/fuentes/casos.json
   python3 entrega-1/fuentes/generar.py
-Necesita openpyxl.
+  python3 entrega-1/fuentes/generar.py defectos   (solo 04: .md y .xlsx de defectos)
+Necesita openpyxl. La planilla de defectos también lee defectos-detalle.json.
 """
 import json
+import sys
 from collections import Counter, OrderedDict
 from pathlib import Path
 
@@ -248,46 +250,93 @@ def gen_exec():
 
 
 # ---------------------------------------------------------------- 04 defectos
+# Layout de la hoja "Defect Report - Template" de la cátedra (TPO - TC and Defect Template.xlsx):
+# etiqueta en A (Calibri 8, negrita, fondo amarillo), valor en B, una fila en blanco entre
+# secciones y un paso por fila. Lo que el template no tiene (ID, estado, issue, caso, evidencia,
+# corrección) va en Notes. La prioridad no se completa: la fija el PO.
+DET_LABEL = Font(name='Calibri', size=8, bold=True)
+DET_VALUE = Font(name='Calibri', size=11)
+DET_TITLE = Font(name='Calibri', size=11, bold=True)
+DET_TOP = Alignment(wrap_text=True, vertical='top')
+DET_CHARS_PER_LINE = 60  # columna B de 63,66 de ancho, Calibri 11
+
+
+def det_height(text):
+    lines = sum(max(1, -(-len(part) // DET_CHARS_PER_LINE)) for part in str(text).split('\n'))
+    return max(15, 15 * lines)
+
+
+def det_label(ws, row, text):
+    c = ws.cell(row=row, column=1, value=text)
+    c.font, c.fill, c.border, c.alignment = DET_LABEL, LABEL, BOX, DET_TOP
+
+
+def det_value(ws, row, text, font=DET_VALUE, border=False):
+    c = ws.cell(row=row, column=2, value=text)
+    c.font, c.alignment = font, DET_TOP
+    if border:
+        c.border = BOX
+    ws.row_dimensions[row].height = det_height(text)
+
+
+def det_notes(d, x):
+    notes = [f'- Defect ID: {d["id"]}', f'- Estado: {d["estado"]}', f'- Issue de GitHub: {d.get("issue") or "sin issue"}',
+             f'- Caso de prueba: {d["caso"]}', f'- Encontrado en: {d["encontrado"]}', f'- Reportó: {d["reporter"]}',
+             f'- Evidencia: {d["evidencia"]}']
+    if x.get('correccion'):
+        notes.append(f'- Corrección: {x["correccion"]}')
+    if d.get('notas'):
+        notes.append(f'- {d["notas"]}')
+    return '\n'.join(notes)
+
+
+def defect_sheet(wb, d, x):
+    ws = wb.create_sheet(d['id'])
+    ws.column_dimensions['A'].width = 31.83
+    ws.column_dimensions['B'].width = 63.66
+    row = 1
+    det_label(ws, row, 'Title'); det_value(ws, row, f'[{d["id"]}] {d["titulo"]}', DET_TITLE, border=True); row += 2
+    det_label(ws, row, 'Description / Overview'); det_value(ws, row, d['descripcion'], border=True); row += 2
+    det_label(ws, row, 'Reproduction Steps')
+    for i, paso in enumerate(d['pasos'], 1):
+        det_value(ws, row, f'{i}- {paso}'); row += 1
+    row += 1
+    det_label(ws, row, 'Expected Behavior'); det_value(ws, row, d['esperado']); row += 2
+    det_label(ws, row, 'Actual Behavior'); det_value(ws, row, d['obtenido']); row += 2
+    det_label(ws, row, 'Incidence / Severity / Probability of reproduction')
+    det_value(ws, row, f'Severidad {d["severidad"]} - {x["impacto"]}'); row += 1
+    det_value(ws, row, x['reproduccion']); row += 2
+    det_label(ws, row, 'Story and Acceptance Criteria affected'); det_value(ws, row, x['criterio']); row += 2
+    det_label(ws, row, 'Browsers tested'); det_value(ws, row, x['navegadores']); row += 2
+    det_label(ws, row, 'Environment'); det_value(ws, row, d['entorno']); row += 2
+    det_label(ws, row, 'Notes'); det_value(ws, row, det_notes(d, x))
+
+
 def gen_defects():
+    detalle = json.loads((ROOT / 'fuentes' / 'defectos-detalle.json').read_text(encoding='utf-8'))
     wb = Workbook()
     ws = wb.active
-    ws.title = 'Índice'
-    heads = ['Defect ID', 'Título', 'Severidad', 'Prioridad', 'Estado', 'Caso de prueba', 'Historia', 'Issue']
-    ws.append(['Biyu – Entrega 1 – Reportes de defectos']); ws['A1'].font = Font(bold=True, size=13)
+    ws.title = 'Index'
+    heads = ['Defect ID', 'Title', 'Severity', 'Status', 'Test case', 'User story', 'GitHub issue']
+    ws.append(['Biyu – Entrega 1 – Defect reports']); ws['A1'].font = Font(bold=True, size=13)
     ws.append(heads)
     for i in range(1, len(heads) + 1):
         c = ws.cell(row=2, column=i); c.fill = HEAD; c.font = WHITE; c.border = BOX
     for d in DEFECTOS:
-        ws.append([d['id'], d['titulo'], d['severidad'], d['prioridad'], d['estado'], d['caso'], d['historia'], d.get('issue', '')])
+        ws.append([d['id'], d['titulo'], d['severidad'], d['estado'], d['caso'], d['historia'], d.get('issue') or 'sin issue'])
         for i in range(1, len(heads) + 1):
             x = ws.cell(row=ws.max_row, column=i); x.border = BOX; x.alignment = WRAP
-    for col, w in zip('ABCDEFGH', (10, 60, 11, 11, 26, 18, 16, 10)):
+        ws.cell(row=ws.max_row, column=1).hyperlink = f"#'{d['id']}'!A1"
+    for col, w in zip('ABCDEFG', (11, 60, 10, 34, 26, 30, 12)):
         ws.column_dimensions[col].width = w
+    ws.freeze_panes = 'A3'
     for d in DEFECTOS:
-        s = wb.create_sheet(d['id'])
-        s.column_dimensions['A'].width = 24
-        s.column_dimensions['B'].width = 100
-        cell(s, 'A1', 'Defect report', LABEL, True, merge='A1:B1')
-        rows = [('Title', f'[{d["id"]}] {d["titulo"]}'), ('Defect ID', d['id']), ('Status', d['estado']), ('Project', PROYECTO),
-                ('Reporter', d['reporter']), ('Type', 'Bug'), ('Priority', d['prioridad']), ('Severity', d['severidad']),
-                ('Assignee', 'Unassigned'), ('Found in', d['encontrado'])]
-        for i, (k, v) in enumerate(rows, 2):
-            cell(s, f'A{i}', k, LABEL, True); cell(s, f'B{i}', v)
-        cell(s, 'A13', 'Issue links', LABEL, True, merge='A13:B13')
-        cell(s, 'A14', 'Test case', LABEL, True); cell(s, 'B14', d['caso'])
-        cell(s, 'A15', 'User story', LABEL, True); cell(s, 'B15', d['historia'])
-        cell(s, 'A16', 'GitHub', LABEL, True); cell(s, 'B16', d.get('issue') or 'A crear')
-        cell(s, 'A18', 'Description', LABEL, True, merge='A18:B18')
-        desc = (f'{d["descripcion"]}\n\nEntorno:\n{d["entorno"]}\n\nPasos para reproducir:\n' + '\n'.join(f'{i}. {p}' for i, p in enumerate(d['pasos'], 1)) +
-                f'\n\nResultado esperado:\n{d["esperado"]}\n\nResultado actual:\n{d["obtenido"]}\n\nEvidencia:\n{d["evidencia"]}' +
-                (f'\n\nNotas:\n{d["notas"]}' if d.get('notas') else ''))
-        cell(s, 'A19', desc, merge='A19:B19')
-        s.row_dimensions[19].height = 15 * (desc.count('\n') + 4)
+        defect_sheet(wb, d, detalle[d['id']])
     wb.save(ROOT / '04-reportes-de-defectos.xlsx')
 
     sev = Counter(d['severidad'] for d in DEFECTOS if not d['estado'].startswith('Cerrado'))
     L = ['# Proyecto Biyu – Entrega 1 · Reportes de defectos (V1)', '',
-         'Planilla: `04-reportes-de-defectos.xlsx` (una hoja por defecto, formato "Defect report" de la cátedra). '
+         'Planilla: `04-reportes-de-defectos.xlsx` (un índice y una hoja por defecto, con el formato "Defect Report - Template" de la cátedra). '
          'Cada defecto existe también como issue en GitHub con la etiqueta `bug`, salvo los nuevos de esta entrega, que quedan listos para cargar.', '',
          f'Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severidad la fija quien reporta; **prioridad la fija el PO** '
          '(la que figura acá es la sugerida por quien reportó).', '',
@@ -353,6 +402,9 @@ def gen_report(extra):
 
 
 if __name__ == '__main__':
+    if sys.argv[1:] == ['defectos']:
+        gen_defects()
+        sys.exit()
     gen_spec()
     gen_exec()
     gen_defects()

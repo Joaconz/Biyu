@@ -1,0 +1,157 @@
+{
+  "_uso": "Campos del template 'Defect Report' de la cátedra que no están en defectos.json. Los lee generar.py.",
+  "DEF-001": {
+    "impacto": "Una URL mal escrita deja al usuario en una pantalla de error en inglés, sin forma de volver a la app.",
+    "reproduccion": "100 % antes de la corrección. No se reproduce desde el 2026-09-28.",
+    "criterio": "US-48 · La app pide login. Ningún criterio escrito cubre las rutas inexistentes: se detectó por ataque libre, fuera de los criterios.",
+    "navegadores": "Google Chrome (Chromium) en Windows 11",
+    "correccion": "PR #163: pantalla propia \"Esta página no existe\" con \"Volver a Biyu\"."
+  },
+  "DEF-002": {
+    "impacto": "El lector de pantalla lee el español con fonética inglesa y la pestaña dice \"scaffold\" en vez de Biyu.",
+    "reproduccion": "100 % antes de la corrección. No se reproduce desde el 2026-09-28.",
+    "criterio": "Transversal, sin historia propia. NFR-06 (WCAG 2.1 AA), criterio 3.1.1 Idioma de la página: lang tiene que coincidir con el idioma real.",
+    "navegadores": "Google Chrome (Chromium) en Windows 11",
+    "correccion": "PR #161 (rediseño de la UI, ADR-023): title=\"Biyu\" y lang=\"es-AR\"."
+  },
+  "DEF-003": {
+    "impacto": "En producción se podía crear una cuenta con una contraseña mal tipeada, que después no se puede reproducir para entrar.",
+    "reproduccion": "100 % en producción antes de la corrección. No se reproduce desde el 2026-09-28.",
+    "criterio": "US-66 · Confirmar contraseña al registrarse. Criterio: \"El formulario de /signup tiene un segundo campo 'Confirmar contraseña', con máscara igual que el campo de contraseña.\"",
+    "navegadores": "Google Chrome (Chromium) en Windows 11",
+    "correccion": "PR #141: el campo \"Confirmar contraseña\" llegó a main (se había perdido en un merge)."
+  },
+  "DEF-004": {
+    "impacto": "Se guarda un monto que no es un número y el Resumen del mes muestra \"$NaN,undefined\": se pierde la integridad de los totales (I4).",
+    "reproduccion": "100 % antes de la corrección. No se reproduce desde el 2026-09-28.",
+    "criterio": "US-11 · No se puede guardar monto cero o negativo. Criterio: \"La RPC rechaza amount <= 0 aunque el cliente lo deje pasar (I4, C6).\"",
+    "navegadores": "Chromium (Playwright) y llamada directa a la RPC",
+    "correccion": "PR #162: la base rechaza NaN como monto y como tipo de cambio (migración 20260929000000_reject_nan_amounts)."
+  },
+  "DEF-005": {
+    "impacto": "Una contraseña débil que la pantalla rechaza se puede crear igual yendo directo a la API: la validación queda solo en el cliente (C6).",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-67 · Mensaje claro de qué criterio de contraseña falta. Criterio: \"El servidor (Supabase Auth) rechaza igual una contraseña que no cumpla (C6).\"",
+    "navegadores": "No aplica: llamada directa a la API de Supabase Auth",
+    "correccion": ""
+  },
+  "DEF-006": {
+    "impacto": "En el historial no se distingue una categoría archivada de una activa.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-44 · Archivar una categoría sin perder historia. Criterio: \"Archivar la saca del formulario; las transacciones históricas la siguen mostrando con marca de archivada.\"",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-007": {
+    "impacto": "Una transacción eliminada desaparece de la vista: el usuario no puede ver qué borró. Los totales sí quedan bien.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-65 · Eliminar una transacción con aviso si toca meses cerrados. Criterio: \"El borrado es lógico (deleted_at) y la transacción sale de todos los KPI (I10).\" Contradice FR-08: la transacción \"permanece visible en el historial con una marca de eliminada\".",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-008": {
+    "impacto": "Quien abre un link directo (por ejemplo al Resumen) sin sesión termina en Registrar después de entrar, no en la pantalla que pidió.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-48 · La app pide login. La historia define que una ruta privada sin sesión redirige a /login?next=<ruta>; el destino de next se ignora al entrar.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-009": {
+    "impacto": "Quedan compras en cuotas sobre una cuenta que ya no es tarjeta de crédito: se rompe la invariante I6 después de creada la transacción.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-45 · Crear cuentas indicando su tipo. Criterio: \"El tipo determina si admite cuotas (I6).\"",
+    "navegadores": "Chromium (Playwright) y consulta directa a la base",
+    "correccion": ""
+  },
+  "DEF-010": {
+    "impacto": "El usuario que archivó todas sus categorías las vuelve a ver aparecer duplicadas (8 nuevas además de las archivadas).",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-43 · Set inicial de categorías y cuentas. Criterio: \"La siembra es por usuario y no se repite si ya existe (ADR-014).\"",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-011": {
+    "impacto": "Una cuenta creada con un error de nombre o de tipo no se puede corregir ni sacar de la lista.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-45 · Crear cuentas indicando su tipo. Criterio: \"ABM de cuentas con tipo (credit_card, débito, efectivo, etc.).\" Solo existe el alta.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-012": {
+    "impacto": "Un monto fuera de rango pasa la validación de la pantalla y falla recién al guardar, con un mensaje técnico en inglés.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-11 · No se puede guardar monto cero o negativo. Los criterios cubren monto vacío, 0 o negativo; el límite superior (numeric(14,2)) no tiene criterio escrito.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-013": {
+    "impacto": "El botón Guardar queda deshabilitado sin que la pantalla diga por qué.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-19 · Registrar un gasto en USD sin convertir a mano. Aplica el criterio de US-11: \"el botón queda deshabilitado y el campo dice por qué\".",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-014": {
+    "impacto": "Un período inválido en la URL muestra un error técnico de la base, en inglés.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "US-26 · Cambiar de mes con un selector. Criterio: \"El período vive en la URL (?period=AAAA-MM) y es enlazable (C11).\" No hay criterio para un período inválido.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-015": {
+    "impacto": "No afecta al usuario. Impide automatizar la elección de color en V3.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "Transversal, sin historia propia. Regla del plan de testing (07-plan-de-testing.md §2): todo elemento interactivo lleva data-testid.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-016": {
+    "impacto": "Latente: las deudas no son de V1, pero cuando se implementen no se va a poder crear ninguna deuda vinculada.",
+    "reproduccion": "100 % (se reprodujo en el re-test del 2026-09-28).",
+    "criterio": "Sin historia de V1. Afecta a la invariante I7 de las deudas (V2), cuyo trigger ya está en el schema.",
+    "navegadores": "No aplica: consulta directa a la base",
+    "correccion": ""
+  },
+  "DEF-017": {
+    "impacto": "La configuración inicial comprometida para la Entrega 1 no existía: sus 5 casos no podían pasar.",
+    "reproduccion": "100 % antes de la corrección. No se reproduce desde el 2026-09-29.",
+    "criterio": "US-68 · Configuración inicial al crear la cuenta. Criterio: \"Después de crear la cuenta se muestra el setup, y no vuelve a aparecer una vez que se completó o se salteó.\"",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": "PR #173: implementación de US-68 (ADR-025). Re-test del 2026-09-29: CP-CFG-011 a CP-CFG-015 PASSED."
+  },
+  "DEF-018": {
+    "impacto": "El tipo de cambio guardado no es el que escribió el usuario: la base lo redondea a 4 decimales sin avisar.",
+    "reproduccion": "100 % (se reprodujo en la ejecución del 2026-09-28).",
+    "criterio": "US-21 · Pisar el tipo de cambio sugerido en una transacción. Criterio: \"El TC ingresado a mano pisa al de referencia solo para esa transacción.\" Se guarda un valor distinto del ingresado.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-019": {
+    "impacto": "Quedan dos categorías activas que se ven iguales (\"Salud\" y \"salud\") y confunden al registrar.",
+    "reproduccion": "100 % (se reprodujo en la ejecución del 2026-09-28).",
+    "criterio": "US-42 · Crear, renombrar y elegir color de categorías. Criterio: \"ABM de categorías propias con nombre y color.\" La regla de no duplicar nombres (CP-CFG-003) compara el texto exacto.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-020": {
+    "impacto": "El valor es correcto, pero se muestra con el formato de la base (\"1250.0000\") en vez del formato argentino del resto de la app.",
+    "reproduccion": "100 % (se reprodujo en la ejecución del 2026-09-28).",
+    "criterio": "US-20 · Sugerir el tipo de cambio de referencia del mes. Criterio: \"Si el período tiene TC de referencia, el formulario lo precarga.\" Se precarga con otro formato.",
+    "navegadores": "Chromium (Playwright), emulando un celular de 390×844",
+    "correccion": ""
+  },
+  "DEF-021": {
+    "impacto": "El dato principal del Resumen queda ilegible en el celular, sin forma de verlo completo.",
+    "reproduccion": "100 % con montos de 9 cifras o más en pantallas de celular.",
+    "criterio": "US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes (\"Muestra total de ingresos y balance = ingresos − gastos\"); US-27 · Gasto por categoría en barras. Los montos se muestran pero no se pueden leer.",
+    "navegadores": "Safari en iPhone",
+    "correccion": ""
+  },
+  "DEF-022": {
+    "impacto": "Bloquea el acceso a toda la app: los usuarios existentes quedan obligados a hacer el setup, y quien no puede guardarlo queda atrapado en /setup.",
+    "reproduccion": "100 % para cuentas anteriores a US-68, y 100 % del bucle mientras falle la escritura en user_setup.",
+    "criterio": "US-68 · Configuración inicial al crear la cuenta. Criterio: \"Después de crear la cuenta se muestra el setup, y no vuelve a aparecer una vez que se completó o se salteó.\" También US-01: \"Un usuario autenticado que abre la app cae en /register.\"",
+    "navegadores": "Producción: navegador del usuario. Reproducido y verificado en Chromium y WebKit (Playwright)",
+    "correccion": "PR #176 (ADR-025 §6): la fila pendiente la crea la base al registrarse, y el guard deja entrar a la app si leer o guardar falla."
+  }
+}
