@@ -44,6 +44,9 @@ htmlcov/
 .cache/
 .playwright-cli/
 
+# --- Archify: staging de autoría (candidate.json + recibos), no el HTML final ---
+.archify/
+
 # --- Claude Code: estado local, no se versiona ---
 .claude/settings.local.json
 .claude/worktrees/
@@ -60,3 +63,7 @@ htmlcov/
 .agents/skills/shadcn/assets/
 .agents/skills/shadcn/evals/
 .agents/skills/shadcn/agents/
+
+# --- Playwright ---
+test-results/
+playwright-report/

@@ -41,6 +41,7 @@ tablero (ver [`docs/roadmap.md`](docs/roadmap.md) y [`docs/08-trazabilidad.md`](
 | [`docs/01-domain-glossary.md`](docs/01-domain-glossary.md) | Vocabulario cerrado del dominio |
 | [`docs/02-behavior-spec.md`](docs/02-behavior-spec.md) | Qué tiene que hacer el sistema |
 | [`docs/03-architecture-spec.md`](docs/03-architecture-spec.md) | Cómo tiene que estar construido, stack y constraints |
+| [`docs/arquitectura.html`](docs/arquitectura.html) | Diagrama interactivo de la arquitectura (complementa el documento anterior) |
 | [`docs/04-data-model.md`](docs/04-data-model.md) | Schema, invariantes, aislamiento por usuario |
 | [`docs/05-repo-publico.md`](docs/05-repo-publico.md) | Reglas de higiene del repositorio público |
 | [`docs/06-suscripciones.md`](docs/06-suscripciones.md) | Spec de dominio de gastos recurrentes |
@@ -72,6 +73,18 @@ supabase start && supabase status -o env    # con Docker abierto
 cp .env.example .env                        # completá URL y ANON_KEY con esa salida
 npm run dev
 ```
+
+### Deploy
+
+`main` se despliega solo en Vercel: <https://biyu-joaconzs-projects.vercel.app>, contra un proyecto de
+Supabase hosteado. Cada PR tiene su deploy de Preview. La prueba de humo (Playwright, en Chromium,
+WebKit y Firefox) corre a mano contra cualquiera de los dos:
+
+```bash
+SMOKE_URL=https://biyu-joaconzs-projects.vercel.app npm run test:e2e
+```
+
+Detalle, y qué hacer cuando un PR trae una migración: [`docs/09-guia-de-inicio.md`](docs/09-guia-de-inicio.md) §4.
 
 ## Licencia
 

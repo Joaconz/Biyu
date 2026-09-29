@@ -4,7 +4,8 @@ import { supabase } from './supabase'
 
 /**
  * Trae las imputaciones del período para el usuario autenticado (C7).
- * Se traen junto a su transacción vinculada para poder evaluar tipo y soft delete (I10).
+ * El join `!inner` con filtro en `deleted_at` excluye las de transacciones borradas en la
+ * consulta, cualquiera sea la cuota (I10, US-18); el dominio vuelve a filtrar por las dudas.
  */
 export async function fetchMonthlyLedgerEntries(period: Period): Promise<SummaryEntry[]> {
   const dbPeriod = toDbDate(period)
@@ -15,7 +16,7 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
       installment_number,
       amount,
       amount_ars,
-      transaction:transactions!ledger_entries_transaction_fk (
+      transaction:transactions!ledger_entries_transaction_fk!inner (
         id,
         type,
         currency,
@@ -38,6 +39,7 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
       )
     `)
     .eq('period', dbPeriod)
+    .is('transaction.deleted_at', null)
 
   if (error) throw error
   if (!data) return []
@@ -106,6 +108,7 @@ export async function fetchMonthlyConsistencyTransactions(
     .select('occurred_on, deleted_at')
     .gte('occurred_on', start)
     .lt('occurred_on', nextStart)
+    .is('deleted_at', null) // I10
 
   if (error) throw error
   if (!data) return []
