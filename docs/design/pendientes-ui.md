@@ -39,3 +39,11 @@ Restricciones que el diseño tiene que respetar:
 Propuesta inicial para discutir: monto (con moneda) → categoría, que avanza sola al tocarla →
 confirmación con cuenta, fecha y nota ya precargadas y editables → Guardar. Son 3 pasos con los
 valores por defecto (última cuenta usada, hoy). Probablemente necesite un ADR y ajustar US-01.
+
+## 4. Login y registro de cuenta en tablet
+
+Entre el celular y el desktop (probado a ~730 px de ancho), `/login` y `/signup` usan la composición
+de celular: el panel verde de `AuthLayout.tsx` se estira a casi toda la pantalla, con la marca arriba,
+las tres líneas abajo y un vacío grande en el medio; el formulario queda como una hoja angosta al pie.
+Definir el corte: pasar antes a las dos columnas de desktop, o limitar el alto del panel y centrar el
+contenido en tablet.
