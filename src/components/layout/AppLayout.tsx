@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Outlet, ScrollRestoration, useLocation } from 'react-router'
+import { Navigate, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/useMediaQuery'
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset'
 import { screenFromPath } from '@/lib/navigation'
+import { fetchSetupStatus } from '@/lib/setup'
 import { AppHeader } from './AppHeader'
 import { AppNav } from './AppNav'
 
@@ -18,6 +19,23 @@ export function AppLayout() {
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
   const sentinel = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
+  // US-68 (ADR-025): una consulta por sesión (este layout queda montado entre pestañas). Si
+  // falla, se trata como "no completado" — /setup es barato de volver a completar o saltear.
+  const [setupPending, setSetupPending] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchSetupStatus()
+      .then((s) => {
+        if (!cancelled) setSetupPending(!s.completed)
+      })
+      .catch(() => {
+        if (!cancelled) setSetupPending(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     const el = sentinel.current
@@ -26,6 +44,13 @@ export function AppLayout() {
     observer.observe(el)
     return () => observer.disconnect()
   }, [])
+
+  if (setupPending === null) {
+    return <p data-testid="app-layout-loading" className="p-6 text-muted-foreground">Cargando…</p>
+  }
+  if (setupPending) {
+    return <Navigate to="/setup" replace />
+  }
 
   return (
     <div className="min-h-dvh lg:pl-60">

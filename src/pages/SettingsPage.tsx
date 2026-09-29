@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Archive, Pencil } from 'lucide-react'
+import { Archive, Pencil, Sparkles } from 'lucide-react'
+import { Link } from 'react-router'
 import { LogoutButton } from '@/components/LogoutButton'
 import { AccountIcon } from '@/components/shared/AccountIcon'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
@@ -46,6 +47,17 @@ export function SettingsPage() {
       <CategoriesSection />
       <AccountsSection />
       <FxRatesSection />
+      {/* CP-CFG-015 (US-68): reabrir el setup inicial, ya completado o no. */}
+      <GroupedCard>
+        <Link
+          to="/setup"
+          data-testid="settings-nav-setup"
+          className="press flex min-h-12 w-full items-center gap-3 px-4 text-callout font-medium text-foreground hover:bg-accent"
+        >
+          <Sparkles aria-hidden="true" className="size-[1.125rem]" strokeWidth={1.8} />
+          Volver a hacer la configuración inicial
+        </Link>
+      </GroupedCard>
       {/* US-64: cerrar sesión vive en Ajustes (ADR-023). */}
       <GroupedCard>
         <LogoutButton testId="settings-nav-logout" />

@@ -28,3 +28,9 @@ export async function createAccount(input: { name: string; type: AccountType; cu
   if (error) throw error
   return data
 }
+
+// Soft delete (C10): las transacciones históricas conservan account_id sin cambios.
+export async function archiveAccount(id: string, archivedAt: string): Promise<void> {
+  const { error } = await supabase.from('accounts').update({ archived_at: archivedAt }).eq('id', id)
+  if (error) throw error
+}

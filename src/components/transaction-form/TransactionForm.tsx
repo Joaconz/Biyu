@@ -50,6 +50,8 @@ interface TransactionFormProps {
   categories: Category[]
   accounts: Account[]
   defaultAccountId?: string | null
+  /** US-68: el setup inicial necesita saber cuándo se guardó el primer gasto para cerrarse. */
+  onSaved?: () => void
 }
 
 const STEP_TITLES: Record<RegisterStep, string> = {
@@ -64,7 +66,7 @@ const STEP_TITLES: Record<RegisterStep, string> = {
  * que valida y guarda. La cuenta y la fecha llegan precargadas, así que el caso común son tres
  * toques de avance (NFR-07). El borrador es uno solo: volver a un paso no pierde nada.
  */
-export function TransactionForm({ categories, accounts, defaultAccountId }: TransactionFormProps) {
+export function TransactionForm({ categories, accounts, defaultAccountId, onSaved }: TransactionFormProps) {
   const [values, setValues] = useState<DraftInput>(() =>
     emptyDraftInput(toIsoDate(today()), resolvePreloadedAccount(defaultAccountId, accounts)),
   )
@@ -176,6 +178,7 @@ export function TransactionForm({ categories, accounts, defaultAccountId }: Tran
       toast.success(draft.type === 'expense' ? 'Gasto guardado' : 'Ingreso guardado', {
         testId: 'transaction-form-saved',
       })
+      onSaved?.()
       setValues(draftInputAfterSave(values, toIsoDate(today()), accounts))
       setTouched({})
       // Confirmación en el mismo botón (feedback de completado) y vuelta al primer paso para el próximo.
