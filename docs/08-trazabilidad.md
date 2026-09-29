@@ -7,7 +7,7 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 ## Cómo se lee
 
 - **Fuente de cada columna.** FR y NFR: `pre-entrega.md` §3 y §4. Historias: `02-behavior-spec.md`
-  (1 a 51, 64 y 65) y `06-suscripciones.md` (52 a 63). Invariantes I*: `04-data-model.md`.
+  (1 a 51 y 64 a 68) y `06-suscripciones.md` (52 a 63). Invariantes I*: `04-data-model.md`.
   Constraints C*: `03-architecture-spec.md`. Issues: [tablero Biyu](https://github.com/users/Joaconz/projects/3).
 - **Precedencia.** La pre-entrega es la foto entregada el 2026-09-02 y no se reescribe. Donde
   difiere de la spec, manda la spec (`02-behavior-spec.md`, `06-suscripciones.md`,
@@ -25,8 +25,8 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 | FR-01 | V1 | US-50, US-51, US-66, US-67 | [#9](https://github.com/Joaconz/Biyu/issues/9) | **Ampliado**: "contraseña que cumpla con ciertos criterios de seguridad" quedaba implícito sin historia propia para la confirmación de contraseña ni para el detalle de qué criterios exactos exige. Detectado al contrastar contra el criterio de aceptación de referencia de la cátedra (`spec-critic`, `10-catalogo-casos-v1.md` CP-ACC-004) |
 | FR-02 | V1 | US-48 | [#9](https://github.com/Joaconz/Biyu/issues/9), [#71](https://github.com/Joaconz/Biyu/issues/71) | Se mantiene. Se prueba con el par pgTAP por tabla (C7) |
 | FR-03 | V1 | US-49, US-64 | [#9](https://github.com/Joaconz/Biyu/issues/9) | Se mantiene. US-64 se agregó porque cerrar sesión no tenía historia. Plazo de inactividad a confirmar al implementar (sugerido: 30 días) |
-| FR-04 | V1 | US-43 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene (ADR-014) |
-| FR-05 | V1 | US-42, US-44, US-45 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene |
+| FR-04 | V1 | US-43, US-68 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene (ADR-014). **Ampliado** con US-68: la siembra evita la pantalla vacía, pero no deja ajustar el catálogo ni guía el primer registro |
+| FR-05 | V1 | US-42, US-44, US-45, US-68 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene. US-68 reúne el alta y el archivado (US-42, US-44, US-45) en la configuración inicial; la cuenta que elige ahí es la precarga de US-07 |
 | FR-06 | V1 | US-01 a US-11 | [#11](https://github.com/Joaconz/Biyu/issues/11) | Se mantiene |
 | FR-07 | V3 | — | [#23](https://github.com/Joaconz/Biyu/issues/23) | **Ajustado**: la pre-entrega lo ponía en V2; `roadmap.md` lo mueve a V3 como la mejora que genera más regresión (ADR-009) |
 | FR-08 | V1 | US-18, US-65 | [#15](https://github.com/Joaconz/Biyu/issues/15), [#12](https://github.com/Joaconz/Biyu/issues/12) | Se mantiene. US-65 se agregó porque la baja de una transacción suelta no tenía historia |
@@ -103,6 +103,7 @@ P2 entra si alcanza el sprint.
 | US-44 · Archivar una categoría sin perder historia | [#58](https://github.com/Joaconz/Biyu/issues/58) | FR-05 | P1 | CP-CFG-004, CP-CFG-005 |
 | US-45 · Crear cuentas indicando su tipo | [#59](https://github.com/Joaconz/Biyu/issues/59) | FR-05 · I6 | P0 | CP-CFG-006, CP-CFG-007 |
 | US-46 · Cargar el TC de referencia de cada mes | [#60](https://github.com/Joaconz/Biyu/issues/60) | FR-12 | P1 | CP-CFG-009, CP-CFG-010 |
+| US-68 · Configuración inicial al crear la cuenta | [#159](https://github.com/Joaconz/Biyu/issues/159) | FR-04 · FR-05 · US-43 · US-07 · C4 | P2 | — |
 
 ### Registro de transacciones · [#11](https://github.com/Joaconz/Biyu/issues/11)
 
@@ -197,5 +198,8 @@ P2 entra si alcanza el sprint.
   bloqueado) — no cerrar la épica [#16](https://github.com/Joaconz/Biyu/issues/16) ni el
   milestone V1 hasta resolverlos. Los casos `Media`/`Baja` (31 restantes) quedan para una
   pasada siguiente.
+- US-68 ([#159](https://github.com/Joaconz/Biyu/issues/159)) sin casos y con decisiones
+  abiertas antes de implementar: dónde se guarda que el setup se hizo, su ruta frente a US-01 y a los
+  casos CP-ACC-003 y CP-ACC-008 (qué se ve justo después del signup), y la siembra de US-43 que a veces queda incompleta al crear la cuenta.
 - Historias 34 a 41 (deudas) y 52 a 63 (suscripciones) sin issue propio hasta el sprint de V2.
 - US-47 (export) sin issue propio: queda en su épica [#19](https://github.com/Joaconz/Biyu/issues/19).

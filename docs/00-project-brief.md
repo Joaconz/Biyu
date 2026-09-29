@@ -93,6 +93,10 @@ planes ni cobro** — es la misma app de un usuario, abierta a que la use más d
 incluye a la feature de suscripciones: "suscripción" significa siempre un gasto recurrente
 *del usuario*, nunca un plan de pago de Biyu.
 
+"Onboarding" acá es el de un producto comercial: altas guiadas hacia un plan, pruebas gratis,
+cobro. No excluye la configuración inicial opcional de US-68, que solo ajusta el catálogo sembrado
+y guía el primer registro, se puede saltear entera y no cambia la pantalla de inicio (US-01).
+
 ## 6. Documentos relacionados
 
 - `pre-entrega.md` — el documento corto que se presenta en la materia
