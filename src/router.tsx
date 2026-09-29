@@ -4,6 +4,7 @@ import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { SetupPage } from '@/pages/SetupPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 import { RedirectIfAuthed, RequireAuth } from '@/pages/RequireAuth'
 import { SettingsPage } from '@/pages/SettingsPage'
@@ -13,6 +14,9 @@ export const router = createBrowserRouter([
   {
     element: <RequireAuth />,
     children: [
+      // US-68 (ADR-025): fuera de AppLayout, así no tiene su nav ni su header. AppLayout es el
+      // que redirige acá si el setup no está completo; esta ruta en sí nunca se auto-redirige.
+      { path: '/setup', element: <SetupPage /> },
       {
         // ADR-023: un layout compartido con la navegación global; queda montado entre pestañas.
         element: <AppLayout />,
