@@ -103,6 +103,33 @@ body.show-notes .notes { display: block; }
   html { scroll-snap-type: none; }
   .phone img { height: auto; width: min(34vw, 190px); }
 }
+.path { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; color: var(--green); white-space: nowrap; }
+.map { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--green); }
+.zone { padding: 18px 20px 18px 0; display: grid; align-content: start; gap: 12px; min-width: 0; }
+.zone + .zone { padding-left: 20px; border-left: 1px solid var(--hair); }
+.zone h3 { margin: 0; font-family: var(--display); font-size: 24px; font-weight: 600; color: var(--green); }
+.zone > p { font-size: 15px; color: var(--muted); }
+.zone ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.zone li { display: grid; gap: 1px; }
+.zone li span:last-child { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.zone.hl { background: var(--green); color: var(--green-ink); padding-left: 20px; border-radius: 0 0 8px 8px; }
+.zone.hl h3, .zone.hl .path { color: var(--green-ink); }
+.zone.hl > p, .zone.hl li span:last-child { color: var(--green-ink); opacity: .82; }
+@media (max-width: 980px) { .map { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zone:nth-child(3) { border-left: 0; padding-left: 0; } .zone.hl { padding-left: 20px; } }
+@media (max-width: 560px) { .map { grid-template-columns: minmax(0, 1fr); } .zone + .zone { border-left: 0; padding-left: 0; border-top: 1px solid var(--hair); } .zone.hl { padding-left: 20px; } .path { white-space: normal; word-break: break-all; } }
+.link { color: var(--green); font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+.cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; margin-right: 14px; background: var(--green); color: var(--green-ink); border-radius: 8px; text-decoration: none; }
+/* Modo presentación (pantallas de compu): cada slide ocupa exactamente la ventana y su contenido
+   se achica solo si no entra, así se ve igual en una MacBook que en un monitor grande. */
+.fit { display: flex; flex-direction: column; justify-content: center; gap: 28px; min-width: 0; }
+.divider .fit { justify-content: flex-end; }
+@media (min-width: 821px) {
+  .slide { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; padding-block: clamp(64px, 9vh, 88px) clamp(68px, 9vh, 88px); }
+  .fit { flex: 1 1 auto; min-height: 0; }
+  body.show-notes .notes { display: none; }
+  body.show-notes .slide.current .notes { display: block; position: fixed; left: max(16px, 2vw); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: min(72ch, calc(100vw - 280px)); max-height: 40vh; overflow-y: auto; z-index: 9; border: 1px solid var(--hair); }
+}
 </style>
 
 <nav class="toolbar" aria-label="Controles">
@@ -126,13 +153,6 @@ body.show-notes .notes { display: block; }
   <div class="kicker">Parte 1 de 5</div>
   <h2>Qué hay en la V1</h2>
   <p>Las funcionalidades que ya se pueden usar. La demo va al final.</p>
-</section>
-
-<section class="slide" id="identidad" data-label="Identidad">
-  <div class="section-mark">Identidad</div>
-  <h2>Una marca, no solo una app</h2>
-  <figure class="board"><img src="evidencia/brandkit-biyu.jpg" alt="Brand kit de Biyu: wordmark con punto dorado, construcción del logo, pantalla con cuotas, tagline Tu mes, claro, paleta, tipografía, aplicaciones físicas, foto editorial y chips ARS, US$ y 3/12"></figure>
-  <div class="notes">El sistema visual de la app (ADR-023, "heritage moderno") no es decoración: crema como base, verde cazador para lo que se toca y espresso para el texto. El punto dorado del logo es el único oro de toda la interfaz. La lámina se generó con IA (skill brandkit + Gemini) a partir de esa paleta, como parte del proceso end-to-end.</div>
 </section>
 
 <section class="slide" id="problema">
@@ -331,7 +351,7 @@ body.show-notes .notes { display: block; }
   <div class="grid2">
     <div class="card"><span class="tag">CLAUDE.md</span><h3>Reglas no negociables</h3><p>Montos en Decimal, escrituras por RPC, today como parámetro, data-testid en todo.</p></div>
     <div class="card"><span class="tag">7 subagentes</span><h3>Revisores con un solo foco</h3><p>rls-migration-reviewer, domain-purity-reviewer, pgtap-writer, spec-critic, test-adversary…</p></div>
-    <div class="card"><span class="tag">17 skills</span><h3>Conocimiento empaquetado</h3><p>supabase, new-test-case, new-adr, mobile-native, emil-design-eng, playwright-cli…</p></div>
+    <div class="card"><span class="tag">18 skills</span><h3>Conocimiento empaquetado</h3><p>supabase, new-test-case, new-adr, mobile-native, emil-design-eng, playwright-cli…</p></div>
     <div class="card"><span class="tag">hooks + pre-commit</span><h3>Barreras automáticas</h3><p>Bloquean secretos, .env y datos reales en un repo público; lint de migraciones.</p></div>
   </div>
   <div class="notes">El setup es lo que hace que el vibe coding sea controlable. Las reglas viven en CLAUDE.md. Los subagentes son revisores con un solo trabajo: el de migraciones revisa RLS y atomicidad antes de cada commit de SQL. Los hooks frenan secretos antes de que lleguen a git. Además usamos el MCP context7 para documentación de librerías.</div>
@@ -353,68 +373,30 @@ body.show-notes .notes { display: block; }
 
 <section class="slide" id="impl-prompts">
   <div class="section-mark">Prompts utilizados</div>
-  <h2>Tres familias de prompts</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Tipo</th><th>Qué pedía</th><th>Cuándo</th></tr></thead>
-    <tbody>
-      <tr><td><b>Setup 1</b></td><td>Instalar automatizaciones y copiarlas a .agents/ para cualquier IA; revisar skills de frontend</td><td>21/09</td></tr>
-      <tr><td><b>Setup 2</b></td><td>Armar épicas, historias y tareas en el Kanban con gh, y el plan con spec-kit</td><td>25/09</td></tr>
-      <tr><td><b>Proyecto 1–4</b></td><td>Historias como issues · casos de prueba · implementación · ejecución y reportes</td><td>17/09</td></tr>
-      <tr><td><b>Por issue</b></td><td>Misma plantilla: contexto, rama, reglas, detalle, tests, PR, "no diseñes casos"</td><td>26–28/09</td></tr>
-    </tbody>
-  </table></div>
-  <div class="notes">Los prompts de proyecto se escribieron con la skill optimizador-prompts a partir de la consigna y se pasaron por el humanizador. Los de cada issue siguen una misma plantilla: qué leer, en qué rama, qué reglas no romper, qué herramientas usar, qué tests correr y qué no hacer. Esa plantilla es la que hizo que 70 PRs salieran con la misma forma.</div>
-</section>
-
-<section class="slide" id="prompt-ej1">
-  <div class="section-mark">Issues #35 a #38 (cuotas)</div>
-  <pre class="prompt">Implementá los issues <mark>#35, #37, #36 y #38</mark> de Joaconz/Biyu, en ese orden, en esta sesión.
-Van en una sola rama `us/35-cuotas` y un solo PR.
-
-Contexto: leé AGENTS.md y CLAUDE.md completos, después `gh issue view` de cada issue
-y solo los docs que citan (FR, I*, C*, ADR).
-Verificá que el formulario de registro ya esté en main; <mark>si no, pará y avisame</mark>.
-
-Reglas: montos con Decimal (nunca number); lógica en `src/domain/` o Postgres;
-escrituras solo por RPC; `data-testid` en todo elemento interactivo; datos ficticios.
-
-- Agregá las cuotas como un componente propio enchufado al formulario, sin reescribirlo.
-  <mark>Mariana agrega en paralelo los campos de USD: no toques esa parte.</mark>
-- #38: la lógica de prorrateo ya existe y está testeada. No la reescribas.
-
-Antes del PR corré `npm test`, `npm run test:db` y `npm run build`.
-<mark>No diseñes ni ejecutes casos de prueba CP-*</mark>: eso es #74 y #75, en otra sesión.</pre>
-  <div class="notes">Prompt real del 26/09, resumido. Tres cosas que funcionaron: le decimos qué leer y qué no, marcamos el límite con el trabajo en paralelo de otra compañera, y le prohibimos diseñar casos de prueba. El resultado fue el PR #99, con un commit por issue y los tests de pgTAP pasando de 29 a 37.</div>
-</section>
-
-<section class="slide" id="prompt-ej2">
-  <div class="section-mark">Issue #41 (baja de compra en cuotas)</div>
-  <pre class="prompt">Implementá el issue #41 de Joaconz/Biyu. Trabajá solo este issue, en la rama
-`us/41-baja-compra-en-cuotas`.
-
-Este issue <mark>depende del #66 (Valentina)</mark>: tiene que estar mergeado en main con la RPC
-`delete_transaction`. Si no está, pará y avisame. <mark>No crees otra RPC de baja: reusá esa.</mark>
-
-Herramientas de `.agents/`:
-- Agregás un test de base: agente `pgtap-writer`.
-- Si tocás `supabase/migrations/`: skill `supabase-postgres-best-practices` antes de escribir,
-  agente `rls-migration-reviewer` antes de commitear.
-
-Detalle: al eliminar una compra en cuotas, <mark>ninguna de sus imputaciones cuenta en ningún KPI</mark>,
-incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
-  <div class="notes">Segundo ejemplo, del 28/09. Muestra cómo el prompt encadena dependencias entre integrantes, reutiliza lo que ya existe en vez de dejar que el agente invente otra RPC, y nombra qué agente o skill usar en cada situación. El criterio de aceptación viene directo del escenario BDD de la spec.</div>
-</section>
-
-<section class="slide" id="impl-problemas">
-  <div class="section-mark">Problemas encontrados</div>
-  <h2>Lo que salió mal, y qué aprendimos</h2>
+  <h2>Dos plantillas: una para la máquina, una por issue</h2>
   <div class="grid2">
-    <div class="card"><span class="tag">ADR-016/018 → ADR-019</span><h3>Volvimos a Supabase</h3><p>Una API propia en Python sumaba despliegues, CORS y auth propia. Se revirtió.</p></div>
-    <div class="card"><span class="tag">PR #136 → #141 · DEF-003</span><h3>Una historia se perdió en un merge</h3><p>US-66 se mergeó contra una rama ya mergeada y nunca llegó a producción.</p></div>
-    <div class="card"><span class="tag">PR #85 · PR #134 · PR #108</span><h3>Trabajo en paralelo</h3><p>Un revert de rutas, dos ADR con el mismo número y un PR duplicado.</p></div>
-    <div class="card"><span class="tag">PR #161 · ADR-024</span><h3>Rediseño tardío</h3><p>Registro en pasos después de diseñar los casos: hubo que actualizar pasos y oráculos.</p></div>
+    <pre class="prompt">Quiero dejar listo mi entorno para Joaconz/Biyu.
+Leé <mark>docs/09-guia-de-inicio.md</mark> y seguila
+conmigo paso a paso, de la sección 1 a la 4.
+- Corré vos los comandos. Pará solo cuando haga
+  falta algo mío: gh auth login, Docker, credenciales.
+- En .env usá <mark>solo claves de la base LOCAL</mark>.
+  Nunca commitees .env.
+- Activá el pre-commit (.agents/hooks/git).
+- Al final corré npm test, test:db y build.</pre>
+    <pre class="prompt">Implementá el issue <mark>#NN</mark>. Solo este issue.
+1. Leé AGENTS.md, CLAUDE.md, el issue y solo
+   los docs que cita.
+2. Rama us/NN-slug. <mark>Si depende de algo que no
+   está en main, pará y avisame.</mark>
+3. Solo los criterios de aceptación. Montos con
+   Decimal, lógica en src/domain o Postgres,
+   escrituras por RPC, data-testid.
+4. Skills y agentes de .agents/ según lo que toque.
+5. npm test, test:db y build en verde. PR "Closes #NN".
+<mark>No diseñes ni ejecutes casos CP-*.</mark></pre>
   </div>
-  <div class="notes">El más instructivo es el de US-66: GitHub mostraba el PR como mergeado, pero contra una rama que ya se había mergeado 11 segundos antes, así que el código quedó huérfano. Lo detectó la ejecución de pruebas, no la implementación. También tuvimos colisiones por trabajar en paralelo, como dos ADR con el mismo número. Y el rediseño de la UI llegó después del catálogo, así que varios casos tuvieron que actualizar sus pasos.</div>
+  <div class="notes">Usamos dos plantillas. La primera prepara la máquina una sola vez: la IA sigue la guía de inicio, corre los comandos y solo nos pide lo que es nuestro, como iniciar sesión en GitHub o abrir Docker, y nunca usa claves que no sean locales. La segunda es la de cada issue: qué leer, en qué rama, qué reglas no romper, qué skill o agente usar según lo que toque, qué tests correr y qué no hacer. Lo más importante es la última línea: la IA que implementa no diseña los casos de prueba, así las pruebas salen de la spec y no del código. Con esa plantilla todos los PRs salieron con la misma forma.</div>
 </section>
 
 <!-- ============ d) CASOS ============ -->
@@ -441,46 +423,6 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
   </table></div>
   <p class="muted">68 del catálogo de V1 y 6 nuevos para US-66 y US-68. Hay 39 positivos, 19 negativos y 16 de límite; 36 son de camino feliz.</p>
   <div class="notes">El catálogo se diseñó con la skill new-test-case antes de ejecutar nada, y lo revisó spec-critic. Para esta entrega sumamos 6 casos a las dos historias que no tenían ninguno: US-66 (confirmar contraseña) y US-68 (configuración inicial).</div>
-</section>
-
-<section class="slide" id="casos-anatomia">
-  <div class="section-mark">Anatomía de un caso</div>
-  <div class="row">
-    <div style="display:grid;gap:16px">
-      <h2>CP-CUO-005</h2>
-      <p class="lead">El resto lo absorbe la última cuota</p>
-      <ul class="points">
-        <li><b>Historia:</b> US-15 · FR-10, FR-11</li>
-        <li><b>Invariante:</b> I1, la suma es exacta</li>
-        <li><b>Técnica:</b> valores límite · Prioridad Alta</li>
-      </ul>
-    </div>
-    <div class="tbl"><table>
-      <thead><tr><th>Paso</th><th>Resultado esperado</th></tr></thead>
-      <tbody>
-        <tr><td>Guardar $100.000 en 3 cuotas</td><td>$33.333,33 + $33.333,33 + <b>$33.333,34</b></td></tr>
-        <tr><td>Sumar las imputaciones</td><td>Exactamente $100.000,00</td></tr>
-      </tbody>
-    </table></div>
-  </div>
-  <div class="notes">Cada caso declara historia, invariante, técnica, tipo, prioridad, precondiciones, datos, pasos y un resultado esperado concreto. Un resultado como "el monto correcto" no alcanza: escribimos el número. Los casos negativos llevan además una variante API: el mismo ataque directo contra Supabase, salteando la UI.</div>
-</section>
-
-<section class="slide" id="casos-tabla">
-  <div class="section-mark">Técnica: tabla de decisión</div>
-  <h2>Moneda × tipo de cambio: seis casos</h2>
-  <div class="tbl"><table>
-    <thead><tr><th>Moneda</th><th>TC de referencia</th><th>TC a mano</th><th>Esperado</th></tr></thead>
-    <tbody>
-      <tr><td>ARS</td><td>—</td><td>no</td><td><span class="pill ok">Se guarda</span></td></tr>
-      <tr><td>ARS</td><td>—</td><td>sí</td><td><span class="pill bad">Rechazado (I5)</span></td></tr>
-      <tr><td>USD</td><td>existe</td><td>no</td><td><span class="pill ok">Usa la referencia</span></td></tr>
-      <tr><td>USD</td><td>existe</td><td>sí</td><td><span class="pill ok">Gana el manual</span></td></tr>
-      <tr><td>USD</td><td>no existe</td><td>no</td><td><span class="pill bad">Rechazado, pide TC</span></td></tr>
-      <tr><td>USD</td><td>no existe</td><td>sí</td><td><span class="pill ok">Usa el manual</span></td></tr>
-    </tbody>
-  </table></div>
-  <div class="notes">La fila "ARS con tipo de cambio" es la que nadie escribe si improvisa, y es un caso negativo real. CP-MON-002 recorre las seis filas por la UI, y las dos que se rechazan se prueban además directo contra la base.</div>
 </section>
 
 <!-- ============ e) REPORTE ============ -->
@@ -558,28 +500,63 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
   <div class="notes">En la pasada anterior fallaban dos criterios: el defecto crítico y un caso Alta bloqueado. Los dos se resolvieron: el NaN se corrigió y CP-REG-013 se ejecutó con un reloj simulado. Hoy solo falta decidir qué hacemos con US-68.</div>
 </section>
 
-<!-- ============ DEMO ============ -->
-<section class="slide divider" id="demo">
-  <div class="kicker">Para cerrar</div>
-  <h2>La app, en vivo</h2>
-  <ul class="points">
-    <li>Crear cuenta y ver los criterios de contraseña</li>
-    <li>Registrar un gasto en 12 cuotas con la tarjeta</li>
-    <li>Un gasto en dólares con el TC del mes</li>
-    <li>El resumen del mes y las cuotas heredadas</li>
-    <li>Eliminar una compra con cuotas en meses cerrados</li>
-  </ul>
-  <p>biyu-rust.vercel.app</p>
-  <div class="notes">Guion de 3 minutos, con montos ficticios: 1) crear una cuenta y mostrar cómo se marcan los criterios; 2) registrar $120.000 en 12 cuotas y mostrar la previsualización; 3) registrar USD 100 con el tipo de cambio sugerido; 4) ir al Resumen y moverse de mes; 5) eliminar una compra en cuotas desde un mes posterior para mostrar el aviso. Tener una cuenta de demo ya creada por si falla la red.</div>
+
+<section class="slide" id="mapa-repo">
+  <div class="section-mark">Cómo está organizado el repositorio</div>
+  <h2>Un repo, cuatro zonas</h2>
+  <div class="map">
+    <div class="zone">
+      <h3>Producto</h3>
+      <p>La app que usa la gente.</p>
+      <ul>
+        <li><span class="path">src/domain/</span><span>Reglas puras: cuotas, montos, validación. Sin reloj ni UI</span></li>
+        <li><span class="path">src/pages, src/components</span><span>Pantallas de React con data-testid</span></li>
+        <li><span class="path">supabase/migrations/</span><span>Schema, RLS y las RPC de Postgres</span></li>
+      </ul>
+    </div>
+    <div class="zone">
+      <h3>Calidad</h3>
+      <p>Lo que prueba que funciona.</p>
+      <ul>
+        <li><span class="path">tests/</span><span>Vitest: 239 tests de dominio</span></li>
+        <li><span class="path">supabase/tests/</span><span>pgTAP: 158 tests de invariantes y RLS</span></li>
+        <li><span class="path">e2e/</span><span>Prueba de humo contra el deploy</span></li>
+        <li><span class="path">.github/workflows/</span><span>CI en cada PR</span></li>
+      </ul>
+    </div>
+    <div class="zone">
+      <h3>Requerimientos</h3>
+      <p>La fuente de verdad, antes del código.</p>
+      <ul>
+        <li><span class="path">docs/00 a 11</span><span>Brief, spec, arquitectura, modelo, plan de testing, trazabilidad, catálogo</span></li>
+        <li><span class="path">docs/adr/</span><span>24 decisiones con su porqué</span></li>
+        <li><span class="path">specs/nfr/</span><span>Checklist de calidad de los NFR</span></li>
+      </ul>
+    </div>
+    <div class="zone hl">
+      <h3>Setup de IA</h3>
+      <p>Cómo trabaja el agente.</p>
+      <ul>
+        <li><span class="path">CLAUDE.md, AGENTS.md</span><span>Reglas que no se negocian</span></li>
+        <li><span class="path">.claude/agents/</span><span>7 subagentes revisores</span></li>
+        <li><span class="path">.claude/skills/</span><span>18 skills, copiadas en .agents/ para otras IA</span></li>
+        <li><span class="path">.claude/hooks/</span><span>Frenan secretos y revisan migraciones</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="muted">Y <span class="path">entrega-1/</span> junta lo que se entrega hoy: sale de estas cuatro zonas.</p>
+  <p><a class="link cta" href="https://claude.ai/artifact/EP1CktFvBU79kATwKBPN4S" target="_blank" rel="noopener">Abrir el diagrama de arquitectura</a> <span class="muted">Cómo se conectan la app, Supabase Auth, la API y Postgres, con la fuente de cada nodo.</span></p>
+  <div class="notes">El repo refleja el proceso. Requerimientos primero, en docs. Después el producto, con la lógica de negocio separada de la UI para poder probarla sola. La calidad corre en la CI con cada PR. Y el setup de IA es lo que hace que cinco personas con agentes distintos trabajen con las mismas reglas.</div>
 </section>
 
+<!-- ============ DEMO ============ -->
 <script>
 (() => {
   const slides = [...document.querySelectorAll('.slide')];
   const counter = document.getElementById('counter');
   const notesBtn = document.getElementById('toggle-notes');
   let current = 0;
-  const update = () => { counter.textContent = `${current + 1} / ${slides.length}`; };
+  const update = () => { counter.textContent = `${current + 1} / ${slides.length}`; slides.forEach((s, i) => s.classList.toggle('current', i === current)); };
   const go = (i) => { current = Math.max(0, Math.min(slides.length - 1, i)); slides[current].scrollIntoView({ block: 'start' }); update(); };
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting && e.intersectionRatio > 0.5) { current = slides.indexOf(e.target); update(); } });
@@ -600,6 +577,24 @@ incluidas las de meses ya transcurridos (escenario BDD de la spec).</pre>
     if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); go(current - 1); }
     if (e.key.toLowerCase() === 'n') toggleNotes();
   });
+  slides.forEach((sl) => {
+    const f = document.createElement('div'); f.className = 'fit';
+    [...sl.children].forEach((c) => { if (!c.classList.contains('notes')) f.appendChild(c); });
+    sl.prepend(f);
+  });
+  const fit = () => {
+    slides.forEach((sl) => {
+      const f = sl.querySelector('.fit');
+      f.style.zoom = ''; if (window.innerWidth <= 820) return;
+      f.style.flex = 'none'; const need = f.offsetHeight; f.style.flex = '';
+      const cs = getComputedStyle(sl);
+      const avail = sl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (need > avail) f.style.zoom = String(avail / need);
+    });
+  };
+  fit(); window.addEventListener('resize', fit);
+  if (document.fonts) document.fonts.ready.then(fit);
+  window.addEventListener('load', fit);
   slides.forEach((sl, i) => {
     const m = document.createElement('div'); m.className = 'slide-meta';
     m.innerHTML = '<span class="brand">biyu<span class="dot">.</span></span><span class="pg">' + (i + 1) + ' de ' + slides.length + '</span>';
