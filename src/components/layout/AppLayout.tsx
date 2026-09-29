@@ -3,7 +3,8 @@ import { Navigate, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/useMediaQuery'
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset'
 import { screenFromPath } from '@/lib/navigation'
-import { fetchSetupStatus } from '@/lib/setup'
+import { fetchSetupStatus, setupFinishedThisSession } from '@/lib/setup'
+import { shouldRedirectToSetup } from '@/lib/setupGate'
 import { AppHeader } from './AppHeader'
 import { AppNav } from './AppNav'
 
@@ -20,18 +21,16 @@ export function AppLayout() {
   const sentinel = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
   // US-68 (ADR-025): una consulta por sesión (este layout queda montado entre pestañas). Si
-  // falla, se trata como "no completado" — /setup es barato de volver a completar o saltear.
+  // falla, se entra a la app: quedar atrapado en /setup no tiene salida (DEF-022).
   const [setupPending, setSetupPending] = useState<boolean | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    fetchSetupStatus()
-      .then((s) => {
-        if (!cancelled) setSetupPending(!s.completed)
-      })
-      .catch(() => {
-        if (!cancelled) setSetupPending(true)
-      })
+    fetchSetupStatus().then((status) => {
+      if (!cancelled) {
+        setSetupPending(shouldRedirectToSetup({ status, finishedThisSession: setupFinishedThisSession() }))
+      }
+    })
     return () => {
       cancelled = true
     }

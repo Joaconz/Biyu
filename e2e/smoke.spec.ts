@@ -18,6 +18,13 @@ test('alta, gasto en 3 cuotas con tarjeta de crédito y total del mes en el dash
   await page.getByTestId('signup-form-confirm-password').fill(PASSWORD) // US-66
   await page.getByTestId('signup-form-submit').click()
 
+  // US-68 (ADR-025): la cuenta nueva pasa por el setup; salteado entero, entra a Registrar.
+  await expect(page).toHaveURL(/\/setup$/)
+  await page.getByTestId('setup-reason-skip').click()
+  await page.getByTestId('setup-categories-skip').click()
+  await page.getByTestId('setup-accounts-skip').click()
+  await page.getByTestId('setup-expense-skip').click()
+
   await expect(page).toHaveURL(/\/register$/)
   await expect(page.getByTestId('transaction-form')).toBeVisible()
 
