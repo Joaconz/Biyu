@@ -120,6 +120,16 @@ body.show-notes .notes { display: block; }
 .link { color: var(--green); font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
 .cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; margin-right: 14px; background: var(--green); color: var(--green-ink); border-radius: 8px; text-decoration: none; }
+/* Modo presentación (pantallas de compu): cada slide ocupa exactamente la ventana y su contenido
+   se achica solo si no entra, así se ve igual en una MacBook que en un monitor grande. */
+.fit { display: flex; flex-direction: column; justify-content: center; gap: 28px; min-width: 0; }
+.divider .fit { justify-content: flex-end; }
+@media (min-width: 821px) {
+  .slide { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; padding-block: clamp(64px, 9vh, 88px) clamp(68px, 9vh, 88px); }
+  .fit { flex: 1 1 auto; min-height: 0; }
+  body.show-notes .notes { display: none; }
+  body.show-notes .slide.current .notes { display: block; position: fixed; left: max(16px, 2vw); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: min(72ch, calc(100vw - 280px)); max-height: 40vh; overflow-y: auto; z-index: 9; border: 1px solid var(--hair); }
+}
 </style>
 
 <nav class="toolbar" aria-label="Controles">
@@ -546,7 +556,7 @@ conmigo paso a paso, de la sección 1 a la 4.
   const counter = document.getElementById('counter');
   const notesBtn = document.getElementById('toggle-notes');
   let current = 0;
-  const update = () => { counter.textContent = `${current + 1} / ${slides.length}`; };
+  const update = () => { counter.textContent = `${current + 1} / ${slides.length}`; slides.forEach((s, i) => s.classList.toggle('current', i === current)); };
   const go = (i) => { current = Math.max(0, Math.min(slides.length - 1, i)); slides[current].scrollIntoView({ block: 'start' }); update(); };
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting && e.intersectionRatio > 0.5) { current = slides.indexOf(e.target); update(); } });
@@ -567,6 +577,24 @@ conmigo paso a paso, de la sección 1 a la 4.
     if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); go(current - 1); }
     if (e.key.toLowerCase() === 'n') toggleNotes();
   });
+  slides.forEach((sl) => {
+    const f = document.createElement('div'); f.className = 'fit';
+    [...sl.children].forEach((c) => { if (!c.classList.contains('notes')) f.appendChild(c); });
+    sl.prepend(f);
+  });
+  const fit = () => {
+    slides.forEach((sl) => {
+      const f = sl.querySelector('.fit');
+      f.style.zoom = ''; if (window.innerWidth <= 820) return;
+      f.style.flex = 'none'; const need = f.offsetHeight; f.style.flex = '';
+      const cs = getComputedStyle(sl);
+      const avail = sl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (need > avail) f.style.zoom = String(avail / need);
+    });
+  };
+  fit(); window.addEventListener('resize', fit);
+  if (document.fonts) document.fonts.ready.then(fit);
+  window.addEventListener('load', fit);
   slides.forEach((sl, i) => {
     const m = document.createElement('div'); m.className = 'slide-meta';
     m.innerHTML = '<span class="brand">biyu<span class="dot">.</span></span><span class="pg">' + (i + 1) + ' de ' + slides.length + '</span>';
