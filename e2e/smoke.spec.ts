@@ -15,13 +15,17 @@ test('alta, gasto en 3 cuotas con tarjeta de crédito y total del mes en el dash
   await page.goto('/signup')
   await page.getByTestId('signup-form-email').fill(email)
   await page.getByTestId('signup-form-password').fill(PASSWORD)
+  await page.getByTestId('signup-form-confirm-password').fill(PASSWORD) // US-66
   await page.getByTestId('signup-form-submit').click()
 
   await expect(page).toHaveURL(/\/register$/)
   await expect(page.getByTestId('transaction-form')).toBeVisible()
 
+  // Registro en pasos (ADR-024): monto → categoría (avanza sola al tocarla) → detalles.
   await page.getByTestId('transaction-form-amount').fill(AMOUNT)
+  await page.getByTestId('transaction-form-next').click()
   await page.getByTestId('transaction-form-category-chip-comida-y-supermercado').click()
+  await expect(page.getByTestId('transaction-form-step')).toHaveAttribute('data-step', 'details')
   await page.getByTestId('transaction-form-account-chip-tarjeta-de-credito').click()
   await page.getByTestId('transaction-form-installments-chip-3').click()
   await expect(page.getByTestId('transaction-form-installments-preview-summary')).toContainText(
