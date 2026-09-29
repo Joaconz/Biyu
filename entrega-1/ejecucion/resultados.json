@@ -1,0 +1,950 @@
+{
+  "run": "mum0bycw",
+  "today": "2026-09-28",
+  "base": "http://localhost:5180",
+  "commit": "44f1519",
+  "finishedAt": "2026-09-29T01:40:29.352Z",
+  "results": [
+    {
+      "id": "CP-ACC-001",
+      "evidence": [
+        "evidencia/CP-ACC-001-login.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "URL final /login?next=%2Fregister; formulario de registro renderizado: no",
+      "ms": 668
+    },
+    {
+      "id": "CP-ACC-002",
+      "evidence": [],
+      "defects": [
+        "DEF-008"
+      ],
+      "notes": "El caso escrito pasa; el login posterior ignora el next (DEF-008 sigue reproduciéndose).",
+      "status": "PASSED",
+      "obtained": "Redirige a /login?next=%2Fsettings. Exploración: después de iniciar sesión la app terminó en /register.",
+      "ms": 1225
+    },
+    {
+      "id": "CP-ACC-003",
+      "evidence": [
+        "evidencia/CP-ACC-003-signup-completo.jpg",
+        "evidencia/CP-ACC-003-post-signup.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Cuenta creada; URL /register; sesión en localStorage: sí.",
+      "ms": 2027
+    },
+    {
+      "id": "CP-ACC-004",
+      "evidence": [
+        "evidencia/CP-ACC-004-criterios.jpg"
+      ],
+      "defects": [
+        "DEF-005"
+      ],
+      "notes": "La UI rechaza (a)–(d) con el criterio que falta y acepta (e). El servidor (Supabase Auth, mínimo 6 caracteres) acepta la contraseña débil: falla la parte \"validado en el servidor\" de FR-01.",
+      "status": "FAILED",
+      "obtained": "(a) abc1234 → rechazada: \"Falta que la contraseña cumpla: 8 caracteres, una mayúscula, un carácter especial (!@#$%^&*...).\"\n(b) abcdefgh → rechazada: \"Falta que la contraseña cumpla: una mayúscula, un número, un carácter especial (!@#$%^&*...).\"\n(c) 12345678 → rechazada: \"Falta que la contraseña cumpla: una mayúscula, una minúscula, un carácter especial (!@#$%^&*...).\"\n(d) abcd1234 → rechazada: \"Falta que la contraseña cumpla: una mayúscula, un carácter especial (!@#$%^&*...).\"\n(e) Abcd123! → cuenta creada\nVariante API: POST /auth/v1/signup con abcd1234 → aceptada (devuelve sesión)",
+      "ms": 7739
+    },
+    {
+      "id": "CP-ACC-005",
+      "evidence": [
+        "evidencia/CP-ACC-005-email-repetido.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "UI: \"Ya existe una cuenta con ese email\". Cuentas con ese email: 1. API: código user_already_exists.",
+      "ms": 872
+    },
+    {
+      "id": "CP-ACC-006",
+      "evidence": [
+        "evidencia/CP-ACC-006-credenciales-invalidas.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Login: \"Email o contraseña incorrectos\". Al pasar a /signup el error no persiste.",
+      "ms": 775
+    },
+    {
+      "id": "CP-ACC-007",
+      "evidence": [
+        "evidencia/CP-ACC-007-confirmar-email.jpg"
+      ],
+      "defects": [],
+      "notes": "Respuesta sin sesión simulada interceptando /auth/v1/signup con Playwright (el caso es hipotético: el proyecto no tiene confirmación de email).",
+      "status": "PASSED",
+      "obtained": "Mensaje: \"Te creamos la cuenta, pero hace falta confirmar el email antes de entrar. Revisá tu casilla.\". URL: /signup.",
+      "ms": 731
+    },
+    {
+      "id": "CP-ACC-008",
+      "evidence": [
+        "evidencia/CP-ACC-008-siembra.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Ajustes muestra 8 categorías y 5 cuentas; en la base hay 8 y 5.",
+      "ms": 1214
+    },
+    {
+      "id": "CP-ACC-009",
+      "evidence": [
+        "evidencia/CP-ACC-009-logout.jpg"
+      ],
+      "defects": [],
+      "notes": "Con el rediseño (ADR-023) \"Cerrar sesión\" vive en Ajustes, que se abre desde el header de cada pantalla; el paso 1 se ejecutó por ese camino.",
+      "status": "PASSED",
+      "obtained": "Desde /register → Ajustes → Cerrar sesión: /login; \"atrás\" queda en /login?next=%2Fregister; sesión en storage: no\nDesde /dashboard → Ajustes → Cerrar sesión: /login; \"atrás\" queda en /login?next=%2Fdashboard%3Fperiod%3D2026-09; sesión en storage: no\nDesde /transactions → Ajustes → Cerrar sesión: /login; \"atrás\" queda en /login?next=%2Ftransactions%3Fperiod%3D2026-09; sesión en storage: no",
+      "ms": 3798
+    },
+    {
+      "id": "CP-ACC-010",
+      "evidence": [],
+      "defects": [],
+      "notes": "El plazo de inactividad (configuración de Supabase Auth) queda fuera del caso, como dice el catálogo.",
+      "status": "PASSED",
+      "obtained": "Tras F5: /register. Navegador nuevo con el mismo almacenamiento: /register (formulario visible: sí).",
+      "ms": 2432
+    },
+    {
+      "id": "CP-ACC-011",
+      "evidence": [],
+      "defects": [],
+      "notes": "Ejecutado por API con dos sesiones reales; también cubierto por supabase/tests/database/rls_isolation.test.sql (verde en esta corrida).",
+      "status": "PASSED",
+      "obtained": "categories: B ve 0 filas de A; anon → 42501\naccounts: B ve 0 filas de A; anon → 42501\nfx_rates: B ve 0 filas de A; anon → 42501\ntransactions: B ve 0 filas de A; anon → 42501\nledger_entries: B ve 0 filas de A; anon → 42501\ndebts: B ve 0 filas de A; anon → 42501\nsubscriptions: B ve 0 filas de A; anon → 42501",
+      "ms": 53
+    },
+    {
+      "id": "CP-ACC-012",
+      "evidence": [
+        "evidencia/CP-ACC-012-no-coinciden.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Mensaje: \"Las contraseñas no son iguales\". Campo enmascarado: sí. Cuenta creada: no.",
+      "ms": 756
+    },
+    {
+      "id": "CP-CFG-001",
+      "evidence": [
+        "evidencia/CP-CFG-001-categoria-creada.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Aparece \"Mascotas\" en el listado; en la base: Mascotas|#4a7a6d (color elegido #4a7a6d).",
+      "ms": 790
+    },
+    {
+      "id": "CP-CFG-002",
+      "evidence": [
+        "evidencia/CP-CFG-002-categoria-editada.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Filas antes/después: 9/9. Fila editada: Comida|#9a3b3b.",
+      "ms": 741
+    },
+    {
+      "id": "CP-CFG-003",
+      "evidence": [
+        "evidencia/CP-CFG-003-duplicada.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "UI: \"Ya existe una categoría activa con ese nombre\". API insert directo: 23505.",
+      "ms": 588
+    },
+    {
+      "id": "CP-CFG-004",
+      "evidence": [
+        "evidencia/CP-CFG-004-historial.jpg"
+      ],
+      "defects": [
+        "DEF-006"
+      ],
+      "notes": "",
+      "status": "FAILED",
+      "obtained": "Listado activo la muestra: no. Chip en el registro: no. category_id intacto en la base (Entretenimiento|true). En /transactions el gasto \"Cine\" NO tiene marca de archivada.",
+      "ms": 1432
+    },
+    {
+      "id": "CP-REG-005",
+      "evidence": [
+        "evidencia/CP-REG-005-grilla-sin-archivada.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Chip \"Salidas\" en la grilla: no. API con la categoría archivada: \"la categoría no existe, no es tuya o está archivada\".",
+      "ms": 1322
+    },
+    {
+      "id": "CP-CFG-005",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Error mostrado: ninguno. Filas \"Salidas\" activas|archivadas: 1|1.",
+      "ms": 1112
+    },
+    {
+      "id": "CP-CFG-006",
+      "evidence": [
+        "evidencia/CP-CFG-006-cuenta-creada.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Tipo preseleccionado: Tarjeta de crédito▼. Fila: \"Visa BBVATarjeta de crédito\". Base: credit_card|ARS. Con Visa BBVA el registro ofrece cuotas: sí.",
+      "ms": 1691
+    },
+    {
+      "id": "CP-CFG-007",
+      "evidence": [
+        "evidencia/CP-CFG-007-cuenta-duplicada.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "UI: \"Ya existe una cuenta activa con ese nombre\". API insert directo: 23505 duplicate key value violates unique constraint \"accounts_user_name_active_uq\".",
+      "ms": 577
+    },
+    {
+      "id": "CP-CFG-008",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Dos pestañas cargando /register en paralelo sobre una cuenta sin sembrar. Categorías|cuentas resultantes: 8|5.",
+      "ms": 2138
+    },
+    {
+      "id": "CP-CFG-009",
+      "evidence": [
+        "evidencia/CP-CFG-009-tc-referencia.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Primera carga: 1250.0000. Tras la segunda: 1|1300.0000 (filas|valor). Lista: \"septiembre 2026$ 1.300,00\".",
+      "ms": 2260
+    },
+    {
+      "id": "CP-CFG-010",
+      "evidence": [
+        "evidencia/CP-CFG-010-tc-invalido.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "0 → rechazado: \"El tipo de cambio debe ser mayor a cero\"\n-100 → rechazado: \"El tipo de cambio debe ser mayor a cero\"\n0,01 → aceptado (base: 0.0100)\nAPI 0: upsert directo → 42501 permission denied for table fx_rates; RPC upsert_fx_rate → 23514 el tipo de cambio debe ser mayor a cero\nAPI -100: upsert directo → 42501 permission denied for table fx_rates; RPC upsert_fx_rate → 23514 el tipo de cambio debe ser mayor a cero",
+      "ms": 3734
+    },
+    {
+      "id": "CP-REG-001",
+      "evidence": [
+        "evidencia/CP-REG-001-registro-inicio.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Abrir / con sesión termina en /register, con el paso del monto visible.",
+      "ms": 521
+    },
+    {
+      "id": "CP-REG-002",
+      "evidence": [
+        "evidencia/CP-REG-002-fecha-hoy.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Fecha precargada: 2026-09-28 (hoy según el reloj de la corrida: 2026-09-28).",
+      "ms": 1104
+    },
+    {
+      "id": "CP-REG-003",
+      "evidence": [
+        "evidencia/CP-REG-003-valores-por-defecto.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Gasto seleccionado: true. ARS seleccionado: true.",
+      "ms": 499
+    },
+    {
+      "id": "CP-REG-016",
+      "evidence": [],
+      "defects": [],
+      "notes": "Ejecutado en Chromium con emulación móvil (390×844, touch). Que el sistema operativo abra el teclado numérico no se puede observar en un navegador emulado: se verificó la condición que lo provoca (foco automático + inputmode decimal). Confirmar en un celular real antes de la demo.",
+      "status": "PASSED",
+      "obtained": "Elemento con foco al abrir: transaction-form-amount; inputmode=\"decimal\".",
+      "ms": 94
+    },
+    {
+      "id": "CP-REG-004",
+      "evidence": [
+        "evidencia/CP-REG-004-grilla-categorias.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Tocar el chip avanzó solo a detalles. Categoría guardada: Transporte. Selects en el paso: 0.",
+      "ms": 892
+    },
+    {
+      "id": "CP-REG-006",
+      "evidence": [
+        "evidencia/CP-REG-006-cuenta-precargada.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Al volver a abrir el registro, \"Visa BBVA\" viene seleccionada: true.",
+      "ms": 2239
+    },
+    {
+      "id": "CP-REG-007",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Guardado sin nota. description en la base: NULL.",
+      "ms": 1169
+    },
+    {
+      "id": "CP-REG-008",
+      "evidence": [
+        "evidencia/CP-REG-008-fecha-futura.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Ayer (2026-09-27) → guardado: sí. Mañana (2026-09-29) → mensaje \"La fecha no puede ser futura\", Guardar deshabilitado: true. API con fecha futura: \"FR-06: la fecha no puede ser posterior a hoy\".",
+      "ms": 3790
+    },
+    {
+      "id": "CP-REG-009",
+      "evidence": [
+        "evidencia/CP-REG-009-post-guardado.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Toast \"Gasto guardado\": sí. Vuelve al paso del monto con el monto vacío: sí. Conserva la última cuenta: true.",
+      "ms": 3797
+    },
+    {
+      "id": "CP-REG-010",
+      "evidence": [
+        "evidencia/CP-REG-010-monto-negativo.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "\"vacío\" → Siguiente deshabilitado: true\n\"0\" → Siguiente deshabilitado: true\n\"-500\" → Siguiente deshabilitado: true\n\"0,01\" → guardado con amount=0.01\nAPI p_amount=0 → 23514 \"I4: el monto debe ser mayor a cero\"\nAPI p_amount=-5 → 23514 \"I4: el monto debe ser mayor a cero\"",
+      "ms": 1714
+    },
+    {
+      "id": "CP-REG-011",
+      "evidence": [
+        "evidencia/CP-REG-011-tres-decimales.jpg"
+      ],
+      "defects": [],
+      "notes": "La ambigüedad 2 del catálogo queda resuelta: el servidor también rechaza más de 2 decimales (no trunca en silencio).",
+      "status": "PASSED",
+      "obtained": "Mensaje: \"El monto admite hasta 2 decimales\". Siguiente deshabilitado: true. API con 100.999: rechazado \"I4: el monto admite hasta 2 decimales\".",
+      "ms": 825
+    },
+    {
+      "id": "CP-REG-012",
+      "evidence": [
+        "evidencia/CP-REG-012-confirmar-borrado.jpg",
+        "evidencia/CP-REG-012-historial-post-borrado.jpg"
+      ],
+      "defects": [
+        "DEF-007"
+      ],
+      "notes": "El resultado esperado del caso se cumple (soft delete y total). FR-08 pide además que quede visible en el historial con marca de eliminada: no ocurre (DEF-007).",
+      "status": "PASSED",
+      "obtained": "Total del mes antes $70.233,01 → después $20.233,01. deleted_at completado: true. En el historial (/transactions) el gasto desaparece (sin marca de eliminada).",
+      "ms": 3727
+    },
+    {
+      "id": "CP-REG-013",
+      "evidence": [
+        "evidencia/CP-REG-013-aviso-meses-cerrados.jpg"
+      ],
+      "defects": [],
+      "notes": "En la corrida anterior (#75) quedó bloqueado por no poder fijar \"hoy\". Acá se fijó el reloj del navegador en 2026-10-15 con page.clock de Playwright; el servidor sigue con la fecha real, que no interviene en el borrado.",
+      "status": "PASSED",
+      "obtained": "Aviso: \"Aviso: Esta transacción tiene imputaciones en meses ya cerrados. Si la eliminás, van a cambiar los siguientes totales:\"\nDetalle: 2026-08 (cuota 1)-$10.000,002026-09 (cuota 2)-$10.000,00Total meses cerrados:-$20.000,00\nDashboard 2026-08 tras confirmar: vacío (la cuota ya no cuenta)\nDashboard 2026-09 tras confirmar: vacío (la cuota ya no cuenta)\nImputaciones que siguen contando: 0",
+      "ms": 3176
+    },
+    {
+      "id": "CP-REG-014",
+      "evidence": [],
+      "defects": [],
+      "notes": "Ejecutado por API con dos sesiones reales; también cubierto por supabase/tests/database/rls_isolation.test.sql (verde en esta corrida).",
+      "status": "PASSED",
+      "obtained": "B lee la transacción ee9d22bd… de A: 0 filas. B intenta borrarla: \"la transacción no existe, ya fue eliminada o no te pertenece\". Sigue activa para A: true.",
+      "ms": 97
+    },
+    {
+      "id": "CP-REG-015",
+      "evidence": [],
+      "defects": [],
+      "notes": "También cubierto por supabase/tests/database/rls_isolation.test.sql (verde en esta corrida).",
+      "status": "PASSED",
+      "obtained": "Insert directo a transactions: 42501 \"permission denied for table transactions\". A ledger_entries: 42501.",
+      "ms": 14
+    },
+    {
+      "id": "CP-CUO-001",
+      "evidence": [
+        "evidencia/CP-CUO-001-doce-cuotas.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "12 imputaciones; números 1,2,3,4,5,6,7,8,9,10,11,12; períodos 2026-09 … 2027-08 consecutivos: sí.",
+      "ms": 1661
+    },
+    {
+      "id": "CP-CUO-002",
+      "evidence": [
+        "evidencia/CP-CUO-002-previsualizacion.jpg"
+      ],
+      "defects": [],
+      "notes": "Contenido equivalente al esperado; cambia solo el formato (\"$10.000,00\" y \"ago 2026 a jul 2027\" en lugar de \"$10.000\" y \"2026-08 a 2027-07\") por el rediseño (ADR-023). Oráculo a actualizar en el catálogo, no es defecto.",
+      "status": "PASSED",
+      "obtained": "Antes de Guardar se muestra: \"12 cuotas de $10.000,00 · de ago 2026 a jul 2027\". Transacciones guardadas con esa fecha: 0.",
+      "ms": 1594
+    },
+    {
+      "id": "CP-CUO-003",
+      "evidence": [
+        "evidencia/CP-CUO-003-reset-cuotas.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Con Efectivo el selector desaparece; aviso \"Las cuotas volvieron a 1\": sí; al volver a Visa queda en 1: true. API 6 cuotas con cuenta cash: \"I6: las cuotas solo aplican a gastos con cuenta credit_card\".",
+      "ms": 2033
+    },
+    {
+      "id": "CP-CUO-004",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "12 imputaciones de 10000.00. Suma amount|amount_ars = 120000.00|120000.00.",
+      "ms": 93
+    },
+    {
+      "id": "CP-CUO-005",
+      "evidence": [
+        "evidencia/CP-CUO-005-resto-ultima-cuota.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Cuotas: 33333.33 + 33333.33 + 33333.34 = 100000.00.",
+      "ms": 1613
+    },
+    {
+      "id": "CP-CUO-006",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "UI: la grilla ofrece 1,2,3,4,5,6,7,8,9,10,11,12 (no hay forma de elegir 0 ni 13).\nAPI 0 cuotas → rechazado \"las cuotas van de 1 a 12\"\nAPI 1 cuotas → aceptado\nAPI 2 cuotas → aceptado\nAPI 12 cuotas → aceptado\nAPI 13 cuotas → rechazado \"las cuotas van de 1 a 12\"",
+      "ms": 1116
+    },
+    {
+      "id": "CP-CUO-007",
+      "evidence": [
+        "evidencia/CP-CUO-007-cuotas-heredadas.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Dashboard 2026-09 de un usuario con solo la compra de agosto (12 × $10.000): total $10.000,00, cuotas de meses anteriores $10.000,00.",
+      "ms": 898
+    },
+    {
+      "id": "CP-CUO-008",
+      "evidence": [
+        "evidencia/CP-CUO-008-numero-de-cuota.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "En el listado de 2026-10 la imputación muestra \"3/12\".",
+      "ms": 496
+    },
+    {
+      "id": "CP-CUO-009",
+      "evidence": [],
+      "defects": [],
+      "notes": "No existe opción de borrar una cuota individual: el único botón elimina la compra entera.",
+      "status": "PASSED",
+      "obtained": "Imputaciones que cuentan antes: 12; después: 0. En 2027-03 (cuota futura) ya no aparece: sí.",
+      "ms": 374
+    },
+    {
+      "id": "CP-CUO-010",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "transactions.amount_ars = 125055.55; imputaciones 41685.18 + 41685.18 + 41685.19 = 125055.55.",
+      "ms": 1808
+    },
+    {
+      "id": "CP-CUO-011",
+      "evidence": [],
+      "defects": [],
+      "notes": "Ejecutado por API con dos sesiones reales; también cubierto por supabase/tests/database/rls_isolation.test.sql (verde en esta corrida).",
+      "status": "PASSED",
+      "obtained": "B consulta ledger_entries de la compra en cuotas 8e08e2ae… de A: 0 filas.",
+      "ms": 53
+    },
+    {
+      "id": "CP-CUO-012",
+      "evidence": [
+        "evidencia/CP-CUO-012-ingreso-sin-cuotas.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Ingreso con Visa BBVA: selector de cuotas oculto. API ingreso en 3 cuotas: \"I6: las cuotas solo aplican a gastos con cuenta credit_card\".",
+      "ms": 1289
+    },
+    {
+      "id": "CP-CUO-013",
+      "evidence": [],
+      "defects": [],
+      "notes": "El fallo a mitad de camino se forzó con datos válidos para las primeras validaciones: la excepción ocurre después del INSERT en transactions y todo se revierte (C4).",
+      "status": "PASSED",
+      "obtained": "create_transaction($0,02 en 3 cuotas) inserta la transacción y lanza \"I4: cada cuota debe ser al menos 0,01\" antes de las imputaciones. Filas transactions|ledger_entries antes 13|38, después 13|38.",
+      "ms": 111
+    },
+    {
+      "id": "CP-MON-002",
+      "evidence": [
+        "evidencia/CP-MON-002-fila5-sin-tc.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Fila 5 (USD, sin referencia, sin TC): aviso \"No tenés un tipo de cambio configurado\", Siguiente deshabilitado: true\nFila 5 por API: rechazada \"I5: fx_rate es obligatorio si y solo si la moneda es USD\"\nFila 6 (USD, sin referencia, TC 1300): guardada con fx_rate 1300.0000\nFila 1 (ARS, sin TC): guardada, fx_rate NULL\nFila 2 (ARS con TC): la UI no ofrece el campo en ARS (no lo muestra); por API → rechazada \"I5: fx_rate es obligatorio si y solo si la moneda es USD\"\nFila 3 (USD, referencia 1250, sin override): guardada con fx_rate|amount_ars 1250.0000|125000.00\nFila 4 (USD, referencia 1250, override 1300): guardada con fx_rate 1300.0000",
+      "ms": 7602
+    },
+    {
+      "id": "CP-MON-001",
+      "evidence": [
+        "evidencia/CP-MON-001-usd-tc-sugerido.jpg"
+      ],
+      "defects": [],
+      "notes": "Ejecutado dentro de la secuencia de CP-MON-002 (fila 3), con la referencia del mes en 1250.",
+      "status": "PASSED",
+      "obtained": "USD 100 guardado sin tocar el TC: fx_rate|amount_ars = 1250.0000|125000.00.",
+      "ms": 40
+    },
+    {
+      "id": "CP-MON-003",
+      "evidence": [
+        "evidencia/CP-MON-003-tc-sugerido.jpg",
+        "evidencia/CP-MON-003-tc-pisado.jpg"
+      ],
+      "defects": [
+        "DEF-020"
+      ],
+      "notes": "Re-ejecutado en la corrida mum0fi8l: en la corrida mum0bycw había dado FAILED por un error del runner (leía \"1250.0000\" con el parser de formato argentino como 12.500.000), no de la app. El valor sugerido se muestra como \"1250.0000\" (formato de la base, con punto y 4 decimales) en lugar del formato argentino que usa el resto de la app.",
+      "status": "PASSED",
+      "obtained": "TC sugerido: \"1250.0000\". Al pisarlo: \"Estás usando un valor distinto al de referencia. Se aplica solo a esta transacción.\". Guardado con fx_rate 1300.0000.",
+      "ms": 2934
+    },
+    {
+      "id": "CP-MON-004",
+      "evidence": [
+        "evidencia/CP-MON-004-tc-congelado.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Referencia del mes ahora 1400.0000. La transacción sigue en fx_rate|amount_ars 1250.0000|125000.00. Total del dashboard antes $606.685,18, después $606.685,18.",
+      "ms": 2503
+    },
+    {
+      "id": "CP-MON-005",
+      "evidence": [
+        "evidencia/CP-MON-005-total-ars.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Con $50.000 ARS y USD 100 a 1250 en el mes, el total es $175.000,00.",
+      "ms": 885
+    },
+    {
+      "id": "CP-MON-006",
+      "evidence": [
+        "evidencia/CP-MON-005-total-ars.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Debajo del total: \"Incluye US$100,00 en dólares\".",
+      "ms": 436
+    },
+    {
+      "id": "CP-MON-007",
+      "evidence": [],
+      "defects": [],
+      "notes": "Ejecutado por API con dos sesiones reales; también cubierto por supabase/tests/database/rls_isolation.test.sql (verde en esta corrida).",
+      "status": "PASSED",
+      "obtained": "B lee fx_rates de A: 0 filas. B hace update: 0 filas afectadas. El TC de A sigue en 1300.0000.",
+      "ms": 92
+    },
+    {
+      "id": "CP-DAS-001",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Sin tocar el selector: período 2026-09, URL /dashboard?period=2026-09, total $175.000,00.",
+      "ms": 623
+    },
+    {
+      "id": "CP-DAS-002",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Tras dos toques en \"→\": /dashboard?period=2026-11.",
+      "ms": 907
+    },
+    {
+      "id": "CP-DAS-003",
+      "evidence": [],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "/dashboard?period=fecha-invalida → /dashboard?period=2026-09; error visible: no\n/dashboard → /dashboard?period=2026-09; error visible: no",
+      "ms": 1031
+    },
+    {
+      "id": "CP-DAS-004",
+      "evidence": [
+        "evidencia/CP-DAS-004-barras-categoria.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Barras: Salud$70.000,0046,7 % | Comida y supermercado$50.000,0033,3 % | Transporte$30.000,0020,0 %. Orden: Salud > Comida > Transporte.",
+      "ms": 868
+    },
+    {
+      "id": "CP-DAS-005",
+      "evidence": [
+        "evidencia/CP-DAS-004-barras-categoria.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Por cuenta: Efectivo$120.000,0080,0 % | Tarjeta de débito$30.000,0020,0 % (esperado Efectivo $120.000 = 50.000 + 70.000, Tarjeta de débito $30.000).",
+      "ms": 407
+    },
+    {
+      "id": "CP-DAS-006",
+      "evidence": [
+        "evidencia/CP-DAS-006-ingresos-balance.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Ingresos $200.000,00; balance $50.000,00 (Superávit).",
+      "ms": 827
+    },
+    {
+      "id": "CP-DAS-007",
+      "evidence": [
+        "evidencia/CP-DAS-007-balance-negativo.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Balance -$150.000,00, con etiqueta \"Déficit\".",
+      "ms": 875
+    },
+    {
+      "id": "CP-DAS-008",
+      "evidence": [
+        "evidencia/CP-DAS-008-ultimas-10.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Con 15 transacciones en el mes, el dashboard muestra 10; \"Ver todos\" lleva a /transactions?period=2026-09 con 15.",
+      "ms": 1126
+    },
+    {
+      "id": "CP-DAS-009",
+      "evidence": [
+        "evidencia/CP-DAS-009-dias-con-registro.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Diciembre 2026, solo la cuota 5/12 heredada (total $10.000,00): días con registro = 0.",
+      "ms": 820
+    },
+    {
+      "id": "CP-DAS-010",
+      "evidence": [
+        "evidencia/CP-DAS-010-estado-vacio.jpg"
+      ],
+      "defects": [],
+      "notes": "",
+      "status": "PASSED",
+      "obtained": "Estado vacío: \"No tenés movimientos registrados en mayo.\"; el botón lleva a /register.",
+      "ms": 851
+    },
+    {
+      "id": "CP-DAS-011",
+      "evidence": [],
+      "defects": [],
+      "notes": "Ejecutado por API con dos sesiones reales; también cubierto por supabase/tests/database/rls_isolation.test.sql (verde en esta corrida).",
+      "status": "PASSED",
+      "obtained": "Consultas del dashboard con la sesión de B filtrando por A: 0 filas; sin filtro, filas ajenas: 0.",
+      "ms": 12
+    },
+    {
+      "id": "CP-CFG-011",
+      "evidence": [
+        "evidencia/CP-CFG-011-sin-setup.jpg"
+      ],
+      "defects": [
+        "DEF-017"
+      ],
+      "notes": "",
+      "status": "FAILED",
+      "obtained": "Después de crear la cuenta la app va directo a /register. Elementos con data-testid \"setup-\": 0. No aparece ninguna configuración inicial.",
+      "ms": 1875
+    },
+    {
+      "id": "CP-CFG-012",
+      "evidence": [],
+      "defects": [
+        "DEF-017"
+      ],
+      "notes": "",
+      "status": "BLOCKED",
+      "obtained": "No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.",
+      "ms": 0
+    },
+    {
+      "id": "CP-CFG-013",
+      "evidence": [],
+      "defects": [
+        "DEF-017"
+      ],
+      "notes": "",
+      "status": "BLOCKED",
+      "obtained": "No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.",
+      "ms": 1
+    },
+    {
+      "id": "CP-CFG-014",
+      "evidence": [],
+      "defects": [
+        "DEF-017"
+      ],
+      "notes": "",
+      "status": "BLOCKED",
+      "obtained": "No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.",
+      "ms": 0
+    },
+    {
+      "id": "CP-CFG-015",
+      "evidence": [],
+      "defects": [
+        "DEF-017"
+      ],
+      "notes": "",
+      "status": "BLOCKED",
+      "obtained": "No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.",
+      "ms": 0
+    }
+  ],
+  "retests": [
+    {
+      "id": "DEF-001",
+      "reproduce": false,
+      "obtained": "Body: \"biyu. Esta página no existe Revisá la dirección o volvé a la app. Volver a Biyu\"",
+      "evidence": [
+        "evidencia/DEF-001-ruta-inexistente.jpg"
+      ]
+    },
+    {
+      "id": "DEF-002",
+      "reproduce": false,
+      "obtained": "title=\"Biyu\", lang=\"es-AR\""
+    },
+    {
+      "id": "DEF-003",
+      "reproduce": false,
+      "obtained": "El formulario de /signup local (main 44f1519) tiene \"Confirmar contraseña\". Producción no se verificó en esta corrida."
+    },
+    {
+      "id": "DEF-004",
+      "reproduce": false,
+      "obtained": "create_transaction(p_amount='NaN') → rechazado \"I4: el monto debe ser mayor a cero\". Dashboard: \"(sin total)\".",
+      "evidence": [
+        "evidencia/DEF-004-nan-dashboard.jpg"
+      ]
+    },
+    {
+      "id": "DEF-005",
+      "reproduce": true,
+      "obtained": "Ver CP-ACC-004, variante API."
+    },
+    {
+      "id": "DEF-006",
+      "reproduce": true,
+      "obtained": "Ver CP-CFG-004."
+    },
+    {
+      "id": "DEF-007",
+      "reproduce": true,
+      "obtained": "Ver CP-REG-012."
+    },
+    {
+      "id": "DEF-008",
+      "reproduce": true,
+      "obtained": "Login desde /login?next=/dashboard?period=2026-06 termina en /register."
+    },
+    {
+      "id": "DEF-009",
+      "reproduce": true,
+      "obtained": "PATCH accounts.type=cash sobre Visa BBVA → aceptado; quedan 4 compras en cuotas sobre una cuenta que ya no es de crédito (I6)."
+    },
+    {
+      "id": "DEF-010",
+      "reproduce": true,
+      "obtained": "Tras archivar las 8 y abrir /register: activas|total = 8|16."
+    },
+    {
+      "id": "DEF-011",
+      "reproduce": true,
+      "obtained": "Botones de acción en la lista de cuentas: 0."
+    },
+    {
+      "id": "DEF-012",
+      "reproduce": true,
+      "obtained": "Monto 1000000000000: Siguiente habilitado true; al guardar: \"No se pudo guardar numeric field overflow\".",
+      "evidence": [
+        "evidencia/DEF-012-monto-extremo.jpg"
+      ]
+    },
+    {
+      "id": "DEF-013",
+      "reproduce": true,
+      "obtained": "Guardar deshabilitado: true. Texto visible: \"Completá cuotas para guardar\". El motivo real (\"cada cuota daría menos de 0,01\") no se muestra.",
+      "evidence": [
+        "evidencia/DEF-013-usd-minimo.jpg"
+      ]
+    },
+    {
+      "id": "DEF-014",
+      "reproduce": true,
+      "obtained": "\"No se pudo cargar el resumen: date/time field value out of range: \"0000-01-01\"\"",
+      "evidence": [
+        "evidencia/DEF-014-periodo-0000.jpg"
+      ]
+    },
+    {
+      "id": "DEF-015",
+      "reproduce": true,
+      "obtained": "Botones de la paleta sin data-testid: 10."
+    },
+    {
+      "id": "DEF-016",
+      "reproduce": true,
+      "obtained": "Insert de una deuda válida → 42501 \"permission denied for table transactions\". (re-test repetido en la corrida mum0fi8l: el primero omitía la columna obligatoria incurred_on y devolvía 23502)"
+    },
+    {
+      "id": "EXP-01 · TC con 5 decimales en el registro",
+      "reproduce": true,
+      "obtained": "El formulario acepta 1250,55555 sin aviso; en la base queda fx_rate|amount_ars = 1250.5556|125055.56."
+    },
+    {
+      "id": "EXP-02 · Categoría duplicada cambiando mayúsculas",
+      "reproduce": true,
+      "obtained": "Crear \"salud\" con \"Salud\" activa → aceptado; activas: salud, Salud.",
+      "evidence": [
+        "evidencia/EXP-02-salud-duplicada.jpg"
+      ]
+    },
+    {
+      "id": "EXP-03 · Nombre de categoría de 300 caracteres",
+      "reproduce": false,
+      "obtained": "300 caracteres → aceptado (largo máximo guardado 300). La spec no fija un máximo: se registra como observación, no como defecto."
+    },
+    {
+      "id": "EXP-04 · Script en el nombre de una categoría",
+      "reproduce": false,
+      "obtained": "Se guardó como texto y se muestra escapado; se ejecutó script: no."
+    },
+    {
+      "id": "EXP-05 · Fecha muy antigua (0001-01-01)",
+      "reproduce": true,
+      "obtained": "API occurred_on=0001-01-01 → aceptado. UI con 1900-01-01: Guardar habilitado. La spec no fija una fecha mínima: observación, no defecto."
+    },
+    {
+      "id": "EXP-06 · Monto con exponente (1e5)",
+      "reproduce": false,
+      "obtained": "\"1e5\" → Siguiente deshabilitado (no se interpreta como 100.000)."
+    },
+    {
+      "id": "EXP-07 · Monto \"1.500\" (miles con punto)",
+      "reproduce": false,
+      "obtained": "\"1.500\" se resume como \"$1.500,00, cambiar monto\"."
+    },
+    {
+      "id": "EXP-08 · Doble toque en Guardar",
+      "reproduce": false,
+      "obtained": "Transacciones creadas por un doble toque: 1."
+    }
+  ],
+  "reruns": [
+    {
+      "run": "mum0fi8l",
+      "ids": [
+        "CP-MON-002",
+        "CP-MON-003",
+        "DEF-003",
+        "DEF-016"
+      ],
+      "motivo": "Corrección del runner (parser del TC sugerido e insert de deuda sin incurred_on)"
+    }
+  ]
+}

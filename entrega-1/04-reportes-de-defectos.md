@@ -1,0 +1,576 @@
+# Proyecto Biyu – Entrega 1 · Reportes de defectos (V1)
+
+Planilla: `04-reportes-de-defectos.xlsx` (una hoja por defecto, formato "Defect report" de la cátedra). Cada defecto existe también como issue en GitHub con la etiqueta `bug`, salvo los nuevos de esta entrega, que quedan listos para cargar.
+
+Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severidad la fija quien reporta; **prioridad la fija el PO** (la que figura acá es la sugerida por quien reportó).
+
+## Resumen
+
+| ID | Título | Severidad | Prioridad sugerida | Estado | Caso | Historia |
+|---|---|---|---|---|---|---|
+| DEF-001 | Ruta inexistente muestra el error crudo del router, sin salida a la app | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-48 · La app pide login (navegación) |
+| DEF-002 | <html lang="en"> y título de pestaña "scaffold" en toda la app | Baja | A definir por el PO | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) | — (ataque libre) | Transversal (NFR-06, accesibilidad) |
+| DEF-003 | US-66 (confirmar contraseña) nunca llegó a producción por un error de merge | Media | A definir por el PO | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) | — (ataque libre; US-66 no tenía caso propio en el catálogo) | US-66 · Confirmar contraseña al registrarse |
+| DEF-004 | NaN como monto se guarda y rompe el dashboard ("$NaN,undefined") | Crítica | A definir por el PO (sugerida: Alta dado que integridad de datos es I4) | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-11 · No se puede guardar monto cero o negativo |
+| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
+| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
+| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
+| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-ACC-002 | US-48 · La app pide login |
+| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
+| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
+| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
+| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite, I4/C6) | US-11 · Validación del monto |
+| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite) | US-19 · Registrar un gasto en USD |
+| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
+| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
+| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
+| DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Abierto · nuevo en la Entrega 1 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
+| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
+| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
+| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
+
+**Abiertos por severidad:** Crítica: 0 · Alta: 1 · Media: 8 · Baja: 9 · Total abiertos: 18.
+
+## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
+
+| Campo | Contenido |
+|---|---|
+| Estado | Cerrado · confirmado corregido el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución adversarial de #75 (ataque libre, fuera del catálogo escrito). |
+| Caso de prueba | — (ataque libre) |
+| Historia | US-48 · La app pide login (navegación) |
+| Issue | #142 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Producción https://biyu-rust.vercel.app, navegador Chromium, Windows 11, 2026-09-28 |
+
+Ruta inexistente muestra el error crudo del router, sin salida a la app.
+
+**Pasos para reproducir**
+
+1. Sin sesión (o con sesión), abrir https://biyu-rust.vercel.app/no-existe-esta-ruta
+
+**Resultado esperado.** Una pantalla de "no encontrado" propia en español con un camino de vuelta a la app, o redirección a /
+
+**Resultado obtenido.** El body muestra textualmente "Unexpected Application Error!\n404 Not Found" — la pantalla de error por defecto de React Router. Sin header de Biyu, sin link a /register o /login, sin redirección
+
+**Evidencia.** document.body.innerText = "Unexpected Application Error!\n404 Not Found", location.href = la URL inexistente · Re-test 2026-09-28 (main 44f1519): Body: "biyu. Esta página no existe Revisá la dirección o volvé a la app. Volver a Biyu"
+
+## DEF-002 · <html lang="en"> y título de pestaña "scaffold" en toda la app
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución adversarial de #75 (ataque libre). |
+| Caso de prueba | — (ataque libre) |
+| Historia | Transversal (NFR-06, accesibilidad) |
+| Issue | #143 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Producción https://biyu-rust.vercel.app, /login, /signup, /settings y la ruta 404, 2026-09-28 |
+
+<html lang="en"> y título de pestaña "scaffold" en toda la app.
+
+**Pasos para reproducir**
+
+1. Abrir cualquier pantalla de la app.
+2. Mirar el título de la pestaña y document.documentElement.lang
+
+**Resultado esperado.** Título "Biyu" (o por pantalla) y lang="es" (idealmente es-AR, CLAUDE.md fija español rioplatense). NFR-06 pide WCAG 2.1 AA; el criterio 3.1.1 (Idioma de la página) exige que lang coincida con el idioma real, si no los lectores de pantalla leen el español con fonética inglesa
+
+**Resultado obtenido.** document.title = "scaffold" (el nombre del template de Vite), lang = "en" en todas las pantallas probadas
+
+**Evidencia.** {"lang":"en","title":"scaffold","url":"https://biyu-rust.vercel.app/login"} · Re-test 2026-09-28 (main 44f1519): title="Biyu", lang="es-AR"
+
+## DEF-003 · US-66 (confirmar contraseña) nunca llegó a producción por un error de merge
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · no se reproduce el 2026-09-28 (falta cerrar el issue) |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución adversarial de #75 (ataque libre — probó los criterios de US-66/US-67 en /signup). |
+| Caso de prueba | — (ataque libre; US-66 no tenía caso propio en el catálogo) |
+| Historia | US-66 · Confirmar contraseña al registrarse |
+| Issue | #144 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Producción https://biyu-rust.vercel.app/signup, 2026-09-28 |
+
+US-66 (confirmar contraseña) nunca llegó a producción por un error de merge.
+
+**Pasos para reproducir**
+
+1. Abrir /signup.
+2. Mirar los campos del formulario
+
+**Resultado esperado.** US-66 (02-behavior-spec.md): "quiero confirmar mi contraseña al registrarme escribiéndola dos veces"
+
+**Resultado obtenido.** Solo aparecen "Email", "Contraseña", la lista de 5 criterios y "Crear cuenta". No hay un segundo campo de confirmación
+
+**Evidencia.** read_page de /signup sin el campo confirmPassword · Re-test 2026-09-28 (main 44f1519): El formulario de /signup local (main 44f1519) tiene "Confirmar contraseña". Producción no se verificó en esta corrida.
+
+## DEF-004 · NaN como monto se guarda y rompe el dashboard ("$NaN,undefined")
+
+| Campo | Contenido |
+|---|---|
+| Estado | Cerrado · confirmado corregido el 2026-09-28 |
+| Severidad | Crítica |
+| Prioridad (sugerida) | A definir por el PO (sugerida: Alta dado que integridad de datos es I4) |
+| Encontrado en | ejecución adversarial de #75 (ataque libre, derivado de la variante API de CP-REG-010 / I4). |
+| Caso de prueba | — (ataque libre) |
+| Historia | US-11 · No se puede guardar monto cero o negativo |
+| Issue | #145 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local: http://localhost:5174 + Supabase local, 2026-09-28 |
+
+NaN como monto se guarda y rompe el dashboard ("$NaN,undefined").
+
+**Pasos para reproducir**
+
+1. Con JWT válido, POST /rest/v1/rpc/create_transaction con p_amount: "NaN", p_currency: "ARS", resto de campos válidos.
+2. Repetir con p_currency: "USD", p_amount: 1, p_fx_rate: "NaN".
+3. Abrir /dashboard del período correspondiente.
+
+**Resultado esperado.** Rechazado por I4 (amount > 0) — en Postgres NaN > 0 evalúa true, así que el check no alcanza. upsert_fx_rate ya tiene esta misma protección para fx_rates; create_transaction y el check de debts no.
+
+**Resultado obtenido.** Las dos llamadas devuelven un uuid (se crean). En la base: amount: "NaN", amount_ars: "NaN", mismo en ledger_entries. El dashboard muestra "Total gastado $NaN,undefined", "Balance $NaN,undefined", totales por categoría/cuenta "$NaN,undefined" y porcentajes "NaN%". ledger_integrity_violations no lo detecta (en Postgres NaN = NaN es verdadero). Un insert directo a debts con amount: "NaN" también se acepta.
+
+**Evidencia.** Respuestas de la API y texto literal del dashboard (arriba) · Re-test 2026-09-28 (main 44f1519): create_transaction(p_amount='NaN') → rechazado "I4: el monto debe ser mayor a cero". Dashboard: "(sin total)".
+
+## DEF-005 · El servidor acepta contraseñas que no cumplen FR-01/US-67
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución adversarial de #75, variante servidor de CP-ACC-004. |
+| Caso de prueba | CP-ACC-004, variante servidor |
+| Historia | US-67 · Criterios de contraseña (FR-01) |
+| Issue | #146 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local: Supabase Auth local (minimum_password_length = 6, password_requirements = ""). No verificado en producción |
+
+El servidor acepta contraseñas que no cumplen FR-01/US-67.
+
+**Pasos para reproducir**
+
+1. POST /auth/v1/signup directo (saltando el cliente) con contraseña abc1234 (sin mayúscula ni especial) y por separado con abcd1234 (sin mayúscula ni especial)
+
+**Resultado esperado.** Rechazo — FR-01 exige "validado en cliente **y en el servidor**"; US-67 amplía el criterio a 8+mayúscula+minúscula+número+especial
+
+**Resultado obtenido.** Las dos devuelven access_token: cuenta creada con sesión
+
+**Evidencia.** Respuestas de signup con access_token presente en ambos casos · Re-test 2026-09-28 (main 44f1519): Ver CP-ACC-004, variante API.
+
+## DEF-006 · Transacción de una categoría archivada no muestra marca de archivada en /transactions
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución de CP-CFG-004 (#75). |
+| Caso de prueba | CP-CFG-004 |
+| Historia | US-44 · Archivar una categoría sin perder historia |
+| Issue | #147 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+Transacción de una categoría archivada no muestra marca de archivada en /transactions.
+
+**Pasos para reproducir**
+
+1. Crear un gasto en categoría "Entretenimiento".
+2. Archivar "Entretenimiento" desde /settings.
+3. Abrir /transactions del período de ese gasto
+
+**Resultado esperado.** 02-behavior-spec.md, sad path "categoría archivada": "Las transacciones históricas la siguen mostrando, **con una marca visual de archivada**" — el dashboard ya lo hace bien, /transactions no
+
+**Resultado obtenido.** El ítem muestra el nombre de la categoría sin ningún indicador de archivada (<span class="truncate">Entretenimiento</span>, sin clase ni marca)
+
+**Evidencia.** innerHTML del ítem en /transactions, comparado con el dashboard que sí marca "Entretenimiento archivada" · Re-test 2026-09-28 (main 44f1519): Ver CP-CFG-004.
+
+## DEF-007 · Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución de CP-REG-012 (#75) — el caso "pasa" contra la base (soft delete correcto, KPIs excluyen la fila), pero contradice FR-08 en la UI. |
+| Caso de prueba | CP-REG-012 |
+| Historia | US-65 · Eliminar una transacción (FR-08) |
+| Issue | #148 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada.
+
+**Pasos para reproducir**
+
+1. Crear un gasto de $50.000.
+2. Eliminarlo desde /transactions, confirmando el aviso.
+3. Mirar el listado
+
+**Resultado esperado.** pre-entrega.md FR-08: "la transacción deja de contarse en los totales pero **permanece visible en el historial con una marca de eliminada**"
+
+**Resultado obtenido.** El ítem desaparece por completo de todos los listados. En la base, deleted_at queda seteado correctamente y el total del mes baja lo esperado
+
+**Evidencia.** Conteo de ítems en /transactions antes/después, y query directa con deleted_at is not null mostrando la fila · Re-test 2026-09-28 (main 44f1519): Ver CP-REG-012.
+
+## DEF-008 · Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución completa de CP-ACC-002 (#75) — el guard en sí funciona (redirige a /login?next=... correctamente), pero el recorrido completo (login → destino original) falla. |
+| Caso de prueba | CP-ACC-002 |
+| Historia | US-48 · La app pide login |
+| Issue | #149 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28. Mismo código en producción, probablemente reproduce igual |
+
+Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register.
+
+**Pasos para reproducir**
+
+1. Sin sesión, abrir /dashboard?period=2026-06 → redirige a /login?next=%2Fdashboard%3Fperiod%3D2026-06.
+2. Iniciar sesión
+
+**Resultado esperado.** Volver a /dashboard?period=2026-06 — AuthForm.tsx sí llama navigate(next), pero algo lo pisa
+
+**Resultado obtenido.** Termina siempre en /register, ignorando el next
+
+**Evidencia.** Probado dos veces, con next=%2Fdashboard... y next=%2Fsettings, mismo resultado · Re-test 2026-09-28 (main 44f1519): Login desde /login?next=/dashboard?period=2026-06 termina en /register.
+
+## DEF-009 · Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución adversarial de #75, derivado de CP-CUO-003. |
+| Caso de prueba | — (derivado de CP-CUO-003, I6) |
+| Historia | US-45 · Crear cuentas indicando su tipo (I6) |
+| Issue | #150 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6.
+
+**Pasos para reproducir**
+
+1. Con una cuenta credit_card que ya tiene compras en cuotas (2, 3, 12).
+2. PATCH /rest/v1/accounts?id=eq.<esa cuenta> con {"type":"cash"}
+
+**Resultado esperado.** I6 ("installments_count > 1 solo si la cuenta es credit_card") debería impedir este estado, o al menos advertirlo — el trigger actual (check_installments_rule) solo corre sobre transactions, nunca se dispara al editar accounts
+
+**Resultado obtenido.** 200, el tipo cambia. Las transacciones existentes quedan con installments_count > 1 sobre una cuenta ahora cash
+
+**Evidencia.** Respuesta del PATCH + consulta mostrando installments_count 3/2/12 con account.type = "cash" · Re-test 2026-09-28 (main 44f1519): PATCH accounts.type=cash sobre Visa BBVA → aceptado; quedan 4 compras en cuotas sobre una cuenta que ya no es de crédito (I6).
+
+## DEF-010 · Archivar todas las categorías hace que se resiembren las 8 por defecto
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución adversarial de #75 (ataque libre). |
+| Caso de prueba | — (FR-04/FR-05) |
+| Historia | US-43 · Set inicial de categorías y cuentas |
+| Issue | #151 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+Archivar todas las categorías hace que se resiembren las 8 por defecto.
+
+**Pasos para reproducir**
+
+1. Archivar las 8 categorías sembradas de un usuario (desde la UI o la API).
+2. Abrir /register con ese usuario
+
+**Resultado esperado.** Respetar la decisión del usuario de no tener categorías activas; ADR-014 pensó la red de contención de /register solo para un usuario que nunca se sembró, no para uno que archivó todo a propósito
+
+**Resultado obtenido.** Aparecen 8 categorías activas nuevas (recién creadas), además de las 8 archivadas — 16 filas en total
+
+**Evidencia.** Listado de categories del usuario de prueba con 16 filas tras el paso 2 · Re-test 2026-09-28 (main 44f1519): Tras archivar las 8 y abrir /register: activas|total = 8|16.
+
+## DEF-011 · No se pueden editar ni archivar cuentas (medios de pago) desde la UI
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución de CP-CFG-006 y ataque libre (#75). |
+| Caso de prueba | — (FR-05, relacionado con CP-CFG-006) |
+| Historia | US-45 · Cuentas (FR-05) |
+| Issue | #152 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+No se pueden editar ni archivar cuentas (medios de pago) desde la UI.
+
+**Pasos para reproducir**
+
+1. Abrir /settings, sección "Cuentas"
+
+**Resultado esperado.** FR-05: "el usuario puede crear, editar y dar de baja **sus propias categorías y medios de pago**" — solo la mitad (categorías) está implementada
+
+**Resultado obtenido.** Cada fila muestra solo nombre y tipo, sin acciones. Las categorías sí tienen "Editar" y "Archivar" (settings-categories-edit/-archive); las cuentas no tienen equivalente
+
+**Evidencia.** Recorrido del DOM de /settings · Re-test 2026-09-28 (main 44f1519): Botones de acción en la lista de cuentas: 0.
+
+## DEF-012 · Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ataque libre de #75 (valores límite no escritos). |
+| Caso de prueba | — (valores límite, I4/C6) |
+| Historia | US-11 · Validación del monto |
+| Issue | #153 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés.
+
+**Pasos para reproducir**
+
+1. En /register, monto 1000000000000 (excede numeric(14,2)), completar el resto y Guardar
+
+**Resultado esperado.** Validación de cliente que rechace el monto antes de enviarlo, con un mensaje en español ("El monto máximo permitido es…")
+
+**Resultado obtenido.** La previsualización de cuotas lo muestra normal ("2 cuotas de $500.000.000.000,00"). Al guardar: toast "No se pudo guardar / numeric field overflow" (mensaje técnico en inglés)
+
+**Evidencia.** Texto literal del toast · Re-test 2026-09-28 (main 44f1519): Monto 1000000000000: Siguiente habilitado true; al guardar: "No se pudo guardar numeric field overflow".
+
+## DEF-013 · Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ataque libre de #75 (valores límite no escritos). |
+| Caso de prueba | — (valores límite) |
+| Historia | US-19 · Registrar un gasto en USD |
+| Issue | #154 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible.
+
+**Pasos para reproducir**
+
+1. En /register: moneda USD, monto 0,01, TC 0,01, cuenta no crediticia (para que no haya selector de cuotas visible)
+
+**Resultado esperado.** Un mensaje visible que explique por qué no se puede guardar, sin importar si el selector de cuotas está oculto
+
+**Resultado obtenido.** El botón Guardar queda deshabilitado, sin ningún texto de error visible. El motivo real ("Con ese monto, cada cuota daría menos de 0,01") lo genera validateTransactionDraft pero lo asigna al campo de cuotas, que no se renderiza con esa cuenta
+
+**Evidencia.** Estado del formulario: botón deshabilitado, cero mensajes de error en pantalla · Re-test 2026-09-28 (main 44f1519): Guardar deshabilitado: true. Texto visible: "Completá cuotas para guardar". El motivo real ("cada cuota daría menos de 0,01") no se muestra.
+
+## DEF-014 · El período 0000-01 en el dashboard muestra un error de base de datos crudo
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ataque libre de #75, relacionado con CP-DAS-003. |
+| Caso de prueba | — (relacionado con CP-DAS-003, Media) |
+| Historia | US-26 · Cambiar de mes con un selector |
+| Issue | #155 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+El período 0000-01 en el dashboard muestra un error de base de datos crudo.
+
+**Pasos para reproducir**
+
+1. Abrir /dashboard?period=0000-01
+
+**Resultado esperado.** Igual que otros períodos inválidos (2026-13, fecha-invalida, <script>, 9999-12+"→"): volver silenciosamente al mes actual, sin error visible
+
+**Resultado obtenido.** "No se pudo cargar el resumen: date/time field value out of range: …" (mensaje técnico de Postgres, en inglés)
+
+**Evidencia.** Texto literal de la pantalla · Re-test 2026-09-28 (main 44f1519): "No se pudo cargar el resumen: date/time field value out of range: "0000-01-01""
+
+## DEF-015 · Los botones de la paleta de color en /settings no tienen data-testid
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ataque libre de #75. |
+| Caso de prueba | — (07-plan-de-testing.md §2) |
+| Historia | Transversal (data-testid, plan de testing §2) |
+| Issue | #156 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+Los botones de la paleta de color en /settings no tienen data-testid.
+
+**Pasos para reproducir**
+
+1. Recorrer los elementos interactivos de /settings
+
+**Resultado esperado.** "Todo elemento interactivo lleva data-testid" (07-plan-de-testing.md §2); "un elemento interactivo sin data-testid es un defecto de testeabilidad"
+
+**Resultado obtenido.** Los 10 botones de color (aria-label="#f97316" … "#0ea5e9") tienen data-testid = null. Además settings-categories-edit/-archive se repiten idénticos en cada fila de categoría (sin distinguir cuál)
+
+**Evidencia.** Recorrido del DOM de /settings · Re-test 2026-09-28 (main 44f1519): Botones de la paleta sin data-testid: 10.
+
+## DEF-016 · No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER)
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-09-28 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución adversarial de #75, intentando verificar I7. |
+| Caso de prueba | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) |
+| Historia | V2 · Deudas (I7), latente en el schema |
+| Issue | #157 |
+| Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
+| Entorno | Local, 2026-09-28 |
+
+No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER).
+
+**Pasos para reproducir**
+
+1. Con sesión válida, POST /rest/v1/debts con un transaction_id propio válido y un monto que cumple I7 (menor o igual al gasto)
+
+**Resultado esperado.** Aceptar una deuda válida; rechazar solo las que violan I7 con un mensaje de I7 — hoy rechaza **todas**, válidas o no
+
+**Resultado obtenido.** 42501 "permission denied for table transactions", con hint "GRANT UPDATE ON public.transactions". El trigger check_debt_rule hace select … for update sobre transactions sin security definer, así que corre con los permisos del cliente (que no tiene UPDATE sobre esa tabla, C4)
+
+**Evidencia.** Respuesta 42501 de la API · Re-test 2026-09-28 (main 44f1519): Insert de una deuda válida → 42501 "permission denied for table transactions". (re-test repetido en la corrida mum0fi8l: el primero omitía la columna obligatoria incurred_on y devolvía 23502)
+
+## DEF-017 · Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar)
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · nuevo en la Entrega 1 |
+| Severidad | Alta |
+| Prioridad (sugerida) | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) |
+| Encontrado en | Ejecución de la Entrega 1, caso CP-CFG-011 |
+| Caso de prueba | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) |
+| Historia | US-68 · Configuración inicial al crear la cuenta |
+| Issue | A crear |
+| Reportó | Ejecución de la Entrega 1 (runner Playwright, Claude Code), supervisada por Joaquin Nuñez |
+| Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
+
+La historia US-68 entra en el alcance de la Entrega 1 pero no tiene implementación: no hay ruta, pantalla ni componentes de setup en src/. El issue #159 sigue abierto.
+
+**Pasos para reproducir**
+
+1. Ir a /signup.
+2. Crear una cuenta con un email nuevo y la contraseña Clave123! repetida en "Confirmar contraseña".
+3. Observar la pantalla que se abre.
+
+**Resultado esperado.** US-68: después de crear la cuenta se muestra el setup (para qué la usás, categorías, cuentas y primer gasto), con elementos data-testid de prefijo setup-.
+
+**Resultado obtenido.** La app va directo a /register. No hay ningún elemento con data-testid que empiece con setup-.
+
+**Evidencia.** evidencia/CP-CFG-011-sin-setup.jpg
+
+**Notas.** Es una historia sin implementar más que un error de código. Se reporta como defecto porque la historia está comprometida para esta versión y sus 5 casos no pueden pasar. Los casos CP-CFG-012 a CP-CFG-015 quedan BLOCKED por este defecto.
+
+## DEF-018 · El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · nuevo en la Entrega 1 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-01) |
+| Caso de prueba | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) |
+| Historia | US-21 · Pisar el tipo de cambio sugerido |
+| Issue | A crear |
+| Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-01) |
+| Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
+
+En Ajustes el tipo de cambio de referencia se valida a 4 decimales ("Usá hasta 4 decimales"), pero en el formulario de registro no: se puede guardar un TC con 5 decimales y la base lo redondea en silencio.
+
+**Pasos para reproducir**
+
+1. Abrir /register, cargar USD 100 y escribir 1250,55555 como tipo de cambio.
+2. Completar categoría y cuenta y guardar.
+3. Consultar la transacción guardada.
+
+**Resultado esperado.** Misma validación que en Ajustes: rechazar más de 4 decimales con un mensaje (C6: el cliente anticipa lo que la base va a hacer), o guardar exactamente lo que se mostró.
+
+**Resultado obtenido.** Se guarda sin aviso con fx_rate 1250.5556 y amount_ars 125055.56. El equivalente en pesos que mostraba el formulario se calculó con el valor sin redondear.
+
+**Evidencia.** Consulta a la base: fx_rate|amount_ars = 1250.5556|125055.56 (resultados.json, EXP-01).
+
+## DEF-019 · Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud")
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · nuevo en la Entrega 1 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-02) |
+| Caso de prueba | — (exploración, variante de CP-CFG-003) |
+| Historia | US-42 · Crear, renombrar y elegir color de categorías |
+| Issue | A crear |
+| Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-02) |
+| Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
+
+La regla de CP-CFG-003 (no dos categorías activas con el mismo nombre) compara el nombre exacto. Cambiando solo mayúsculas se crea un duplicado que en la grilla del registro se ve como dos chips casi iguales.
+
+**Pasos para reproducir**
+
+1. Con la categoría activa "Salud" (sembrada), ir a Ajustes.
+2. Crear una categoría llamada "salud".
+
+**Resultado esperado.** Rechazado con "Ya existe una categoría activa con ese nombre", igual que "Salud".
+
+**Resultado obtenido.** Se acepta. Quedan activas "salud" y "Salud".
+
+**Evidencia.** evidencia/EXP-02-salud-duplicada.jpg
+
+**Notas.** El índice único parcial compara con distinción de mayúsculas; lo mismo aplica a cuentas (mismo mecanismo que CP-CFG-007).
+
+## DEF-020 · El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000")
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · nuevo en la Entrega 1 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | Ejecución de la Entrega 1, caso CP-MON-003 |
+| Caso de prueba | CP-MON-003 (PASSED: el valor sugerido es correcto) |
+| Historia | US-20 · Sugerir el tipo de cambio de referencia del mes |
+| Issue | A crear |
+| Reportó | Ejecución de la Entrega 1 (CP-MON-003) |
+| Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
+
+El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve PostgREST, con punto decimal y 4 decimales, mientras el resto de la app usa formato argentino (Ajustes muestra "$ 1.250,00").
+
+**Pasos para reproducir**
+
+1. Cargar 1250 como tipo de cambio de referencia del mes en Ajustes.
+2. Abrir /register, cargar un monto y elegir US$.
+3. Mirar el campo "Tipo de cambio (ARS por US$)".
+
+**Resultado esperado.** "1.250" o "1.250,00", con el mismo formato que Ajustes y que el equivalente "≈ $125.000,00".
+
+**Resultado obtenido.** "1250.0000".
+
+**Evidencia.** evidencia/CP-MON-003-tc-sugerido.jpg
+
+**Notas.** Cosmético: si el usuario edita el valor igual se interpreta bien. Se registra aparte para no marcar como FAILED un caso cuyo oráculo (el TC sugerido es 1250) se cumple.
