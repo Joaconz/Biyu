@@ -56,8 +56,8 @@ no se exigen en el criterio de salida de V1, se dejan fuera de esta tabla y se a
 |---|---|---|
 | I1, I1' | Sí (CP-CUO-004, 005, 010, 013) | Pass |
 | I2, I3 | Sí (CP-CUO-001) | Pass |
-| I4 | Sí (CP-REG-010) | **Pass del caso escrito, pero DEF-004 (NaN, Crítica) rompe la invariante por otra vía** |
-| I5 | Sí (CP-MON-002) | **Pass del caso escrito, mismo DEF-004 la rompe con `fx_rate = NaN`** |
+| I4 | Sí (CP-REG-010) | Pass (DEF-004 corregido, ver §5) |
+| I5 | Sí (CP-MON-002) | Pass (DEF-004 corregido, ver §5) |
 | I6 | Sí (CP-CUO-003, 012) | **Pass del caso escrito, DEF-009 la rompe editando la cuenta después** |
 | I8 | No (solo CP-REG-004, Media) | Verificado igual, de paso, por API: Pass |
 | I10 | Sí (CP-REG-012, CP-CUO-009) | Pass |
@@ -72,15 +72,24 @@ historia propia todavía, ver `08-trazabilidad.md` §Huecos conocidos).
 
 | Severidad | Cantidad | IDs |
 |---|---|---|
-| Crítica | 1 | DEF-004 |
+| Crítica | 0 | — (DEF-004 corregido, ver abajo) |
 | Media | 9 | DEF-001, DEF-005, DEF-007, DEF-008, DEF-009, DEF-010, DEF-011, DEF-016, (DEF-003 en vías de cierre, ver abajo) |
 | Baja | 6 | DEF-002, DEF-006, DEF-012, DEF-013, DEF-014, DEF-015 |
-| **Total abiertos** | **16** | — |
+| **Total abiertos** | **15** | — |
 
 **DEF-003** (US-66 ausente en producción) tiene causa raíz identificada (error de merge, no de
 la app) y fix ya en PR ([#141](https://github.com/Joaconz/Biyu/pull/141)): pasa a "Cerrado"
 recién cuando se mergee, se despliegue y alguien reconfirme `/signup` en producción — nadie
 cierra su propio defecto (`07-plan-de-testing.md` §5).
+
+**DEF-004** (NaN como monto, Crítica — el único defecto Crítico de esta ejecución) está corregido:
+`create_transaction()` ahora rechaza `p_amount`/`p_fx_rate` en `'NaN'::numeric` explícitamente
+(igual que ya hacía `upsert_fx_rate` para `fx_rates`, C6), y los `check` de `transactions`,
+`ledger_entries`, `debts` y `subscriptions` se endurecieron a `columna <> 'NaN'::numeric and
+columna > 0` para que ningún insert directo (RPC o RLS) pueda colar un `NaN`
+(`supabase/migrations/20260929000000_reject_nan_amounts.sql`). Cubierto por pgTAP nuevo
+(`create_transaction.test.sql`, `nan_amounts.test.sql`) y reverificado a mano contra Supabase
+local: las dos llamadas de la reproducción original ahora devuelven `23514` en vez de un uuid.
 
 Prioridad de cada defecto: pendiente de que el PO la fije (severidad es un hecho técnico,
 prioridad es una decisión de negocio — quedó "a definir" en cada issue).
@@ -105,13 +114,13 @@ confirmar.
    de contraseña desactualizado desde que se agregó US-67 al spec, después de haberse
    diseñado el catálogo original. Se corrigieron en `10-catalogo-casos-v1.md` antes de
    reportarlos como Fail definitivo.
-3. **No se cumplen todavía los 4 criterios de salida de V1** (`07-plan-de-testing.md` §6):
-   - ❌ **Cero defectos Críticos abiertos** — DEF-004 sigue abierto.
+3. **Todavía no se cumplen los 4 criterios de salida de V1** (`07-plan-de-testing.md` §6):
+   - ✅ **Cero defectos Críticos abiertos** — DEF-004 corregido (ver §5).
    - ✅ Cero defectos Altos abiertos (ninguno tiene esa severidad asignada todavía).
-   - ❌ **Todos los casos de prioridad Alta ejecutados** — CP-REG-013 quedó Bloqueado.
+   - ❌ **Todos los casos de prioridad Alta ejecutados** — CP-REG-013 sigue Bloqueado.
    - ✅ Toda invariante de alcance V1 tiene al menos un caso ejecutado.
 
-   **V1 no puede cerrarse todavía.** Falta como mínimo: resolver o justificar DEF-004, y
+   **V1 no puede cerrarse todavía.** Con DEF-004 corregido queda un solo punto pendiente:
    destrabar CP-REG-013 (con un reloj falso en el navegador/Postgres, o esperando a que la
    fecha real llegue a octubre).
 
