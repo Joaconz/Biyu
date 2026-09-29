@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 import { RedirectIfAuthed, RequireAuth } from '@/pages/RequireAuth'
@@ -31,4 +32,6 @@ export const router = createBrowserRouter([
       { path: '/signup', element: <AuthForm key="signup" mode="signup" /> },
     ],
   },
+  // DEF-001: catch-all fuera de RequireAuth/RedirectIfAuthed, así se ve con o sin sesión.
+  { path: '*', element: <NotFoundPage /> },
 ])
