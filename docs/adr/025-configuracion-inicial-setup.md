@@ -63,12 +63,30 @@ completado desde Ajustes (CP-CFG-015) resembraría cualquier categoría o cuenta
 archivó a propósito en el paso 2 o 3: `ensureUserSeeded` decide "falta sembrar" por nombre entre
 las *activas*, así que algo archivado vuelve a calificar como faltante.
 
+## 6. Corrección de DEF-022: nadie queda afuera de la app
+
+La primera versión trataba "sin fila" como "setup pendiente" y cualquier error como "no
+completado". Resultado: toda cuenta anterior a US-68 (que no tiene fila) tenía que hacer el
+setup, y si guardar el setup fallaba (por ejemplo, con la migración sin aplicar en la base
+hosteada) el usuario volvía a `/setup` en un bucle, sin mensaje y sin salida.
+
+**Decisión:**
+
+- La fila pendiente (`completed_at` null) la crea la base al registrarse, con un trigger
+  `security definer` sobre `auth.users` (`20260930000000_user_setup_pending_on_signup.sql`).
+  **Sin fila = cuenta anterior a US-68 = no se le pide el setup.** No hace falta backfill.
+- `AppLayout` falla abierto: si leer el estado da error, entra a la app.
+- Terminar el setup siempre navega a la app. Si guardar falla, se avisa con un toast y se entra
+  igual (una marca en memoria vale por la sesión de la pestaña); el setup vuelve a aparecer la
+  próxima vez.
+- La regla vive en `src/lib/setupGate.ts`, pura y cubierta por Vitest; los flujos, en
+  `e2e/setup.spec.ts`, que corre contra el deploy y detecta también una migración sin aplicar.
+
 ## Consecuencias
 
 - Una tabla nueva (`user_setup`), su RLS y su par de tests pgTAP (C7).
 - `AppLayout` hace una consulta más por sesión (no por navegación: se cachea en memoria mientras
-  dura la sesión). Si falla, se trata como "no completado" — el usuario ve `/setup` de nuevo en
-  vez de quedar bloqueado; volver a completarlo o saltearlo es barato.
+  dura la sesión). Si falla, se entra a la app (§6).
 - El primer gasto guiado reusa `TransactionForm` (ADR-024) tal cual, con un callback `onSaved`
   nuevo (opcional, sin uso en `/register`) para que el setup sepa cuándo cerrar. Sigue siendo una
   sola llamada a `create_transaction` (C4).

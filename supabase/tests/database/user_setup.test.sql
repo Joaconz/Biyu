@@ -9,11 +9,12 @@ insert into auth.users (id, instance_id, aud, role, email) values
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}';
 
-select is((select count(*) from user_setup), 0::bigint, 'sin fila todavía: no hizo el setup');
+-- DEF-022: la fila la crea la base al registrarse (user_setup_on_signup.test.sql).
+select is((select count(*) from user_setup), 1::bigint, 'A ve solo su propia fila');
 
 select lives_ok(
-  $$insert into user_setup (usage_reason) values ('entender en qué se me va la plata')$$,
-  'A crea su fila sin mandar user_id (default auth.uid())');
+  $$update user_setup set usage_reason = 'entender en qué se me va la plata' where user_id = auth.uid()$$,
+  'A guarda para qué usa la app');
 select is((select user_id from user_setup), 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, 'user_id queda el de A');
 select is((select completed_at from user_setup), null, 'todavía no está completado');
 
@@ -30,8 +31,8 @@ select throws_ok(
 reset role;
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","role":"authenticated"}';
-select is((select count(*) from user_setup), 0::bigint, 'B no ve la fila de A');
-with u as (update user_setup set completed_at = now() returning 1) select is((select count(*) from u), 0::bigint, 'B no puede actualizar la fila de A');
+select is((select count(*) from user_setup where user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), 0::bigint, 'B no ve la fila de A');
+with u as (update user_setup set completed_at = now() where user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' returning 1) select is((select count(*) from u), 0::bigint, 'B no puede actualizar la fila de A');
 
 -- anon no tiene política: cero acceso.
 reset role;

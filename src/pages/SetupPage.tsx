@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, CircleCheck, CircleDashed } from 'lucide-react'
 import { useNavigate } from 'react-router'
+import { toast } from 'sonner'
 import { AccountIcon } from '@/components/shared/AccountIcon'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
@@ -12,7 +13,7 @@ import { setStoredLastAccountId } from '@/lib/catalog'
 import { today } from '@/lib/clock'
 import { useCatalog } from '@/hooks/useCatalog'
 import { ensureUserSeeded } from '@/lib/seed'
-import { completeSetup } from '@/lib/setup'
+import { completeSetup, markSetupFinishedThisSession } from '@/lib/setup'
 import { cn, toTestIdSuffix } from '@/lib/utils'
 
 type Step = 'reason' | 'categories' | 'accounts' | 'expense'
@@ -65,15 +66,20 @@ export function SetupPage() {
     }
   }, [])
 
+  // DEF-022: terminar siempre lleva a la app. Si guardar falla, antes el botón volvía a quedar
+  // habilitado sin ningún mensaje y no había forma de salir de /setup.
   async function finish() {
     if (finishing) return
     setFinishing(true)
+    markSetupFinishedThisSession()
     try {
       await completeSetup(reason)
-      navigate('/register', { replace: true })
     } catch {
-      setFinishing(false)
+      toast.error('No pudimos guardar tu configuración. Te la vamos a volver a mostrar la próxima vez que entres.', {
+        testId: 'setup-save-error',
+      })
     }
+    navigate('/register', { replace: true })
   }
 
   function goToExpense(withDefaultAccount: boolean) {
