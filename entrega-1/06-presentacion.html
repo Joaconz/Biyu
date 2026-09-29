@@ -171,13 +171,13 @@ body.show-notes .notes { display: block; }
   <h2>La V1, en números</h2>
   <div class="stats">
     <div class="stat hero"><span class="n">46</span><span class="l">historias de usuario en V1</span></div>
-    <div class="stat"><span class="n">45</span><span class="l">implementadas y cerradas</span></div>
+    <div class="stat"><span class="n">46</span><span class="l">implementadas y cerradas</span></div>
     <div class="stat"><span class="n">7</span><span class="l">épicas en el tablero</span></div>
-    <div class="stat"><span class="n">70</span><span class="l">PRs mergeados a main</span></div>
-    <div class="stat"><span class="n">24</span><span class="l">decisiones registradas como ADR</span></div>
+    <div class="stat"><span class="n">73</span><span class="l">PRs mergeados a main</span></div>
+    <div class="stat"><span class="n">25</span><span class="l">decisiones registradas como ADR</span></div>
   </div>
-  <p class="muted">Deploy público en Vercel contra Supabase. Pendiente: US-68 (configuración inicial), que es parte de la Entrega 1 y todavía no está implementada.</p>
-  <div class="notes">De las 46 historias de V1 hay 45 hechas. La que falta, US-68, la dejamos adentro del alcance a propósito y la reportamos como defecto (DEF-017) en vez de esconderla. 70 PRs mergeados: cada historia entra por su rama y su PR, con la CI en verde.</div>
+  <p class="muted">Deploy público en Vercel contra Supabase. Las 46 historias de V1 están implementadas, incluida US-68 (configuración inicial).</p>
+  <div class="notes">Las 46 historias de V1 están hechas. US-68 fue la última: la reportamos como defecto (DEF-017) en vez de esconderla, la implementamos y la volvimos a probar. 73 PRs mergeados: cada historia entra por su rama y su PR, con la CI en verde.</div>
 </section>
 
 <section class="slide" id="acceso">
@@ -429,24 +429,24 @@ conmigo paso a paso, de la sección 1 a la 4.
 <section class="slide divider" id="sec-e">
   <div class="kicker">Parte 5 de 5</div>
   <h2>Qué pasó al ejecutarlos</h2>
-  <p>Todo el catálogo contra main del 28 de septiembre.</p>
+  <p>Todo el catálogo contra main del 28 de septiembre, con re-test de US-68 el 29.</p>
 </section>
 
 <section class="slide" id="reporte-total">
-  <div class="section-mark">Resultado general, main 44f1519 del 28/09</div>
-  <h2>67 de 70 ejecutados pasan</h2>
+  <div class="section-mark">Resultado general, main 44f1519 del 28/09 + re-test de US-68 en ba05bd8 del 29/09</div>
+  <h2>72 de 74 ejecutados pasan</h2>
   <div class="stats">
     <div class="stat"><span class="n">74</span><span class="l">planificados</span></div>
-    <div class="stat"><span class="n">70</span><span class="l">ejecutados, 95 %</span></div>
-    <div class="stat hero"><span class="n">67</span><span class="l">PASSED, 96 % de los ejecutados</span></div>
-    <div class="stat"><span class="n bad">3</span><span class="l">FAILED</span></div>
-    <div class="stat"><span class="n warn">4</span><span class="l">BLOCKED (US-68)</span></div>
+    <div class="stat"><span class="n">74</span><span class="l">ejecutados, 100 %</span></div>
+    <div class="stat hero"><span class="n">72</span><span class="l">PASSED, 97 % de los ejecutados</span></div>
+    <div class="stat"><span class="n bad">2</span><span class="l">FAILED</span></div>
+    <div class="stat"><span class="n">0</span><span class="l">BLOCKED</span></div>
   </div>
-  <div class="bar" role="img" aria-label="67 PASSED, 3 FAILED, 4 BLOCKED sobre 74">
-    <div style="width:90.5%;background:var(--green)"></div><div style="width:4.1%;background:var(--bad)"></div><div style="width:5.4%;background:var(--warn)"></div>
+  <div class="bar" role="img" aria-label="72 PASSED, 2 FAILED, 0 BLOCKED sobre 74">
+    <div style="width:97.3%;background:var(--green)"></div><div style="width:2.7%;background:var(--bad)"></div>
   </div>
-  <div class="legend"><span><b style="background:var(--green)"></b>PASSED 67</span><span><b style="background:var(--bad)"></b>FAILED 3</span><span><b style="background:var(--warn)"></b>BLOCKED 4</span></div>
-  <div class="notes">Ejecutamos los 74 contra la app local con el código de main del 28/09. Se ejecutaron 70; los 4 bloqueados son de US-68, que no existe todavía. De los 68 casos originales pasan 66. Los tres que fallan son CP-ACC-004 (el servidor acepta contraseñas débiles), CP-CFG-004 (falta la marca de archivada en el historial) y CP-CFG-011 (no aparece el setup de US-68).</div>
+  <div class="legend"><span><b style="background:var(--green)"></b>PASSED 72</span><span><b style="background:var(--bad)"></b>FAILED 2</span><span><b style="background:var(--warn)"></b>BLOCKED 0</span></div>
+  <div class="notes">Ejecutamos los 74 contra la app local con el código de main del 28/09. En esa corrida CP-CFG-011 falló y CP-CFG-012 a 015 quedaron bloqueados porque US-68 no existía; después de implementarla los volvimos a ejecutar el 29/09 y pasan los 5. De los 68 casos originales pasan 66. Los dos que fallan son CP-ACC-004 (el servidor acepta contraseñas débiles) y CP-CFG-004 (falta la marca de archivada en el historial).</div>
 </section>
 
 <section class="slide" id="reporte-modulo">
@@ -456,48 +456,48 @@ conmigo paso a paso, de la sección 1 a la 4.
     <thead><tr><th>Módulo</th><th class="num">Casos</th><th class="num">PASSED</th><th class="num">FAILED</th><th class="num">BLOCKED</th></tr></thead>
     <tbody>
       <tr><td>Acceso y autorización</td><td class="num">12</td><td class="num">11</td><td class="num">1</td><td class="num">0</td></tr>
-      <tr><td>Configuración</td><td class="num">15</td><td class="num">9</td><td class="num">2</td><td class="num">4</td></tr>
+      <tr><td>Configuración</td><td class="num">15</td><td class="num">14</td><td class="num">1</td><td class="num">0</td></tr>
       <tr><td>Registro y baja</td><td class="num">16</td><td class="num">16</td><td class="num">0</td><td class="num">0</td></tr>
       <tr><td>Cuotas</td><td class="num">13</td><td class="num">13</td><td class="num">0</td><td class="num">0</td></tr>
       <tr><td>Monedas</td><td class="num">7</td><td class="num">7</td><td class="num">0</td><td class="num">0</td></tr>
       <tr><td>Dashboard</td><td class="num">11</td><td class="num">11</td><td class="num">0</td><td class="num">0</td></tr>
     </tbody>
   </table></div>
-  <p class="muted">Pruebas automatizadas sobre el mismo commit: Vitest 239/239 y pgTAP 158/158.</p>
-  <div class="notes">El núcleo de cálculo (cuotas, monedas, dashboard) pasa completo. Los problemas están en los bordes: configuración y acceso. Las suites automatizadas, 239 tests de dominio y 158 de base, también están en verde.</div>
+  <p class="muted">Pruebas automatizadas en la CI de ba05bd8: Vitest 239/239 y pgTAP 168/168.</p>
+  <div class="notes">El núcleo de cálculo (cuotas, monedas, dashboard) pasa completo. Los problemas están en los bordes: configuración y acceso. Las suites automatizadas, 239 tests de dominio y 168 de base, también están en verde.</div>
 </section>
 
 <section class="slide" id="reporte-defectos">
   <div class="section-mark">Defectos</div>
-  <h2>16 defectos abiertos, ninguno crítico</h2>
+  <h2>15 defectos abiertos, ninguno crítico ni alto</h2>
   <div class="stats">
     <div class="stat"><span class="n">0</span><span class="l">Crítica (DEF-004 corregido)</span></div>
-    <div class="stat"><span class="n bad">1</span><span class="l">Alta, DEF-017, US-68</span></div>
+    <div class="stat"><span class="n">0</span><span class="l">Alta (DEF-017 corregido)</span></div>
     <div class="stat"><span class="n warn">7</span><span class="l">Media</span></div>
     <div class="stat"><span class="n">8</span><span class="l">Baja</span></div>
   </div>
   <ul class="points">
-    <li><b>4 corregidos y confirmados:</b> DEF-001 (404), DEF-002, DEF-003, DEF-004 (NaN)</li>
+    <li><b>5 corregidos y confirmados:</b> DEF-001 (404), DEF-002, DEF-003, DEF-004 (NaN), DEF-017 (US-68)</li>
     <li><b>4 nuevos:</b> US-68 sin implementar, TC con 5 decimales, "Salud" y "salud", TC sugerido sin formato</li>
     <li>Negativos y bordes atacados: 8 exploraciones extra, 2 dieron defectos</li>
   </ul>
-  <div class="notes">De los 16 defectos de la primera pasada, 4 ya están corregidos y los volvimos a probar: por ejemplo el NaN, que era el único crítico. Los otros 12 se siguen reproduciendo. Encontramos 4 nuevos. La severidad la pone quien reporta; la prioridad la decide el Product Owner.</div>
+  <div class="notes">De los 16 defectos de la primera pasada, 4 ya están corregidos y los volvimos a probar: por ejemplo el NaN, que era el único crítico. Los otros 12 se siguen reproduciendo. Encontramos 4 nuevos; uno, DEF-017 (US-68 sin implementar), era el único de severidad Alta y ya está corregido y re-testeado. La severidad la pone quien reporta; la prioridad la decide el Product Owner.</div>
 </section>
 
 <section class="slide" id="reporte-salida">
   <div class="section-mark">Criterios de salida de V1</div>
-  <h2>V1 no cierra por un solo punto</h2>
+  <h2>V1 cerrada: cumple los cuatro criterios</h2>
   <div class="tbl"><table>
     <thead><tr><th>Criterio</th><th>Estado</th></tr></thead>
     <tbody>
       <tr><td>Cero defectos críticos abiertos</td><td><span class="pill ok">Cumple</span></td></tr>
-      <tr><td>Cero defectos altos abiertos, o justificados</td><td><span class="pill bad">DEF-017</span></td></tr>
+      <tr><td>Cero defectos altos abiertos, o justificados</td><td><span class="pill ok">Cumple</span></td></tr>
       <tr><td>Todos los casos de prioridad Alta ejecutados</td><td><span class="pill ok">39 de 39</span></td></tr>
       <tr><td>Toda invariante de V1 con un caso ejecutado</td><td><span class="pill ok">Cumple</span></td></tr>
     </tbody>
   </table></div>
-  <p class="muted">Dos caminos: implementar US-68, o que el PO la pase a V2 con la justificación escrita.</p>
-  <div class="notes">En la pasada anterior fallaban dos criterios: el defecto crítico y un caso Alta bloqueado. Los dos se resolvieron: el NaN se corrigió y CP-REG-013 se ejecutó con un reloj simulado. Hoy solo falta decidir qué hacemos con US-68.</div>
+  <p class="muted">DEF-017 se corrigió implementando US-68, y CP-CFG-011 a 015 pasan en el re-test.</p>
+  <div class="notes">En la pasada anterior fallaban dos criterios: el defecto crítico y un caso Alta bloqueado. Los dos se resolvieron: el NaN se corrigió y CP-REG-013 se ejecutó con un reloj simulado. El último punto era DEF-017: implementamos US-68, la volvimos a probar y con eso V1 queda cerrada.</div>
 </section>
 
 
@@ -519,7 +519,7 @@ conmigo paso a paso, de la sección 1 a la 4.
       <p>Lo que prueba que funciona.</p>
       <ul>
         <li><span class="path">tests/</span><span>Vitest: 239 tests de dominio</span></li>
-        <li><span class="path">supabase/tests/</span><span>pgTAP: 158 tests de invariantes y RLS</span></li>
+        <li><span class="path">supabase/tests/</span><span>pgTAP: 168 tests de invariantes y RLS</span></li>
         <li><span class="path">e2e/</span><span>Prueba de humo contra el deploy</span></li>
         <li><span class="path">.github/workflows/</span><span>CI en cada PR</span></li>
       </ul>
@@ -529,7 +529,7 @@ conmigo paso a paso, de la sección 1 a la 4.
       <p>La fuente de verdad, antes del código.</p>
       <ul>
         <li><span class="path">docs/00 a 11</span><span>Brief, spec, arquitectura, modelo, plan de testing, trazabilidad, catálogo</span></li>
-        <li><span class="path">docs/adr/</span><span>24 decisiones con su porqué</span></li>
+        <li><span class="path">docs/adr/</span><span>25 decisiones con su porqué</span></li>
         <li><span class="path">specs/nfr/</span><span>Checklist de calidad de los NFR</span></li>
       </ul>
     </div>
