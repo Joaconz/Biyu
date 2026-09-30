@@ -191,13 +191,13 @@ P2 entra si alcanza el sprint.
 ## Huecos conocidos
 
 - Catálogo de V1 diseñado en `10-catalogo-casos-v1.md` (68 casos, revisado por `spec-critic`,
-  [#74](https://github.com/Joaconz/Biyu/issues/74)). Los 37 casos `Alta` ya se ejecutaron
+  [#74](https://github.com/Joaconz/Biyu/issues/74)). La primera pasada ejecutó los 37 casos `Alta`
   ([#75](https://github.com/Joaconz/Biyu/issues/75), reporte en `11-reporte-ejecucion-v1.md`) y
-  se cargaron 16 defectos ([#76](https://github.com/Joaconz/Biyu/issues/76), el más grave DEF-004,
-  Crítica). **V1 todavía no cumple sus criterios de salida** (DEF-004 abierto, CP-REG-013
-  bloqueado) — no cerrar la épica [#16](https://github.com/Joaconz/Biyu/issues/16) ni el
-  milestone V1 hasta resolverlos. Los casos `Media`/`Baja` (31 restantes) quedan para una
-  pasada siguiente.
+  cargó 16 defectos ([#76](https://github.com/Joaconz/Biyu/issues/76)); el más grave, DEF-004
+  (Crítica, [#145](https://github.com/Joaconz/Biyu/issues/145)), está corregido en
+  [#162](https://github.com/Joaconz/Biyu/pull/162) y confirmado. La Entrega 1 ejecutó el catálogo
+  completo, más 6 casos nuevos (74 en total), incluido CP-REG-013 con reloj simulado:
+  **V1 cumple sus criterios de salida** (`entrega-1/05-reporte-de-ejecucion.md` §6).
 - US-68 ([#159](https://github.com/Joaconz/Biyu/issues/159)) sin casos y con decisiones
   abiertas antes de implementar: dónde se guarda que el setup se hizo, su ruta frente a US-01 y a los
   casos CP-ACC-003 y CP-ACC-008 (qué se ve justo después del signup), y la siembra de US-43 que a veces queda incompleta al crear la cuenta.
