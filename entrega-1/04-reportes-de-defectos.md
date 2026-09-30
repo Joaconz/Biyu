@@ -29,7 +29,7 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
 | DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
 | DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Abierto · reportado el 2026-09-29 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
-| DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; verificado en local (falta aplicar las migraciones en producción) | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
+| DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 
 **Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 8 · Baja: 8 · Total abiertos: 16.
 
@@ -611,7 +611,7 @@ Con montos de 9 cifras o más, los totales del Resumen no entran en sus tarjetas
 
 | Campo | Contenido |
 |---|---|
-| Estado | Cerrado · corregido en #176 el 2026-09-29; verificado en local (falta aplicar las migraciones en producción) |
+| Estado | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 |
 | Severidad | Crítica |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | uso en producción después del merge de #173 (US-68), fuera del catálogo escrito. |
@@ -635,4 +635,4 @@ Después del merge de US-68, las cuentas creadas antes de esa historia tenían q
 
 **Evidencia.** Tests de regresión en rojo antes de la corrección: e2e/setup.spec.ts (fallan "si guardar el setup falla", "si leer el estado falla" y "cuenta sin fila") y e2e/smoke.spec.ts (esperaba /register después del signup). Después de #176: e2e 28/28 en Chromium y WebKit, pgTAP 175/175, Vitest 246/246.
 
-**Notas.** No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Pendiente: correr supabase db push en producción.
+**Notas.** No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Las migraciones se aplicaron en producción con supabase db push y el flujo se verificó allí.

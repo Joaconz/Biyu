@@ -119,7 +119,7 @@
     "issue": "#175",
     "severidad": "Crítica",
     "prioridad": "A definir por el PO",
-    "estado": "Cerrado · corregido en #176 el 2026-09-29; verificado en local (falta aplicar las migraciones en producción)",
+    "estado": "Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29",
     "reporter": "Uso en producción (usuario con cuenta previa), analizado con Claude Code, equipo Biyu",
     "encontrado": "uso en producción después del merge de #173 (US-68), fuera del catálogo escrito.",
     "caso": "— (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts)",
@@ -134,6 +134,6 @@
     "esperado": "Una cuenta existente entra directo a la app (US-01). Terminar el setup lleva a Registrar y el setup no vuelve a aparecer (US-68).",
     "obtenido": "La cuenta existente es obligada a hacer el setup. Al terminarlo, la app se queda en /setup: el botón vuelve a habilitarse sin ningún mensaje.",
     "evidencia": "Tests de regresión en rojo antes de la corrección: e2e/setup.spec.ts (fallan \"si guardar el setup falla\", \"si leer el estado falla\" y \"cuenta sin fila\") y e2e/smoke.spec.ts (esperaba /register después del signup). Después de #176: e2e 28/28 en Chromium y WebKit, pgTAP 175/175, Vitest 246/246.",
-    "notas": "No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Pendiente: correr supabase db push en producción."
+    "notas": "No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Las migraciones se aplicaron en producción con supabase db push y el flujo se verificó allí."
   }
 ]

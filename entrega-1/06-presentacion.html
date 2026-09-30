@@ -469,19 +469,19 @@ conmigo paso a paso, de la sección 1 a la 4.
 
 <section class="slide" id="reporte-defectos">
   <div class="section-mark">Defectos</div>
-  <h2>15 defectos abiertos, ninguno crítico ni alto</h2>
+  <h2>16 defectos abiertos, ninguno crítico ni alto</h2>
   <div class="stats">
-    <div class="stat"><span class="n">0</span><span class="l">Crítica (DEF-004 corregido)</span></div>
+    <div class="stat"><span class="n">0</span><span class="l">Crítica (DEF-004 y DEF-022 corregidos)</span></div>
     <div class="stat"><span class="n">0</span><span class="l">Alta (DEF-017 corregido)</span></div>
-    <div class="stat"><span class="n warn">7</span><span class="l">Media</span></div>
+    <div class="stat"><span class="n warn">8</span><span class="l">Media</span></div>
     <div class="stat"><span class="n">8</span><span class="l">Baja</span></div>
   </div>
   <ul class="points">
-    <li><b>5 corregidos y confirmados:</b> DEF-001 (404), DEF-002, DEF-003, DEF-004 (NaN), DEF-017 (US-68)</li>
-    <li><b>4 nuevos:</b> US-68 sin implementar, TC con 5 decimales, "Salud" y "salud", TC sugerido sin formato</li>
+    <li><b>6 corregidos y confirmados:</b> DEF-001 (404), DEF-002, DEF-003, DEF-004 (NaN), DEF-017 (US-68), DEF-022 (setup)</li>
+    <li><b>6 nuevos:</b> US-68 sin implementar, TC con 5 decimales, "Salud" y "salud", TC sugerido sin formato, montos que desbordan el Resumen, setup que dejaba afuera de la app</li>
     <li>Negativos y bordes atacados: 8 exploraciones extra, 2 dieron defectos</li>
   </ul>
-  <div class="notes">De los 16 defectos de la primera pasada, 4 ya están corregidos y los volvimos a probar: por ejemplo el NaN, que era el único crítico. Los otros 12 se siguen reproduciendo. Encontramos 4 nuevos; uno, DEF-017 (US-68 sin implementar), era el único de severidad Alta y ya está corregido y re-testeado. La severidad la pone quien reporta; la prioridad la decide el Product Owner.</div>
+  <div class="notes">Reportamos 22 defectos. De los 16 de la primera pasada, 4 ya están corregidos y los volvimos a probar: por ejemplo el NaN, que era crítico. Los otros 12 se siguen reproduciendo. Encontramos 6 nuevos. DEF-017 (US-68 sin implementar) era el único de severidad Alta: lo corregimos y lo volvimos a probar. DEF-022 apareció en producción justo después: el setup dejaba afuera de la app a las cuentas que ya existían. Era crítico, lo corregimos escribiendo primero los tests que lo reproducían y ya está verificado en producción. DEF-021 (montos grandes que desbordan el Resumen) sigue abierto. La severidad la pone quien reporta; la prioridad la decide el Product Owner.</div>
 </section>
 
 <section class="slide" id="reporte-salida">
