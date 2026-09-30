@@ -1,6 +1,6 @@
 # Proyecto Biyu – Entrega 1 · Ejecución de casos de prueba (V1)
 
-Planilla: `03-ejecucion-casos-de-prueba.xlsx` (una hoja por caso con "Reporte de ejecución 1", resultado obtenido, evidencia y defectos).
+Planilla: `03-ejecucion-casos-de-prueba.xlsx` (una hoja por caso con "Reporte de ejecución 1", resultado obtenido, evidencia y defectos; los casos re-testeados tienen además "Reporte de ejecución 2").
 
 ## Condiciones de la ejecución
 
@@ -10,6 +10,12 @@ Planilla: `03-ejecucion-casos-de-prueba.xlsx` (una hoja por caso con "Reporte de
 - **Cómo se ejecutó:** Claude Code con el runner entrega-1/ejecucion/run.mjs, supervisado por Joaquin Nuñez. El runner recorre cada caso por la UI como lo haría una persona (Playwright, emulación de celular), ejecuta las variantes API con la anon key y sesiones reales de usuarios de prueba, y usa consultas directas a la base local solo como oráculo. Cada caso guarda su resultado obtenido y, si aplica, una captura en `evidencia/`.
 - **Datos:** usuarios y montos ficticios creados por la corrida (`mum0bycw`) en Supabase local. En producción no se creó nada.
 - **Además:** Vitest 239/239 y pgTAP 158/158 en verde sobre el mismo commit (ver `05-reporte-de-ejecucion`).
+
+## Ejecución 2 (re-test)
+
+- **Fecha:** 2026-09-29. **Versión probada:** `main` en el commit `de26493`. **Corrida:** `mund7icx`, mismo entorno y runner.
+- **Qué se re-ejecutó:** CP-CFG-011, CP-CFG-012, CP-CFG-013, CP-CFG-014, CP-CFG-015. Re-test de US-68 después de implementarla (#173, DEF-017) y de corregir DEF-022 (#176). Solo se re-ejecutan CP-CFG-011 a CP-CFG-015; el resto del catálogo conserva la ejecución 1.
+- **Status vigente:** el de la última ejecución de cada caso. La ejecución 1 queda registrada en la hoja de cada caso.
 
 ## Resultado por caso
 
@@ -37,11 +43,11 @@ Planilla: `03-ejecucion-casos-de-prueba.xlsx` (una hoja por caso con "Reporte de
 | CP-CFG-008 | Alta | US-43 | **PASSED** | — |
 | CP-CFG-009 | Alta | US-46 | **PASSED** | — |
 | CP-CFG-010 | Media | US-46 | **PASSED** | — |
-| CP-CFG-011 | Alta | US-68 | **FAILED** | DEF-017 |
-| CP-CFG-012 | Media | US-68, US-43 | **BLOCKED** | DEF-017 |
-| CP-CFG-013 | Media | US-68 | **BLOCKED** | DEF-017 |
-| CP-CFG-014 | Media | US-68, US-07 | **BLOCKED** | DEF-017 |
-| CP-CFG-015 | Baja | US-68 | **BLOCKED** | DEF-017 |
+| CP-CFG-011 | Alta | US-68 | **PASSED** (ejecución 2) | DEF-017 (corregido) |
+| CP-CFG-012 | Media | US-68, US-43 | **PASSED** (ejecución 2) | DEF-017 (corregido) |
+| CP-CFG-013 | Media | US-68 | **PASSED** (ejecución 2) | DEF-017 (corregido) |
+| CP-CFG-014 | Media | US-68, US-07 | **PASSED** (ejecución 2) | DEF-017 (corregido) |
+| CP-CFG-015 | Baja | US-68 | **PASSED** (ejecución 2) | DEF-017 (corregido) |
 | CP-REG-001 | Alta | US-01 | **PASSED** | — |
 | CP-REG-002 | Media | US-03 | **PASSED** | — |
 | CP-REG-003 | Baja | US-04, US-05 | **PASSED** | — |
@@ -377,11 +383,11 @@ API -100: upsert directo → 42501 permission denied for table fx_rates; RPC ups
 
 **Evidencia:** [CP-CFG-010-tc-invalido.jpg](evidencia/CP-CFG-010-tc-invalido.jpg)
 
-### CP-CFG-011 — Después de crear la cuenta aparece la configuración inicial · **FAILED**
+### CP-CFG-011 — Después de crear la cuenta aparece la configuración inicial · **PASSED**
 
 **Esperado:** La cuenta se crea. Se muestra el setup (elementos con data-testid "setup-"), con los pasos "para qué la usás", categorías, cuentas y primer gasto.
 
-**Obtenido:**
+**Obtenido (ejecución 1, 2026-09-28, FAILED):**
 
 ```text
 Después de crear la cuenta la app va directo a /register. Elementos con data-testid "setup-": 0. No aparece ninguna configuración inicial.
@@ -390,11 +396,19 @@ Después de crear la cuenta la app va directo a /register. Elementos con data-te
 **Evidencia:** [CP-CFG-011-sin-setup.jpg](evidencia/CP-CFG-011-sin-setup.jpg)
 **Defectos:** DEF-017
 
-### CP-CFG-012 — Saltear todo el setup deja la siembra de siempre · **BLOCKED**
+**Obtenido (ejecución 2, 2026-09-29, PASSED):**
+
+```text
+Después de crear la cuenta se abre /setup: paso 1 de 4 ("¿Para qué vas a usar Biyu?") con 3 opciones. Elementos con data-testid "setup-": 6.
+```
+
+**Evidencia:** [CP-CFG-011-setup.jpg](evidencia/CP-CFG-011-setup.jpg)
+
+### CP-CFG-012 — Saltear todo el setup deja la siembra de siempre · **PASSED**
 
 **Esperado:** El setup termina y la app abre en Registrar. Quedan las 8 categorías y 5 cuentas sembradas (US-43).
 
-**Obtenido:**
+**Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
 ```text
 No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.
@@ -402,11 +416,19 @@ No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 f
 
 **Defectos:** DEF-017
 
-### CP-CFG-013 — Destildar una categoría en el setup la archiva · **BLOCKED**
+**Obtenido (ejecución 2, 2026-09-29, PASSED):**
+
+```text
+Salteados los 4 pasos, la app abre /register. Activas: 8 categorías y 5 cuentas (siembra de US-43). Setup marcado como completo: true.
+```
+
+**Evidencia:** [CP-CFG-012-salteado.jpg](evidencia/CP-CFG-012-salteado.jpg)
+
+### CP-CFG-013 — Destildar una categoría en el setup la archiva · **PASSED**
 
 **Esperado:** Sigue el siguiente paso. "Educación" queda archivada, no borrada.
 
-**Obtenido:**
+**Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
 ```text
 No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.
@@ -414,11 +436,19 @@ No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 f
 
 **Defectos:** DEF-017
 
-### CP-CFG-014 — La cuenta elegida como predeterminada viene preseleccionada · **BLOCKED**
+**Obtenido (ejecución 2, 2026-09-29, PASSED):**
+
+```text
+Destildada "Educación" y continuar: el setup pasa al paso "accounts". En la base, "Educación": 1 fila, 1 archivada (archived_at seteado, no se borró).
+```
+
+**Evidencia:** [CP-CFG-013-educacion-destildada.jpg](evidencia/CP-CFG-013-educacion-destildada.jpg)
+
+### CP-CFG-014 — La cuenta elegida como predeterminada viene preseleccionada · **PASSED**
 
 **Esperado:** Se abre el registro guiado. "Tarjeta de débito" viene seleccionada.
 
-**Obtenido:**
+**Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
 ```text
 No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.
@@ -426,17 +456,33 @@ No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 f
 
 **Defectos:** DEF-017
 
-### CP-CFG-015 — El setup no reaparece y se puede reabrir desde Ajustes · **BLOCKED**
+**Obtenido (ejecución 2, 2026-09-29, PASSED):**
+
+```text
+Con "Tarjeta de débito" marcada como predeterminada, en el paso de detalles del primer gasto el chip "Tarjeta de débito" viene seleccionado (aria-pressed=true).
+```
+
+**Evidencia:** [CP-CFG-014-cuenta-preseleccionada.jpg](evidencia/CP-CFG-014-cuenta-preseleccionada.jpg)
+
+### CP-CFG-015 — El setup no reaparece y se puede reabrir desde Ajustes · **PASSED**
 
 **Esperado:** No aparece el setup: abre Registrar. Se muestra de nuevo.
 
-**Obtenido:**
+**Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
 ```text
 No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.
 ```
 
 **Defectos:** DEF-017
+
+**Obtenido (ejecución 2, 2026-09-29, PASSED):**
+
+```text
+Cerrada la sesión y vuelta a entrar: abre /register, sin el setup. Desde Ajustes → configuración inicial: se abre /setup con 3 opciones. "Educación" sigue archivada: sí.
+```
+
+**Evidencia:** [CP-CFG-015-sin-setup-al-volver.jpg](evidencia/CP-CFG-015-sin-setup-al-volver.jpg) · [CP-CFG-015-reabierto-desde-ajustes.jpg](evidencia/CP-CFG-015-reabierto-desde-ajustes.jpg)
 
 ### CP-REG-001 — El registro es la pantalla de inicio · **PASSED**
 

@@ -13,8 +13,9 @@ todos los archivos: **historia `US-nn` → caso `CP-<módulo>-<nnn>` → resulta
 | Presentación | `06-presentacion.html` | Slides para la clase, con las capturas de la app en un marco de celular |
 | Estudio | `07-resumen-de-estudio.md` | Para explicar todo oralmente, con preguntas probables |
 
-Resultado de la corrida sobre `main` 44f1519 (2026-09-28): **74 planificados · 70 ejecutados · 67 PASSED
-· 3 FAILED · 4 BLOCKED**. Además: Vitest 239/239 y pgTAP 158/158.
+Resultado vigente: **74 planificados · 74 ejecutados · 72 PASSED · 2 FAILED · 0 BLOCKED**, V1 cerrada. Ejecución 1
+sobre `main` 44f1519 (2026-09-28), con Vitest 239/239 y pgTAP 158/158. Ejecución 2 (2026-09-29, `de26493`):
+re-test de CP-CFG-011 a 015 después de implementar US-68.
 
 ## Cómo se reproduce
 

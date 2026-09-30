@@ -87,7 +87,7 @@ generada. El costo es que la lógica difícil vive en SQL y se prueba con pgTAP.
 
 ## 4. Funcionalidades de la V1
 
-Hay 46 historias en V1: 45 implementadas y 1 pendiente (US-68).
+Hay 46 historias en V1, las 46 implementadas. La última fue US-68 (configuración inicial).
 
 | Módulo | Qué hace |
 |---|---|
@@ -168,31 +168,33 @@ cambio. La fila "ARS con tipo de cambio" es un negativo real que nadie escribe s
 
 **Cómo se ejecutó:**
 
-- Los 74 casos, sobre `main` 44f1519 del 28/09, en la app local con Supabase local.
+- Ejecución 1: los 74 casos, sobre `main` 44f1519 del 28/09, en la app local con Supabase local.
+- Ejecución 2 (29/09): re-test de los 5 casos de US-68 (CP-CFG-011 a 015) después de implementarla.
 - Lo ejecutó un runner de Playwright que sigue cada caso como una persona, en un celular emulado de
-  390×844. Usa consultas a la base solo como oráculo y guarda una captura por caso (57 en total).
+  390×844. Usa consultas a la base solo como oráculo y guarda una captura por caso (57 en la ejecución 1 y 6 en la 2).
 - Además se re-testearon los 16 defectos anteriores y se atacaron 8 bordes extra.
 
 ## 8. Resultados
 
 | Planificados | Ejecutados | PASSED | FAILED | BLOCKED |
 |---|---|---|---|---|
-| 74 | 70 (95 %) | 67 (96 % de ejecutados) | 3 | 4 |
+| 74 | 74 (100 %) | 72 (97 % de ejecutados) | 2 | 0 |
 
 - **FAILED:**
   - CP-ACC-004: el servidor acepta contraseñas débiles (DEF-005).
   - CP-CFG-004: no hay marca de "archivada" en el historial (DEF-006).
-  - CP-CFG-011: no aparece la configuración inicial (DEF-017).
-- **BLOCKED:** CP-CFG-012 a 015, porque US-68 no existe.
+- **US-68:** en la ejecución 1, CP-CFG-011 falló y CP-CFG-012 a 015 quedaron BLOCKED porque la
+  configuración inicial no existía (DEF-017). Se implementó y en la ejecución 2 pasan los 5.
 - **Cálculo de dinero:** cuotas, monedas, registro y dashboard pasan al 100 %.
-- **Automatizados:** Vitest 239/239 y pgTAP 158/158.
-- **Defectos:** 20 reportados en total.
-  - 4 corregidos y confirmados: DEF-001 (404), DEF-002 (lang/título), DEF-003 y DEF-004 (NaN, el único
-    crítico).
-  - **16 abiertos:** 0 críticos, 1 alta (DEF-017), 7 media y 8 baja.
-  - 4 son nuevos de esta entrega: DEF-017 a DEF-020.
-- **Criterios de salida de V1:** se cumplen 3 de 4. Falta el de "cero altos abiertos" por DEF-017.
-  Opciones: implementar US-68, o que el PO la pase a V2 con justificación.
+- **Automatizados:** Vitest 239/239 y pgTAP 158/158 en la ejecución 1; hoy Vitest 246/246 y pgTAP
+  175/175, más los e2e de Playwright del setup (28/28 en Chromium y WebKit).
+- **Defectos:** 22 reportados en total.
+  - 6 corregidos y confirmados: DEF-001 (404), DEF-002 (lang/título), DEF-003, DEF-004 (NaN, crítico),
+    DEF-017 (US-68 sin implementar, alta) y DEF-022 (el setup dejaba afuera de la app, crítico).
+  - **16 abiertos:** 0 críticos, 0 altos, 8 media y 8 baja. Se corrigen y re-testean en V2.
+  - 6 son nuevos de esta entrega: DEF-017 a DEF-022.
+- **Criterios de salida de V1:** se cumplen los 4. **V1 está cerrada.** En la ejecución 1 faltaba
+  "cero altos abiertos" por DEF-017; se implementó US-68 y la ejecución 2 lo confirmó.
 
 ## 9. Preguntas probables del docente
 
@@ -218,8 +220,8 @@ oráculo exacto (33.333,34 en la última cuota) y se prueba en tres niveles: Vit
 
 **4. ¿Qué es un caso BLOCKED y en qué se diferencia de FAILED?**
 FAILED: el caso se ejecutó y el resultado no coincide con lo esperado. BLOCKED: no se pudo ejecutar
-porque falta una precondición. Por ejemplo, CP-CFG-012 pide saltear los pasos del setup, pero el setup no
-existe (DEF-017). Contarlos como FAILED inflaría los fallos. Contarlos como PASSED sería mentir.
+porque falta una precondición. Por ejemplo, en la ejecución 1 CP-CFG-012 pedía saltear los pasos del
+setup, pero el setup todavía no existía (DEF-017). Contarlos como FAILED inflaría los fallos. Contarlos como PASSED sería mentir.
 
 **5. ¿Por qué ejecutaron contra local y no contra producción?**
 Porque ejecutar el catálogo exige crear muchas cuentas de prueba, y eso no se hace en producción. El
@@ -244,10 +246,12 @@ La regla C1 dice que el dominio nunca lee el reloj: `today` entra como parámetr
 CP-REG-013, que en la pasada anterior había quedado bloqueado.
 
 **9. ¿Qué pasó con US-68 y por qué no la sacaron de la entrega?**
-Es la configuración inicial al crear la cuenta. Está en el alcance de la Entrega 1 pero no se implementó.
-Preferimos dejarla, diseñar sus 5 casos y reportar el faltante como defecto de severidad alta (DEF-017).
-Así el reporte muestra el estado real: V1 cumple 3 de 4 criterios de salida. Sacarla habría hecho que el
-reporte diera "todo verde" sin serlo.
+Es la configuración inicial al crear la cuenta. Estaba en el alcance de la Entrega 1 y en la ejecución 1
+todavía no existía. Preferimos dejarla, diseñar sus 5 casos y reportar el faltante como defecto de
+severidad alta (DEF-017), en vez de sacarla para que el reporte diera "todo verde". Después la
+implementamos (#173) y en la ejecución 2 pasan sus 5 casos. Al subirla a producción apareció DEF-022
+(dejaba afuera de la app a las cuentas que ya existían): se corrigió escribiendo primero los tests que lo
+reproducían y se verificó en producción.
 
 **10. ¿Qué van a automatizar en V3?**
 Los casos marcados "Automatizable: V3", que son el camino feliz de cada módulo. Con eso se cubren los dos

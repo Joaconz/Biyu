@@ -26,9 +26,9 @@ App: <https://biyu-rust.vercel.app> · Repositorio: <https://github.com/Joaconz/
   cambió la forma de la pantalla, se aclara en "Pantallas y campos"; el criterio no se reescribe.
 - **Casos de prueba**: IDs de `02-especificacion-casos-de-prueba`. El resultado de cada uno está en
   `03-ejecucion-casos-de-prueba`.
-- **Estado en V1**: 46 historias de V1, 45 implementadas y cerradas. US-68 entra en el alcance de la
-  Entrega 1 pero **no está implementada** (issue #159 abierto); sus casos quedan diseñados y su
-  ejecución falla (ver DEF-017).
+- **Estado en V1**: 46 historias de V1, las 46 implementadas y cerradas. US-68 fue la última: en la
+  ejecución 1 no estaba implementada (DEF-017); se implementó en #173 y sus 5 casos pasan en la
+  ejecución 2 (ver `05-reporte-de-ejecucion`).
 
 ## Resumen de las historias de usuario
 
@@ -214,15 +214,16 @@ App: <https://biyu-rust.vercel.app> · Repositorio: <https://github.com/Joaconz/
 - **Trazabilidad:** FR-12
 - **Casos de prueba:** CP-CFG-009, CP-CFG-010
 
-#### US-68: Configuración inicial al crear la cuenta · [#159](https://github.com/Joaconz/Biyu/issues/159) · **No implementada**
+#### US-68: Configuración inicial al crear la cuenta · [#159](https://github.com/Joaconz/Biyu/issues/159) · Implementada
 
 - **Objetivo:** Como usuario nuevo, quiero una configuración inicial breve al crear mi cuenta, para
   dejar las categorías y los medios de pago como los uso y registrar mi primer gasto sabiendo cómo
   funciona la app.
-- **Pantallas y campos (planificados en el issue):** flujo que aparece una sola vez después de crear
-  la cuenta, con cuatro pasos que se pueden saltear: (1) para qué la usás, (2) categorías, con la
-  opción de destildar, renombrar o sumar, (3) cuentas y cuenta por defecto, (4) primer gasto
-  guiado. Elementos con `data-testid` de prefijo `setup-`.
+- **Pantallas y campos:** pantalla **Configuración inicial** (`/setup`), que aparece una sola vez
+  después de crear la cuenta, con cuatro pasos que se pueden saltear: (1) para qué la usás, (2)
+  categorías, con la opción de destildar, (3) cuentas y cuenta predeterminada, (4) primer gasto
+  guiado. Se vuelve a abrir desde Ajustes. Renombrar o sumar categorías, que el issue también
+  planteaba, se hace desde Ajustes (US-42). Elementos con `data-testid` de prefijo `setup-` (ADR-025).
 - **Criterios de aceptación:**
   - Después de crear la cuenta se muestra el setup, y no vuelve a aparecer una vez que se completó o
     se salteó.

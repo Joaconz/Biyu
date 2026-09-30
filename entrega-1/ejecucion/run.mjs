@@ -22,6 +22,10 @@ async function makeUser(tag) {
   const mail = email(tag)
   const { client, data, error } = await apiSignUp(mail)
   if (error) throw new Error(`signup ${tag}: ${error.message}`)
+  // US-68 (ADR-025): la cuenta nueva nace con el setup pendiente. Estos usuarios son datos de
+  // prueba de otros casos, así que arrancan con el setup ya hecho, como quien ya usa la app.
+  const setup = await client.from('user_setup').update({ completed_at: new Date().toISOString() }).eq('user_id', data.user.id)
+  if (setup.error) throw new Error(`setup ${tag}: ${setup.error.message}`)
   const context = await newContext(browser, data.session)
   const page = await context.newPage()
   await gotoRegister(page) // la app siembra el catálogo al abrir el registro (US-43)

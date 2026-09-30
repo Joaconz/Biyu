@@ -21,6 +21,12 @@ RUN = json.loads((ROOT / 'ejecucion' / 'resultados.json').read_text())
 DEFECTOS = json.loads((ROOT / 'fuentes' / 'defectos.json').read_text())
 RES = {r['id']: r for r in RUN['results']}
 RETEST = {r['id']: r for r in RUN['retests']}
+# Ejecución 2: re-test parcial (solo los casos que se volvieron a correr). El status vigente de
+# cada caso es el de su última ejecución.
+EJ2 = RUN.get('ejecucion2') or {'results': []}
+RES2 = {r['id']: r for r in EJ2['results']}
+FECHA2 = EJ2.get('today', '')
+COMMIT2 = EJ2.get('commit', '')
 BY_ID = {c['id']: c for c in CASOS}
 
 PROYECTO = 'Biyu'
@@ -29,6 +35,7 @@ EJECUTADO_POR = 'Claude Code con el runner entrega-1/ejecucion/run.mjs, supervis
 FECHA = RUN['today']
 COMMIT = RUN.get('commit') or '44f1519'
 ENTORNO = f'Local: Vite (http://localhost:5180) + Supabase local · main {COMMIT} · Chromium (Playwright) 390×844 móvil'
+ENTORNO2 = f'Local: Vite (http://localhost:5180) + Supabase local · main {COMMIT2} · Chromium (Playwright) 390×844 móvil'
 MODULOS = OrderedDict([('ACC', 'Acceso y autorización'), ('CFG', 'Configuración'), ('REG', 'Registro y baja'),
                        ('CUO', 'Cuotas'), ('MON', 'Monedas'), ('DAS', 'Dashboard')])
 
@@ -43,9 +50,27 @@ BOLD = Font(bold=True)
 WHITE = Font(bold=True, color='FFFFFFFF')
 
 
+def last_run(cid):
+    return RES2.get(cid) or RES.get(cid)
+
+
 def status_of(cid):
+    r = last_run(cid)
+    return r['status'] if r else 'NO EJECUTADO'
+
+
+def status_1(cid):
     r = RES.get(cid)
     return r['status'] if r else 'NO EJECUTADO'
+
+
+def defects_of(cid):
+    """Defectos de la última ejecución; si ya no están, se nombran los que había en la ejecución 1."""
+    now = (last_run(cid) or {}).get('defects', [])
+    before = RES.get(cid, {}).get('defects', [])
+    if now or not before or cid not in RES2:
+        return ', '.join(now)
+    return f'{", ".join(before)} (corregido)'
 
 
 def cell(ws, ref, value, fill=None, bold=False, merge=None):
@@ -73,8 +98,11 @@ def tc_sheet(wb, c, with_exec):
     cell(ws, 'A3', 'Reporte de ejecución 1', EXEC, True, merge='A3:B3')
     cell(ws, 'C3', 'Reporte de ejecución 2', EXEC, True); cell(ws, 'D3', 'Reporte de ejecución 3', EXEC, True, merge='D3:E3')
     if with_exec:
-        st = status_of(c['id'])
+        st = status_1(c['id'])
         cell(ws, 'A4', f'{st} · {FECHA}', PatternFill('solid', fgColor=STATUS_FILL[st]), True, merge='A4:B4')
+        if c['id'] in RES2:
+            st2 = RES2[c['id']]['status']
+            cell(ws, 'C4', f'{st2} · {FECHA2}', PatternFill('solid', fgColor=STATUS_FILL[st2]), True)
     cell(ws, 'A5', 'Prioridad (Alta, Media, Baja)', LABEL, True); cell(ws, 'B5', c['prioridad'])
     cell(ws, 'C5', 'Camino feliz', LABEL, True); cell(ws, 'D5', 'Sí' if c['feliz'] else 'No')
     cell(ws, 'A6', 'Técnica / Tipo', LABEL, True); cell(ws, 'B6', f"{c['tecnica']} · {c['tipo']}")
@@ -103,14 +131,18 @@ def tc_sheet(wb, c, with_exec):
         r = row + i
         cell(ws, f'A{r}', i); cell(ws, f'B{r}', paso, merge=f'B{r}:C{r}'); cell(ws, f'D{r}', esperado, merge=f'D{r}:E{r}')
     if with_exec:
-        r = RES.get(c['id'], {})
         row += len(c['pasos']) + 2
-        cell(ws, f'A{row}', 'Resultado obtenido', EXEC, True); cell(ws, f'B{row}', r.get('obtained', 'No ejecutado'), merge=f'B{row}:E{row}')
-        ws.row_dimensions[row].height = max(30, 15 * (r.get('obtained', '').count('\n') + 2))
-        cell(ws, f'A{row + 1}', 'Evidencia', EXEC, True); cell(ws, f'B{row + 1}', '\n'.join(r.get('evidence', [])) or '—', merge=f'B{row + 1}:E{row + 1}')
-        cell(ws, f'A{row + 2}', 'Defectos', EXEC, True); cell(ws, f'B{row + 2}', ', '.join(r.get('defects', [])) or '—', merge=f'B{row + 2}:E{row + 2}')
-        cell(ws, f'A{row + 3}', 'Notas del ejecutor', EXEC, True); cell(ws, f'B{row + 3}', r.get('notes') or '—', merge=f'B{row + 3}:E{row + 3}')
-        cell(ws, f'A{row + 4}', 'Entorno / ejecutó', EXEC, True); cell(ws, f'B{row + 4}', f'{ENTORNO}\n{EJECUTADO_POR}', merge=f'B{row + 4}:E{row + 4}')
+        runs = [('', RES.get(c['id'], {}), ENTORNO)]
+        if c['id'] in RES2:
+            runs = [(' · ejecución 1', RES.get(c['id'], {}), ENTORNO), (' · ejecución 2', RES2[c['id']], ENTORNO2)]
+        for suffix, r, entorno in runs:
+            cell(ws, f'A{row}', f'Resultado obtenido{suffix}', EXEC, True); cell(ws, f'B{row}', r.get('obtained', 'No ejecutado'), merge=f'B{row}:E{row}')
+            ws.row_dimensions[row].height = max(30, 15 * (r.get('obtained', '').count('\n') + 2))
+            cell(ws, f'A{row + 1}', 'Evidencia', EXEC, True); cell(ws, f'B{row + 1}', '\n'.join(r.get('evidence', [])) or '—', merge=f'B{row + 1}:E{row + 1}')
+            cell(ws, f'A{row + 2}', 'Defectos', EXEC, True); cell(ws, f'B{row + 2}', ', '.join(r.get('defects', [])) or '—', merge=f'B{row + 2}:E{row + 2}')
+            cell(ws, f'A{row + 3}', 'Notas del ejecutor', EXEC, True); cell(ws, f'B{row + 3}', r.get('notes') or '—', merge=f'B{row + 3}:E{row + 3}')
+            cell(ws, f'A{row + 4}', 'Entorno / ejecutó', EXEC, True); cell(ws, f'B{row + 4}', f'{entorno}\n{EJECUTADO_POR}', merge=f'B{row + 4}:E{row + 4}')
+            row += 6
     return ws
 
 
@@ -128,8 +160,7 @@ def index_sheet(wb, title, with_exec):
     for c in CASOS:
         row = [c['id'], c['prioridad'], c['titulo'], ', '.join(c['historias']), 'Sí' if c['feliz'] else 'No', c['tipo'], c['tecnica']]
         if with_exec:
-            r = RES.get(c['id'], {})
-            row += [status_of(c['id']), ', '.join(r.get('defects', []))]
+            row += [status_of(c['id']), defects_of(c['id'])]
         ws.append(row)
         for i in range(1, len(row) + 1):
             x = ws.cell(row=ws.max_row, column=i); x.border = BOX; x.alignment = WRAP
@@ -217,35 +248,46 @@ def gen_spec():
 # ---------------------------------------------------------------- 03 ejecución
 def gen_exec():
     wb = Workbook()
-    index_sheet(wb, f'Biyu – Entrega 1 – Ejecución de casos de prueba ({FECHA})', True)
+    title = f'Biyu – Entrega 1 – Ejecución de casos de prueba ({FECHA}' + (f', re-test {FECHA2})' if RES2 else ')')
+    index_sheet(wb, title, True)
     for c in CASOS:
         tc_sheet(wb, c, True)
     wb.save(ROOT / '03-ejecucion-casos-de-prueba.xlsx')
 
     L = ['# Proyecto Biyu – Entrega 1 · Ejecución de casos de prueba (V1)', '',
-         f'Planilla: `03-ejecucion-casos-de-prueba.xlsx` (una hoja por caso con "Reporte de ejecución 1", resultado obtenido, evidencia y defectos).', '',
+         f'Planilla: `03-ejecucion-casos-de-prueba.xlsx` (una hoja por caso con "Reporte de ejecución 1", resultado obtenido, evidencia y defectos; '
+         f'los casos re-testeados tienen además "Reporte de ejecución 2").', '',
          '## Condiciones de la ejecución', '',
          f'- **Fecha:** {FECHA} (hoy según el reloj de la corrida, hora argentina).',
          f'- **Versión probada:** `main` en el commit `{COMMIT}` (incluye los fixes de DEF-004 y DEF-001 mergeados ese día).',
          f'- **Entorno:** {ENTORNO}.',
          f'- **Cómo se ejecutó:** {EJECUTADO_POR}. El runner recorre cada caso por la UI como lo haría una persona (Playwright, emulación de celular), ejecuta las variantes API con la anon key y sesiones reales de usuarios de prueba, y usa consultas directas a la base local solo como oráculo. Cada caso guarda su resultado obtenido y, si aplica, una captura en `evidencia/`.',
          f'- **Datos:** usuarios y montos ficticios creados por la corrida (`{RUN["run"]}`) en Supabase local. En producción no se creó nada.',
-         '- **Además:** Vitest 239/239 y pgTAP 158/158 en verde sobre el mismo commit (ver `05-reporte-de-ejecucion`).', '',
-         '## Resultado por caso', '', '| ID | Prioridad | Historia | Status | Defectos |', '|---|---|---|---|---|']
-    L += [f'| {c["id"]} | {c["prioridad"]} | {", ".join(c["historias"])} | **{status_of(c["id"])}** | {", ".join(RES.get(c["id"], {}).get("defects", [])) or "—"} |' for c in CASOS]
+         '- **Además:** Vitest 239/239 y pgTAP 158/158 en verde sobre el mismo commit (ver `05-reporte-de-ejecucion`).', '']
+    if RES2:
+        L += ['## Ejecución 2 (re-test)', '',
+              f'- **Fecha:** {FECHA2}. **Versión probada:** `main` en el commit `{COMMIT2}`. **Corrida:** `{EJ2["run"]}`, mismo entorno y runner.',
+              f'- **Qué se re-ejecutó:** {", ".join(RES2)}. {EJ2["motivo"]}',
+              '- **Status vigente:** el de la última ejecución de cada caso. La ejecución 1 queda registrada en la hoja de cada caso.', '']
+    L += ['## Resultado por caso', '', '| ID | Prioridad | Historia | Status | Defectos |', '|---|---|---|---|---|']
+    L += [f'| {c["id"]} | {c["prioridad"]} | {", ".join(c["historias"])} | **{status_of(c["id"])}**{" (ejecución 2)" if c["id"] in RES2 else ""} | {defects_of(c["id"]) or "—"} |' for c in CASOS]
     L += ['', '## Detalle', '']
     for c in CASOS:
-        r = RES.get(c['id'], {})
         L += [f'### {c["id"]} — {c["titulo"]} · **{status_of(c["id"])}**', '',
-              f'**Esperado:** ' + ' '.join(e for _, e in c['pasos']), '',
-              '**Obtenido:**', '', '```text', r.get('obtained', 'No ejecutado'), '```', '']
-        if r.get('evidence'):
-            L.append('**Evidencia:** ' + ' · '.join(f'[{Path(e).name}]({e})' for e in r['evidence']))
-        if r.get('defects'):
-            L.append(f'**Defectos:** {", ".join(r["defects"])}')
-        if r.get('notes'):
-            L.append(f'**Notas:** {r["notes"]}')
-        L.append('')
+              f'**Esperado:** ' + ' '.join(e for _, e in c['pasos']), '']
+        runs = [('', RES.get(c['id'], {}))]
+        if c['id'] in RES2:
+            runs = [(f' (ejecución 1, {FECHA}, {status_1(c["id"])})', RES.get(c['id'], {})),
+                    (f' (ejecución 2, {FECHA2}, {RES2[c["id"]]["status"]})', RES2[c['id']])]
+        for suffix, r in runs:
+            L += [f'**Obtenido{suffix}:**', '', '```text', r.get('obtained', 'No ejecutado'), '```', '']
+            if r.get('evidence'):
+                L.append('**Evidencia:** ' + ' · '.join(f'[{Path(e).name}]({e})' for e in r['evidence']))
+            if r.get('defects'):
+                L.append(f'**Defectos:** {", ".join(r["defects"])}')
+            if r.get('notes'):
+                L.append(f'**Notas:** {r["notes"]}')
+            L.append('')
     (ROOT / '03-ejecucion-casos-de-prueba.md').write_text('\n'.join(L))
 
 
@@ -374,8 +416,7 @@ def gen_report(extra):
     for i in range(1, 8):
         c = ws.cell(row=2, column=i); c.fill = HEAD; c.font = WHITE; c.border = BOX
     for c in CASOS:
-        r = RES.get(c['id'], {})
-        ws.append([c['id'], c['prioridad'], c['titulo'], ', '.join(c['historias']), 'Sí' if c['feliz'] else 'No', status_of(c['id']), ', '.join(r.get('defects', []))])
+        ws.append([c['id'], c['prioridad'], c['titulo'], ', '.join(c['historias']), 'Sí' if c['feliz'] else 'No', status_of(c['id']), defects_of(c['id'])])
         for i in range(1, 8):
             x = ws.cell(row=ws.max_row, column=i); x.border = BOX; x.alignment = WRAP
         ws.cell(row=ws.max_row, column=6).fill = PatternFill('solid', fgColor=STATUS_FILL[status_of(c['id'])])
