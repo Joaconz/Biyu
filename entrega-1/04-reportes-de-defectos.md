@@ -51,7 +51,9 @@ Ruta inexistente muestra el error crudo del router, sin salida a la app.
 
 **Pasos para reproducir**
 
-1. Sin sesión (o con sesión), abrir https://biyu-rust.vercel.app/no-existe-esta-ruta
+1. Versión donde ocurría: producción antes de #163. Se reproduce con o sin sesión.
+2. Abrir el navegador (Chromium) y escribir en la barra de direcciones https://biyu-rust.vercel.app/no-existe-esta-ruta. Dar Enter.
+3. Observar la pantalla que se abre: el texto, si aparece el encabezado de Biyu y si hay algún botón o link para volver a la app.
 
 **Resultado esperado.** Una pantalla de "no encontrado" propia en español con un camino de vuelta a la app, o redirección a /
 
@@ -77,8 +79,11 @@ Ruta inexistente muestra el error crudo del router, sin salida a la app.
 
 **Pasos para reproducir**
 
-1. Abrir cualquier pantalla de la app.
-2. Mirar el título de la pestaña y document.documentElement.lang
+1. Versión donde ocurría: producción antes del rediseño de la UI (#161).
+2. Abrir https://biyu-rust.vercel.app/login en el navegador.
+3. Leer el título de la pestaña del navegador.
+4. Abrir las herramientas de desarrollo (F12), ir a la pestaña "Console", escribir document.documentElement.lang y dar Enter.
+5. Repetir los pasos 3 y 4 en /signup, /settings (con sesión iniciada) y en una ruta inexistente.
 
 **Resultado esperado.** Título "Biyu" (o por pantalla) y lang="es" (idealmente es-AR, CLAUDE.md fija español rioplatense). NFR-06 pide WCAG 2.1 AA; el criterio 3.1.1 (Idioma de la página) exige que lang coincida con el idioma real, si no los lectores de pantalla leen el español con fonética inglesa
 
@@ -104,8 +109,10 @@ US-66 (confirmar contraseña) nunca llegó a producción por un error de merge.
 
 **Pasos para reproducir**
 
-1. Abrir /signup.
-2. Mirar los campos del formulario
+1. Versión donde ocurría: producción antes de #141 (US-66 se había perdido en un merge).
+2. Abrir https://biyu-rust.vercel.app en el navegador, sin sesión.
+3. En la pantalla "Entrar", tocar "Crear una cuenta".
+4. Mirar los campos del formulario "Crear cuenta": qué hay debajo de "Contraseña" y de la lista de criterios, antes del botón "Crear cuenta".
 
 **Resultado esperado.** US-66 (02-behavior-spec.md): "quiero confirmar mi contraseña al registrarme escribiéndola dos veces"
 
@@ -131,9 +138,13 @@ NaN como monto se guarda y rompe el dashboard ("$NaN,undefined").
 
 **Pasos para reproducir**
 
-1. Con JWT válido, POST /rest/v1/rpc/create_transaction con p_amount: "NaN", p_currency: "ARS", resto de campos válidos.
-2. Repetir con p_currency: "USD", p_amount: 1, p_fx_rate: "NaN".
-3. Abrir /dashboard del período correspondiente.
+1. Versión donde ocurría: main antes de #162, contra el stack local (Supabase local y la app en localhost).
+2. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+3. Obtener el token de sesión del usuario (en la consola del navegador, con la app abierta: la clave "sb-…-auth-token" de localStorage, campo access_token) y la anon key del proyecto. Las llamadas de los pasos siguientes llevan los encabezados "apikey: <anon key>" y "Authorization: Bearer <token>".
+4. Con ese token, obtener los ids que pide la llamada: GET /rest/v1/categories?select=id,name y GET /rest/v1/accounts?select=id,name,type.
+5. Llamar a POST /rest/v1/rpc/create_transaction con el cuerpo {"p_amount": "NaN", "p_currency": "ARS", "p_category_id": "<id de Otros>", "p_account_id": "<id de Efectivo>", "p_occurred_on": "<fecha de hoy, AAAA-MM-DD>"}.
+6. Llamar otra vez con {"p_amount": "1", "p_currency": "USD", "p_fx_rate": "NaN", "p_category_id": "<id de Otros>", "p_account_id": "<id de Efectivo>", "p_occurred_on": "<fecha de hoy>"}.
+7. En la app, tocar "Resumen" en la barra de navegación y mirar el mes actual: el total gastado, el balance, "Por categoría" y "Por cuenta".
 
 **Resultado esperado.** Rechazado por I4 (amount > 0) — en Postgres NaN > 0 evalúa true, así que el check no alcanza. upsert_fx_rate ya tiene esta misma protección para fx_rates; create_transaction y el check de debts no.
 
@@ -159,7 +170,11 @@ El servidor acepta contraseñas que no cumplen FR-01/US-67.
 
 **Pasos para reproducir**
 
-1. POST /auth/v1/signup directo (saltando el cliente) con contraseña abc1234 (sin mayúscula ni especial) y por separado con abcd1234 (sin mayúscula ni especial)
+1. Se reproduce contra Supabase Auth local (política de contraseñas del proyecto local); no se verificó en producción.
+2. Obtener la anon key del proyecto local (salida de "supabase status").
+3. Sin pasar por la pantalla de la app, llamar a POST /auth/v1/signup con el encabezado "apikey: <anon key>" y el cuerpo {"email": "<un email nuevo>", "password": "abc1234"}.
+4. Repetir la llamada con otro email nuevo y "password": "abcd1234".
+5. Leer las dos respuestas: si traen access_token, la cuenta se creó con sesión.
 
 **Resultado esperado.** Rechazo — FR-01 exige "validado en cliente **y en el servidor**"; US-67 amplía el criterio a 8+mayúscula+minúscula+número+especial
 
@@ -185,9 +200,12 @@ Transacción de una categoría archivada no muestra marca de archivada en /trans
 
 **Pasos para reproducir**
 
-1. Crear un gasto en categoría "Entretenimiento".
-2. Archivar "Entretenimiento" desde /settings.
-3. Abrir /transactions del período de ese gasto
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". Después: escribir 8000 en el monto, tocar "Siguiente", tocar el chip "Entretenimiento", tocar "Guardar gasto" (aparece "Gasto guardado").
+3. Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral).
+4. En la sección "Categorías", tocar el botón de archivar a la derecha de "Entretenimiento" ("Archivar Entretenimiento"). "Entretenimiento" desaparece de la lista.
+5. En la barra de navegación, tocar "Movimientos" (queda en el mes actual, el del gasto).
+6. Buscar el gasto de $8.000 y mirar cómo se muestra su categoría.
 
 **Resultado esperado.** 02-behavior-spec.md, sad path "categoría archivada": "Las transacciones históricas la siguen mostrando, **con una marca visual de archivada**" — el dashboard ya lo hace bien, /transactions no
 
@@ -213,9 +231,12 @@ Una transacción eliminada desaparece del historial en vez de quedar marcada com
 
 **Pasos para reproducir**
 
-1. Crear un gasto de $50.000.
-2. Eliminarlo desde /transactions, confirmando el aviso.
-3. Mirar el listado
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". Después: escribir 50000 en el monto, tocar "Siguiente", tocar el chip "Indumentaria", en "Cuenta" tocar "Efectivo", en "Nota (opcional)" escribir "Campera", tocar "Guardar gasto" (aparece "Gasto guardado").
+3. En la barra de navegación, tocar "Movimientos" (mes actual).
+4. En el movimiento "Campera", tocar el tacho ("Eliminar Campera"). Se abre el diálogo "¿Eliminar transacción?".
+5. Tocar "Eliminar". Aparece "Transacción eliminada".
+6. Mirar el listado de Movimientos del mes, y después "Últimos movimientos" en el Resumen: si el gasto sigue visible con alguna marca de eliminado.
 
 **Resultado esperado.** pre-entrega.md FR-08: "la transacción deja de contarse en los totales pero **permanece visible en el historial con una marca de eliminada**"
 
@@ -241,8 +262,10 @@ Tras iniciar sesión se ignora el destino original (next) y siempre entra a /reg
 
 **Pasos para reproducir**
 
-1. Sin sesión, abrir /dashboard?period=2026-06 → redirige a /login?next=%2Fdashboard%3Fperiod%3D2026-06.
-2. Iniciar sesión
+1. Usar un usuario que ya existe y ya completó o salteó la configuración inicial. Empezar sin sesión: si hay una abierta, ir a Ajustes y tocar "Cerrar sesión".
+2. Escribir en la barra del navegador la dirección de la app seguida de /dashboard?period=2026-06 y dar Enter. La app redirige a /login?next=%2Fdashboard%3Fperiod%3D2026-06.
+3. En "Entrar", escribir el email y la contraseña del usuario y tocar "Entrar".
+4. Observar a qué pantalla lleva y la URL final.
 
 **Resultado esperado.** Volver a /dashboard?period=2026-06 — AuthForm.tsx sí llama navigate(next), pero algo lo pisa
 
@@ -268,8 +291,13 @@ Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes vi
 
 **Pasos para reproducir**
 
-1. Con una cuenta credit_card que ya tiene compras en cuotas (2, 3, 12).
-2. PATCH /rest/v1/accounts?id=eq.<esa cuenta> con {"type":"cash"}
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). En "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".
+3. Registrar tres compras en cuotas con esa cuenta. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". Después: escribir 12000 en el monto, tocar "Siguiente", tocar el chip "Otros", en "Cuenta" tocar "Visa BBVA", en "Cuotas" tocar "2", tocar "Guardar gasto" (aparece "Gasto guardado"). Repetir con "3" y con "12" en "Cuotas".
+4. Obtener el token de sesión del usuario (en la consola del navegador, con la app abierta: la clave "sb-…-auth-token" de localStorage, campo access_token) y la anon key del proyecto. Las llamadas de los pasos siguientes llevan los encabezados "apikey: <anon key>" y "Authorization: Bearer <token>".
+5. Obtener el id de "Visa BBVA": GET /rest/v1/accounts?select=id,name&name=eq.Visa BBVA. La pantalla no permite editar cuentas (DEF-011), por eso el cambio se hace por API.
+6. Llamar a PATCH /rest/v1/accounts?id=eq.<id de Visa BBVA> con el cuerpo {"type": "cash"}.
+7. Leer la respuesta y, en la base local, consultar las compras de esa cuenta: select installments_count from transactions where account_id = '<id>' and deleted_at is null.
 
 **Resultado esperado.** I6 ("installments_count > 1 solo si la cuenta es credit_card") debería impedir este estado, o al menos advertirlo — el trigger actual (check_installments_rule) solo corre sobre transactions, nunca se dispara al editar accounts
 
@@ -295,8 +323,12 @@ Archivar todas las categorías hace que se resiembren las 8 por defecto.
 
 **Pasos para reproducir**
 
-1. Archivar las 8 categorías sembradas de un usuario (desde la UI o la API).
-2. Abrir /register con ese usuario
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral).
+3. En "Categorías", tocar el botón de archivar ("Archivar …") a la derecha de cada una de las 8 categorías sembradas (Comida y supermercado, Transporte, Servicios, Entretenimiento, Salud, Educación, Indumentaria, Otros), una por una, hasta que la lista quede vacía.
+4. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar".
+5. Escribir cualquier monto y tocar "Siguiente": mirar la grilla de categorías.
+6. Volver a Ajustes y mirar la lista "Categorías". En la base local, contar las categorías del usuario: select count(*), count(*) filter (where archived_at is null) from categories where user_id = '<id>'.
 
 **Resultado esperado.** Respetar la decisión del usuario de no tener categorías activas; ADR-014 pensó la red de contención de /register solo para un usuario que nunca se sembró, no para uno que archivó todo a propósito
 
@@ -322,7 +354,10 @@ No se pueden editar ni archivar cuentas (medios de pago) desde la UI.
 
 **Pasos para reproducir**
 
-1. Abrir /settings, sección "Cuentas"
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral).
+3. Mirar la sección "Categorías": cada fila tiene un lápiz ("Editar …") y un botón de archivar ("Archivar …").
+4. Mirar la sección "Cuentas": buscar en cada fila un botón para editar el nombre o el tipo, o para archivar la cuenta.
 
 **Resultado esperado.** FR-05: "el usuario puede crear, editar y dar de baja **sus propias categorías y medios de pago**" — solo la mitad (categorías) está implementada
 
@@ -348,7 +383,12 @@ Un monto extremo pasa la validación del cliente y termina en un error técnico 
 
 **Pasos para reproducir**
 
-1. En /register, monto 1000000000000 (excede numeric(14,2)), completar el resto y Guardar
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar".
+3. Escribir 1000000000000 en el monto (un billón: supera el máximo de numeric(14,2)). "Siguiente" queda habilitado.
+4. Tocar "Siguiente" y después el chip "Otros".
+5. En "Cuenta", tocar "Tarjeta de crédito" y en "Cuotas" tocar "2". Leer la previsualización ("2 cuotas de $500.000.000.000,00").
+6. Tocar "Guardar gasto" y leer el aviso que aparece arriba.
 
 **Resultado esperado.** Validación de cliente que rechace el monto antes de enviarlo, con un mensaje en español ("El monto máximo permitido es…")
 
@@ -374,7 +414,12 @@ Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible.
 
 **Pasos para reproducir**
 
-1. En /register: moneda USD, monto 0,01, TC 0,01, cuenta no crediticia (para que no haya selector de cuotas visible)
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar".
+3. Tocar "US$". Escribir 0,01 en el monto.
+4. En "Tipo de cambio (ARS por US$)", borrar el valor y escribir 0,01. Tocar "Siguiente".
+5. Tocar el chip "Otros". En "Cuenta", tocar "Efectivo" (una cuenta que no es de crédito, así no aparece el selector de cuotas).
+6. Mirar el botón "Guardar gasto" y buscar en la pantalla algún mensaje que explique por qué no se puede guardar.
 
 **Resultado esperado.** Un mensaje visible que explique por qué no se puede guardar, sin importar si el selector de cuotas está oculto
 
@@ -400,7 +445,10 @@ El período 0000-01 en el dashboard muestra un error de base de datos crudo.
 
 **Pasos para reproducir**
 
-1. Abrir /dashboard?period=0000-01
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. Escribir en la barra del navegador la dirección de la app seguida de /dashboard?period=0000-01 y dar Enter.
+3. Leer el mensaje que muestra el Resumen.
+4. Para comparar, repetir con /dashboard?period=2026-13 y /dashboard?period=fecha-invalida: esos vuelven al mes actual sin error.
 
 **Resultado esperado.** Igual que otros períodos inválidos (2026-13, fecha-invalida, <script>, 9999-12+"→"): volver silenciosamente al mes actual, sin error visible
 
@@ -426,7 +474,12 @@ Los botones de la paleta de color en /settings no tienen data-testid.
 
 **Pasos para reproducir**
 
-1. Recorrer los elementos interactivos de /settings
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral).
+3. Abrir las herramientas de desarrollo (F12), pestaña "Elements" (o "Inspector").
+4. En la sección "Categorías", hacer clic derecho sobre un círculo de color de la paleta de "Nueva categoría" y elegir "Inspeccionar".
+5. En el HTML del botón (aria-label con el color, por ejemplo "#f97316"), buscar el atributo data-testid. Repetir con los demás colores.
+6. Inspeccionar también los botones de lápiz y de archivar de dos categorías distintas y comparar sus data-testid.
 
 **Resultado esperado.** "Todo elemento interactivo lleva data-testid" (07-plan-de-testing.md §2); "un elemento interactivo sin data-testid es un defecto de testeabilidad"
 
@@ -452,7 +505,13 @@ No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURI
 
 **Pasos para reproducir**
 
-1. Con sesión válida, POST /rest/v1/debts con un transaction_id propio válido y un monto que cumple I7 (menor o igual al gasto)
+1. Afecta a las deudas, que son de V2 y no tienen pantalla: se reproduce por API, contra el stack local.
+2. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+3. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". Después: escribir 1000 en el monto, tocar "Siguiente", tocar el chip "Otros", en "Cuenta" tocar "Efectivo", tocar "Guardar gasto" (aparece "Gasto guardado").
+4. Obtener el token de sesión del usuario (en la consola del navegador, con la app abierta: la clave "sb-…-auth-token" de localStorage, campo access_token) y la anon key del proyecto. Las llamadas de los pasos siguientes llevan los encabezados "apikey: <anon key>" y "Authorization: Bearer <token>".
+5. Obtener el id de ese gasto: GET /rest/v1/transactions?select=id,amount&order=created_at.desc&limit=1.
+6. Llamar a POST /rest/v1/debts con el cuerpo {"transaction_id": "<id del gasto>", "person": "Sofi", "amount": "500", "currency": "ARS", "direction": "owed_to_me", "incurred_on": "<fecha de hoy>"}. El monto (500) es menor que el gasto (1000), así que cumple I7.
+7. Leer el código y el mensaje de la respuesta.
 
 **Resultado esperado.** Aceptar una deuda válida; rechazar solo las que violan I7 con un mensaje de I7 — hoy rechaza **todas**, válidas o no
 
@@ -478,9 +537,11 @@ La historia US-68 entra en el alcance de la Entrega 1 pero no tiene implementaci
 
 **Pasos para reproducir**
 
-1. Ir a /signup.
-2. Crear una cuenta con un email nuevo y la contraseña Clave123! repetida en "Confirmar contraseña".
-3. Observar la pantalla que se abre.
+1. Versión donde ocurría: main 44f1519, antes de #173 (US-68 sin implementar).
+2. Abrir la app sin sesión. En /login, tocar "Crear una cuenta".
+3. Escribir un email nuevo en "Email", Clave123! en "Contraseña" y Clave123! en "Confirmar contraseña". Los cinco criterios se marcan con ✓.
+4. Tocar "Crear cuenta".
+5. Observar la pantalla que se abre y la URL: si aparece la configuración inicial ("¿Para qué vas a usar Biyu?") o se va directo a Registrar.
 
 **Resultado esperado.** US-68: después de crear la cuenta se muestra el setup (para qué la usás, categorías, cuentas y primer gasto), con elementos data-testid de prefijo setup-.
 
@@ -508,9 +569,13 @@ En Ajustes el tipo de cambio de referencia se valida a 4 decimales ("Usá hasta 
 
 **Pasos para reproducir**
 
-1. Abrir /register, cargar USD 100 y escribir 1250,55555 como tipo de cambio.
-2. Completar categoría y cuenta y guardar.
-3. Consultar la transacción guardada.
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar".
+3. Tocar "US$". Escribir 100 en el monto.
+4. En "Tipo de cambio (ARS por US$)", borrar el valor y escribir 1250,55555 (5 decimales). Mirar si aparece algún aviso y el equivalente "≈ $…" que muestra el campo.
+5. Tocar "Siguiente", tocar el chip "Otros", en "Cuenta" tocar "Efectivo" y tocar "Guardar gasto". Aparece "Gasto guardado".
+6. En la base local, consultar la transacción guardada: select fx_rate, amount_ars from transactions order by created_at desc limit 1.
+7. Para comparar: en Ajustes → "Tipo de cambio de referencia", escribir 1250,55555 en "ARS por USD" y tocar "Guardar tipo de cambio": ahí sí se rechaza con "Usá hasta 4 decimales".
 
 **Resultado esperado.** Misma validación que en Ajustes: rechazar más de 4 decimales con un mensaje (C6: el cliente anticipa lo que la base va a hacer), o guardar exactamente lo que se mostró.
 
@@ -536,8 +601,11 @@ La regla de CP-CFG-003 (no dos categorías activas con el mismo nombre) compara 
 
 **Pasos para reproducir**
 
-1. Con la categoría activa "Salud" (sembrada), ir a Ajustes.
-2. Crear una categoría llamada "salud".
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral).
+3. Confirmar que en "Categorías" está activa "Salud" (sembrada al crear la cuenta).
+4. En "Nueva categoría", escribir "salud" (todo en minúsculas) y tocar "Crear categoría".
+5. Mirar la lista de "Categorías" y, en Registrar, la grilla de categorías (escribir un monto y tocar "Siguiente").
 
 **Resultado esperado.** Rechazado con "Ya existe una categoría activa con ese nombre", igual que "Salud".
 
@@ -565,9 +633,11 @@ El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve 
 
 **Pasos para reproducir**
 
-1. Cargar 1250 como tipo de cambio de referencia del mes en Ajustes.
-2. Abrir /register, cargar un monto y elegir US$.
-3. Mirar el campo "Tipo de cambio (ARS por US$)".
+1. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+2. Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). En "Tipo de cambio de referencia", elegir el mes actual en "Mes", escribir 1250 en "ARS por USD" y tocar "Guardar tipo de cambio". La lista muestra "$ 1.250,00".
+3. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar".
+4. Escribir 100 en el monto y tocar "US$".
+5. Leer el valor precargado en el campo "Tipo de cambio (ARS por US$)" y compararlo con el formato del equivalente "≈ $125.000,00" y con el de Ajustes.
 
 **Resultado esperado.** "1.250" o "1.250,00", con el mismo formato que Ajustes y que el equivalente "≈ $125.000,00".
 
@@ -595,9 +665,12 @@ Con montos de 9 cifras o más, los totales del Resumen no entran en sus tarjetas
 
 **Pasos para reproducir**
 
-1. Tener un gasto o ingreso con un monto de 9 o más cifras.
-2. Abrir /dashboard en un celular (ancho ~390 px).
-3. Mirar la tarjeta "Gastado en…", las tarjetas Ingresos y Balance y la lista "Por categoría".
+1. Usar un iPhone con Safari (o un navegador con ancho de pantalla de unos 390 px).
+2. Abrir la app e iniciar sesión: en /login, escribir el email y la contraseña del usuario de prueba y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.
+3. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". Tocar "Ingreso", escribir 81818491500 en el monto, tocar "Siguiente", en "Cuenta" tocar "Cuenta bancaria" y tocar "Guardar ingreso".
+4. En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". Después: escribir 2165003118 en el monto, tocar "Siguiente", tocar el chip "Otros", en "Cuenta" tocar "Efectivo", tocar "Guardar gasto" (aparece "Gasto guardado").
+5. En la barra de navegación, tocar "Resumen" (mes actual).
+6. Mirar la tarjeta verde "Gastado en …", las tarjetas "Ingresos" y "Balance", y la lista "Por categoría": si algún monto se corta o se sale de su recuadro.
 
 **Resultado esperado.** Ningún monto se corta ni desborda su contenedor, a cualquier ancho y con montos de hasta el máximo que permite numeric(14,2).
 
@@ -625,9 +698,11 @@ Después del merge de US-68, las cuentas creadas antes de esa historia tenían q
 
 **Pasos para reproducir**
 
-1. Entrar con una cuenta creada antes de US-68.
-2. Observar la pantalla que se abre.
-3. Con una cuenta nueva, completar o saltear los 4 pasos del setup con la escritura en user_setup fallando.
+1. Versión donde ocurría: main 7812350, antes de #176. En producción las migraciones de US-68 todavía no estaban aplicadas.
+2. Caso A, cuenta anterior a US-68: abrir la app sin sesión y, en /login, entrar con una cuenta creada antes del merge de US-68 (#173). Para reproducirlo en local: crear una cuenta nueva, borrar su fila de configuración (delete from user_setup where user_id = '<id>') y cerrar sesión.
+3. Observar la pantalla que se abre después de tocar "Entrar": si va a Registrar o a la configuración inicial ("¿Para qué vas a usar Biyu?").
+4. Caso B, no se puede guardar el setup: con una cuenta nueva, en la configuración inicial, tocar "Saltear" en "¿Para qué vas a usar Biyu?", "Tus categorías" y "Tus cuentas", y en "Registrá tu primer gasto" tocar "Saltear" al pie. Esto con la escritura en user_setup fallando, como en producción sin la migración, o en local bloqueando las llamadas a /rest/v1/user_setup desde las herramientas de desarrollo (pestaña "Network" → "Block request URL").
+5. Observar si la app avanza a Registrar, si aparece algún mensaje, y qué pasa al tocar "Saltear" otra vez.
 
 **Resultado esperado.** Una cuenta existente entra directo a la app (US-01). Terminar el setup lleva a Registrar y el setup no vuelve a aparecer (US-68).
 
