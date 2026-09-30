@@ -410,34 +410,138 @@ export function casosB(ctx) {
 
     // ---------------- US-68 (casos nuevos) ----------------
     ['CP-CFG-011', async () => {
-      const c = await newContext(browser)
-      const p = await c.newPage()
-      const mail = email('us68')
-      await p.goto(`${BASE}/signup`)
-      await p.getByTestId('signup-form-email').fill(mail)
-      await p.getByTestId('signup-form-password').fill('Clave123!')
-      await p.getByTestId('signup-form-confirm-password').fill('Clave123!')
-      await p.getByTestId('signup-form-submit').click()
-      await p.waitForURL((u) => !u.pathname.startsWith('/signup'), { timeout: 15000 }).catch(() => {})
-      await p.waitForTimeout(1000)
+      const { c, p } = await signUpToSetup('us68')
       const url = p.url().replace(BASE, '')
       const setup = await p.locator('[data-testid^="setup-"]').count()
-      const ev = await shot(p, 'CP-CFG-011-sin-setup')
+      const reasons = await p.locator('[data-testid^="setup-reason-option-"]').count()
+      const steps = await p.getByTestId('setup-step').getAttribute('aria-valuemax').catch(() => null)
+      const ok = url === '/setup' && reasons === 3 && steps === '4'
+      const ev = await shot(p, ok ? 'CP-CFG-011-setup' : 'CP-CFG-011-sin-setup')
       await c.close()
-      const ok = setup > 0
       return {
         status: ok ? PASS : FAIL,
-        obtained: `Después de crear la cuenta la app va directo a ${url}. Elementos con data-testid "setup-": ${setup}. No aparece ninguna configuración inicial.`,
+        obtained: ok
+          ? `Después de crear la cuenta se abre ${url}: paso 1 de ${steps} ("¿Para qué vas a usar Biyu?") con ${reasons} opciones. Elementos con data-testid "setup-": ${setup}.`
+          : `Después de crear la cuenta la app va a ${url}. Elementos con data-testid "setup-": ${setup}. No aparece la configuración inicial.`,
         evidence: [ev],
         defects: ok ? [] : ['DEF-017'],
       }
     }],
-    ...['CP-CFG-012', 'CP-CFG-013', 'CP-CFG-014', 'CP-CFG-015'].map((id) => [id, async () => ({
-      status: BLOCK,
-      obtained: 'No se puede ejecutar: el flujo de configuración inicial no existe (CP-CFG-011 falló). No hay pasos que saltear, destildar ni reabrir desde Ajustes.',
-      defects: ['DEF-017'],
-    })]),
+
+    ['CP-CFG-012', async () => {
+      const { c, p, mail } = await signUpToSetup('us68-saltear')
+      await skipSetupStep(p, 'reason'); await skipSetupStep(p, 'categories'); await skipSetupStep(p, 'accounts')
+      await p.getByTestId('setup-expense-skip').click()
+      await p.waitForURL((u) => u.pathname === '/register', { timeout: 15000 }).catch(() => {})
+      const url = p.url().replace(BASE, '')
+      const id = userId(mail)
+      const cats = sql(`select count(*) from categories where user_id='${id}' and archived_at is null`)
+      const accs = sql(`select count(*) from accounts where user_id='${id}' and archived_at is null`)
+      const done = sql(`select (completed_at is not null)::text from user_setup where user_id='${id}'`)
+      const ev = await shot(p, 'CP-CFG-012-salteado')
+      await c.close()
+      const ok = url === '/register' && cats === '8' && accs === '5' && done === 'true'
+      return {
+        status: ok ? PASS : FAIL,
+        obtained: `Salteados los 4 pasos, la app abre ${url}. Activas: ${cats} categorías y ${accs} cuentas (siembra de US-43). Setup marcado como completo: ${done}.`,
+        evidence: [ev],
+      }
+    }],
+
+    ['CP-CFG-013', async () => {
+      const { c, p, mail } = await signUpToSetup('us68-destildar')
+      await p.getByTestId('setup-reason-continue').click()
+      await p.getByTestId('setup-category-educacion').click()
+      await p.waitForTimeout(800)
+      const ev = await shot(p, 'CP-CFG-013-educacion-destildada')
+      await p.getByTestId('setup-categories-continue').click()
+      const next = await p.getByTestId('setup-step').getAttribute('data-step')
+      const id = userId(mail)
+      const edu = sql(`select count(*) || '|' || count(archived_at) from categories where user_id='${id}' and name='Educación'`)
+      ctx.cfg013 = { c, p, mail, id } // CP-CFG-014 y 015 siguen con este mismo usuario
+      const ok = next === 'accounts' && edu === '1|1'
+      return {
+        status: ok ? PASS : FAIL,
+        obtained: `Destildada "Educación" y continuar: el setup pasa al paso "${next}". En la base, "Educación": ${edu.split('|')[0]} fila, ${edu.split('|')[1]} archivada (archived_at seteado, no se borró).`,
+        evidence: [ev],
+      }
+    }],
+
+    ['CP-CFG-014', async () => {
+      if (!ctx.cfg013) return { status: BLOCK, obtained: 'Depende del usuario de CP-CFG-013, que no llegó al paso de cuentas.' }
+      const { p } = ctx.cfg013
+      await p.getByTestId('setup-account-default-tarjeta-de-debito').click()
+      await p.getByTestId('setup-accounts-continue').click()
+      await p.getByTestId('transaction-form-amount').waitFor()
+      await p.getByTestId('transaction-form-amount').fill('1500')
+      await p.getByTestId('transaction-form-next').click()
+      await p.locator('[data-testid="transaction-form-step"][data-step="category"]').waitFor()
+      await p.getByTestId('transaction-form-category-chip-otros').click()
+      await p.locator('[data-testid="transaction-form-step"][data-step="details"]').waitFor()
+      const pressed = await p.getByTestId('transaction-form-account-chip-tarjeta-de-debito').getAttribute('aria-pressed')
+      const ev = await shot(p, 'CP-CFG-014-cuenta-preseleccionada')
+      const ok = pressed === 'true'
+      return {
+        status: ok ? PASS : FAIL,
+        obtained: `Con "Tarjeta de débito" marcada como predeterminada, en el paso de detalles del primer gasto el chip "Tarjeta de débito" viene seleccionado (aria-pressed=${pressed}).`,
+        evidence: [ev],
+      }
+    }],
+
+    ['CP-CFG-015', async () => {
+      if (!ctx.cfg013) return { status: BLOCK, obtained: 'Depende del usuario de CP-CFG-013.' }
+      const { c, p, mail, id } = ctx.cfg013
+      await p.getByTestId('setup-expense-skip').click()
+      await p.waitForURL((u) => u.pathname === '/register', { timeout: 15000 }).catch(() => {})
+      await c.close()
+      const c2 = await newContext(browser)
+      const p2 = await c2.newPage()
+      await p2.goto(`${BASE}/login`)
+      await p2.getByTestId('login-form-email').fill(mail)
+      await p2.getByTestId('login-form-password').fill(SETUP_PASSWORD)
+      await p2.getByTestId('login-form-submit').click()
+      await p2.waitForURL((u) => !u.pathname.startsWith('/login'), { timeout: 15000 })
+      await p2.getByTestId('transaction-form').waitFor({ timeout: 15000 }).catch(() => {})
+      const afterLogin = p2.url().replace(BASE, '')
+      const ev1 = await shot(p2, 'CP-CFG-015-sin-setup-al-volver')
+      await p2.goto(`${BASE}/settings`)
+      await p2.getByTestId('settings-nav-setup').click()
+      await p2.locator('[data-testid^="setup-reason-option-"]').first().waitFor({ timeout: 15000 }).catch(() => {})
+      const reopened = p2.url().replace(BASE, '')
+      const shown = await p2.locator('[data-testid^="setup-reason-option-"]').count()
+      const ev2 = await shot(p2, 'CP-CFG-015-reabierto-desde-ajustes')
+      const eduArchived = sql(`select count(archived_at) from categories where user_id='${id}' and name='Educación'`)
+      await c2.close()
+      const ok = afterLogin === '/register' && reopened === '/setup' && shown === 3
+      return {
+        status: ok ? PASS : FAIL,
+        obtained: `Cerrada la sesión y vuelta a entrar: abre ${afterLogin}, sin el setup. Desde Ajustes → configuración inicial: se abre ${reopened} con ${shown} opciones. "Educación" sigue archivada: ${eduArchived === '1' ? 'sí' : 'no'}.`,
+        evidence: [ev1, ev2],
+      }
+    }],
   ]
+
+  // US-68: alta por /signup (la cuenta nueva pasa por el setup, ADR-025) y espera al paso 1.
+  async function signUpToSetup(tag) {
+    const c = await newContext(browser)
+    const p = await c.newPage()
+    const mail = email(tag)
+    await p.goto(`${BASE}/signup`)
+    await p.getByTestId('signup-form-email').fill(mail)
+    await p.getByTestId('signup-form-password').fill(SETUP_PASSWORD)
+    await p.getByTestId('signup-form-confirm-password').fill(SETUP_PASSWORD)
+    await p.getByTestId('signup-form-submit').click()
+    await p.waitForURL((u) => !u.pathname.startsWith('/signup'), { timeout: 15000 }).catch(() => {})
+    await p.locator('[data-testid^="setup-reason-option-"]').first().waitFor({ timeout: 15000 }).catch(() => {})
+    return { c, p, mail }
+  }
+
+  async function skipSetupStep(p, step) {
+    await p.getByTestId(`setup-${step}-skip`).click()
+  }
 }
+
+// Dato de prueba de CP-CFG-011 a CP-CFG-015 (docs/10-catalogo-casos-v1.md); solo existe en la base local.
+const SETUP_PASSWORD = 'Clave123!'
 
 export { PASS, FAIL, BLOCK }

@@ -946,5 +946,71 @@
       ],
       "motivo": "Corrección del runner (parser del TC sugerido e insert de deuda sin incurred_on)"
     }
-  ]
+  ],
+  "ejecucion2": {
+    "run": "mund7icx",
+    "today": "2026-09-29",
+    "base": "http://localhost:5180",
+    "commit": "de26493",
+    "finishedAt": "2026-09-30T00:26:57.435Z",
+    "motivo": "Re-test de US-68 después de implementarla (#173, DEF-017) y de corregir DEF-022 (#176). Solo se re-ejecutan CP-CFG-011 a CP-CFG-015; el resto del catálogo conserva la ejecución 1.",
+    "results": [
+      {
+        "id": "CP-CFG-011",
+        "evidence": [
+          "evidencia/CP-CFG-011-setup.jpg"
+        ],
+        "defects": [],
+        "notes": "",
+        "status": "PASSED",
+        "obtained": "Después de crear la cuenta se abre /setup: paso 1 de 4 (\"¿Para qué vas a usar Biyu?\") con 3 opciones. Elementos con data-testid \"setup-\": 6.",
+        "ms": 1184
+      },
+      {
+        "id": "CP-CFG-012",
+        "evidence": [
+          "evidencia/CP-CFG-012-salteado.jpg"
+        ],
+        "defects": [],
+        "notes": "",
+        "status": "PASSED",
+        "obtained": "Salteados los 4 pasos, la app abre /register. Activas: 8 categorías y 5 cuentas (siembra de US-43). Setup marcado como completo: true.",
+        "ms": 3780
+      },
+      {
+        "id": "CP-CFG-013",
+        "evidence": [
+          "evidencia/CP-CFG-013-educacion-destildada.jpg"
+        ],
+        "defects": [],
+        "notes": "",
+        "status": "PASSED",
+        "obtained": "Destildada \"Educación\" y continuar: el setup pasa al paso \"accounts\". En la base, \"Educación\": 1 fila, 1 archivada (archived_at seteado, no se borró).",
+        "ms": 3212
+      },
+      {
+        "id": "CP-CFG-014",
+        "evidence": [
+          "evidencia/CP-CFG-014-cuenta-preseleccionada.jpg"
+        ],
+        "defects": [],
+        "notes": "",
+        "status": "PASSED",
+        "obtained": "Con \"Tarjeta de débito\" marcada como predeterminada, en el paso de detalles del primer gasto el chip \"Tarjeta de débito\" viene seleccionado (aria-pressed=true).",
+        "ms": 1167
+      },
+      {
+        "id": "CP-CFG-015",
+        "evidence": [
+          "evidencia/CP-CFG-015-sin-setup-al-volver.jpg",
+          "evidencia/CP-CFG-015-reabierto-desde-ajustes.jpg"
+        ],
+        "defects": [],
+        "notes": "",
+        "status": "PASSED",
+        "obtained": "Cerrada la sesión y vuelta a entrar: abre /register, sin el setup. Desde Ajustes → configuración inicial: se abre /setup con 3 opciones. \"Educación\" sigue archivada: sí.",
+        "ms": 2528
+      }
+    ]
+  }
 }
