@@ -73,6 +73,12 @@ def defects_of(cid):
     return f'{", ".join(before)} (corregido)'
 
 
+def text_height(text, chars_per_line):
+    """Alto de fila (puntos) para que un texto con ajuste de línea se lea entero."""
+    lines = sum(max(1, -(-len(part) // chars_per_line)) for part in str(text).split('\n'))
+    return max(15, 15 * lines + 2)
+
+
 def cell(ws, ref, value, fill=None, bold=False, merge=None):
     ws[ref] = value
     ws[ref].alignment = WRAP
@@ -117,6 +123,9 @@ def tc_sheet(wb, c, with_exec):
             cell(ws, f'A{r}', i + 1); cell(ws, f'B{r}', c['pre'][i])
         if i < len(c['datos']):
             cell(ws, f'C{r}', i + 1); cell(ws, f'D{r}', f'{c["datos"][i][0]}:'); cell(ws, f'E{r}', c['datos'][i][1])
+        pre = c['pre'][i] if i < len(c['pre']) else ''
+        dato = c['datos'][i][1] if i < len(c['datos']) else ''
+        ws.row_dimensions[r].height = max(text_height(pre, 42), text_height(dato, 20))
     row += n + 2
     cell(ws, f'A{row}', 'Título del CP', LABEL, True); cell(ws, f'B{row}', c['titulo'], merge=f'B{row}:E{row}')
     row += 2
@@ -130,6 +139,8 @@ def tc_sheet(wb, c, with_exec):
     for i, (paso, esperado) in enumerate(c['pasos'], 1):
         r = row + i
         cell(ws, f'A{r}', i); cell(ws, f'B{r}', paso, merge=f'B{r}:C{r}'); cell(ws, f'D{r}', esperado, merge=f'D{r}:E{r}')
+        # Excel no ajusta solo el alto de una fila con celdas combinadas: se calcula acá.
+        ws.row_dimensions[r].height = max(text_height(paso, 62), text_height(esperado, 62))
     if with_exec:
         row += len(c['pasos']) + 2
         runs = [('', RES.get(c['id'], {}), ENTORNO)]

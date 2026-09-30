@@ -100,7 +100,7 @@ Planilla: `03-ejecucion-casos-de-prueba.xlsx` (una hoja por caso con "Reporte de
 
 ### CP-ACC-001 — Sin sesión, la app redirige al login · **PASSED**
 
-**Esperado:** Redirige a /login?next=%2Fregister. Se ve el formulario "Entrar"; no se renderiza nada de /register.
+**Esperado:** Redirige a /login?next=%2Fregister. Se ve el formulario "Entrar" (Email, Contraseña, botón "Entrar"); no se renderiza nada de /register.
 
 **Obtenido:**
 
@@ -125,7 +125,7 @@ Redirige a /login?next=%2Fsettings. Exploración: después de iniciar sesión la
 
 ### CP-ACC-003 — Crear una cuenta con email y contraseña válidos · **PASSED**
 
-**Esperado:** Se ve "Crear cuenta" con los criterios de contraseña. Los criterios se marcan como cumplidos; las contraseñas se ven enmascaradas. Cuenta creada con sesión activa, sin paso de confirmación por email (ADR-011); redirige a /register.
+**Esperado:** Se ve "Crear cuenta" con los criterios de contraseña. Los criterios se marcan como cumplidos; las contraseñas se ven enmascaradas. Cuenta creada con sesión activa, sin paso de confirmación por email (ADR-011). Se abre la configuración inicial ("¿Para qué vas a usar Biyu?", US-68). La configuración inicial termina y se abre Registrar. La app queda en /register.
 
 **Obtenido:**
 
@@ -137,7 +137,7 @@ Cuenta creada; URL /register; sesión en localStorage: sí.
 
 ### CP-ACC-004 — Contraseñas que no cumplen los criterios se rechazan · **FAILED**
 
-**Esperado:** Cada una se rechaza con un mensaje que dice qué criterio falta. No se crea la cuenta. Se acepta. Rechazada: FR-01 pide validar también en el servidor.
+**Esperado:** Se ve "Crear cuenta" con la lista de los 5 criterios, todos con ○ (pendientes). Mensaje "Falta que la contraseña cumpla: …" con los criterios que faltan. No se crea la cuenta. Cada una se rechaza con un mensaje que dice qué criterio falta. No se crea la cuenta. Se acepta: la cuenta se crea y se abre la configuración inicial. Rechazada: FR-01 pide validar también en el servidor.
 
 **Obtenido:**
 
@@ -156,7 +156,7 @@ Variante API: POST /auth/v1/signup con abcd1234 → aceptada (devuelve sesión)
 
 ### CP-ACC-005 — No se puede crear una cuenta con un email ya registrado · **PASSED**
 
-**Esperado:** Los datos se cargan. Mensaje "Ya existe una cuenta con ese email". No se crea una segunda cuenta. Error user_already_exists / email_exists.
+**Esperado:** Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. Mensaje "Ya existe una cuenta con ese email". No se crea una segunda cuenta y la pantalla sigue en "Crear cuenta". Error user_already_exists / email_exists.
 
 **Obtenido:**
 
@@ -168,7 +168,7 @@ UI: "Ya existe una cuenta con ese email". Cuentas con ese email: 1. API: código
 
 ### CP-ACC-006 — Credenciales inválidas en el login, sin arrastrar el error al signup · **PASSED**
 
-**Esperado:** Mensaje "Email o contraseña incorrectos". En /signup el error anterior no aparece.
+**Esperado:** Se ve el formulario "Entrar". Mensaje "Email o contraseña incorrectos". La pantalla sigue en /login. Se abre /signup y el error anterior no aparece.
 
 **Obtenido:**
 
@@ -180,7 +180,7 @@ Login: "Email o contraseña incorrectos". Al pasar a /signup el error no persist
 
 ### CP-ACC-007 — Alta sin sesión (confirmación de email activa) no entra a la app · **PASSED**
 
-**Esperado:** Los datos se cargan. No se redirige a una ruta protegida; se muestra "Te creamos la cuenta, pero hace falta confirmar el email antes de entrar."
+**Esperado:** Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. No se redirige a una ruta protegida: la pantalla sigue en /signup y muestra "Te creamos la cuenta, pero hace falta confirmar el email antes de entrar."
 
 **Obtenido:**
 
@@ -193,7 +193,7 @@ Mensaje: "Te creamos la cuenta, pero hace falta confirmar el email antes de entr
 
 ### CP-ACC-008 — Una cuenta nueva tiene el catálogo inicial sembrado · **PASSED**
 
-**Esperado:** La app entra a /register. Están las 8 categorías (Comida y supermercado, Transporte, Servicios, Entretenimiento, Salud, Educación, Indumentaria, Otros) y las 5 cuentas de FR-04.
+**Esperado:** Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. Se abre la configuración inicial. La configuración inicial termina y se abre Registrar. Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Están las 8 categorías (Comida y supermercado, Transporte, Servicios, Entretenimiento, Salud, Educación, Indumentaria, Otros) y las 5 cuentas de FR-04 (Tarjeta de crédito, Tarjeta de débito, Efectivo, Cuenta bancaria, Billetera virtual).
 
 **Obtenido:**
 
@@ -205,7 +205,7 @@ Ajustes muestra 8 categorías y 5 cuentas; en la base hay 8 y 5.
 
 ### CP-ACC-009 — Cerrar sesión y no poder volver con "atrás" · **PASSED**
 
-**Esperado:** La sesión se cierra y redirige a /login. No se recupera el acceso: cae otra vez en /login.
+**Esperado:** Se abre el Resumen del mes. Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. La sesión se cierra y redirige a /login. No se recupera el acceso: cae otra vez en /login. Mismo resultado desde cada pantalla.
 
 **Obtenido:**
 
@@ -220,7 +220,7 @@ Desde /transactions → Ajustes → Cerrar sesión: /login; "atrás" queda en /l
 
 ### CP-ACC-010 — La sesión persiste al recargar y al reabrir el navegador · **PASSED**
 
-**Esperado:** Sigue en /register sin pedir login. La sesión persiste (localStorage).
+**Esperado:** Sigue en /register sin pedir login. La sesión persiste (localStorage): abre Registrar sin pedir login.
 
 **Obtenido:**
 
@@ -250,7 +250,7 @@ subscriptions: B ve 0 filas de A; anon → 42501
 
 ### CP-ACC-012 — Contraseña y confirmación distintas bloquean el alta · **PASSED**
 
-**Esperado:** Los dos campos se ven enmascarados. Mensaje "Las contraseñas no son iguales". No se crea la cuenta.
+**Esperado:** Se abre "Crear cuenta". Los dos campos se ven enmascarados. Mensaje "Las contraseñas no son iguales". No se crea la cuenta y la pantalla sigue en "Crear cuenta".
 
 **Obtenido:**
 
@@ -262,7 +262,7 @@ Mensaje: "Las contraseñas no son iguales". Campo enmascarado: sí. Cuenta cread
 
 ### CP-CFG-001 — Crear una categoría con nombre y color · **PASSED**
 
-**Esperado:** El nombre y el color quedan cargados. Aparece en el listado activo con ese nombre y color.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. El nombre queda cargado. El color elegido queda marcado. Aparece en el listado activo con ese nombre y color.
 
 **Obtenido:**
 
@@ -274,7 +274,7 @@ Aparece "Mascotas" en el listado; en la base: Mascotas|#4a7a6d (color elegido #4
 
 ### CP-CFG-002 — Renombrar una categoría y cambiarle el color · **PASSED**
 
-**Esperado:** Se abre la edición en línea. El listado muestra el nombre y el color nuevos, sin crear una fila nueva.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Se abre la edición en línea, con el nombre, la paleta y los botones "Cancelar" y "Guardar". Se ven el nombre y el color nuevos. El listado muestra el nombre y el color nuevos, sin crear una fila nueva.
 
 **Obtenido:**
 
@@ -286,7 +286,7 @@ Filas antes/después: 9/9. Fila editada: Comida|#9a3b3b.
 
 ### CP-CFG-003 — No se permiten dos categorías activas con el mismo nombre · **PASSED**
 
-**Esperado:** Rechazado con "Ya existe una categoría activa con ese nombre". Error 23505 (unique_violation).
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Rechazado con "Ya existe una categoría activa con ese nombre". La lista no cambia. Error 23505 (unique_violation).
 
 **Obtenido:**
 
@@ -298,7 +298,7 @@ UI: "Ya existe una categoría activa con ese nombre". API insert directo: 23505.
 
 ### CP-CFG-004 — Archivar una categoría con historia · **FAILED**
 
-**Esperado:** Desaparece del listado activo. No aparece en la grilla de categorías. Conserva su categoría y la muestra con una marca de archivada.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Desaparece del listado activo. Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. No aparece "Entretenimiento". Se abre Movimientos del mes actual. Conserva su categoría y la muestra con una marca de archivada.
 
 **Obtenido:**
 
@@ -311,7 +311,7 @@ Listado activo la muestra: no. Chip en el registro: no. category_id intacto en l
 
 ### CP-CFG-005 — Reusar el nombre de una categoría archivada · **PASSED**
 
-**Esperado:** Se permite: el índice único solo cuenta las activas.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Se permite: "Salidas" aparece en el listado activo (el índice único solo cuenta las activas).
 
 **Obtenido:**
 
@@ -322,7 +322,7 @@ Error mostrado: ninguno. Filas "Salidas" activas|archivadas: 1|1.
 
 ### CP-CFG-006 — Crear una cuenta de tarjeta de crédito · **PASSED**
 
-**Esperado:** Aparece con el tipo en español ("Tarjeta de crédito"). Se ofrece el selector de cuotas (I6).
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. El nombre queda cargado. Se ven "Tarjeta de crédito" y "ARS". Aparece en la lista con el tipo en español ("Tarjeta de crédito"). Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). Se ofrece el selector de cuotas (I6): aparece "Cuotas" con los números 1 a 12.
 
 **Obtenido:**
 
@@ -334,7 +334,7 @@ Tipo preseleccionado: Tarjeta de crédito▼. Fila: "Visa BBVATarjeta de crédit
 
 ### CP-CFG-007 — No se permiten dos cuentas activas con el mismo nombre · **PASSED**
 
-**Esperado:** Rechazado con "Ya existe una cuenta activa con ese nombre". Error 23505.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Rechazado con "Ya existe una cuenta activa con ese nombre". La lista no cambia. Error 23505.
 
 **Obtenido:**
 
@@ -357,7 +357,7 @@ Dos pestañas cargando /register en paralelo sobre una cuenta sin sembrar. Categ
 
 ### CP-CFG-009 — Cargar y actualizar el tipo de cambio de referencia del mes · **PASSED**
 
-**Esperado:** Se crea la referencia del mes. Se actualiza a 1300, sin duplicar la fila.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. El mes queda cargado. Se crea la referencia del mes: aparece en la lista con $ 1.250,00. Se actualiza a 1300, sin duplicar la fila: la lista sigue teniendo una sola fila para ese mes.
 
 **Obtenido:**
 
@@ -369,7 +369,7 @@ Primera carga: 1250.0000. Tras la segunda: 1|1300.0000 (filas|valor). Lista: "se
 
 ### CP-CFG-010 — Tipo de cambio de referencia en cero o negativo · **PASSED**
 
-**Esperado:** Rechazados con "El tipo de cambio debe ser mayor a cero". Aceptado (mínimo válido). Rechazados por la base.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Rechazado con "El tipo de cambio debe ser mayor a cero". Rechazado con el mismo mensaje. Aceptado (mínimo válido): aparece en la lista. Rechazados por la base.
 
 **Obtenido:**
 
@@ -385,7 +385,7 @@ API -100: upsert directo → 42501 permission denied for table fx_rates; RPC ups
 
 ### CP-CFG-011 — Después de crear la cuenta aparece la configuración inicial · **PASSED**
 
-**Esperado:** La cuenta se crea. Se muestra el setup (elementos con data-testid "setup-"), con los pasos "para qué la usás", categorías, cuentas y primer gasto.
+**Esperado:** Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. La cuenta se crea. Se muestra el setup (elementos con data-testid "setup-"), con los pasos "para qué la usás", categorías, cuentas y primer gasto: se ve "¿Para qué vas a usar Biyu?" con 3 opciones, "Continuar" y "Saltear", y una barra de 4 pasos.
 
 **Obtenido (ejecución 1, 2026-09-28, FAILED):**
 
@@ -406,7 +406,7 @@ Después de crear la cuenta se abre /setup: paso 1 de 4 ("¿Para qué vas a usar
 
 ### CP-CFG-012 — Saltear todo el setup deja la siembra de siempre · **PASSED**
 
-**Esperado:** El setup termina y la app abre en Registrar. Quedan las 8 categorías y 5 cuentas sembradas (US-43).
+**Esperado:** Pasa al paso "Tus categorías". Pasa al paso "Tus cuentas". Pasa al paso "Registrá tu primer gasto". El setup termina y la app abre en Registrar. Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Quedan las 8 categorías y 5 cuentas sembradas (US-43).
 
 **Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
@@ -426,7 +426,7 @@ Salteados los 4 pasos, la app abre /register. Activas: 8 categorías y 5 cuentas
 
 ### CP-CFG-013 — Destildar una categoría en el setup la archiva · **PASSED**
 
-**Esperado:** Sigue el siguiente paso. "Educación" queda archivada, no borrada.
+**Esperado:** Pasa al paso "Tus categorías", con las 8 categorías tildadas. "Educación" desaparece de la lista. Sigue el siguiente paso ("Tus cuentas"). "Educación" queda archivada, no borrada: la fila existe con archived_at completado.
 
 **Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
@@ -446,7 +446,7 @@ Destildada "Educación" y continuar: el setup pasa al paso "accounts". En la bas
 
 ### CP-CFG-014 — La cuenta elegida como predeterminada viene preseleccionada · **PASSED**
 
-**Esperado:** Se abre el registro guiado. "Tarjeta de débito" viene seleccionada.
+**Esperado:** El círculo de "Tarjeta de débito" queda marcado. Se abre el registro guiado ("Registrá tu primer gasto"). Pasa a la grilla de categorías. Avanza al paso de detalles. "Tarjeta de débito" viene seleccionada.
 
 **Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
@@ -466,7 +466,7 @@ Con "Tarjeta de débito" marcada como predeterminada, en el paso de detalles del
 
 ### CP-CFG-015 — El setup no reaparece y se puede reabrir desde Ajustes · **PASSED**
 
-**Esperado:** No aparece el setup: abre Registrar. Se muestra de nuevo.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Se abre /login. No aparece el setup: abre Registrar. Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Se muestra de nuevo el setup ("¿Para qué vas a usar Biyu?").
 
 **Obtenido (ejecución 1, 2026-09-28, BLOCKED):**
 
@@ -486,7 +486,7 @@ Cerrada la sesión y vuelta a entrar: abre /register, sin el setup. Desde Ajuste
 
 ### CP-REG-001 — El registro es la pantalla de inicio · **PASSED**
 
-**Esperado:** Cae directo en /register, en el paso del monto.
+**Esperado:** Cae directo en /register, en el paso del monto (paso 1/3, "¿Cuánto?").
 
 **Obtenido:**
 
@@ -498,7 +498,7 @@ Abrir / con sesión termina en /register, con el paso del monto visible.
 
 ### CP-REG-002 — La fecha viene precargada con hoy · **PASSED**
 
-**Esperado:** Avanza al paso de detalles (ADR-024). Precargada con la fecha de hoy.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza al paso de detalles (ADR-024). Precargada con la fecha de hoy: "Hoy" seleccionado y el campo con 28/09/2026.
 
 **Obtenido:**
 
@@ -510,7 +510,7 @@ Fecha precargada: 2026-09-28 (hoy según el reloj de la corrida: 2026-09-28).
 
 ### CP-REG-003 — Tipo "gasto" y moneda ARS por defecto · **PASSED**
 
-**Esperado:** Tipo = Gasto; moneda = ARS; no se muestra tipo de cambio.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. Tipo = Gasto; moneda = ARS; no se muestra tipo de cambio.
 
 **Obtenido:**
 
@@ -522,7 +522,7 @@ Gasto seleccionado: true. ARS seleccionado: true.
 
 ### CP-REG-004 — Elegir la categoría tocando un chip · **PASSED**
 
-**Esperado:** Se ve la grilla de categorías, sin ningún select. Avanza solo al paso de detalles. La transacción queda con la categoría "Transporte".
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. Se ve la grilla de categorías, sin ningún select. Avanza solo al paso de detalles. Aparece "Gasto guardado". Se abre Movimientos del mes actual. La transacción queda con la categoría "Transporte".
 
 **Obtenido:**
 
@@ -534,7 +534,7 @@ Tocar el chip avanzó solo a detalles. Categoría guardada: Transporte. Selects 
 
 ### CP-REG-005 — Una categoría archivada no se ofrece ni se acepta por API · **PASSED**
 
-**Esperado:** La grilla no muestra "Salidas". Rechazado: "la categoría no existe, no es tuya o está archivada".
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. La grilla no muestra "Salidas". Rechazado: "la categoría no existe, no es tuya o está archivada".
 
 **Obtenido:**
 
@@ -546,7 +546,7 @@ Chip "Salidas" en la grilla: no. API con la categoría archivada: "la categoría
 
 ### CP-REG-006 — La cuenta viene precargada con la última usada · **PASSED**
 
-**Esperado:** "Visa BBVA" viene seleccionada.
+**Esperado:** Se abre el Resumen. Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" viene seleccionada.
 
 **Obtenido:**
 
@@ -558,7 +558,7 @@ Al volver a abrir el registro, "Visa BBVA" viene seleccionada: true.
 
 ### CP-REG-007 — Guardar sin nota · **PASSED**
 
-**Esperado:** Se guarda sin error, con description = null.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). Se guarda sin error ("Gasto guardado"). description = null.
 
 **Obtenido:**
 
@@ -569,7 +569,7 @@ Guardado sin nota. description en la base: NULL.
 
 ### CP-REG-008 — Fecha de ayer sí, fecha de mañana no · **PASSED**
 
-**Esperado:** Se guarda. Rechazado: "La fecha no puede ser futura". Rechazado también en el servidor.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). La fecha pasa a 27/09/2026. Se guarda ("Gasto guardado"). El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). Rechazado: "La fecha no puede ser futura", y "Guardar gasto" queda deshabilitado. Rechazado también en el servidor.
 
 **Obtenido:**
 
@@ -581,7 +581,7 @@ Ayer (2026-09-27) → guardado: sí. Mañana (2026-09-29) → mensaje "La fecha 
 
 ### CP-REG-009 — Confirmación y formulario limpio después de guardar · **PASSED**
 
-**Esperado:** Confirmación breve ("Gasto guardado"). Vuelve al paso del monto, vacío, conservando la última cuenta usada.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Efectivo" queda marcada. Confirmación breve ("Gasto guardado"). Vuelve al paso del monto, vacío. En "Cuenta" viene seleccionada "Efectivo": conserva la última cuenta usada.
 
 **Obtenido:**
 
@@ -593,7 +593,7 @@ Toast "Gasto guardado": sí. Vuelve al paso del monto con el monto vacío: sí. 
 
 ### CP-REG-010 — Monto vacío, cero o negativo no se guarda · **PASSED**
 
-**Esperado:** Siguiente queda deshabilitado; no se emite ninguna escritura. Se acepta (mínimo válido). Rechazado con 23514 "I4: el monto debe ser mayor a cero".
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. Siguiente queda deshabilitado; no se emite ninguna escritura. Siguiente sigue deshabilitado y el campo dice por qué. Siguiente sigue deshabilitado; no se emite ninguna escritura. Se acepta (mínimo válido): "Gasto guardado". Rechazado con 23514 "I4: el monto debe ser mayor a cero".
 
 **Obtenido:**
 
@@ -610,7 +610,7 @@ API p_amount=-5 → 23514 "I4: el monto debe ser mayor a cero"
 
 ### CP-REG-011 — Monto con tres decimales · **PASSED**
 
-**Esperado:** Rechazado en cliente: "El monto admite hasta 2 decimales".
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. Rechazado en cliente: "El monto admite hasta 2 decimales", y "Siguiente" queda deshabilitado.
 
 **Obtenido:**
 
@@ -623,7 +623,7 @@ Mensaje: "El monto admite hasta 2 decimales". Siguiente deshabilitado: true. API
 
 ### CP-REG-012 — Eliminar una transacción la saca del total del mes · **PASSED**
 
-**Esperado:** Se cierra el diálogo. El total ya no la incluye (I10). deleted_at completado: la transacción sigue existiendo, marcada como eliminada.
+**Esperado:** Se abre Movimientos del mes actual. Se abre el diálogo "¿Eliminar transacción?". Se cierra el diálogo y aparece "Transacción eliminada". Se abre el Resumen del mes actual. El total ya no la incluye (I10): bajó $50.000. deleted_at completado: la transacción sigue existiendo, marcada como eliminada.
 
 **Obtenido:**
 
@@ -637,7 +637,7 @@ Total del mes antes $70.233,01 → después $20.233,01. deleted_at completado: t
 
 ### CP-REG-013 — Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo · **PASSED**
 
-**Esperado:** Antes de confirmar, avisa que cambian los totales de meses cerrados (2026-08 y 2026-09). Todas las imputaciones dejan de contar, también las de meses cerrados.
+**Esperado:** Se abre Movimientos de octubre 2026, con la cuota 3/12. Antes de confirmar, avisa que cambian los totales de meses cerrados (2026-08 y 2026-09): "Aviso: Esta transacción tiene imputaciones en meses ya cerrados…", con la lista de meses y el "Total meses cerrados". Aparece "Transacción eliminada". Se abre el Resumen de octubre. Todas las imputaciones dejan de contar, también las de meses cerrados: agosto y septiembre ya no incluyen sus cuotas (si no hay otros movimientos, muestran el estado vacío).
 
 **Obtenido:**
 
@@ -654,7 +654,7 @@ Imputaciones que siguen contando: 0
 
 ### CP-REG-014 — Otro usuario no puede leer ni borrar una transacción ajena · **PASSED**
 
-**Esperado:** 0 filas. No la encuentra; la transacción de A queda intacta.
+**Esperado:** 0 filas. No la encuentra; la transacción de A queda intacta (sigue activa para A).
 
 **Obtenido:**
 
@@ -666,7 +666,7 @@ B lee la transacción ee9d22bd… de A: 0 filas. B intenta borrarla: "la transac
 
 ### CP-REG-015 — No se puede escribir en transactions salteando la RPC · **PASSED**
 
-**Esperado:** permission denied (42501): toda escritura pasa por create_transaction (C4).
+**Esperado:** permission denied (42501): toda escritura pasa por create_transaction (C4). permission denied (42501).
 
 **Obtenido:**
 
@@ -678,7 +678,7 @@ Insert directo a transactions: 42501 "permission denied for table transactions".
 
 ### CP-REG-016 — El monto toma el foco con teclado numérico · **PASSED**
 
-**Esperado:** El monto ya tiene el foco y el teclado numérico está abierto.
+**Esperado:** Se abre Registrar. El monto ya tiene el foco y el teclado numérico está abierto.
 
 **Obtenido:**
 
@@ -690,7 +690,7 @@ Elemento con foco al abrir: transaction-form-amount; inputmode="decimal".
 
 ### CP-CUO-001 — Compra en 12 cuotas genera 12 imputaciones consecutivas · **PASSED**
 
-**Esperado:** Se guarda. 12 imputaciones numeradas 1 a 12, en meses consecutivos desde el de la compra.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" queda marcada. Debajo aparece la previsualización de las 12 cuotas. Se guarda ("Gasto guardado"). 12 imputaciones numeradas 1 a 12, en meses consecutivos desde el de la compra.
 
 **Obtenido:**
 
@@ -702,7 +702,7 @@ Elemento con foco al abrir: transaction-form-amount; inputmode="decimal".
 
 ### CP-CUO-002 — Previsualización del impacto mensual antes de guardar · **PASSED**
 
-**Esperado:** Muestra "12 cuotas de $10.000 — de 2026-08 a 2027-07" antes de tocar Guardar.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" queda marcada. Debajo aparece la previsualización de las 12 cuotas. La fecha queda cargada. Muestra "12 cuotas de $10.000 — de 2026-08 a 2027-07" antes de tocar Guardar (en pantalla: "12 cuotas de $10.000,00 · de ago 2026 a jul 2027").
 
 **Obtenido:**
 
@@ -715,7 +715,7 @@ Antes de Guardar se muestra: "12 cuotas de $10.000,00 · de ago 2026 a jul 2027"
 
 ### CP-CUO-003 — Cambiar a una cuenta que no es crédito resetea las cuotas · **PASSED**
 
-**Esperado:** El selector de cuotas desaparece, el valor vuelve a 1 y hay un aviso. Rechazado por I6.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" queda marcada. Debajo aparece la previsualización de las 6 cuotas. El selector de cuotas desaparece, el valor vuelve a 1 y hay un aviso ("Las cuotas volvieron a 1"). Rechazado por I6.
 
 **Obtenido:**
 
@@ -727,7 +727,7 @@ Con Efectivo el selector desaparece; aviso "Las cuotas volvieron a 1": sí; al v
 
 ### CP-CUO-004 — División exacta: 12 cuotas iguales · **PASSED**
 
-**Esperado:** 12 imputaciones de exactamente $10.000; suma $120.000,00 (I1).
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" queda marcada. Debajo aparece la previsualización de las 12 cuotas. Se guarda ("Gasto guardado"). 12 imputaciones de exactamente $10.000; suma $120.000,00 (I1).
 
 **Obtenido:**
 
@@ -738,7 +738,7 @@ Con Efectivo el selector desaparece; aviso "Las cuotas volvieron a 1": sí; al v
 
 ### CP-CUO-005 — El resto lo absorbe la última cuota · **PASSED**
 
-**Esperado:** $33.333,33 + $33.333,33 + $33.333,34 = $100.000,00. El resto va en la última.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" queda marcada. Debajo aparece la previsualización de las 3 cuotas. Muestra "3 cuotas de $33.333,33 · de <mes> a <mes>" y debajo "La última es de $33.333,34". Se guarda ("Gasto guardado"). $33.333,33 + $33.333,33 + $33.333,34 = $100.000,00. El resto va en la última.
 
 **Obtenido:**
 
@@ -750,7 +750,7 @@ Cuotas: 33333.33 + 33333.33 + 33333.34 = 100000.00.
 
 ### CP-CUO-006 — Cantidad de cuotas: 0, 1, 2, 12 y 13 · **PASSED**
 
-**Esperado:** 0 rechazado; 1, 2 y 12 aceptados; 13 rechazado.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El monto queda cargado y se habilita "Siguiente". Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" queda marcada. La pantalla ofrece solo 1 a 12: no hay forma de elegir 0 ni 13 desde la UI. 0 rechazado; 1, 2 y 12 aceptados; 13 rechazado.
 
 **Obtenido:**
 
@@ -766,7 +766,7 @@ API 13 cuotas → rechazado "las cuotas van de 1 a 12"
 
 ### CP-CUO-007 — El Resumen separa las cuotas de meses anteriores · **PASSED**
 
-**Esperado:** El total incluye $10.000 y "Cuotas de meses anteriores" muestra $10.000.
+**Esperado:** Se abre el Resumen del mes actual. La URL termina en ?period=2026-09. El total incluye $10.000 y "Cuotas de meses anteriores" muestra $10.000.
 
 **Obtenido:**
 
@@ -778,7 +778,7 @@ Dashboard 2026-09 de un usuario con solo la compra de agosto (12 × $10.000): to
 
 ### CP-CUO-008 — El listado muestra el número de cuota · **PASSED**
 
-**Esperado:** Muestra "3/12" junto a la imputación.
+**Esperado:** Se abre Movimientos del mes actual. Se ve la imputación de la compra. Muestra "3/12" junto a la imputación.
 
 **Obtenido:**
 
@@ -790,7 +790,7 @@ En el listado de 2026-10 la imputación muestra "3/12".
 
 ### CP-CUO-009 — Borrar una compra en cuotas saca todas sus cuotas · **PASSED**
 
-**Esperado:** Las 12 imputaciones dejan de contar en todos los meses, incluidas las futuras.
+**Esperado:** Se abre Movimientos del mes actual, con la cuota 1/12. Solo tiene la opción de eliminar la compra: no existe la opción de borrar una cuota suelta. Aparece "Transacción eliminada". Las 12 imputaciones dejan de contar en todos los meses, incluidas las futuras.
 
 **Obtenido:**
 
@@ -802,7 +802,7 @@ Imputaciones que cuentan antes: 12; después: 0. En 2027-03 (cuota futura) ya no
 
 ### CP-CUO-010 — En USD, la suma en pesos de las cuotas es exacta · **PASSED**
 
-**Esperado:** Se guarda. Es exactamente transactions.amount_ars (I1'), sin diferencias de un centavo.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. Aparece el campo "Tipo de cambio (ARS por US$)" debajo del monto. El monto queda cargado y se habilita "Siguiente". El campo muestra el valor nuevo. Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. Avanza solo al paso 3/3 ("Revisá y guardá"). "Visa BBVA" queda marcada. Debajo aparece la previsualización de las 3 cuotas. Se guarda ("Gasto guardado"). Es exactamente transactions.amount_ars (I1'), sin diferencias de un centavo.
 
 **Obtenido:**
 
@@ -825,7 +825,7 @@ B consulta ledger_entries de la compra en cuotas 8e08e2ae… de A: 0 filas.
 
 ### CP-CUO-012 — Un ingreso no admite cuotas aunque la cuenta sea crédito · **PASSED**
 
-**Esperado:** No aparece el selector de cuotas. Rechazado por I6.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. Queda seleccionado "Ingreso". El monto queda cargado y se habilita "Siguiente". Pasa al paso de detalles, sin elegir categoría (un ingreso no la lleva). "Visa BBVA" queda marcada. No aparece el selector de cuotas. Rechazado por I6.
 
 **Obtenido:**
 
@@ -837,7 +837,7 @@ Ingreso con Visa BBVA: selector de cuotas oculto. API ingreso en 3 cuotas: "I6: 
 
 ### CP-CUO-013 — Un fallo a mitad de create_transaction no deja datos parciales · **PASSED**
 
-**Esperado:** La llamada devuelve error. Cero filas nuevas en ambas: todo se revierte (C4).
+**Esperado:** Se anotan los dos números. La llamada devuelve error. Cero filas nuevas en ambas: todo se revierte (C4).
 
 **Obtenido:**
 
@@ -849,7 +849,7 @@ create_transaction($0,02 en 3 cuotas) inserta la transacción y lanza "I4: cada 
 
 ### CP-MON-001 — Gasto en USD con el tipo de cambio sugerido · **PASSED**
 
-**Esperado:** Se guarda con fx_rate = 1250 y amount_ars = 125.000.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. Aparece "Tipo de cambio (ARS por US$)" con 1250 sugerido. Pasa a la grilla de categorías. Aparece "Gasto guardado". Se guarda con fx_rate = 1250 y amount_ars = 125.000.
 
 **Obtenido:**
 
@@ -862,7 +862,7 @@ USD 100 guardado sin tocar el TC: fx_rate|amount_ars = 1250.0000|125000.00.
 
 ### CP-MON-002 — Tabla de decisión de moneda y tipo de cambio (6 filas) · **PASSED**
 
-**Esperado:** Se guardan las filas 1, 3, 4 y 6. Se rechazan la 2 (ARS con TC, I5) y la 5 (USD sin ningún TC, con mensaje que pide el tipo de cambio). Mismo rechazo (I5).
+**Esperado:** Aviso "No tenés un tipo de cambio configurado para este mes." con "Ir a Ajustes"; "Siguiente" deshabilitado. Se guarda. La referencia queda guardada. Se guardan las filas 1, 3 y 4. La pantalla no ofrece tipo de cambio en ARS. Se guardan las filas 1, 3, 4 y 6. Se rechazan la 2 (ARS con TC, I5) y la 5 (USD sin ningún TC, con mensaje que pide el tipo de cambio). Mismo rechazo por API (I5).
 
 **Obtenido:**
 
@@ -880,7 +880,7 @@ Fila 4 (USD, referencia 1250, override 1300): guardada con fx_rate 1300.0000
 
 ### CP-MON-003 — Pisar el tipo de cambio sugerido · **PASSED**
 
-**Esperado:** El campo sugiere 1250. Se guarda con fx_rate = 1300.
+**Esperado:** Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. El campo sugiere 1250. Aparece "Estás usando un valor distinto al de referencia. Se aplica solo a esta transacción." Aparece "Gasto guardado". Se guarda con fx_rate = 1300.
 
 **Obtenido:**
 
@@ -894,7 +894,7 @@ TC sugerido: "1250.0000". Al pisarlo: "Estás usando un valor distinto al de ref
 
 ### CP-MON-004 — Cambiar la referencia no altera lo ya guardado · **PASSED**
 
-**Esperado:** Se guarda. La transacción sigue valiendo $125.000; el total no cambia.
+**Esperado:** Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. Se guarda: la lista muestra $ 1.400,00 para el mes. Se abre Movimientos del mes actual. La transacción sigue valiendo $125.000. Se abre el Resumen del mes actual. El total no cambia.
 
 **Obtenido:**
 
@@ -906,7 +906,7 @@ Referencia del mes ahora 1400.0000. La transacción sigue en fx_rate|amount_ars 
 
 ### CP-MON-005 — El total del mes en pesos incluye lo gastado en dólares · **PASSED**
 
-**Esperado:** $175.000 ($50.000 + $125.000).
+**Esperado:** Se abre el Resumen del mes actual. $175.000 ($50.000 + $125.000).
 
 **Obtenido:**
 
@@ -918,7 +918,7 @@ Con $50.000 ARS y USD 100 a 1250 en el mes, el total es $175.000,00.
 
 ### CP-MON-006 — El gasto en dólares se ve por separado · **PASSED**
 
-**Esperado:** Muestra "USD 100" por separado del total en ARS.
+**Esperado:** Se abre el Resumen del mes actual. Muestra "USD 100" por separado del total en ARS.
 
 **Obtenido:**
 
@@ -930,7 +930,7 @@ Debajo del total: "Incluye US$100,00 en dólares".
 
 ### CP-MON-007 — Otro usuario no lee ni modifica el tipo de cambio ajeno · **PASSED**
 
-**Esperado:** 0 filas al leer; el update afecta 0 filas.
+**Esperado:** 0 filas al leer. El update afecta 0 filas; el tipo de cambio de A no cambia.
 
 **Obtenido:**
 
@@ -942,7 +942,7 @@ B lee fx_rates de A: 0 filas. B hace update: 0 filas afectadas. El TC de A sigue
 
 ### CP-DAS-001 — El Resumen abre en el mes actual con su total · **PASSED**
 
-**Esperado:** Muestra el total gastado del mes actual.
+**Esperado:** Se abre /dashboard. Muestra el total gastado del mes actual ("Gastado en <mes actual>").
 
 **Obtenido:**
 
@@ -953,7 +953,7 @@ Sin tocar el selector: período 2026-09, URL /dashboard?period=2026-09, total $1
 
 ### CP-DAS-002 — El mes elegido vive en la URL · **PASSED**
 
-**Esperado:** La URL pasa a period=2026-11.
+**Esperado:** Se abre el Resumen de septiembre 2026. La URL pasa a period=2026-11.
 
 **Obtenido:**
 
@@ -976,7 +976,7 @@ Tras dos toques en "→": /dashboard?period=2026-11.
 
 ### CP-DAS-004 — Gasto por categoría en barras · **PASSED**
 
-**Esperado:** Una barra por categoría con su total, ordenadas de mayor a menor.
+**Esperado:** Se abre el Resumen del mes actual. Una barra por categoría con su total, ordenadas de mayor a menor.
 
 **Obtenido:**
 
@@ -988,7 +988,7 @@ Barras: Salud$70.000,0046,7 % | Comida y supermercado$50.000,0033,3 % | Transpor
 
 ### CP-DAS-005 — Gasto por cuenta · **PASSED**
 
-**Esperado:** Cada total coincide con la suma manual de sus transacciones.
+**Esperado:** Se abre el Resumen del mes actual. Cada total coincide con la suma manual de sus transacciones.
 
 **Obtenido:**
 
@@ -1000,7 +1000,7 @@ Por cuenta: Efectivo$120.000,0080,0 % | Tarjeta de débito$30.000,0020,0 % (espe
 
 ### CP-DAS-006 — Ingresos y balance positivo · **PASSED**
 
-**Esperado:** Ingresos $200.000; balance +$50.000.
+**Esperado:** Se abre el Resumen del mes actual. Ingresos $200.000; balance +$50.000.
 
 **Obtenido:**
 
@@ -1012,7 +1012,7 @@ Ingresos $200.000,00; balance $50.000,00 (Superávit).
 
 ### CP-DAS-007 — Balance negativo con signo explícito · **PASSED**
 
-**Esperado:** -$150.000, con signo negativo explícito.
+**Esperado:** Se abre el Resumen del mes actual. -$150.000, con signo negativo explícito.
 
 **Obtenido:**
 
@@ -1024,7 +1024,7 @@ Balance -$150.000,00, con etiqueta "Déficit".
 
 ### CP-DAS-008 — Últimos 10 movimientos con acceso a la lista completa · **PASSED**
 
-**Esperado:** Muestra 10. Abre Movimientos del mes con las 15.
+**Esperado:** Se abre el Resumen del mes actual. Muestra 10. Abre Movimientos del mes con las 15.
 
 **Obtenido:**
 
@@ -1036,7 +1036,7 @@ Con 15 transacciones en el mes, el dashboard muestra 10; "Ver todos" lleva a /tr
 
 ### CP-DAS-009 — Una cuota heredada no cuenta como día con registro · **PASSED**
 
-**Esperado:** 0 días.
+**Esperado:** Se abre el Resumen del mes actual. Se ve el Resumen de diciembre, con la cuota de la compra en el total. 0 días.
 
 **Obtenido:**
 
@@ -1048,7 +1048,7 @@ Diciembre 2026, solo la cuota 5/12 heredada (total $10.000,00): días con regist
 
 ### CP-DAS-010 — Mes sin datos: estado vacío con acceso al registro · **PASSED**
 
-**Esperado:** Mensaje claro y un botón a /register, no un dashboard de ceros.
+**Esperado:** Se abre el Resumen del mes actual. Mensaje claro y un botón a /register, no un dashboard de ceros: "No tenés movimientos registrados en <mes>." y "Registrar un gasto". Se abre Registrar (/register).
 
 **Obtenido:**
 
@@ -1060,7 +1060,7 @@ Estado vacío: "No tenés movimientos registrados en mayo."; el botón lleva a /
 
 ### CP-DAS-011 — El Resumen de un usuario nunca muestra datos de otro · **PASSED**
 
-**Esperado:** 0 filas.
+**Esperado:** 0 filas. Solo devuelve filas de B: ninguna de A.
 
 **Obtenido:**
 
