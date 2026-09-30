@@ -130,13 +130,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Navegador sin sesión de Biyu (almacenamiento vacío). |
+| Pre-requisitos | Navegador sin sesión de Biyu: ventana de incógnito, o en una ventana normal cerrar sesión desde Ajustes → "Cerrar sesión". |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir la raíz de la app (/). | Redirige a /login?next=%2Fregister. |
-| 2 | Observar la pantalla. | Se ve el formulario "Entrar"; no se renderiza nada de /register. |
+| 1 | Escribir la dirección de la app (la raíz, "/") en la barra del navegador y dar Enter. | Redirige a /login?next=%2Fregister. |
+| 2 | Observar la pantalla. | Se ve el formulario "Entrar" (Email, Contraseña, botón "Entrar"); no se renderiza nada de /register. |
 
 #### CP-ACC-002 — Una ruta privada abierta sin sesión conserva el destino
 
@@ -148,12 +148,12 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Sin sesión. |
+| Pre-requisitos | Navegador sin sesión de Biyu (ventana de incógnito). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Navegar directo a /settings, sin pasar por /login. | Redirige a /login?next=%2Fsettings, conservando el destino original. |
+| 1 | Escribir en la barra del navegador la dirección de la app seguida de /settings (por ejemplo http://localhost:5180/settings) y dar Enter, sin pasar antes por /login. | Redirige a /login?next=%2Fsettings, conservando el destino original. |
 
 #### CP-ACC-003 — Crear una cuenta con email y contraseña válidos
 
@@ -165,14 +165,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Email sin cuenta previa. |
+| Pre-requisitos | Navegador sin sesión de Biyu.<br>Email sin cuenta previa. |
 | Datos de prueba | Email: nueva@test.local (uno nuevo por corrida)<br>Contraseña: Clave123! |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ir a /signup. | Se ve "Crear cuenta" con los criterios de contraseña. |
-| 2 | Completar email, contraseña y "Confirmar contraseña" con el mismo valor. | Los criterios se marcan como cumplidos; las contraseñas se ven enmascaradas. |
-| 3 | Tocar "Crear cuenta". | Cuenta creada con sesión activa, sin paso de confirmación por email (ADR-011); redirige a /register. |
+| 1 | Abrir la app. En /login, tocar "Crear una cuenta". | Se ve "Crear cuenta" con los criterios de contraseña. |
+| 2 | Escribir el email en "Email", Clave123! en "Contraseña" y Clave123! en "Confirmar contraseña". | Los criterios se marcan como cumplidos; las contraseñas se ven enmascaradas. |
+| 3 | Tocar "Crear cuenta". | Cuenta creada con sesión activa, sin paso de confirmación por email (ADR-011). Se abre la configuración inicial ("¿Para qué vas a usar Biyu?", US-68). |
+| 4 | En la configuración inicial, tocar "Saltear" en cada uno de los 4 pasos. | La configuración inicial termina y se abre Registrar. |
+| 5 | Observar la URL. | La app queda en /register. |
 
 #### CP-ACC-004 — Contraseñas que no cumplen los criterios se rechazan
 
@@ -184,14 +186,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Tabla de decisión · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Emails sin cuenta previa. |
+| Pre-requisitos | Navegador sin sesión de Biyu.<br>Un email distinto, sin cuenta previa, para cada contraseña.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | (a): abc1234 — 7 caracteres<br>(b): abcdefgh — solo minúsculas<br>(c): 12345678 — solo números<br>(d): abcd1234 — sin mayúscula ni especial<br>(e): Abcd123! — cumple los 5 criterios |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Intentar crear cuenta con (a), (b), (c) y (d). | Cada una se rechaza con un mensaje que dice qué criterio falta. No se crea la cuenta. |
-| 2 | Intentar crear cuenta con (e). | Se acepta. |
-| 3 | Variante API: POST /auth/v1/signup con (d), sin pasar por el formulario. | Rechazada: FR-01 pide validar también en el servidor. |
+| 1 | Abrir la app. En /login, tocar "Crear una cuenta". | Se ve "Crear cuenta" con la lista de los 5 criterios, todos con ○ (pendientes). |
+| 2 | Escribir un email nuevo y la contraseña (a) en "Contraseña" y en "Confirmar contraseña". Tocar "Crear cuenta". | Mensaje "Falta que la contraseña cumpla: …" con los criterios que faltan. No se crea la cuenta. |
+| 3 | Repetir el paso anterior con (b), (c) y (d), cada una con un email nuevo. | Cada una se rechaza con un mensaje que dice qué criterio falta. No se crea la cuenta. |
+| 4 | Repetir con (e) y un email nuevo. | Se acepta: la cuenta se crea y se abre la configuración inicial. |
+| 5 | Variante API: POST /auth/v1/signup con un email nuevo y la contraseña (d), sin pasar por el formulario. | Rechazada: FR-01 pide validar también en el servidor. |
 
 #### CP-ACC-005 — No se puede crear una cuenta con un email ya registrado
 
@@ -203,14 +207,15 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Ya existe una cuenta con el email de prueba (la de CP-ACC-003). |
+| Pre-requisitos | Ya existe una cuenta con el email de prueba (la de CP-ACC-003).<br>Navegador sin sesión de Biyu.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | Email: el de CP-ACC-003 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ir a /signup y completar el formulario con ese email. | Los datos se cargan. |
-| 2 | Tocar "Crear cuenta". | Mensaje "Ya existe una cuenta con ese email". No se crea una segunda cuenta. |
-| 3 | Variante API: POST /auth/v1/signup con el mismo email. | Error user_already_exists / email_exists. |
+| 1 | Abrir la app. En /login, tocar "Crear una cuenta". | Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. |
+| 2 | Escribir el email de CP-ACC-003 en "Email", Clave123! en "Contraseña" y otra vez Clave123! en "Confirmar contraseña". | Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. |
+| 3 | Tocar "Crear cuenta". | Mensaje "Ya existe una cuenta con ese email". No se crea una segunda cuenta y la pantalla sigue en "Crear cuenta". |
+| 4 | Variante API: POST /auth/v1/signup con el mismo email. | Error user_already_exists / email_exists. |
 
 #### CP-ACC-006 — Credenciales inválidas en el login, sin arrastrar el error al signup
 
@@ -222,13 +227,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Email sin cuenta, o contraseña incorrecta para una que existe. |
-| Datos de prueba | Email: noexiste@test.local |
+| Pre-requisitos | Navegador sin sesión de Biyu.<br>Email sin cuenta, o contraseña incorrecta para una que existe. |
+| Datos de prueba | Email: noexiste@test.local<br>Contraseña: Cualquiera, por ejemplo Clave123! |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ir a /login, completar credenciales inválidas y tocar "Entrar". | Mensaje "Email o contraseña incorrectos". |
-| 2 | Sin recargar, tocar "Crear una cuenta". | En /signup el error anterior no aparece. |
+| 1 | Abrir la app en /login. | Se ve el formulario "Entrar". |
+| 2 | Escribir noexiste@test.local en "Email" y Clave123! en "Contraseña". Tocar "Entrar". | Mensaje "Email o contraseña incorrectos". La pantalla sigue en /login. |
+| 3 | Sin recargar la página, tocar "Crear una cuenta" (debajo del botón "Entrar"). | Se abre /signup y el error anterior no aparece. |
 
 #### CP-ACC-007 — Alta sin sesión (confirmación de email activa) no entra a la app
 
@@ -240,13 +246,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Límite |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | No |
-| Pre-requisitos | Hipotético: "Confirm email" activo en Supabase, de modo que signUp() no devuelve sesión. |
-| Datos de prueba | — |
+| Pre-requisitos | Hipotético: "Confirm email" activo en Supabase, de modo que signUp() no devuelve sesión. Para simularlo sin tocar el proyecto, interceptar la respuesta de /auth/v1/signup para que llegue sin sesión (por ejemplo con Playwright, como en la ejecución 1).<br>Navegador sin sesión de Biyu. |
+| Datos de prueba | Email: uno nuevo<br>Contraseña: Clave123! |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Completar el signup con datos válidos. | Los datos se cargan. |
-| 2 | Enviar, con la respuesta de signup sin sesión. | No se redirige a una ruta protegida; se muestra "Te creamos la cuenta, pero hace falta confirmar el email antes de entrar." |
+| 1 | Abrir la app. En /login, tocar "Crear una cuenta". | Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. |
+| 2 | Escribir un email nuevo en "Email", Clave123! en "Contraseña" y otra vez Clave123! en "Confirmar contraseña". | Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. |
+| 3 | Tocar "Crear cuenta", con la respuesta de signup llegando sin sesión. | No se redirige a una ruta protegida: la pantalla sigue en /signup y muestra "Te creamos la cuenta, pero hace falta confirmar el email antes de entrar." |
 
 #### CP-ACC-008 — Una cuenta nueva tiene el catálogo inicial sembrado
 
@@ -258,13 +265,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Cuenta recién creada por /signup. |
-| Datos de prueba | — |
+| Pre-requisitos | Navegador sin sesión de Biyu.<br>Email sin cuenta previa. |
+| Datos de prueba | Email: uno nuevo<br>Contraseña: Clave123! |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Completar el signup. | La app entra a /register. |
-| 2 | Ir a Ajustes. | Están las 8 categorías (Comida y supermercado, Transporte, Servicios, Entretenimiento, Salud, Educación, Indumentaria, Otros) y las 5 cuentas de FR-04. |
+| 1 | Abrir la app. En /login, tocar "Crear una cuenta". | Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. |
+| 2 | Escribir un email nuevo en "Email", Clave123! en "Contraseña" y otra vez Clave123! en "Confirmar contraseña". | Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. |
+| 3 | Tocar "Crear cuenta". | Se abre la configuración inicial. |
+| 4 | En la configuración inicial, tocar "Saltear" en cada uno de los 4 pasos. | La configuración inicial termina y se abre Registrar. |
+| 5 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 6 | Revisar las listas "Categorías" y "Cuentas". | Están las 8 categorías (Comida y supermercado, Transporte, Servicios, Entretenimiento, Salud, Educación, Indumentaria, Otros) y las 5 cuentas de FR-04 (Tarjeta de crédito, Tarjeta de débito, Efectivo, Cuenta bancaria, Billetera virtual). |
 
 #### CP-ACC-009 — Cerrar sesión y no poder volver con "atrás"
 
@@ -276,13 +287,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Sesión activa en /register, /dashboard o /transactions. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Desde cada pantalla, abrir Ajustes y tocar "Cerrar sesión". | La sesión se cierra y redirige a /login. |
-| 2 | Tocar "atrás" en el navegador. | No se recupera el acceso: cae otra vez en /login. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes. |
+| 2 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 3 | Bajar hasta el final de Ajustes y tocar "Cerrar sesión". | La sesión se cierra y redirige a /login. |
+| 4 | Tocar el botón "atrás" del navegador. | No se recupera el acceso: cae otra vez en /login. |
+| 5 | Volver a iniciar sesión y repetir los pasos 2 a 4 partiendo de Registrar y de Movimientos. | Mismo resultado desde cada pantalla. |
 
 #### CP-ACC-010 — La sesión persiste al recargar y al reabrir el navegador
 
@@ -294,13 +308,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | No |
-| Pre-requisitos | Sesión activa. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Estar en Registrar (/register).<br>Ventana normal del navegador, no de incógnito (la sesión se guarda en el navegador). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Recargar la pestaña (F5). | Sigue en /register sin pedir login. |
-| 2 | Cerrar y reabrir el navegador en la misma URL. | La sesión persiste (localStorage). |
+| 1 | Recargar la pestaña (F5 o el botón de recargar). | Sigue en /register sin pedir login. |
+| 2 | Cerrar el navegador por completo, volver a abrirlo y entrar a la misma dirección de la app. | La sesión persiste (localStorage): abre Registrar sin pedir login. |
 
 #### CP-ACC-011 — Aislamiento entre usuarios en todas las tablas (par de autorización)
 
@@ -312,13 +326,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Usuarios A y B, cada uno con sus datos. |
-| Datos de prueba | — |
+| Pre-requisitos | Dos usuarios de prueba, A y B, cada uno con sus propios datos cargados, y el token de sesión de cada uno.<br>Id de usuario de A (se ve en la tabla auth.users o en el token de A).<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
+| Datos de prueba | Tablas: categories, accounts, fx_rates, transactions, ledger_entries, debts, subscriptions |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Con la sesión de B, consultar cada tabla filtrando por A. | B ve 0 filas de A en categories, accounts, fx_rates, transactions, ledger_entries, debts y subscriptions. |
-| 2 | Con el rol anon (sin sesión), consultar cada tabla. | permission denied (42501) en todas. |
+| 1 | Con el token de B, consultar cada tabla filtrando por el id de A: GET /rest/v1/<tabla>?user_id=eq.<id de A>. | B ve 0 filas de A en categories, accounts, fx_rates, transactions, ledger_entries, debts y subscriptions. |
+| 2 | Sin token de usuario, solo con la anon key (rol anon), hacer GET /rest/v1/<tabla> para cada tabla. | permission denied (42501) en todas. |
 
 #### CP-ACC-012 — Contraseña y confirmación distintas bloquean el alta *(nuevo)*
 
@@ -330,13 +344,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Email sin cuenta previa. |
+| Pre-requisitos | Navegador sin sesión de Biyu.<br>Email sin cuenta previa. |
 | Datos de prueba | Contraseña: Clave123!<br>Confirmar contraseña: Clave123? |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ir a /signup y completar email, contraseña y una confirmación distinta. | Los dos campos se ven enmascarados. |
-| 2 | Tocar "Crear cuenta". | Mensaje "Las contraseñas no son iguales". No se crea la cuenta. |
+| 1 | Abrir la app. En /login, tocar "Crear una cuenta". | Se abre "Crear cuenta". |
+| 2 | Escribir un email nuevo en "Email", Clave123! en "Contraseña" y Clave123? en "Confirmar contraseña". | Los dos campos se ven enmascarados. |
+| 3 | Tocar "Crear cuenta". | Mensaje "Las contraseñas no son iguales". No se crea la cuenta y la pantalla sigue en "Crear cuenta". |
 
 ### CFG · Configuración
 
@@ -350,13 +365,15 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Usuario con categorías sembradas. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Usuario con categorías sembradas. |
 | Datos de prueba | Nombre: Mascotas |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ir a Ajustes, completar "Mascotas" y elegir un color de la paleta. | El nombre y el color quedan cargados. |
-| 2 | Tocar "Crear categoría". | Aparece en el listado activo con ese nombre y color. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En la sección "Categorías", bajar hasta el formulario y escribir "Mascotas" en "Nueva categoría". | El nombre queda cargado. |
+| 3 | Tocar un color de la paleta, distinto del primero. | El color elegido queda marcado. |
+| 4 | Tocar "Crear categoría". | Aparece en el listado activo con ese nombre y color. |
 
 #### CP-CFG-002 — Renombrar una categoría y cambiarle el color
 
@@ -368,13 +385,15 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Categoría "Comida y supermercado" activa. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Categoría "Comida y supermercado" activa. |
 | Datos de prueba | Nombre nuevo: Comida |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Tocar "Editar" en "Comida y supermercado". | Se abre la edición en línea. |
-| 2 | Cambiar el nombre a "Comida" y el color; tocar "Guardar". | El listado muestra el nombre y el color nuevos, sin crear una fila nueva. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Categorías", tocar el lápiz ("Editar Comida y supermercado") a la derecha de "Comida y supermercado". | Se abre la edición en línea, con el nombre, la paleta y los botones "Cancelar" y "Guardar". |
+| 3 | Borrar el nombre y escribir "Comida". Tocar otro color de la paleta. | Se ven el nombre y el color nuevos. |
+| 4 | Tocar "Guardar". | El listado muestra el nombre y el color nuevos, sin crear una fila nueva. |
 
 #### CP-CFG-003 — No se permiten dos categorías activas con el mismo nombre
 
@@ -386,13 +405,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Existe la categoría activa "Salud". |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Existe la categoría activa "Salud".<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | Nombre: Salud |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Intentar crear otra categoría "Salud". | Rechazado con "Ya existe una categoría activa con ese nombre". |
-| 2 | Variante API: insert directo a categories con el mismo nombre. | Error 23505 (unique_violation). |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Nueva categoría", escribir "Salud" y tocar "Crear categoría". | Rechazado con "Ya existe una categoría activa con ese nombre". La lista no cambia. |
+| 3 | Variante API: POST /rest/v1/categories con name "Salud" (insert directo a categories con el mismo nombre). | Error 23505 (unique_violation). |
 
 #### CP-CFG-004 — Archivar una categoría con historia
 
@@ -404,14 +424,19 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | "Entretenimiento" con al menos una transacción que la usa. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>"Entretenimiento" con al menos una transacción que la usa: en Registrar, escribir 8000, tocar "Siguiente", tocar "Entretenimiento", escribir "Cine" en "Nota (opcional)" y tocar "Guardar gasto". |
 | Datos de prueba | Transacción: $8.000, nota "Cine" |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Archivar "Entretenimiento" en Ajustes. | Desaparece del listado activo. |
-| 2 | Abrir el registro. | No aparece en la grilla de categorías. |
-| 3 | Abrir la transacción histórica en Movimientos. | Conserva su categoría y la muestra con una marca de archivada. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Categorías", tocar el botón de archivar ("Archivar Entretenimiento") a la derecha de "Entretenimiento". | Desaparece del listado activo. |
+| 3 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 4 | Escribir 1000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 5 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 6 | Observar la grilla de categorías. | No aparece "Entretenimiento". |
+| 7 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual. |
+| 8 | Buscar la transacción "Cine" de $8.000. | Conserva su categoría y la muestra con una marca de archivada. |
 
 #### CP-CFG-005 — Reusar el nombre de una categoría archivada
 
@@ -423,12 +448,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Tabla de decisión · Límite |
 | Prioridad · Camino feliz | Baja · No |
 | Automatización | Sí |
-| Pre-requisitos | Categoría "Salidas" archivada y ninguna activa con ese nombre. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Categoría "Salidas" archivada y ninguna activa con ese nombre: en Ajustes, crear "Salidas" con "Crear categoría" y después tocar "Archivar Salidas". |
 | Datos de prueba | Nombre: Salidas |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Crear una categoría nueva "Salidas". | Se permite: el índice único solo cuenta las activas. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Nueva categoría", escribir "Salidas" y tocar "Crear categoría". | Se permite: "Salidas" aparece en el listado activo (el índice único solo cuenta las activas). |
 
 #### CP-CFG-006 — Crear una cuenta de tarjeta de crédito
 
@@ -440,13 +466,20 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Usuario con cuentas sembradas. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Usuario con cuentas sembradas y sin una cuenta llamada "Visa BBVA". |
 | Datos de prueba | Nombre: Visa BBVA<br>Tipo: Tarjeta de crédito<br>Moneda: ARS |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | En Ajustes, completar nombre, tipo y moneda; tocar "Crear cuenta". | Aparece con el tipo en español ("Tarjeta de crédito"). |
-| 2 | En el registro, elegir esa cuenta para un gasto. | Se ofrece el selector de cuotas (I6). |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En la sección "Cuentas", escribir "Visa BBVA" en "Nueva cuenta". | El nombre queda cargado. |
+| 3 | Abrir el desplegable "Tipo" y elegir "Tarjeta de crédito". Dejar "ARS" en "Moneda". | Se ven "Tarjeta de crédito" y "ARS". |
+| 4 | Tocar "Crear cuenta". | Aparece en la lista con el tipo en español ("Tarjeta de crédito"). |
+| 5 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 6 | Escribir 1000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 7 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 8 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 9 | En "Cuenta", tocar "Visa BBVA". | Se ofrece el selector de cuotas (I6): aparece "Cuotas" con los números 1 a 12. |
 
 #### CP-CFG-007 — No se permiten dos cuentas activas con el mismo nombre
 
@@ -458,13 +491,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Existe la cuenta activa "Efectivo". |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Existe la cuenta activa "Efectivo" (sembrada).<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | Nombre: Efectivo |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Intentar crear otra cuenta "Efectivo". | Rechazado con "Ya existe una cuenta activa con ese nombre". |
-| 2 | Variante API: insert directo a accounts. | Error 23505. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Cuentas", escribir "Efectivo" en "Nueva cuenta", elegir cualquier "Tipo" y tocar "Crear cuenta". | Rechazado con "Ya existe una cuenta activa con ese nombre". La lista no cambia. |
+| 3 | Variante API: POST /rest/v1/accounts con name "Efectivo" (insert directo a accounts). | Error 23505. |
 
 #### CP-CFG-008 — La siembra concurrente no duplica el catálogo
 
@@ -476,13 +510,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Límite |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | No |
-| Pre-requisitos | Usuario recién creado, todavía sin sembrar. |
+| Pre-requisitos | Usuario recién creado por API (POST /auth/v1/signup), todavía sin sembrar: no abrió la app nunca.<br>Acceso de lectura a la base local para contar filas. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir /register en dos pestañas al mismo tiempo. | Las dos cargan el formulario. |
-| 2 | Contar categorías y cuentas del usuario. | Exactamente 8 y 5: sin duplicados. |
+| 1 | Iniciar sesión con ese usuario y abrir /register en dos pestañas al mismo tiempo (abrir la segunda pestaña antes de que termine de cargar la primera). | Las dos cargan el formulario. |
+| 2 | En la base, contar las categorías y las cuentas del usuario (select count(*) from categories / accounts where user_id = <id>). | Exactamente 8 y 5: sin duplicados. |
 
 #### CP-CFG-009 — Cargar y actualizar el tipo de cambio de referencia del mes
 
@@ -494,13 +528,15 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | El mes actual sin tipo de cambio cargado. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>El mes actual sin tipo de cambio cargado. |
 | Datos de prueba | TC 1: 1250<br>TC 2: 1300 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | En Ajustes, elegir el mes actual, cargar 1250 y guardar. | Se crea la referencia del mes. |
-| 2 | Volver a cargar el mismo mes con 1300. | Se actualiza a 1300, sin duplicar la fila. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Tipo de cambio de referencia", elegir el mes actual en "Mes". | El mes queda cargado. |
+| 3 | Escribir 1250 en "ARS por USD" y tocar "Guardar tipo de cambio". | Se crea la referencia del mes: aparece en la lista con $ 1.250,00. |
+| 4 | Con el mismo mes, escribir 1300 en "ARS por USD" y tocar "Guardar tipo de cambio". | Se actualiza a 1300, sin duplicar la fila: la lista sigue teniendo una sola fila para ese mes. |
 
 #### CP-CFG-010 — Tipo de cambio de referencia en cero o negativo
 
@@ -512,14 +548,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Límite |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | Valores: 0 · -100 · 0,01 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cargar 0 y después -100. | Rechazados con "El tipo de cambio debe ser mayor a cero". |
-| 2 | Cargar 0,01. | Aceptado (mínimo válido). |
-| 3 | Variante API: upsert directo a fx_rates y RPC upsert_fx_rate con 0 y -100. | Rechazados por la base. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Tipo de cambio de referencia", elegir un mes en "Mes", escribir 0 en "ARS por USD" y tocar "Guardar tipo de cambio". | Rechazado con "El tipo de cambio debe ser mayor a cero". |
+| 3 | Repetir con -100. | Rechazado con el mismo mensaje. |
+| 4 | Repetir con 0,01. | Aceptado (mínimo válido): aparece en la lista. |
+| 5 | Variante API: upsert directo a fx_rates (POST /rest/v1/fx_rates) y llamada a la RPC upsert_fx_rate, las dos con 0 y con -100. | Rechazados por la base. |
 
 #### CP-CFG-011 — Después de crear la cuenta aparece la configuración inicial *(nuevo)*
 
@@ -531,13 +569,15 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Email sin cuenta previa. |
+| Pre-requisitos | Navegador sin sesión de Biyu.<br>Email sin cuenta previa. |
 | Datos de prueba | Contraseña: Clave123! |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Crear una cuenta en /signup. | La cuenta se crea. |
-| 2 | Observar la pantalla siguiente. | Se muestra el setup (elementos con data-testid "setup-"), con los pasos "para qué la usás", categorías, cuentas y primer gasto. |
+| 1 | Abrir la app. En /login, tocar "Crear una cuenta". | Se abre "Crear cuenta" con los campos Email, Contraseña y Confirmar contraseña, y la lista de criterios de contraseña. |
+| 2 | Escribir un email nuevo en "Email", Clave123! en "Contraseña" y otra vez Clave123! en "Confirmar contraseña". | Los cinco criterios de contraseña se marcan con ✓; las dos contraseñas se ven enmascaradas. |
+| 3 | Tocar "Crear cuenta". | La cuenta se crea. |
+| 4 | Observar la pantalla siguiente. | Se muestra el setup (elementos con data-testid "setup-"), con los pasos "para qué la usás", categorías, cuentas y primer gasto: se ve "¿Para qué vas a usar Biyu?" con 3 opciones, "Continuar" y "Saltear", y una barra de 4 pasos. |
 
 #### CP-CFG-012 — Saltear todo el setup deja la siembra de siempre *(nuevo)*
 
@@ -549,13 +589,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | V3 |
-| Pre-requisitos | Cuenta recién creada, con el setup a la vista. |
+| Pre-requisitos | Cuenta recién creada, con el setup a la vista (pasos 1 a 3 de CP-CFG-011). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Tocar "Saltear" en cada paso. | El setup termina y la app abre en Registrar. |
-| 2 | Ir a Ajustes. | Quedan las 8 categorías y 5 cuentas sembradas (US-43). |
+| 1 | En "¿Para qué vas a usar Biyu?", tocar "Saltear". | Pasa al paso "Tus categorías". |
+| 2 | En "Tus categorías", tocar "Saltear". | Pasa al paso "Tus cuentas". |
+| 3 | En "Tus cuentas", tocar "Saltear". | Pasa al paso "Registrá tu primer gasto". |
+| 4 | En "Registrá tu primer gasto", tocar "Saltear" (al pie). | El setup termina y la app abre en Registrar. |
+| 5 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 6 | Revisar las listas "Categorías" y "Cuentas". | Quedan las 8 categorías y 5 cuentas sembradas (US-43). |
 
 #### CP-CFG-013 — Destildar una categoría en el setup la archiva *(nuevo)*
 
@@ -567,13 +611,15 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | V3 |
-| Pre-requisitos | Setup en el paso de categorías. |
+| Pre-requisitos | Cuenta recién creada, con el setup a la vista (pasos 1 a 3 de CP-CFG-011).<br>Acceso de lectura a la base local para verificar el archivado. |
 | Datos de prueba | Categoría: Educación |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Destildar "Educación" y continuar. | Sigue el siguiente paso. |
-| 2 | Consultar las categorías del usuario. | "Educación" queda archivada, no borrada. |
+| 1 | En "¿Para qué vas a usar Biyu?", tocar "Continuar". | Pasa al paso "Tus categorías", con las 8 categorías tildadas. |
+| 2 | Tocar el tilde a la derecha de "Educación" ("Destildar Educación"). | "Educación" desaparece de la lista. |
+| 3 | Tocar "Continuar". | Sigue el siguiente paso ("Tus cuentas"). |
+| 4 | En la base, consultar las categorías del usuario con nombre "Educación" (select name, archived_at from categories where user_id = <id>). | "Educación" queda archivada, no borrada: la fila existe con archived_at completado. |
 
 #### CP-CFG-014 — La cuenta elegida como predeterminada viene preseleccionada *(nuevo)*
 
@@ -585,13 +631,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Setup en el paso de cuentas. |
-| Datos de prueba | Cuenta: Tarjeta de débito |
+| Pre-requisitos | Setup en el paso "Tus cuentas" (por ejemplo, seguir CP-CFG-013 hasta el paso 3). |
+| Datos de prueba | Cuenta: Tarjeta de débito<br>Monto del primer gasto: 1500 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Marcar "Tarjeta de débito" como predeterminada y seguir al primer gasto. | Se abre el registro guiado. |
-| 2 | Llegar al paso de detalles. | "Tarjeta de débito" viene seleccionada. |
+| 1 | Tocar el círculo a la izquierda de "Tarjeta de débito" ("Marcar Tarjeta de débito como predeterminada"). | El círculo de "Tarjeta de débito" queda marcado. |
+| 2 | Tocar "Continuar". | Se abre el registro guiado ("Registrá tu primer gasto"). |
+| 3 | Escribir 1500 en el monto y tocar "Siguiente". | Pasa a la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza al paso de detalles. |
+| 5 | Observar la sección "Cuenta". | "Tarjeta de débito" viene seleccionada. |
 
 #### CP-CFG-015 — El setup no reaparece y se puede reabrir desde Ajustes *(nuevo)*
 
@@ -603,13 +652,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Transición de estados · Límite |
 | Prioridad · Camino feliz | Baja · No |
 | Automatización | V3 |
-| Pre-requisitos | Setup completado o salteado. |
+| Pre-requisitos | Setup completado o salteado con una cuenta nueva (por ejemplo, al terminar CP-CFG-014 tocar "Saltear" al pie).<br>Email y contraseña de esa cuenta. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cerrar sesión y volver a entrar. | No aparece el setup: abre Registrar. |
-| 2 | Abrir el setup desde Ajustes. | Se muestra de nuevo. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | Bajar hasta el final y tocar "Cerrar sesión". | Se abre /login. |
+| 3 | Escribir el email y la contraseña de la cuenta y tocar "Entrar". | No aparece el setup: abre Registrar. |
+| 4 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 5 | Tocar "Volver a hacer la configuración inicial". | Se muestra de nuevo el setup ("¿Para qué vas a usar Biyu?"). |
 
 ### REG · Registro y baja
 
@@ -623,12 +675,12 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Usuario autenticado. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir la app (/). | Cae directo en /register, en el paso del monto. |
+| 1 | Escribir la dirección de la app (la raíz, "/") en la barra del navegador y dar Enter. | Cae directo en /register, en el paso del monto (paso 1/3, "¿Cuánto?"). |
 
 #### CP-REG-002 — La fecha viene precargada con hoy
 
@@ -640,13 +692,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Hoy = 2026-09-28 (fijado como dato, C1). |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Hoy = 2026-09-28 (fijado como dato, C1). |
 | Datos de prueba | Monto: 1500 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir /register, cargar un monto y elegir categoría. | Avanza al paso de detalles (ADR-024). |
-| 2 | Observar la fecha. | Precargada con la fecha de hoy. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 1500 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza al paso de detalles (ADR-024). |
+| 5 | Observar la sección "Fecha". | Precargada con la fecha de hoy: "Hoy" seleccionado y el campo con 28/09/2026. |
 
 #### CP-REG-003 — Tipo "gasto" y moneda ARS por defecto
 
@@ -658,12 +713,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Baja · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Formulario recién abierto. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Observar tipo y moneda. | Tipo = Gasto; moneda = ARS; no se muestra tipo de cambio. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Observar el selector de tipo (arriba) y el de moneda (junto al monto). | Tipo = Gasto; moneda = ARS; no se muestra tipo de cambio. |
 
 #### CP-REG-004 — Elegir la categoría tocando un chip
 
@@ -675,14 +731,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Categorías activas sembradas. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Categorías activas sembradas. |
 | Datos de prueba | Monto: 2300<br>Categoría: Transporte |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cargar un monto y tocar Siguiente. | Se ve la grilla de categorías, sin ningún select. |
-| 2 | Tocar el chip "Transporte". | Avanza solo al paso de detalles. |
-| 3 | Guardar. | La transacción queda con la categoría "Transporte". |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 2300 en el monto y tocar "Siguiente". | Se ve la grilla de categorías, sin ningún select. |
+| 3 | Tocar el chip "Transporte". | Avanza solo al paso de detalles. |
+| 4 | Tocar "Guardar gasto". | Aparece "Gasto guardado". |
+| 5 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual. |
+| 6 | Buscar el movimiento de $2.300. | La transacción queda con la categoría "Transporte". |
 
 #### CP-REG-005 — Una categoría archivada no se ofrece ni se acepta por API
 
@@ -694,13 +753,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Categoría "Salidas" archivada. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Categoría "Salidas" archivada (ver la precondición de CP-CFG-005) y su id.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir /register, cargar un monto y tocar Siguiente. | La grilla no muestra "Salidas". |
-| 2 | Variante API: create_transaction con el id de "Salidas". | Rechazado: "la categoría no existe, no es tuya o está archivada". |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir un monto (por ejemplo 1000) y tocar "Siguiente". | La grilla no muestra "Salidas". |
+| 3 | Variante API: POST /rest/v1/rpc/create_transaction con p_category_id = el id de "Salidas" y el resto de los datos válidos. | Rechazado: "la categoría no existe, no es tuya o está archivada". |
 
 #### CP-REG-006 — La cuenta viene precargada con la última usada
 
@@ -712,12 +772,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Baja · Sí |
 | Automatización | Sí |
-| Pre-requisitos | La última transacción se guardó con "Visa BBVA". |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>La última transacción se guardó con "Visa BBVA": registrar un gasto cualquiera eligiendo "Visa BBVA" en "Cuenta". |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Volver a abrir /register y avanzar hasta detalles. | "Visa BBVA" viene seleccionada. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen. |
+| 2 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 3 | Escribir 1000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 4 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 5 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 6 | Observar la sección "Cuenta". | "Visa BBVA" viene seleccionada. |
 
 #### CP-REG-007 — Guardar sin nota
 
@@ -729,12 +794,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Límite |
 | Prioridad · Camino feliz | Baja · No |
 | Automatización | Sí |
-| Pre-requisitos | Formulario completo salvo la nota. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Acceso de lectura a la base local. |
 | Datos de prueba | Monto: 1234 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Dejar la nota vacía y guardar. | Se guarda sin error, con description = null. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 1234 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | Dejar "Nota (opcional)" vacía y tocar "Guardar gasto". | Se guarda sin error ("Gasto guardado"). |
+| 6 | En la base, ver la transacción de $1.234. | description = null. |
 
 #### CP-REG-008 — Fecha de ayer sí, fecha de mañana no
 
@@ -746,14 +816,22 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Límite |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Hoy = 2026-09-28. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Hoy = 2026-09-28.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | Ayer: 2026-09-27<br>Mañana: 2026-09-29 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cargar un gasto con fecha de ayer. | Se guarda. |
-| 2 | Cargar un gasto con fecha de mañana. | Rechazado: "La fecha no puede ser futura". |
-| 3 | Variante API: create_transaction con fecha futura. | Rechazado también en el servidor. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 1000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Fecha", tocar "Ayer". | La fecha pasa a 27/09/2026. |
+| 6 | Tocar "Guardar gasto". | Se guarda ("Gasto guardado"). |
+| 7 | Escribir 1000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 8 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 9 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 10 | En "Fecha", tocar "Otra" y escribir 29/09/2026 (mañana) en el campo de fecha. | Rechazado: "La fecha no puede ser futura", y "Guardar gasto" queda deshabilitado. |
+| 11 | Variante API: POST /rest/v1/rpc/create_transaction con p_occurred_on = mañana y el resto de los datos válidos. | Rechazado también en el servidor. |
 
 #### CP-REG-009 — Confirmación y formulario limpio después de guardar
 
@@ -765,13 +843,19 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Formulario completo. |
-| Datos de prueba | Monto: 4500 |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
+| Datos de prueba | Monto: 4500<br>Cuenta: Efectivo |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Guardar. | Confirmación breve ("Gasto guardado"). |
-| 2 | Observar el formulario. | Vuelve al paso del monto, vacío, conservando la última cuenta usada. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 4500 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar "Efectivo". | "Efectivo" queda marcada. |
+| 6 | Tocar "Guardar gasto". | Confirmación breve ("Gasto guardado"). |
+| 7 | Esperar un segundo y observar el formulario. | Vuelve al paso del monto, vacío. |
+| 8 | Escribir un monto, tocar "Siguiente" y tocar un chip de categoría. | En "Cuenta" viene seleccionada "Efectivo": conserva la última cuenta usada. |
 
 #### CP-REG-010 — Monto vacío, cero o negativo no se guarda
 
@@ -783,14 +867,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | Montos: vacío · 0 · -500 · 0,01 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Dejar el monto vacío; después 0; después -500. | Siguiente queda deshabilitado; no se emite ninguna escritura. |
-| 2 | Cargar 0,01 y completar. | Se acepta (mínimo válido). |
-| 3 | Variante API: create_transaction con 0 o negativo. | Rechazado con 23514 "I4: el monto debe ser mayor a cero". |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Dejar el monto vacío. | Siguiente queda deshabilitado; no se emite ninguna escritura. |
+| 3 | Escribir 0 en el monto. | Siguiente sigue deshabilitado y el campo dice por qué. |
+| 4 | Borrar y escribir -500. | Siguiente sigue deshabilitado; no se emite ninguna escritura. |
+| 5 | Borrar y escribir 0,01. Tocar "Siguiente", tocar el chip "Otros" y tocar "Guardar gasto". | Se acepta (mínimo válido): "Gasto guardado". |
+| 6 | Variante API: POST /rest/v1/rpc/create_transaction con p_amount "0" y después "-500". | Rechazado con 23514 "I4: el monto debe ser mayor a cero". |
 
 #### CP-REG-011 — Monto con tres decimales
 
@@ -802,12 +889,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Límite |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | Monto: 100,999 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cargar 100,999. | Rechazado en cliente: "El monto admite hasta 2 decimales". |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 100,999 en el monto. | Rechazado en cliente: "El monto admite hasta 2 decimales", y "Siguiente" queda deshabilitado. |
 
 #### CP-REG-012 — Eliminar una transacción la saca del total del mes
 
@@ -819,14 +907,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Transacción de $50.000 ARS en el mes actual, sin cuotas. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Transacción de $50.000 ARS en el mes actual, sin cuotas, con nota "Campera": en Registrar, escribir 50000, tocar "Siguiente", tocar "Indumentaria", tocar "Efectivo" en "Cuenta", escribir "Campera" en "Nota (opcional)" y tocar "Guardar gasto".<br>Anotar el total del mes que muestra el Resumen.<br>Acceso de lectura a la base local. |
 | Datos de prueba | Nota: Campera |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Eliminarla desde Movimientos y confirmar el aviso. | Se cierra el diálogo. |
-| 2 | Ver el Resumen del mes. | El total ya no la incluye (I10). |
-| 3 | Consultar la base. | deleted_at completado: la transacción sigue existiendo, marcada como eliminada. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual. |
+| 2 | En el movimiento "Campera", tocar el tacho ("Eliminar Campera"). | Se abre el diálogo "¿Eliminar transacción?". |
+| 3 | Tocar "Eliminar". | Se cierra el diálogo y aparece "Transacción eliminada". |
+| 4 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 5 | Comparar "Gastado en …" con el total anotado. | El total ya no la incluye (I10): bajó $50.000. |
+| 6 | En la base, ver la transacción "Campera" (select deleted_at from transactions where description = 'Campera'). | deleted_at completado: la transacción sigue existiendo, marcada como eliminada. |
 
 #### CP-REG-013 — Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo
 
@@ -838,13 +929,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Límite |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | V3 |
-| Pre-requisitos | Compra de $120.000 en 12 cuotas registrada el 2026-08-15.<br>Hoy = 2026-10-15 (agosto y septiembre cerrados). |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Compra de $120.000 en 12 cuotas registrada el 2026-08-15: en Registrar, escribir 120000, tocar "Siguiente", tocar "Otros", tocar "Visa BBVA", tocar "12" en "Cuotas", en "Fecha" tocar "Otra" y escribir 15/08/2026, y tocar "Guardar gasto".<br>Hoy = 2026-10-15 (agosto y septiembre cerrados): fijar la fecha del navegador (por ejemplo con el reloj simulado de Playwright, como en la ejecución 1). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Eliminar la compra desde octubre. | Antes de confirmar, avisa que cambian los totales de meses cerrados (2026-08 y 2026-09). |
-| 2 | Confirmar y ver el Resumen de agosto y de septiembre. | Todas las imputaciones dejan de contar, también las de meses cerrados. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos de octubre 2026, con la cuota 3/12. |
+| 2 | Tocar el tacho del movimiento de la compra ("Eliminar …"). | Antes de confirmar, avisa que cambian los totales de meses cerrados (2026-08 y 2026-09): "Aviso: Esta transacción tiene imputaciones en meses ya cerrados…", con la lista de meses y el "Total meses cerrados". |
+| 3 | Tocar "Eliminar". | Aparece "Transacción eliminada". |
+| 4 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen de octubre. |
+| 5 | Tocar "Mes anterior" (la flecha de la izquierda) hasta llegar a agosto 2026, y después pasar a septiembre 2026. | Todas las imputaciones dejan de contar, también las de meses cerrados: agosto y septiembre ya no incluyen sus cuotas (si no hay otros movimientos, muestran el estado vacío). |
 
 #### CP-REG-014 — Otro usuario no puede leer ni borrar una transacción ajena
 
@@ -856,13 +950,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Transacción de A. |
+| Pre-requisitos | Dos usuarios de prueba, A y B, cada uno con sus propios datos cargados, y el token de sesión de cada uno.<br>Una transacción de A y su id.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Con la sesión de B, leer esa transacción por id. | 0 filas. |
-| 2 | Con la sesión de B, intentar eliminarla. | No la encuentra; la transacción de A queda intacta. |
+| 1 | Con el token de B, leer esa transacción por id: GET /rest/v1/transactions?id=eq.<id>. | 0 filas. |
+| 2 | Con el token de B, intentar eliminarla: POST /rest/v1/rpc/delete_transaction con p_transaction_id = <id>. | No la encuentra; la transacción de A queda intacta (sigue activa para A). |
 
 #### CP-REG-015 — No se puede escribir en transactions salteando la RPC
 
@@ -874,12 +968,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Un usuario de prueba y su token de sesión.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Intentar un insert directo a transactions (y a ledger_entries). | permission denied (42501): toda escritura pasa por create_transaction (C4). |
+| 1 | Con el token del usuario, hacer POST /rest/v1/transactions con una fila válida (insert directo, sin la RPC). | permission denied (42501): toda escritura pasa por create_transaction (C4). |
+| 2 | Repetir con POST /rest/v1/ledger_entries. | permission denied (42501). |
 
 #### CP-REG-016 — El monto toma el foco con teclado numérico
 
@@ -891,12 +986,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | No |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Un celular real (o emulación táctil del navegador). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir /register en un celular (o emulación táctil) sin tocar nada. | El monto ya tiene el foco y el teclado numérico está abierto. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar. |
+| 2 | Sin tocar nada, observar el monto y el teclado. | El monto ya tiene el foco y el teclado numérico está abierto. |
 
 ### CUO · Cuotas
 
@@ -910,13 +1006,19 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Cuenta "Visa BBVA" de tipo tarjeta de crédito. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Acceso de lectura a la base local. |
 | Datos de prueba | Monto: $120.000<br>Cuotas: 12 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Elegir la cuenta, 12 cuotas y guardar $120.000. | Se guarda. |
-| 2 | Consultar las imputaciones. | 12 imputaciones numeradas 1 a 12, en meses consecutivos desde el de la compra. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 120000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 6 | En "Cuotas", tocar "12". | Debajo aparece la previsualización de las 12 cuotas. |
+| 7 | Tocar "Guardar gasto". | Se guarda ("Gasto guardado"). |
+| 8 | En la base, consultar las imputaciones de la compra (select installment_number, period from ledger_entries where transaction_id = <id> order by 1). | 12 imputaciones numeradas 1 a 12, en meses consecutivos desde el de la compra. |
 
 #### CP-CUO-002 — Previsualización del impacto mensual antes de guardar
 
@@ -928,12 +1030,19 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | No |
-| Pre-requisitos | Gasto de $120.000 en 12 cuotas con fecha 2026-08-15. |
-| Datos de prueba | — |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta". |
+| Datos de prueba | Gasto: $120.000 en 12 cuotas con fecha 2026-08-15 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Completar el formulario sin guardar. | Muestra "12 cuotas de $10.000 — de 2026-08 a 2027-07" antes de tocar Guardar. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 120000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 6 | En "Cuotas", tocar "12". | Debajo aparece la previsualización de las 12 cuotas. |
+| 7 | En "Fecha", tocar "Otra" y escribir 15/08/2026 en el campo de fecha. | La fecha queda cargada. |
+| 8 | Sin tocar "Guardar gasto", leer el recuadro debajo de "Cuotas". | Muestra "12 cuotas de $10.000 — de 2026-08 a 2027-07" antes de tocar Guardar (en pantalla: "12 cuotas de $10.000,00 · de ago 2026 a jul 2027"). |
 
 #### CP-CUO-003 — Cambiar a una cuenta que no es crédito resetea las cuotas
 
@@ -945,13 +1054,19 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Tabla de decisión · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | 6 cuotas elegidas con "Visa BBVA". |
-| Datos de prueba | — |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
+| Datos de prueba | Monto: 60000<br>Cuotas: 6 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cambiar la cuenta a "Efectivo". | El selector de cuotas desaparece, el valor vuelve a 1 y hay un aviso. |
-| 2 | Variante API: create_transaction con 6 cuotas y cuenta cash. | Rechazado por I6. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 60000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 6 | En "Cuotas", tocar "6". | Debajo aparece la previsualización de las 6 cuotas. |
+| 7 | En "Cuenta", tocar "Efectivo". | El selector de cuotas desaparece, el valor vuelve a 1 y hay un aviso ("Las cuotas volvieron a 1"). |
+| 8 | Variante API: POST /rest/v1/rpc/create_transaction con p_installments_count = 6 y el id de la cuenta "Efectivo" (tipo cash). | Rechazado por I6. |
 
 #### CP-CUO-004 — División exacta: 12 cuotas iguales
 
@@ -963,12 +1078,19 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Acceso de lectura a la base local. |
 | Datos de prueba | Monto: $120.000 en 12 cuotas |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Guardar $120.000 en 12 cuotas. | 12 imputaciones de exactamente $10.000; suma $120.000,00 (I1). |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 120000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 6 | En "Cuotas", tocar "12". | Debajo aparece la previsualización de las 12 cuotas. |
+| 7 | Tocar "Guardar gasto". | Se guarda ("Gasto guardado"). |
+| 8 | En la base, listar los montos de las 12 imputaciones y sumarlos. | 12 imputaciones de exactamente $10.000; suma $120.000,00 (I1). |
 
 #### CP-CUO-005 — El resto lo absorbe la última cuota
 
@@ -980,12 +1102,20 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Límite |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | V3 |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Acceso de lectura a la base local. |
 | Datos de prueba | Monto: $100.000 en 3 cuotas |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Guardar $100.000 en 3 cuotas. | $33.333,33 + $33.333,33 + $33.333,34 = $100.000,00. El resto va en la última. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 100000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 6 | En "Cuotas", tocar "3". | Debajo aparece la previsualización de las 3 cuotas. |
+| 7 | Leer la previsualización debajo de "Cuotas". | Muestra "3 cuotas de $33.333,33 · de <mes> a <mes>" y debajo "La última es de $33.333,34". |
+| 8 | Tocar "Guardar gasto". | Se guarda ("Gasto guardado"). |
+| 9 | En la base, listar los montos de las 3 imputaciones. | $33.333,33 + $33.333,33 + $33.333,34 = $100.000,00. El resto va en la última. |
 
 #### CP-CUO-006 — Cantidad de cuotas: 0, 1, 2, 12 y 13
 
@@ -997,12 +1127,18 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Tabla de decisión · Límite |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Cuenta de tarjeta de crédito. |
-| Datos de prueba | Cuotas: 0 · 1 · 2 · 12 · 13 |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
+| Datos de prueba | Cuotas: 0 · 1 · 2 · 12 · 13<br>Monto: 1200 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Intentar guardar con cada cantidad. | 0 rechazado; 1, 2 y 12 aceptados; 13 rechazado. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir 1200 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 6 | Mirar las opciones de "Cuotas". | La pantalla ofrece solo 1 a 12: no hay forma de elegir 0 ni 13 desde la UI. |
+| 7 | Intentar guardar con cada cantidad: 1, 2 y 12 desde la pantalla (tocar el número y "Guardar gasto", repitiendo el registro), y 0 y 13 por API (POST /rest/v1/rpc/create_transaction con p_installments_count = 0 y = 13). | 0 rechazado; 1, 2 y 12 aceptados; 13 rechazado. |
 
 #### CP-CUO-007 — El Resumen separa las cuotas de meses anteriores
 
@@ -1014,12 +1150,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Gasto de $120.000 en 12 cuotas registrado en 2026-08. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Gasto de $120.000 en 12 cuotas registrado en 2026-08 (como en la precondición de CP-REG-013) y ningún otro gasto en 2026-09. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ir al Resumen de 2026-09. | El total incluye $10.000 y "Cuotas de meses anteriores" muestra $10.000. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Con "Mes anterior" / "Mes siguiente" (las flechas junto al título), ir a septiembre 2026. | La URL termina en ?period=2026-09. |
+| 3 | Leer "Gastado en septiembre" y "Cuotas de meses anteriores". | El total incluye $10.000 y "Cuotas de meses anteriores" muestra $10.000. |
 
 #### CP-CUO-008 — El listado muestra el número de cuota
 
@@ -1031,12 +1169,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Baja · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Compra en 12 cuotas de agosto; mes con la cuota 3. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Compra en 12 cuotas de agosto 2026 (como en la precondición de CP-REG-013); en octubre 2026 cae la cuota 3. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver Movimientos de ese mes. | Muestra "3/12" junto a la imputación. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual. |
+| 2 | Con las flechas junto al título, ir a octubre 2026. | Se ve la imputación de la compra. |
+| 3 | Mirar la fila de la compra. | Muestra "3/12" junto a la imputación. |
 
 #### CP-CUO-009 — Borrar una compra en cuotas saca todas sus cuotas
 
@@ -1048,12 +1188,15 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Compra de $120.000 en 12 cuotas. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Compra de $120.000 en 12 cuotas con fecha de hoy: registrarla eligiendo "Visa BBVA" y "12" en "Cuotas".<br>Acceso de lectura a la base local. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Eliminar la compra (no existe la opción de borrar una cuota suelta). | Las 12 imputaciones dejan de contar en todos los meses, incluidas las futuras. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual, con la cuota 1/12. |
+| 2 | Observar la fila de la compra. | Solo tiene la opción de eliminar la compra: no existe la opción de borrar una cuota suelta. |
+| 3 | Tocar el tacho de la compra y, en el diálogo, tocar "Eliminar". | Aparece "Transacción eliminada". |
+| 4 | En el Resumen, pasar con "Mes siguiente" por los meses siguientes; en la base, contar las imputaciones activas de la compra. | Las 12 imputaciones dejan de contar en todos los meses, incluidas las futuras. |
 
 #### CP-CUO-010 — En USD, la suma en pesos de las cuotas es exacta
 
@@ -1065,13 +1208,21 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Límite |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Gasto de USD 100 en 3 cuotas con TC 1250,5555. |
-| Datos de prueba | — |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Acceso de lectura a la base local. |
+| Datos de prueba | Gasto: USD 100 en 3 cuotas con TC 1250,5555 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Guardar. | Se guarda. |
-| 2 | Sumar amount_ars de las 3 imputaciones. | Es exactamente transactions.amount_ars (I1'), sin diferencias de un centavo. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Tocar "US$". | Aparece el campo "Tipo de cambio (ARS por US$)" debajo del monto. |
+| 3 | Escribir 100 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 4 | En "Tipo de cambio (ARS por US$)", borrar el valor y escribir 1250,5555. | El campo muestra el valor nuevo. |
+| 5 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 6 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 7 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 8 | En "Cuotas", tocar "3". | Debajo aparece la previsualización de las 3 cuotas. |
+| 9 | Tocar "Guardar gasto". | Se guarda ("Gasto guardado"). |
+| 10 | En la base, sumar amount_ars de las 3 imputaciones y compararlo con amount_ars de la transacción. | Es exactamente transactions.amount_ars (I1'), sin diferencias de un centavo. |
 
 #### CP-CUO-011 — Otro usuario no ve las cuotas de una compra ajena
 
@@ -1083,12 +1234,12 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Compra en cuotas de A. |
+| Pre-requisitos | Dos usuarios de prueba, A y B, cada uno con sus propios datos cargados, y el token de sesión de cada uno.<br>Una compra en cuotas de A y su id.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Con la sesión de B, consultar ledger_entries de esa compra. | 0 filas. |
+| 1 | Con el token de B, consultar las imputaciones de esa compra: GET /rest/v1/ledger_entries?transaction_id=eq.<id>. | 0 filas. |
 
 #### CP-CUO-012 — Un ingreso no admite cuotas aunque la cuenta sea crédito
 
@@ -1100,13 +1251,18 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Tabla de decisión · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Cuenta "Visa BBVA" de crédito. |
-| Datos de prueba | — |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Cuenta "Visa BBVA" de tipo "Tarjeta de crédito": en Ajustes → "Cuentas", escribir "Visa BBVA" en "Nueva cuenta", elegir "Tarjeta de crédito" en "Tipo" y tocar "Crear cuenta".<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
+| Datos de prueba | Monto: 50000 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cargar un ingreso con esa cuenta. | No aparece el selector de cuotas. |
-| 2 | Variante API: ingreso en 3 cuotas con cuenta de crédito. | Rechazado por I6. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Tocar "Ingreso". | Queda seleccionado "Ingreso". |
+| 3 | Escribir 50000 en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 4 | Tocar "Siguiente". | Pasa al paso de detalles, sin elegir categoría (un ingreso no la lleva). |
+| 5 | En "Cuenta", tocar "Visa BBVA". | "Visa BBVA" queda marcada. |
+| 6 | Observar el paso de detalles. | No aparece el selector de cuotas. |
+| 7 | Variante API: POST /rest/v1/rpc/create_transaction con p_type = "income", p_installments_count = 3 y el id de "Visa BBVA". | Rechazado por I6. |
 
 #### CP-CUO-013 — Un fallo a mitad de create_transaction no deja datos parciales
 
@@ -1118,13 +1274,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Un usuario de prueba con la cuenta "Visa BBVA" y su token de sesión.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app).<br>Acceso de lectura a la base local. |
 | Datos de prueba | Llamada: $0,02 en 3 cuotas (la cuota base da 0) |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Forzar que create_transaction falle después de insertar la transacción. | La llamada devuelve error. |
-| 2 | Contar filas de transactions y ledger_entries. | Cero filas nuevas en ambas: todo se revierte (C4). |
+| 1 | En la base, contar las filas de transactions y ledger_entries del usuario. | Se anotan los dos números. |
+| 2 | Forzar que create_transaction falle después de insertar la transacción: POST /rest/v1/rpc/create_transaction con p_amount "0.02", p_installments_count = 3 y "Visa BBVA" (la cuota base da 0 y la función falla al generar las imputaciones). | La llamada devuelve error. |
+| 3 | Volver a contar filas de transactions y ledger_entries. | Cero filas nuevas en ambas: todo se revierte (C4). |
 
 ### MON · Monedas
 
@@ -1138,12 +1295,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Tabla de decisión · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | TC de referencia del mes = 1250. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Tipo de cambio de referencia del mes actual = 1250: en Ajustes → "Tipo de cambio de referencia", elegir el mes actual en "Mes", escribir 1250 en "ARS por USD" y tocar "Guardar tipo de cambio".<br>Acceso de lectura a la base local. |
 | Datos de prueba | Monto: USD 100 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Elegir USD, monto 100 y guardar sin tocar el tipo de cambio. | Se guarda con fx_rate = 1250 y amount_ars = 125.000. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Tocar "US$". | Aparece "Tipo de cambio (ARS por US$)" con 1250 sugerido. |
+| 3 | Escribir 100 en el monto, sin tocar el tipo de cambio. Tocar "Siguiente". | Pasa a la grilla de categorías. |
+| 4 | Tocar el chip "Otros" y después "Guardar gasto". | Aparece "Gasto guardado". |
+| 5 | En la base, ver la transacción. | Se guarda con fx_rate = 1250 y amount_ars = 125.000. |
 
 #### CP-MON-002 — Tabla de decisión de moneda y tipo de cambio (6 filas)
 
@@ -1155,13 +1316,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Tabla de decisión · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Ninguna (se ejecuta primero sin referencia del mes y después con 1250). |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Se ejecuta primero sin referencia del mes (filas 5 y 6) y después con 1250 (filas 1 a 4): ver la precondición de CP-MON-001.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | Filas: ARS sin TC · ARS con TC · USD con referencia sin override · USD con referencia con override · USD sin referencia sin TC · USD sin referencia con TC |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ejecutar las seis combinaciones de 07-plan-de-testing.md §3. | Se guardan las filas 1, 3, 4 y 6. Se rechazan la 2 (ARS con TC, I5) y la 5 (USD sin ningún TC, con mensaje que pide el tipo de cambio). |
-| 2 | Variante API: filas 2 y 5 contra create_transaction. | Mismo rechazo (I5). |
+| 1 | Fila 5 (USD sin referencia, sin TC): en Registrar, tocar "US$" y escribir 100 en el monto, dejando vacío el tipo de cambio. | Aviso "No tenés un tipo de cambio configurado para este mes." con "Ir a Ajustes"; "Siguiente" deshabilitado. |
+| 2 | Fila 6 (USD sin referencia, con TC): escribir 1300 en "Tipo de cambio (ARS por US$)", tocar "Siguiente", tocar "Otros" y "Guardar gasto". | Se guarda. |
+| 3 | Cargar la referencia del mes en 1250 (en Ajustes, como en CP-MON-001). | La referencia queda guardada. |
+| 4 | Fila 1 (ARS sin TC): registrar un gasto en ARS normal. Fila 3 (USD con referencia sin override): tocar "US$", dejar 1250 y guardar. Fila 4 (USD con referencia con override): tocar "US$", cambiar a 1300 y guardar. | Se guardan las filas 1, 3 y 4. |
+| 5 | Fila 2 (ARS con TC): no se puede armar por la pantalla, porque en ARS no aparece el campo de tipo de cambio. Se prueba por API en el paso siguiente. | La pantalla no ofrece tipo de cambio en ARS. |
+| 6 | Variante API: filas 2 (p_currency "ARS" con p_fx_rate) y 5 (p_currency "USD" sin p_fx_rate) contra create_transaction. | Se guardan las filas 1, 3, 4 y 6. Se rechazan la 2 (ARS con TC, I5) y la 5 (USD sin ningún TC, con mensaje que pide el tipo de cambio). Mismo rechazo por API (I5). |
 
 #### CP-MON-003 — Pisar el tipo de cambio sugerido
 
@@ -1173,13 +1338,16 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | TC de referencia del mes = 1250. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Tipo de cambio de referencia del mes actual = 1250: en Ajustes → "Tipo de cambio de referencia", elegir el mes actual en "Mes", escribir 1250 en "ARS por USD" y tocar "Guardar tipo de cambio".<br>Acceso de lectura a la base local. |
 | Datos de prueba | TC propio: 1300 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Elegir USD. | El campo sugiere 1250. |
-| 2 | Pisarlo con 1300 y guardar. | Se guarda con fx_rate = 1300. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Tocar "US$". | El campo sugiere 1250. |
+| 3 | Borrar el tipo de cambio y escribir 1300. | Aparece "Estás usando un valor distinto al de referencia. Se aplica solo a esta transacción." |
+| 4 | Escribir 100 en el monto, tocar "Siguiente", tocar "Otros" y "Guardar gasto". | Aparece "Gasto guardado". |
+| 5 | En la base, ver la transacción. | Se guarda con fx_rate = 1300. |
 
 #### CP-MON-004 — Cambiar la referencia no altera lo ya guardado
 
@@ -1191,13 +1359,17 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Positivo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | V3 |
-| Pre-requisitos | Gasto de USD 100 guardado con fx_rate = 1250 (amount_ars = 125.000). |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Gasto de USD 100 guardado con fx_rate = 1250 (amount_ars = 125.000): seguir CP-MON-001.<br>Anotar el total del mes que muestra el Resumen. |
 | Datos de prueba | Nueva referencia: 1400 |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Cambiar en Ajustes la referencia del mes a 1400. | Se guarda. |
-| 2 | Ver esa transacción y el Resumen del mes. | La transacción sigue valiendo $125.000; el total no cambia. |
+| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 2 | En "Tipo de cambio de referencia", con el mes actual en "Mes", escribir 1400 en "ARS por USD" y tocar "Guardar tipo de cambio". | Se guarda: la lista muestra $ 1.400,00 para el mes. |
+| 3 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual. |
+| 4 | Ver la transacción de USD 100. | La transacción sigue valiendo $125.000. |
+| 5 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 6 | Comparar "Gastado en …" con el total anotado. | El total no cambia. |
 
 #### CP-MON-005 — El total del mes en pesos incluye lo gastado en dólares
 
@@ -1209,12 +1381,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Un gasto de $50.000 ARS y uno de USD 100 a 1250 en el mismo mes. |
+| Pre-requisitos | Usuario nuevo, sin otros gastos en el mes (para que el total sea solo esto). Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Tipo de cambio de referencia del mes actual = 1250: en Ajustes → "Tipo de cambio de referencia", elegir el mes actual en "Mes", escribir 1250 en "ARS por USD" y tocar "Guardar tipo de cambio".<br>Un gasto de $50.000 ARS: en Registrar, escribir 50000, tocar "Siguiente", tocar "Comida y supermercado", tocar "Efectivo" y "Guardar gasto".<br>Uno de USD 100 a 1250 en el mismo mes: en Registrar, tocar "US$", escribir 100 (el TC sugerido es 1250), tocar "Siguiente", tocar "Transporte" y "Guardar gasto". |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver el total del mes en el Resumen. | $175.000 ($50.000 + $125.000). |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Leer el total "Gastado en …". | $175.000 ($50.000 + $125.000). |
 
 #### CP-MON-006 — El gasto en dólares se ve por separado
 
@@ -1226,12 +1399,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Baja · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Gasto de USD 100 en el mes. |
+| Pre-requisitos | Los datos de CP-MON-005 (gasto de USD 100 en el mes).<br>Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver el Resumen. | Muestra "USD 100" por separado del total en ARS. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Mirar la tarjeta verde, debajo del total. | Muestra "USD 100" por separado del total en ARS. |
 
 #### CP-MON-007 — Otro usuario no lee ni modifica el tipo de cambio ajeno
 
@@ -1243,12 +1417,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | fx_rates de A para el mes actual. |
+| Pre-requisitos | Dos usuarios de prueba, A y B, cada uno con sus propios datos cargados, y el token de sesión de cada uno.<br>fx_rates de A para el mes actual (A cargó su referencia en Ajustes).<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Con la sesión de B, leer y actualizar esa fila. | 0 filas al leer; el update afecta 0 filas. |
+| 1 | Con el token de B, leer esa fila: GET /rest/v1/fx_rates?user_id=eq.<id de A>. | 0 filas al leer. |
+| 2 | Con el token de B, actualizarla: PATCH /rest/v1/fx_rates?user_id=eq.<id de A> con ars_per_usd = 1. | El update afecta 0 filas; el tipo de cambio de A no cambia. |
 
 ### DAS · Dashboard
 
@@ -1262,12 +1437,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | V3 |
-| Pre-requisitos | Transacciones en el mes actual. |
+| Pre-requisitos | Los datos de CP-MON-005 (transacciones en el mes actual).<br>Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Entrar a /dashboard sin tocar el selector de mes. | Muestra el total gastado del mes actual. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre /dashboard. |
+| 2 | Sin tocar el selector de mes, leer el título de la tarjeta verde y el total. | Muestra el total gastado del mes actual ("Gastado en <mes actual>"). |
 
 #### CP-DAS-002 — El mes elegido vive en la URL
 
@@ -1279,12 +1455,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Alta · Sí |
 | Automatización | Sí |
-| Pre-requisitos | En /dashboard?period=2026-09. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Tocar "→" dos veces. | La URL pasa a period=2026-11. |
+| 1 | Escribir en la barra del navegador la dirección de la app seguida de /dashboard?period=2026-09 y dar Enter. | Se abre el Resumen de septiembre 2026. |
+| 2 | Tocar "Mes siguiente" (la flecha de la derecha, junto al título) dos veces. | La URL pasa a period=2026-11. |
 
 #### CP-DAS-003 — Período inválido o ausente cae al mes actual
 
@@ -1296,13 +1473,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Límite |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Ninguna. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir /dashboard?period=fecha-invalida. | Cae al mes actual sin error visible y corrige la URL. |
-| 2 | Abrir /dashboard sin parámetro. | Ídem. |
+| 1 | Escribir en la barra del navegador la dirección de la app seguida de /dashboard?period=fecha-invalida y dar Enter. | Cae al mes actual sin error visible y corrige la URL. |
+| 2 | Escribir la dirección de la app seguida de /dashboard, sin parámetro, y dar Enter. | Ídem. |
 
 #### CP-DAS-004 — Gasto por categoría en barras
 
@@ -1314,12 +1491,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Gastos en 3 categorías: Salud $70.000, Comida $50.000, Transporte $30.000. |
+| Pre-requisitos | Usuario nuevo, sin otros gastos en el mes. Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Gastos en 3 categorías en el mes actual, registrados desde Registrar: Salud $70.000, Comida y supermercado $50.000, Transporte $30.000. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver el gráfico por categoría. | Una barra por categoría con su total, ordenadas de mayor a menor. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Bajar hasta "Por categoría" y mirar el gráfico. | Una barra por categoría con su total, ordenadas de mayor a menor. |
 
 #### CP-DAS-005 — Gasto por cuenta
 
@@ -1331,12 +1509,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Gastos en 2 cuentas (Efectivo $120.000, Tarjeta de débito $30.000). |
+| Pre-requisitos | Usuario nuevo, sin otros gastos en el mes. Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Gastos en 2 cuentas en el mes actual, registrados desde Registrar eligiendo la cuenta en "Cuenta": Efectivo $120.000 (en uno o más gastos), Tarjeta de débito $30.000. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver el desglose por cuenta. | Cada total coincide con la suma manual de sus transacciones. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Bajar hasta "Por cuenta" y leer los totales. | Cada total coincide con la suma manual de sus transacciones. |
 
 #### CP-DAS-006 — Ingresos y balance positivo
 
@@ -1348,12 +1527,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | Ingresos $200.000 y gastos $150.000 en el mes. |
+| Pre-requisitos | Usuario nuevo, sin otros movimientos en el mes. Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Gastos por $150.000 en el mes actual (por ejemplo los de CP-DAS-004).<br>Un ingreso de $200.000: en Registrar, tocar "Ingreso", escribir 200000, tocar "Siguiente", tocar "Cuenta bancaria" y "Guardar ingreso". |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver ingresos y balance. | Ingresos $200.000; balance +$50.000. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Leer las tarjetas "Ingresos" y "Balance". | Ingresos $200.000; balance +$50.000. |
 
 #### CP-DAS-007 — Balance negativo con signo explícito
 
@@ -1365,12 +1545,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Valores límite · Límite |
 | Prioridad · Camino feliz | Baja · No |
 | Automatización | Sí |
-| Pre-requisitos | Gastos $200.000 e ingresos $50.000. |
+| Pre-requisitos | Usuario nuevo, sin otros movimientos en el mes. Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Un gasto de $200.000 (Registrar → 200000 → "Siguiente" → "Servicios" → "Guardar gasto") y un ingreso de $50.000 (Registrar → "Ingreso" → 50000 → "Siguiente" → "Guardar ingreso"). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver el balance. | -$150.000, con signo negativo explícito. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Leer la tarjeta "Balance". | -$150.000, con signo negativo explícito. |
 
 #### CP-DAS-008 — Últimos 10 movimientos con acceso a la lista completa
 
@@ -1382,13 +1563,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Positivo |
 | Prioridad · Camino feliz | Media · Sí |
 | Automatización | Sí |
-| Pre-requisitos | 15 transacciones en el mes. |
+| Pre-requisitos | Usuario nuevo. Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>15 transacciones en el mes actual, registradas desde Registrar (15 gastos cualquiera, por ejemplo de $1.000 a $15.000). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver "Últimos movimientos". | Muestra 10. |
-| 2 | Tocar "Ver todos". | Abre Movimientos del mes con las 15. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Bajar hasta "Últimos movimientos" y contar las filas. | Muestra 10. |
+| 3 | Tocar "Ver todos". | Abre Movimientos del mes con las 15. |
 
 #### CP-DAS-009 — Una cuota heredada no cuenta como día con registro
 
@@ -1400,12 +1582,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Límite |
 | Prioridad · Camino feliz | Baja · No |
 | Automatización | Sí |
-| Pre-requisitos | Compra en 12 cuotas de agosto; en diciembre solo cae su cuota. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Compra en 12 cuotas de agosto 2026 (como en la precondición de CP-REG-013); en diciembre 2026 solo cae su cuota. |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ver "días con registro" en el Resumen de diciembre. | 0 días. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Con "Mes siguiente" (la flecha de la derecha), ir a diciembre 2026. | Se ve el Resumen de diciembre, con la cuota de la compra en el total. |
+| 3 | Leer "días con registro" en la tarjeta verde. | 0 días. |
 
 #### CP-DAS-010 — Mes sin datos: estado vacío con acceso al registro
 
@@ -1417,12 +1601,14 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Caso de uso · Límite |
 | Prioridad · Camino feliz | Media · No |
 | Automatización | Sí |
-| Pre-requisitos | Mes sin ninguna transacción. |
+| Pre-requisitos | Sesión iniciada con el usuario de prueba: en /login, completar "Email" y "Contraseña" y tocar "Entrar". Si aparece la configuración inicial, tocar "Saltear" en sus 4 pasos.<br>Un mes sin ninguna transacción (por ejemplo mayo 2026). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ir al Resumen de ese mes. | Mensaje claro y un botón a /register, no un dashboard de ceros. |
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
+| 2 | Con "Mes anterior" (la flecha de la izquierda), ir a ese mes. | Mensaje claro y un botón a /register, no un dashboard de ceros: "No tenés movimientos registrados en <mes>." y "Registrar un gasto". |
+| 3 | Tocar "Registrar un gasto". | Se abre Registrar (/register). |
 
 #### CP-DAS-011 — El Resumen de un usuario nunca muestra datos de otro
 
@@ -1434,12 +1620,13 @@ Casos de camino feliz: 36.
 | Técnica · Tipo | Adivinación de errores · Negativo |
 | Prioridad · Camino feliz | Alta · No |
 | Automatización | Sí |
-| Pre-requisitos | Resumen de A con datos. |
+| Pre-requisitos | Dos usuarios de prueba, A y B, cada uno con sus propios datos cargados, y el token de sesión de cada uno.<br>Resumen de A con datos en el mes actual.<br>Para la variante API: la anon key del proyecto y el token de sesión del usuario. La llamada se hace fuera de la pantalla (Postman o curl contra /rest/v1, o la consola del navegador con el cliente de Supabase de la app). |
 | Datos de prueba | — |
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Con la sesión de B, repetir las consultas del Resumen filtrando por A. | 0 filas. |
+| 1 | Con el token de B, repetir las consultas del Resumen filtrando por A: GET /rest/v1/ledger_entries?user_id=eq.<id de A>&period=eq.<mes actual>. | 0 filas. |
+| 2 | Con el token de B, hacer la misma consulta sin filtrar por usuario. | Solo devuelve filas de B: ninguna de A. |
 
 ## Supuestos
 
