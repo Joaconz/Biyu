@@ -12,16 +12,16 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-002 | <html lang="en"> y título de pestaña "scaffold" en toda la app | Baja | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre) | Transversal (NFR-06, accesibilidad) |
 | DEF-003 | US-66 (confirmar contraseña) nunca llegó a producción por un error de merge | Media | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre; US-66 no tenía caso propio en el catálogo) | US-66 · Confirmar contraseña al registrarse |
 | DEF-004 | NaN como monto se guarda y rompe el dashboard ("$NaN,undefined") | Crítica | A definir por el PO (sugerida: Alta dado que integridad de datos es I4) | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-11 · No se puede guardar monto cero o negativo |
-| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
+| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
 | DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
 | DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
-| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-ACC-002 | US-48 · La app pide login |
+| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-002 | US-48 · La app pide login |
 | DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
 | DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
 | DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
 | DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite, I4/C6) | US-11 · Validación del monto |
 | DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite) | US-19 · Registrar un gasto en USD |
-| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
+| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
 | DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
 | DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
 | DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
@@ -31,7 +31,7 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Abierto · reportado el 2026-09-29 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 8 · Baja: 8 · Total abiertos: 16.
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 6 · Baja: 7 · Total abiertos: 13 (más 3 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -156,13 +156,14 @@ NaN como monto se guarda y rompe el dashboard ("$NaN,undefined").
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, variante servidor de CP-ACC-004. |
 | Caso de prueba | CP-ACC-004, variante servidor |
 | Historia | US-67 · Criterios de contraseña (FR-01) |
 | Issue | #146 |
+| Test de regresión | `tests/lib/passwordPolicy.test.ts` (Vitest: `supabase/config.toml` exige los mismos criterios que US-67) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local: Supabase Auth local (minimum_password_length = 6, password_requirements = ""). No verificado en producción |
 
@@ -248,13 +249,14 @@ Una transacción eliminada desaparece del historial en vez de quedar marcada com
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución completa de CP-ACC-002 (#75) — el guard en sí funciona (redirige a /login?next=... correctamente), pero el recorrido completo (login → destino original) falla. |
 | Caso de prueba | CP-ACC-002 |
 | Historia | US-48 · La app pide login |
 | Issue | #149 |
+| Test de regresión | `tests/lib/postAuthDestination.test.ts` (Vitest) y `e2e/access.spec.ts` (Playwright, en rojo contra producción y en verde contra el Preview del PR) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28. Mismo código en producción, probablemente reproduce igual |
 
@@ -431,13 +433,14 @@ Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75, relacionado con CP-DAS-003. |
 | Caso de prueba | — (relacionado con CP-DAS-003, Media) |
 | Historia | US-26 · Cambiar de mes con un selector |
 | Issue | #155 |
+| Test de regresión | `tests/domain/period-fx-money.test.ts`, caso "parsePeriod rechaza el año 0000 (DEF-014)" (Vitest) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 

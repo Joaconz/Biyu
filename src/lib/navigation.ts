@@ -34,6 +34,19 @@ export function navTestId(screen: Screen, destination: Screen): string {
   return `${screen}-nav-${destination}`
 }
 
+const AUTH_PATHS = ['/login', '/signup']
+
+/**
+ * A dónde ir después de iniciar sesión o registrarse: el `?next` que dejó RequireAuth, si es una
+ * ruta interna. "//host" y "/\host" los resuelve el navegador como otro sitio, así que no
+ * cuentan como internas. DEF-008: AuthForm y RedirectIfAuthed usan esta misma regla.
+ */
+export function postAuthDestination(next: string | null): string {
+  if (!next || !next.startsWith('/') || next.startsWith('//') || next.startsWith('/\\')) return '/register'
+  const pathname = next.split(/[?#]/, 1)[0]
+  return AUTH_PATHS.includes(pathname) ? '/register' : next
+}
+
 const PERIOD_SCREENS: ReadonlySet<Screen> = new Set(['dashboard', 'transactions'])
 
 /**

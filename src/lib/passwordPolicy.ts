@@ -1,6 +1,7 @@
-// US-67: criterios de contraseña de la app, más estrictos que el mínimo de Supabase Auth (C6:
-// el cliente valida para UX, el servidor sigue siendo quien manda si algún día se endurece ahí).
-const SPECIAL_CHARS = '!@#$%^&*()_+-=[]{};:\'"\\|,.<>/?'
+// US-67: criterios de contraseña de la app. El cliente valida para UX (C6); Supabase Auth exige
+// los mismos criterios con `minimum_password_length` y `password_requirements` de
+// supabase/config.toml (DEF-005, tests/lib/passwordPolicy.test.ts).
+export const SPECIAL_CHARS = '!@#$%^&*()_+-=[]{};:\'"\\|,.<>/?'
 
 export interface PasswordCriterion {
   key: 'length' | 'uppercase' | 'lowercase' | 'number' | 'special'
