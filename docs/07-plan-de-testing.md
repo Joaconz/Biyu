@@ -14,8 +14,8 @@ testing**.
 |---|---|
 | Product Owner | Mantiene requerimientos e historias de usuario con criterios de aceptación. Prioriza el backlog. Es quien decide si un defecto es defecto o es comportamiento esperado mal especificado |
 | Test Lead | Plan de pruebas, catálogo consolidado, reportes de ejecución, criterio de salida de cada versión |
-| Dev Backend | Conduce los agentes de IA sobre `api/`. Responsable de que el dominio quede puro y testeable |
-| Dev Frontend | Conduce los agentes de IA sobre `web/`. Responsable de que la UI exponga los estados que hay que probar |
+| Dev Backend | Conduce los agentes de IA sobre `supabase/` (migraciones, RPC, RLS) y `src/domain/`. Responsable de que el dominio quede puro y testeable |
+| Dev Frontend | Conduce los agentes de IA sobre `src/components/` y `src/pages/`. Responsable de que la UI exponga los estados que hay que probar |
 | QA / Automatización | Alta y seguimiento de defectos hasta el cierre. Lidera la automatización de V3 |
 
 ### Regla de propiedad cruzada
@@ -56,9 +56,13 @@ Defecto abierto · Hecho`.
 | Integración / API | Atomicidad, validación de servidor, autorización, efectos en base | Devs + QA | Continuo desde V1 |
 | Sistema / funcional | Casos de usuario de punta a punta, manuales | Todo el equipo | Cierre de cada versión |
 | Regresión | Reejecución del catálogo de la versión anterior | Test Lead reparte | V2 y V3 |
-| Confirmación | Re-test de cada defecto corregido | Quien lo reportó | Continuo |
+| Confirmación | Re-test de cada defecto corregido, con su test de regresión del defecto en verde (§5) | Quien lo reportó | Continuo |
 | No funcional | Rendimiento del dashboard, accesibilidad, usabilidad | Test Lead + QA | V2 |
-| Automatizado | Subconjunto de V1 y V2 | QA lidera | V3 |
+| Automatizado | Subconjunto del catálogo de V1 y V2 | QA lidera | V3 |
+
+La automatización de V3 es la del **catálogo de casos**. Los tests de regresión de cada defecto
+(§5) no esperan a V3: se escriben con la corrección, desde V1. No hay que confundirlos con la
+**suite de regresión** de la fila de arriba, que es la reejecución del catálogo.
 
 **Selectores estables desde V1.** Todo elemento interactivo de la UI (botones, inputs, selects,
 links de navegación, filas clickeables) lleva un atributo `data-testid` en kebab-case con el
@@ -140,9 +144,10 @@ cuyo resultado esperado es "debería funcionar bien" no es un caso.
 | Pasos para reproducir | Numerados, desde un estado conocido |
 | Resultado obtenido | Qué pasó, con datos concretos |
 | Resultado esperado | Qué debía pasar, con la referencia al spec |
-| Evidencia | Captura, respuesta de la API, log |
+| Evidencia | Captura, respuesta de PostgREST o de la RPC, log |
 | Severidad | Ver escala |
 | Prioridad | Ver escala |
+| Test de regresión | Ruta del test que reproduce el defecto (ver Flujo), o el `CP-` manual con la justificación |
 | Estado | Abierto · En análisis · Corregido · **En confirmación** · Cerrado · Rechazado · Diferido |
 
 ### Escala de severidad
@@ -166,6 +171,18 @@ a desarrollo → `Corregido` → **quien lo reportó** lo re-testea (`En confirm
 o vuelve a `Abierto`.
 
 **Nadie cierra su propio defecto.** Igual que con los casos: quien reporta confirma.
+
+**Cada corrección trae su test de regresión del defecto.** Antes de tocar el código, se escribe
+un test que reproduce el defecto y **falla**; el fix es lo que lo hace pasar. Va en el nivel más
+bajo que alcance para reproducirlo: Vitest en `tests/domain/` o `tests/lib/` si es lógica de
+cliente, pgTAP en `supabase/tests/database/` si es schema, RPC o RLS, Playwright en `e2e/` solo
+si no se puede más abajo. Vitest y pgTAP corren en la CI; Playwright no: el test e2e se corre en
+rojo contra producción y en verde contra el Preview del PR, y las dos corridas van como
+evidencia. El test nombra el `DEF-nnn` y su ruta se anota en el campo *Test de regresión*. Sin
+ese test el defecto no pasa a `Corregido`. Si no es automatizable (un defecto cosmético, por
+ejemplo), se agrega un `CP-` manual al catálogo y la justificación queda en el reporte. La regla
+rige para las correcciones posteriores a esta versión del plan; los defectos ya corregidos no se
+completan retroactivamente.
 
 ---
 
