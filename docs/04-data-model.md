@@ -58,7 +58,7 @@ vez (DEF-019).
 | archived_at | timestamptz | |
 | created_at | timestamptz | |
 
-Índice único **parcial**, igual que en `categories`: (`user_id`, `name`) `where archived_at is
+Índice único **parcial**, igual que en `categories`: (`user_id`, `lower(name)`) `where archived_at is
 null`. Permite reutilizar un nombre después de archivar la cuenta que lo tenía.
 
 Solo `type = 'credit_card'` admite `installments_count > 1` (ver invariante I6).

@@ -561,7 +561,7 @@ La historia US-68 entra en el alcance de la Entrega 1 pero no tiene implementaci
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-01) |
 | Caso de prueba | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) |
 | Historia | US-21 · Pisar el tipo de cambio sugerido |
-| Issue | A crear |
+| Issue | #184 |
 | Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-01) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -593,7 +593,7 @@ En Ajustes el tipo de cambio de referencia se valida a 4 decimales ("Usá hasta 
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-02) |
 | Caso de prueba | — (exploración, variante de CP-CFG-003) |
 | Historia | US-42 · Crear, renombrar y elegir color de categorías |
-| Issue | A crear |
+| Issue | #185 |
 | Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-02) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -625,7 +625,7 @@ La regla de CP-CFG-003 (no dos categorías activas con el mismo nombre) compara 
 | Encontrado en | Ejecución de la Entrega 1, caso CP-MON-003 |
 | Caso de prueba | CP-MON-003 (PASSED: el valor sugerido es correcto) |
 | Historia | US-20 · Sugerir el tipo de cambio de referencia del mes |
-| Issue | A crear |
+| Issue | #186 |
 | Reportó | Ejecución de la Entrega 1 (CP-MON-003) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 

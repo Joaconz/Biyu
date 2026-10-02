@@ -83,3 +83,19 @@ where c.archived_at is null
 drop index public.categories_user_name_active_uq;
 create unique index categories_user_name_active_uq
   on public.categories (user_id, lower(name)) where archived_at is null;
+
+-- Mismo mecanismo y mismo arreglo para cuentas (notas de DEF-019, CP-CFG-007).
+update public.accounts a
+set archived_at = now()
+where a.archived_at is null
+  and exists (
+    select 1 from public.accounts older
+    where older.user_id = a.user_id
+      and older.archived_at is null
+      and lower(older.name) = lower(a.name)
+      and (older.created_at, older.id) < (a.created_at, a.id)
+  );
+
+drop index public.accounts_user_name_active_uq;
+create unique index accounts_user_name_active_uq
+  on public.accounts (user_id, lower(name)) where archived_at is null;

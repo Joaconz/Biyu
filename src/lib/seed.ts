@@ -48,8 +48,8 @@ async function seedCategories() {
 async function seedAccounts() {
   const { data: existing, error } = await supabase.from('accounts').select('name').is('archived_at', null)
   if (error) throw error
-  const existingNames = new Set(existing.map((a) => a.name))
-  const missing = INITIAL_ACCOUNTS.filter((a) => !existingNames.has(a.name))
+  const existingNames = new Set(existing.map((a) => a.name.toLowerCase())) // DEF-019, como arriba
+  const missing = INITIAL_ACCOUNTS.filter((a) => !existingNames.has(a.name.toLowerCase()))
   if (missing.length === 0) return
   const { error: insertError } = await supabase
     .from('accounts')

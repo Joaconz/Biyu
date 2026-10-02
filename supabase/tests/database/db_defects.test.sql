@@ -1,6 +1,6 @@
 -- DEF-016 (#157), DEF-009 (#150) y DEF-019: ver 20261002000000_fix_db_defects.sql.
 begin;
-select plan(11);
+select plan(12);
 
 insert into auth.users (id, instance_id, aud, role, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','00000000-0000-0000-0000-000000000000','authenticated','authenticated','a@test.local'),
@@ -65,6 +65,9 @@ update categories set archived_at = now() where id = 'c0000000-0000-0000-0000-00
 select lives_ok(
   $$insert into categories (user_id, name) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','SALUD')$$,
   'con "Salud" archivada, el nombre se puede reutilizar en cualquier forma');
+select throws_ok(
+  $$insert into accounts (user_id, name, type, currency) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','MASTER','credit_card','ARS')$$,
+  '23505', null, '"MASTER" choca con "Master" activa (DEF-019, cuentas)');
 
 select * from finish();
 rollback;
