@@ -41,9 +41,10 @@ users
 | archived_at | timestamptz | null = activa |
 | created_at | timestamptz | default now() |
 
-Índice único **parcial**: (`user_id`, `name`) `where archived_at is null`. No es una
+Índice único **parcial**: (`user_id`, `lower(name)`) `where archived_at is null`. No es una
 restricción `UNIQUE` simple — permite reutilizar un nombre después de archivar la categoría
-que lo tenía.
+que lo tenía. Compara sin distinguir mayúsculas: "Salud" y "salud" no pueden estar activas a la
+vez (DEF-019).
 
 ## `accounts`
 
@@ -204,8 +205,8 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 | I3 | Los períodos de las imputaciones son consecutivos desde `first_period`, sin saltos ni repeticiones | Dominio |
 | I4 | `amount > 0` siempre, en transacciones, imputaciones y deudas | Restricción de verificación en la base |
 | I5 | `fx_rate` es not null si y solo si `currency = 'USD'` | Restricción de verificación |
-| I6 | `installments_count > 1` solo si la cuenta es `credit_card` y el tipo es `expense` | Trigger en la base (requiere join, no se resuelve con check), revalidado en `create_transaction` |
-| I7 | La suma de las deudas vinculadas a una transacción no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Trigger en la base |
+| I6 | `installments_count > 1` solo si la cuenta es `credit_card` y el tipo es `expense` | Trigger en la base (requiere join, no se resuelve con check), revalidado en `create_transaction`. Un segundo trigger en `accounts` impide que una cuenta con compras en cuotas deje de ser `credit_card` (DEF-009) |
+| I7 | La suma de las deudas vinculadas a una transacción no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Trigger en la base (`security definer`: bloquea la transacción con `for update`, que authenticated no puede hacer por C4; DEF-016) |
 | I8 | Una transacción de tipo `expense` tiene categoría | Restricción de verificación |
 | I9 | `status = 'settled'` implica `settled_at` not null | Restricción de verificación |
 | I10 | Una transacción con `deleted_at` no aporta a ningún KPI | Filtro en todas las consultas de lectura |

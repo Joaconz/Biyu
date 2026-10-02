@@ -35,8 +35,10 @@ export async function ensureUserSeeded() {
 async function seedCategories() {
   const { data: existing, error } = await supabase.from('categories').select('name').is('archived_at', null)
   if (error) throw error
-  const existingNames = new Set(existing.map((c) => c.name))
-  const missing = INITIAL_CATEGORIES.filter((c) => !existingNames.has(c.name))
+  // Sin distinguir mayúsculas, igual que el índice único (DEF-019): si "salud" ya está activa, no
+  // se inserta "Salud", que haría fallar todo el insert con 23505 y dejaría sin sembrar al resto.
+  const existingNames = new Set(existing.map((c) => c.name.toLowerCase()))
+  const missing = INITIAL_CATEGORIES.filter((c) => !existingNames.has(c.name.toLowerCase()))
   if (missing.length === 0) return
   const { error: insertError } = await supabase.from('categories').insert(missing)
   // 23505: una llamada concurrente (otra pestaña) ya insertó el mismo nombre — no es un error real.
