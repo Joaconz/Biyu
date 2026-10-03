@@ -4,7 +4,8 @@ const MESSAGES: Partial<Record<string, string>> = {
   user_already_exists: 'Ya existe una cuenta con ese email',
   email_exists: 'Ya existe una cuenta con ese email',
   invalid_credentials: 'Email o contraseña incorrectos',
-  weak_password: 'La contraseña debe tener al menos 6 caracteres',
+  // DEF-005: Auth rechaza con los mismos criterios que US-67 (passwordPolicy.ts).
+  weak_password: 'La contraseña necesita al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
   email_address_invalid: 'El email no es válido',
   over_email_send_rate_limit: 'Demasiados intentos. Esperá un momento y volvé a intentar',
   email_not_confirmed: 'Confirmá tu email antes de entrar',

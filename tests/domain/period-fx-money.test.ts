@@ -19,6 +19,12 @@ describe('period', () => {
   it.each(['2026-13', '2026-00', '26-01', '2026-1', '', 'abcd-ef', '2026-01-01'])('parsePeriod rechaza %j', (v) => {
     expect(parsePeriod(v)).toBeNull()
   })
+  // DEF-014 (#155): Postgres no tiene año 0 en `date`; "0000-01" llegaba a la consulta y mostraba
+  // "date/time field value out of range". Inválido como cualquier otro: vuelve al mes actual.
+  it('parsePeriod rechaza el año 0000 (DEF-014)', () => {
+    expect(parsePeriod('0000-01')).toBeNull()
+    expect(parsePeriod('0001-01')).toEqual({ year: 1, month: 1 })
+  })
   it('ida y vuelta con la fecha de Postgres', () => {
     const p = parsePeriod('2026-08')!
     expect(toDbDate(p)).toBe('2026-08-01')

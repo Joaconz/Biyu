@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { translateAuthError } from '@/lib/authErrors'
+import { postAuthDestination } from '@/lib/navigation'
 import { PASSWORD_CRITERIA, unmetPasswordCriteria } from '@/lib/passwordPolicy'
 import { ensureUserSeeded } from '@/lib/seed'
 import { supabase } from '@/lib/supabase'
@@ -49,8 +50,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
         // US-43 (ADR-014): mejor esfuerzo — un fallo acá no debe dejar al usuario varado.
         await ensureUserSeeded().catch(() => {})
       }
-      const next = params.get('next')
-      navigate(next?.startsWith('/') ? next : '/register', { replace: true })
+      navigate(postAuthDestination(params.get('next')), { replace: true })
     } finally {
       setSubmitting(false)
     }

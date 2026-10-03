@@ -11,7 +11,8 @@ const PERIOD_RE = /^(\d{4})-(0[1-9]|1[0-2])$/
 
 export function parsePeriod(value: string | null | undefined): Period | null {
   const match = value ? PERIOD_RE.exec(value) : null
-  return match ? { year: Number(match[1]), month: Number(match[2]) } : null
+  // DEF-014: Postgres no tiene año 0 en una columna date; "0000-01" rompía la consulta.
+  return match && match[1] !== '0000' ? { year: Number(match[1]), month: Number(match[2]) } : null
 }
 
 export function formatPeriod({ year, month }: Period): string {
