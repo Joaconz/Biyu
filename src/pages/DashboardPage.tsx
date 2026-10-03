@@ -17,6 +17,7 @@ import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { today } from '@/lib/clock'
 import type { DashboardTransaction } from '@/lib/dashboard'
 import { cn } from '@/lib/utils'
+import { fitAmountFontSize, SIDE_BY_SIDE_AMOUNT_MAX_LENGTH } from '@/lib/visuals'
 
 type BalanceTone = 'surplus' | 'deficit' | 'zero'
 
@@ -30,6 +31,11 @@ const BALANCE_BADGE: Record<BalanceTone, { label: string; className: string }> =
   deficit: { label: 'Déficit', className: 'bg-[color-mix(in_srgb,var(--deficit)_10%,var(--card))] text-deficit' },
   zero: { label: 'En cero', className: 'bg-secondary text-muted-foreground' },
 }
+
+// Ingresos y Balance: el alto de línea de title-2 (celular) y title-1 (desde sm), y su tamaño
+// como tope de fitAmountFontSize (DEF-021).
+const AMOUNT_CARD_TEXT =
+  'text-title-2 sm:text-title-1 [--amount-max:var(--text-title-2)] sm:[--amount-max:var(--text-title-1)]'
 
 const BALANCE_TEXT: Record<BalanceTone, string> = {
   surplus: 'text-income',
@@ -83,12 +89,16 @@ export function DashboardPage() {
         const { summary, daysWithTransactions } = summaryState
         const tone = balanceTone(summary.balance)
         const elapsed = daysElapsedInPeriod(period, today())
+        const expensesText = formatArs(summary.expenses)
+        const incomeText = formatArs(summary.income)
+        const balanceText = formatArs(summary.balance)
+        const stackIncomeAndBalance = Math.max(incomeText.length, balanceText.length) > SIDE_BY_SIDE_AMOUNT_MAX_LENGTH
         return (
           <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
             {/* Lo primero que se lee es cuánto se gastó (US-25): superficie sólida, la única de la pantalla. */}
             <div
               data-testid="dashboard-total"
-              className="flex flex-col justify-between gap-6 rounded-2xl bg-primary p-5 text-primary-foreground sm:p-6"
+              className="@container flex flex-col justify-between gap-6 rounded-2xl bg-primary p-5 text-primary-foreground sm:p-6"
             >
               <div className="flex flex-col gap-1.5">
                 <span className="text-footnote font-medium text-primary-foreground/75 first-letter:uppercase">
@@ -96,11 +106,11 @@ export function DashboardPage() {
                 </span>
                 <span
                   data-testid="dashboard-total-expenses"
-                  className="tabular text-display font-bold"
-                  // Achica con el ancho: un total de ocho cifras entra en 360 px sin cortarse.
-                  style={{ fontSize: 'clamp(2rem, 11vw, 2.75rem)' }}
+                  className="tabular text-display font-bold whitespace-nowrap [--amount-max:var(--text-display)]"
+                  // DEF-021: achica según el largo del total para que entre en una línea a cualquier ancho.
+                  style={{ fontSize: fitAmountFontSize(expensesText) }}
                 >
-                  {formatArs(summary.expenses)}
+                  {expensesText}
                 </span>
                 {summary.expensesUsd.gt(0) && (
                   <span data-testid="dashboard-total-usd" className="tabular text-footnote text-primary-foreground/75">
@@ -129,14 +139,23 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-[repeat(2,minmax(0,1fr))] gap-3 lg:grid-cols-[minmax(0,1fr)]">
-              <div data-testid="dashboard-income" className="flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
+            <div
+              className={cn(
+                'grid gap-3 lg:grid-cols-[minmax(0,1fr)]',
+                stackIncomeAndBalance ? 'grid-cols-[minmax(0,1fr)]' : 'grid-cols-[repeat(2,minmax(0,1fr))]',
+              )}
+            >
+              <div data-testid="dashboard-income" className="@container flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
                 <span className="text-footnote font-medium text-muted-foreground">Ingresos</span>
-                <span data-testid="dashboard-total-income" className="tabular text-title-2 font-bold text-income sm:text-title-1">
-                  {formatArs(summary.income)}
+                <span
+                  data-testid="dashboard-total-income"
+                  className={cn('tabular font-bold whitespace-nowrap text-income', AMOUNT_CARD_TEXT)}
+                  style={{ fontSize: fitAmountFontSize(incomeText) }}
+                >
+                  {incomeText}
                 </span>
               </div>
-              <div data-testid="dashboard-balance" className="flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
+              <div data-testid="dashboard-balance" className="@container flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-footnote font-medium text-muted-foreground">Balance</span>
                   <span
@@ -148,9 +167,10 @@ export function DashboardPage() {
                 </div>
                 <span
                   data-testid="dashboard-total-balance"
-                  className={cn('tabular text-title-2 font-bold sm:text-title-1', BALANCE_TEXT[tone])}
+                  className={cn('tabular font-bold whitespace-nowrap', AMOUNT_CARD_TEXT, BALANCE_TEXT[tone])}
+                  style={{ fontSize: fitAmountFontSize(balanceText) }}
                 >
-                  {formatArs(summary.balance)}
+                  {balanceText}
                 </span>
               </div>
             </div>

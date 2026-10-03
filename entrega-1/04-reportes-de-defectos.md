@@ -28,10 +28,10 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Corregido · falta confirmación | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
 | DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Corregido en #183 · falta confirmación | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
 | DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Corregido · falta confirmación | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
-| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Abierto · reportado el 2026-09-29 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Corregido · falta confirmación | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 4 · Baja: 2 · Total abiertos: 6 (más 10 corregidos que esperan confirmación).
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 3 · Baja: 2 · Total abiertos: 5 (más 11 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -661,13 +661,14 @@ El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · reportado el 2026-09-29 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | uso manual en producción desde un iPhone, fuera del catálogo escrito. |
 | Caso de prueba | — (uso manual; relacionado con DEF-012, montos extremos) |
 | Historia | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | Issue | #167 |
+| Test de regresión | `e2e/dashboard-amounts.spec.ts` (Playwright a 360 px, en rojo contra producción y en verde contra el Preview del PR) |
 | Reportó | Uso manual en producción, equipo Biyu |
 | Entorno | Producción (Vercel), Safari en iPhone, ancho ~390 px, 2026-09-29 |
 
