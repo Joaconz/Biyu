@@ -32,16 +32,18 @@ export function BreakdownRow({
     <div data-testid={testId} role="listitem" className="flex items-center gap-3 py-3 pr-4 pl-3.5">
       {icon}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <div className="flex items-baseline justify-between gap-3">
-          <div className="flex min-w-0 flex-col">
+        {/* DEF-021: si el monto no deja al menos 7rem para el nombre, baja a su propia línea en vez
+            de aplastarlo; y el porcentaje nunca parte "100,0 %" en dos. */}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <div className="flex min-w-0 flex-[1_1_7rem] flex-col">
             <div className="flex min-w-0 items-center gap-1.5">{label}</div>
             {sublabel}
           </div>
-          <div className="flex shrink-0 items-baseline gap-2">
+          <div className="ml-auto flex shrink-0 items-baseline gap-2 whitespace-nowrap">
             <span data-testid={amountTestId} className="tabular text-callout font-semibold text-foreground">
               {amount}
             </span>
-            <span data-testid={percentageTestId} className="tabular w-12 text-right text-footnote text-muted-foreground">
+            <span data-testid={percentageTestId} className="tabular min-w-12 text-right text-footnote text-muted-foreground">
               {formatPercentage(percentage)}
             </span>
           </div>

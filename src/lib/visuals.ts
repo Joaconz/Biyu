@@ -69,3 +69,24 @@ export function sortCategoriesForGrid<T extends { name: string }>(categories: re
     return a.name.localeCompare(b.name, 'es')
   })
 }
+
+/**
+ * Ancho de un carácter de monto en `em` (Inter en negrita, cifras tabulares), con margen. Los
+ * signos ($ . , -) son más angostos que las cifras, así que alcanza con medir todo como cifra.
+ */
+const AMOUNT_CHAR_EM = 0.62
+
+/**
+ * `font-size` que hace entrar un monto en una sola línea del ancho de su contenedor (DEF-021).
+ * Usa unidades de container query: el contenedor lleva la clase `@container`, y el tamaño
+ * máximo sale de `--amount-max`, que cada tarjeta fija con su token de tipografía.
+ */
+export function fitAmountFontSize(text: string): string {
+  return `min(var(--amount-max), calc(100cqi / ${(text.length * AMOUNT_CHAR_EM).toFixed(2)}))`
+}
+
+/**
+ * Ingresos y Balance van lado a lado en el celular, a media pantalla. Desde este largo
+ * ("$999.999.999,99" tiene 15) se apilan para que el monto no quede ilegible (DEF-021).
+ */
+export const SIDE_BY_SIDE_AMOUNT_MAX_LENGTH = 14
