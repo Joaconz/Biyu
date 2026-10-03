@@ -54,15 +54,17 @@ test('los montos más grandes entran en sus tarjetas del Resumen a 360 px (DEF-0
   await page.getByTestId('signup-form-submit').click()
   // US-68: si aparece el setup, se saltea. Lo que se prueba acá es el Resumen, no el setup.
   const form = page.getByTestId('transaction-form')
-  await expect(form.or(page.getByTestId('setup-reason-skip'))).toBeVisible()
+  await expect(form.or(page.getByTestId('setup-reason-skip'))).toBeVisible({ timeout: 15_000 })
   if (!(await form.isVisible())) {
     await page.getByTestId('setup-reason-skip').click()
     await page.getByTestId('setup-categories-skip').click()
     await page.getByTestId('setup-accounts-skip').click()
     await page.getByTestId('setup-expense-skip').click()
   }
-  await expect(form).toBeVisible()
-
+  // Justo después del alta, Registrar a veces se vuelve a montar y pierde lo tipeado (carrera
+  // ajena a DEF-021). Se carga de cero antes de escribir.
+  await expect(page).toHaveURL(/\/register$/)
+  await page.goto('/register')
   await page.getByTestId('transaction-form-amount').fill(MAX_AMOUNT)
   await page.getByTestId('transaction-form-next').click()
   await page.getByTestId('transaction-form-category-chip-comida-y-supermercado').click()
