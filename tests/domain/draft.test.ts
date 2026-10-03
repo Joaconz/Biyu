@@ -295,7 +295,15 @@ describe('applyReferenceRateSuggestion (US-20)', () => {
         { currency: 'USD', period: { year: 2026, month: 9 } },
         '1350.1234',
       ).fxRate,
-    ).toBe('1350.1234')
+    ).toBe('1.350,1234')
+  })
+
+  // DEF-020 (#186): el TC sugerido se mostraba como lo devuelve PostgREST ("1250.0000").
+  it('DEF-020: el TC sugerido se muestra en formato argentino y se sigue interpretando igual', () => {
+    const fxRate = applyReferenceRateSuggestion(usdDraft, { currency: 'USD', period: { year: 2026, month: 9 } }, '1250.0000').fxRate
+    expect(fxRate).toBe('1.250,00')
+    expect(tryParseMoney(fxRate)!.eq(1250)).toBe(true)
+    expect(isReferenceRateOverridden(fxRate, '1250.0000')).toBe(false)
   })
 
   it('deja el campo vacío cuando el período no tiene TC de referencia', () => {

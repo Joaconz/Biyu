@@ -17,6 +17,7 @@ import { formatPeriod, isSamePeriod, parsePeriod, toIsoDate, tryPeriodOf } from 
 import { allowsInstallments, validateTransactionDraft, type DraftErrors } from '@/domain/validation'
 import { setStoredLastAccountId, type Account, type Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
+import { saveErrorMessage } from '@/lib/errors'
 import { getReferenceRate } from '@/lib/fxRates'
 import { isStepComplete, STEP_FIELDS, stepsFor, type RegisterStep } from '@/lib/registerSteps'
 import { createTransaction } from '@/lib/transactions'
@@ -191,7 +192,7 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
       }, 900)
     } catch (error) {
       toast.error('No se pudo guardar', {
-        description: (error as { message?: string }).message,
+        description: saveErrorMessage(error),
         testId: 'transaction-form-save-error',
       })
     } finally {

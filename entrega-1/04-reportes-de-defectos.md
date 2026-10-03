@@ -16,22 +16,22 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
 | DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
 | DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-002 | US-48 · La app pide login |
-| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
+| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
 | DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
 | DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
-| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite, I4/C6) | US-11 · Validación del monto |
-| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite) | US-19 · Registrar un gasto en USD |
+| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite, I4/C6) | US-11 · Validación del monto |
+| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite) | US-19 · Registrar un gasto en USD |
 | DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
 | DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
-| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
+| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
 | DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
-| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
-| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
-| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
+| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Corregido · falta confirmación | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
+| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Corregido en #183 · falta confirmación | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
+| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Corregido · falta confirmación | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
 | DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Abierto · reportado el 2026-09-29 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 6 · Baja: 7 · Total abiertos: 13 (más 3 corregidos que esperan confirmación).
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 4 · Baja: 2 · Total abiertos: 6 (más 10 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -279,13 +279,14 @@ Tras iniciar sesión se ignora el destino original (next) y siempre entra a /reg
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, derivado de CP-CUO-003. |
 | Caso de prueba | — (derivado de CP-CUO-003, I6) |
 | Historia | US-45 · Crear cuentas indicando su tipo (I6) |
 | Issue | #150 |
+| Test de regresión | `supabase/tests/database/db_defects.test.sql` (pgTAP, corre en la CI) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -371,13 +372,14 @@ No se pueden editar ni archivar cuentas (medios de pago) desde la UI.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75 (valores límite no escritos). |
 | Caso de prueba | — (valores límite, I4/C6) |
 | Historia | US-11 · Validación del monto |
 | Issue | #153 |
+| Test de regresión | `tests/domain/validation.test.ts`, casos "DEF-012" (monto y equivalente en pesos), y `tests/lib/errors.test.ts` (traducción de 22003) (Vitest) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -402,13 +404,14 @@ Un monto extremo pasa la validación del cliente y termina en un error técnico 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75 (valores límite no escritos). |
 | Caso de prueba | — (valores límite) |
 | Historia | US-19 · Registrar un gasto en USD |
 | Issue | #154 |
+| Test de regresión | `tests/domain/validation.test.ts`, caso "DEF-013" (Vitest) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -494,13 +497,14 @@ Los botones de la paleta de color en /settings no tienen data-testid.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, intentando verificar I7. |
 | Caso de prueba | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) |
 | Historia | V2 · Deudas (I7), latente en el schema |
 | Issue | #157 |
+| Test de regresión | `supabase/tests/database/db_defects.test.sql` (pgTAP, corre en la CI) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -558,13 +562,14 @@ La historia US-68 entra en el alcance de la Entrega 1 pero no tiene implementaci
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · nuevo en la Entrega 1 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-01) |
 | Caso de prueba | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) |
 | Historia | US-21 · Pisar el tipo de cambio sugerido |
 | Issue | #184 |
+| Test de regresión | `tests/domain/validation.test.ts`, caso "DEF-018" (Vitest) |
 | Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-01) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -590,13 +595,14 @@ En Ajustes el tipo de cambio de referencia se valida a 4 decimales ("Usá hasta 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · nuevo en la Entrega 1 |
+| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-02) |
 | Caso de prueba | — (exploración, variante de CP-CFG-003) |
 | Historia | US-42 · Crear, renombrar y elegir color de categorías |
 | Issue | #185 |
+| Test de regresión | `supabase/tests/database/db_defects.test.sql` (pgTAP, corre en la CI) |
 | Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-02) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -622,13 +628,14 @@ La regla de CP-CFG-003 (no dos categorías activas con el mismo nombre) compara 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · nuevo en la Entrega 1 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Ejecución de la Entrega 1, caso CP-MON-003 |
 | Caso de prueba | CP-MON-003 (PASSED: el valor sugerido es correcto) |
 | Historia | US-20 · Sugerir el tipo de cambio de referencia del mes |
 | Issue | #186 |
+| Test de regresión | `tests/domain/draft.test.ts`, caso "DEF-020" (Vitest) |
 | Reportó | Ejecución de la Entrega 1 (CP-MON-003) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 

@@ -49,6 +49,31 @@ describe('validateTransactionDraft', () => {
     expect(v(usd).installmentsCount).toBeDefined()
     expect(v({ ...usd, fxRate: parseMoney('1250') })).toEqual({})
   })
+  // DEF-012 (#153): numeric(14,2) llega hasta 999.999.999.999,99. Más que eso pasaba la
+  // validación y terminaba en "numeric field overflow" en inglés.
+  it('DEF-012: el monto máximo es 999.999.999.999,99', () => {
+    expect(v({ amount: parseMoney('999999999999.99') })).toEqual({})
+    expect(v({ amount: parseMoney('1000000000000') }).amount).toBe('El monto máximo es $999.999.999.999,99')
+  })
+  it('DEF-012: en USD, el equivalente en pesos tampoco puede pasar el máximo', () => {
+    const usd = { currency: 'USD' as const, amount: parseMoney('1000000000'), fxRate: parseMoney('1250') }
+    expect(v(usd).amount).toBe('En pesos daría más que el máximo de $999.999.999.999,99')
+    expect(v({ ...usd, amount: parseMoney('1000') })).toEqual({})
+  })
+  // DEF-013 (#154): con una sola cuota (sin selector visible), el error iba a installmentsCount,
+  // que no se muestra; el Guardar quedaba deshabilitado sin ningún motivo a la vista.
+  it('DEF-013: sin cuotas, un monto que en pesos da menos de 0,01 marca el monto', () => {
+    const tiny = { currency: 'USD' as const, amount: parseMoney('0.01'), fxRate: parseMoney('0.01'), accountType: 'cash' as const }
+    const errors = v(tiny)
+    expect(errors.installmentsCount).toBeUndefined()
+    expect(errors.amount).toBe('En pesos daría menos de $0,01. Revisá el monto o el tipo de cambio')
+  })
+  // DEF-018 (#184): Ajustes rechaza más de 4 decimales y el registro no: la base redondeaba sin avisar.
+  it('DEF-018: el tipo de cambio admite hasta 4 decimales', () => {
+    const usd = { currency: 'USD' as const, amount: parseMoney('100') }
+    expect(v({ ...usd, fxRate: parseMoney('1250.5555') })).toEqual({})
+    expect(v({ ...usd, fxRate: parseMoney('1250.55555') }).fxRate).toBe('Usá hasta 4 decimales')
+  })
   it('fecha futura o malformada', () => {
     expect(v({ occurredOn: '2026-08-16' }).occurredOn).toBeDefined()
     expect(v({ occurredOn: '15/08/2026' }).occurredOn).toBeDefined()
