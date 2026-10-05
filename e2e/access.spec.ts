@@ -47,6 +47,37 @@ test('crear la cuenta lleva a la configuración inicial aunque la siembra tarde 
   expect(navigations.slice(navigations.indexOf('/setup'))).not.toContain('/register')
 })
 
+// DEF-028: la siembra insertaba categorías y cuentas en paralelo. Si /register leía con las
+// categorías ya guardadas y las cuentas todavía no, seedPlan concluía "ya sembrado" (DEF-010) y
+// la cuenta nueva quedaba sin medios de pago. Se demora solo el insert de cuentas para que esa
+// lectura ocurra siempre. El estado del setup se responde como "hecho" para ir directo a Registrar.
+test('una cuenta nueva siempre llega a Registrar con sus cuentas, aunque la siembra tarde (DEF-028)', async ({ page }) => {
+  await page.route('**/rest/v1/user_setup**', (route) =>
+    route.request().method() === 'GET'
+      ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ completed_at: '2026-01-01T00:00:00Z' }) })
+      : route.continue(),
+  )
+  // Lecturas demoradas 1,5 s (las categorías ya están guardadas) e insert de cuentas 4 s (todavía no).
+  await page.route(/\/rest\/v1\/(categories|accounts)/, async (route) => {
+    const method = route.request().method()
+    const isAccounts = route.request().url().includes('/accounts')
+    const delay = method === 'GET' ? 1500 : method === 'POST' && isAccounts ? 4000 : 0
+    if (delay) await new Promise((resolve) => setTimeout(resolve, delay))
+    await route.continue()
+  })
+  await page.goto('/signup')
+  await page.getByTestId('signup-form-email').fill(`access+cuentas-${Date.now()}-${test.info().workerIndex}@biyu.test`)
+  await page.getByTestId('signup-form-password').fill(PASSWORD)
+  await page.getByTestId('signup-form-confirm-password').fill(PASSWORD)
+  await page.getByTestId('signup-form-submit').click()
+
+  await expect(page.getByTestId('transaction-form')).toBeVisible({ timeout: 15_000 })
+  await page.getByTestId('transaction-form-amount').fill('100')
+  await page.getByTestId('transaction-form-next').click()
+  await page.getByTestId('transaction-form-category-chip-otros').click()
+  await expect(page.getByTestId('transaction-form-account-chip-efectivo')).toBeVisible()
+})
+
 test('al iniciar sesión vuelve al destino original con su período (DEF-008)', async ({ page, browser }) => {
   const email = `access+next-${Date.now()}-${test.info().workerIndex}@biyu.test`
   await page.goto('/signup')

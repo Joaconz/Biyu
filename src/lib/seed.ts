@@ -41,14 +41,17 @@ export async function ensureUserSeeded() {
     { categories: categories.data.map((c) => ({ name: c.name, archived: c.archived_at !== null })), accounts: accounts.data },
     { categories: INITIAL_CATEGORIES, accounts: INITIAL_ACCOUNTS },
   )
-  const inserts = await Promise.all([
-    plan.categories.length > 0 ? supabase.from('categories').insert(plan.categories) : { error: null },
-    plan.accounts.length > 0
-      ? supabase.from('accounts').insert(plan.accounts.map((a) => ({ ...a, currency: 'ARS' as const })))
-      : { error: null },
-  ])
-  for (const { error } of inserts) {
-    // 23505: una llamada concurrente (otra pestaña, /signup) ya insertó el mismo nombre — no es un error real.
+  // DEF-028: primero las cuentas, después las categorías, nunca en paralelo. Las categorías son la
+  // marca de "ya sembrado" (seedPlan): si /register leyera categorías sin cuentas todavía, no
+  // sembraría nada más y la cuenta nueva quedaría sin medios de pago.
+  if (plan.accounts.length > 0) {
+    const { error } = await supabase.from('accounts').insert(plan.accounts.map((a) => ({ ...a, currency: 'ARS' as const })))
+    // 23505: una llamada concurrente (/signup y /register a la vez) ya insertó el mismo nombre y
+    // lo confirmó: no es un error real, y sus cuentas ya están guardadas.
+    if (error && error.code !== '23505') throw error
+  }
+  if (plan.categories.length > 0) {
+    const { error } = await supabase.from('categories').insert(plan.categories)
     if (error && error.code !== '23505') throw error
   }
 }

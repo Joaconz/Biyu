@@ -35,8 +35,9 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-CFG-003 y DEF-009) | US-42 · Categorías; DEF-011 · Editar cuentas |
 | DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | A definir por el PO | Corregido · falta confirmación | — (derivado de DEF-010) | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
 | DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con US-50 · Traducir errores de Auth) | US-50 · Traducir errores de Auth y evitar doble submit |
+| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | A definir por el PO | Corregido · falta confirmación | — (derivado de DEF-010 y DEF-023) | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 0 · Baja: 0 · Total abiertos: 0 (21 corregidos que esperan confirmación).
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 0 · Baja: 0 · Total abiertos: 0 (22 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -890,3 +891,34 @@ Cuando Supabase Auth corta por demasiadas altas desde la misma IP (429, over_req
 **Evidencia.** Consola de producción: "Failed to load resource: the server responded with a status of 429". Mensaje de la UI con el 429 simulado: ["No se pudo completar la operación. Probá de nuevo"].
 
 **Notas.** translateAuthError no tiene entrada para over_request_rate_limit.
+
+## DEF-028 · Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | revisando un fallo del Preview de #198 el 2026-10-05; la causa viene del arreglo de DEF-010 (#191). |
+| Caso de prueba | — (derivado de DEF-010 y DEF-023) |
+| Historia | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
+| Issue | #199 |
+| Test de regresión | `e2e/access.spec.ts`, caso "DEF-028" (Playwright: 6/6 en rojo antes del arreglo, en verde después) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, rama fix/defectos-023-027, Chromium y WebKit, 2026-10-05 |
+
+La siembra inicial insertaba categorías y cuentas en paralelo. Desde DEF-010, solo se siembra a quien nunca tuvo categorías. Si Registrar leía el catálogo cuando las categorías ya estaban guardadas y las cuentas todavía no, concluía "ya sembrado" y la cuenta nueva quedaba sin medios de pago: no se puede registrar ningún gasto.
+
+**Pasos para reproducir**
+
+1. Crear una cuenta nueva en /signup en una red lenta, o con el insert de cuentas demorado (en el test, 4 s) y las lecturas del catálogo demoradas 1,5 s.
+2. Llegar a Registrar (con el setup ya hecho o salteado), escribir un monto, tocar "Siguiente" y elegir una categoría.
+3. Mirar las cuentas disponibles en "Detalles".
+
+**Resultado esperado.** Están las 5 cuentas de la siembra inicial (US-43).
+
+**Resultado obtenido.** No aparece ninguna cuenta: la lectura vio las categorías ya guardadas, seedPlan no sembró nada más y la relectura llegó antes de que se guardaran las cuentas.
+
+**Evidencia.** e2e/access.spec.ts, caso "DEF-028": falla 6/6 (Chromium y WebKit) antes del arreglo, con el locator transaction-form-account-chip-efectivo sin encontrar.
+
+**Notas.** No se observó en uso real; apareció al revisar por qué un test tardaba en el Preview. Corrección: la siembra guarda primero las cuentas y después las categorías, que son la marca de "ya sembrado".
