@@ -34,3 +34,9 @@ export async function deleteTransaction(id: string): Promise<void> {
   if (error) throw error
 }
 
+
+/** Deshace la baja lógica de deleteTransaction desde el filtro "Eliminados" (DEF-007, C10). */
+export async function restoreTransaction(id: string): Promise<void> {
+  const { error } = await supabase.rpc('restore_transaction', { p_transaction_id: id })
+  if (error) throw error
+}

@@ -215,12 +215,17 @@ informativa: no son metas ni presupuestos (Out of Scope)._
 1. El usuario borra en octubre una compra de agosto en 12 cuotas.
 2. El sistema marca la transacción como eliminada y **todas** sus imputaciones dejan de contar, incluidas las de agosto y septiembre.
 3. Se advierte explícitamente antes de confirmar que esto altera los totales de meses ya cerrados.
+4. La transacción sale de los totales y del listado normal, pero sigue en el historial: en
+   Movimientos, el filtro "Eliminados" (`?view=deleted`, C11) la muestra con la marca "eliminada"
+   (FR-08, DEF-007). Desde ahí se puede restaurar (`restore_transaction`), y vuelven a contar todas
+   sus cuotas.
 
 ### Sad path — categoría archivada
 
 1. El usuario archiva "Salidas".
 2. La categoría desaparece del formulario de registro.
-3. Las transacciones históricas la siguen mostrando, con una marca visual de archivada.
+3. Las transacciones históricas la siguen mostrando, con una marca visual de archivada, en el
+   Resumen y en Movimientos (DEF-006).
 4. El dashboard de meses pasados sigue mostrando la barra de esa categoría.
 5. Archivar todas las categorías no las vuelve a sembrar: la siembra de US-43 es solo para quien
    nunca tuvo categorías (DEF-010).
