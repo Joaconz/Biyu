@@ -30,8 +30,13 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Corregido · falta confirmación | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
 | DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Corregido · falta confirmación | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
+| DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | A definir por el PO | Abierto · encontrado el 2026-10-05 | — (aparece en e2e/setup.spec.ts, "una cuenta nueva ve el setup…") | US-68 · Configuración inicial al crear la cuenta; US-51 · Entrar directo tras registrarse |
+| DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | A definir por el PO | Abierto · encontrado el 2026-10-05 | — (NFR-06, WCAG 2.1 AA en flujos críticos) | US-65 · Eliminar una transacción; DEF-011 · Eliminar una cuenta |
+| DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | A definir por el PO | Abierto · encontrado el 2026-10-05 | — (relacionado con CP-CFG-003 y DEF-009) | US-42 · Categorías; DEF-011 · Editar cuentas |
+| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | A definir por el PO | Abierto · encontrado el 2026-10-05 | — (derivado de DEF-010) | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
+| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | A definir por el PO | Abierto · encontrado el 2026-10-05 | — (relacionado con US-50 · Traducir errores de Auth) | US-50 · Traducir errores de Auth y evitar doble submit |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 0 · Baja: 0 · Total abiertos: 0 (16 corregidos que esperan confirmación).
+**Abiertos por severidad:** Crítica: 0 · Alta: 1 · Media: 1 · Baja: 3 · Total abiertos: 5 (más 16 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -727,3 +732,161 @@ Después del merge de US-68, las cuentas creadas antes de esa historia tenían q
 **Evidencia.** Tests de regresión en rojo antes de la corrección: e2e/setup.spec.ts (fallan "si guardar el setup falla", "si leer el estado falla" y "cuenta sin fila") y e2e/smoke.spec.ts (esperaba /register después del signup). Después de #176: e2e 28/28 en Chromium y WebKit, pgTAP 175/175, Vitest 246/246.
 
 **Notas.** No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Las migraciones se aplicaron en producción con supabase db push y el flujo se verificó allí.
+
+## DEF-023 · Después de crear la cuenta, a veces la pantalla queda en blanco en /register
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · encontrado el 2026-10-05 |
+| Severidad | Alta |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo completo del 2026-10-05: dos fallos intermitentes de e2e (setup.spec.ts y dashboard-amounts.spec.ts) contra producción. |
+| Caso de prueba | — (aparece en e2e/setup.spec.ts, "una cuenta nueva ve el setup…") |
+| Historia | US-68 · Configuración inicial al crear la cuenta; US-51 · Entrar directo tras registrarse |
+| Issue | #193 |
+| Test de regresión | A escribir con la corrección (plan de testing §5) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Producción (Vercel + Supabase hosteado), main e6b2e0c, 2026-10-05. Reproducido también en local (Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05) |
+
+Justo después de crear la cuenta, la app a veces se queda con la pantalla vacía en /register: no muestra ni la configuración inicial ni el formulario de registro. Recargar la página la destraba. Es intermitente: depende de en qué orden terminan dos pedidos.
+
+**Pasos para reproducir**
+
+1. Abrir /signup sin sesión.
+2. Escribir un email nuevo y una contraseña válida en "Contraseña" y "Confirmar contraseña", y tocar "Crear cuenta".
+3. Observar la pantalla durante los 20 segundos siguientes.
+4. Repetir varias veces: en producción con WebKit pasó en 2 de 12 altas; en local, 1 de cada ~80.
+
+**Resultado esperado.** La cuenta nueva va a la configuración inicial ("¿Para qué vas a usar Biyu?", US-68) en uno o dos segundos.
+
+**Resultado obtenido.** La URL queda en /register y la página no muestra nada: el contenedor de la app está vacío (solo queda el de las notificaciones). La sesión sí está iniciada. Al recargar, va a /setup.
+
+**Evidencia.** Registro de navegaciones de una corrida colgada: 3543 ms replaceState /register (RedirectIfAuthed, al aparecer la sesión) → 3737 ms replaceState /setup (AppLayout: setup pendiente) → 3740 ms replaceState /register (AuthForm). Todos los pedidos a Supabase terminan con 200/201; no hay errores de JavaScript.
+
+**Notas.** Causa: después de signUp, AuthForm espera la siembra (ensureUserSeeded) y recién ahí navega a /register. Para entonces RedirectIfAuthed ya llevó a /register y AppLayout ya mandó a /setup: la navegación tardía de AuthForm la pisa, y el <Navigate to="/setup"> que ya se ejecutó no vuelve a dispararse. La misma carrera explica dos síntomas vistos el 2026-10-02: la cuenta que a veces entraba sin pasar por el setup y el formulario de registro que perdía el monto tipeado.
+
+## DEF-024 · Los diálogos de confirmación no toman el foco del teclado
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · encontrado el 2026-10-05 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo exploratorio del 2026-10-05 (accesibilidad). |
+| Caso de prueba | — (NFR-06, WCAG 2.1 AA en flujos críticos) |
+| Historia | US-65 · Eliminar una transacción; DEF-011 · Eliminar una cuenta |
+| Issue | #194 |
+| Test de regresión | A escribir con la corrección (plan de testing §5) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05 |
+
+Al abrir "¿Estás seguro de que querés eliminar esta transacción?" o "¿Seguro que querés eliminar «…»?", el foco del teclado se queda en el botón de atrás. Con teclado o lector de pantalla se sigue navegando la página de fondo, y al cerrar el foco no vuelve a un lugar previsible.
+
+**Pasos para reproducir**
+
+1. Iniciar sesión y abrir /settings.
+2. En "Cuentas", tocar el lápiz de "Efectivo" y después "Eliminar".
+3. Sin usar el mouse, mirar dónde está el foco (document.activeElement) y apretar Tab varias veces.
+4. Repetir en /transactions con el tacho de un movimiento.
+
+**Resultado esperado.** Diálogo modal accesible (WCAG 2.4.3, patrón dialog de ARIA): el foco entra al diálogo al abrirlo, Tab no sale de él, Escape lo cierra y el foco vuelve al botón que lo abrió.
+
+**Resultado obtenido.** El foco queda en "Eliminar" (settings-accounts-delete), fuera del diálogo; Tab recorre la página de fondo.
+
+**Evidencia.** focoAlAbrir = settings-accounts-delete, focoDentro = false. DeleteTransactionDialog tiene el mismo código y el mismo comportamiento.
+
+**Notas.** Afecta a src/components/shared/ConfirmDialog.tsx (nuevo en #191) y a src/components/transactions/DeleteTransactionDialog.tsx (anterior).
+
+## DEF-025 · El error al editar una cuenta o una categoría aparece fuera de la pantalla
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · encontrado el 2026-10-05 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo exploratorio del 2026-10-05. |
+| Caso de prueba | — (relacionado con CP-CFG-003 y DEF-009) |
+| Historia | US-42 · Categorías; DEF-011 · Editar cuentas |
+| Issue | #195 |
+| Test de regresión | A escribir con la corrección (plan de testing §5) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05 |
+
+Si guardar la edición de una cuenta o de una categoría falla, el mensaje se muestra en el formulario de alta ("Nueva cuenta" o "Nueva categoría"), entre 200 y 360 px más abajo. En la fila que se está editando no pasa nada visible.
+
+**Pasos para reproducir**
+
+1. Iniciar sesión y registrar un gasto en 3 cuotas con "Tarjeta de crédito".
+2. Abrir /settings y, en "Cuentas", tocar el lápiz de "Tarjeta de crédito".
+3. Cambiar el tipo a "Efectivo" y tocar "Guardar".
+4. Para categorías: tocar el lápiz de "Transporte", escribir "OTROS" y tocar "Guardar".
+
+**Resultado esperado.** El motivo ("Esta cuenta tiene compras en cuotas: tiene que seguir siendo tarjeta de crédito", "Ya existe una categoría activa con ese nombre") aparece en la fila que se está editando.
+
+**Resultado obtenido.** La fila sigue abierta sin ningún cambio. El mensaje está debajo del formulario de alta: 357 px más abajo en cuentas (fuera de la pantalla, con 720 px de alto) y 209 px en categorías.
+
+**Evidencia.** Medición en el navegador: settings-accounts-error top = 795 px, settings-accounts-save top = 438 px, alto de la ventana = 720 px.
+
+**Notas.** Las secciones de Ajustes usan un solo estado de error para el alta y la edición.
+
+## DEF-026 · Sin categorías activas, el registro y el setup quedan sin salida
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · encontrado el 2026-10-05 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo exploratorio del 2026-10-05, combinando DEF-010 con la configuración inicial. |
+| Caso de prueba | — (derivado de DEF-010) |
+| Historia | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
+| Issue | #196 |
+| Test de regresión | A escribir con la corrección (plan de testing §5) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05 |
+
+Desde DEF-010, archivar todas las categorías ya no las vuelve a sembrar. Pero entonces Registrar y la configuración inicial muestran "Todavía no tenés categorías cargadas." sin ninguna salida, y las categorías archivadas no se pueden reactivar desde ningún lado.
+
+**Pasos para reproducir**
+
+1. Iniciar sesión y abrir /settings.
+2. En "Categorías", tocar "Archivar" en todas.
+3. Ir a Registrar, escribir un monto y tocar "Siguiente".
+4. Volver a Ajustes y tocar "Volver a hacer la configuración inicial"; avanzar hasta "Tus categorías" y hasta "Registrá tu primer gasto".
+
+**Resultado esperado.** La app explica qué hacer: un acceso a Ajustes para crear o reactivar categorías, y en Ajustes una forma de reactivar las archivadas.
+
+**Resultado obtenido.** Registrar dice "Todavía no tenés categorías cargadas." sin link. El paso "Tus categorías" del setup queda vacío, aunque dice "Destildá las que no uses". En Ajustes las archivadas no aparecen.
+
+**Evidencia.** Capturas del paso "Tus categorías" vacío y del paso "¿En qué?" sin chips (testeo del 2026-10-05).
+
+**Notas.** Antes de DEF-010 este caso no existía porque /register volvía a sembrar las 8 categorías.
+
+## DEF-027 · Al llegar al límite de altas, el mensaje dice "Probá de nuevo"
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · encontrado el 2026-10-05 |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo completo del 2026-10-05: la suite e2e llegó al límite de altas de Supabase Auth en producción. |
+| Caso de prueba | — (relacionado con US-50 · Traducir errores de Auth) |
+| Historia | US-50 · Traducir errores de Auth y evitar doble submit |
+| Issue | #197 |
+| Test de regresión | A escribir con la corrección (plan de testing §5) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Producción (Vercel + Supabase hosteado), main e6b2e0c, 2026-10-05 (429 observado). Mensaje verificado en local simulando el 429 |
+
+Cuando Supabase Auth corta por demasiadas altas desde la misma IP (429, over_request_rate_limit), el formulario muestra el mensaje genérico "No se pudo completar la operación. Probá de nuevo". Reintentar sigue fallando durante un buen rato.
+
+**Pasos para reproducir**
+
+1. Crear muchas cuentas seguidas desde la misma IP (en producción alcanzó con correr la suite e2e un par de veces en una hora).
+2. En /signup, completar email, contraseña y confirmación, y tocar "Crear cuenta".
+
+**Resultado esperado.** Un mensaje que diga que hubo demasiados intentos y que hay que esperar unos minutos, como ya pasa con over_email_send_rate_limit.
+
+**Resultado obtenido.** "No se pudo completar la operación. Probá de nuevo".
+
+**Evidencia.** Consola de producción: "Failed to load resource: the server responded with a status of 429". Mensaje de la UI con el 429 simulado: ["No se pudo completar la operación. Probá de nuevo"].
+
+**Notas.** translateAuthError no tiene entrada para over_request_rate_limit.
