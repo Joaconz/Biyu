@@ -63,6 +63,10 @@ null`. Permite reutilizar un nombre después de archivar la cuenta que lo tenía
 
 Solo `type = 'credit_card'` admite `installments_count > 1` (ver invariante I6).
 
+Una cuenta se archiva (`archived_at`) o se elimina. Eliminarla es un borrado físico que hace la RPC
+`delete_account` junto con sus transacciones, imputaciones, deudas vinculadas y suscripciones
+(ADR-026); es la única excepción a C10.
+
 ## `fx_rates`
 
 Tipo de cambio de referencia por período. **Solo sugiere un default al registrar** — no se usa para calcular nada histórico.
