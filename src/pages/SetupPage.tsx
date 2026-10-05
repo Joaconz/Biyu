@@ -168,7 +168,15 @@ export function SetupPage() {
       {status === 'ready' && step === 'categories' && (
         <>
           <h2 className="text-title-2 font-bold">Tus categorías</h2>
-          <p className="text-callout text-muted-foreground">Destildá las que no uses: quedan archivadas, no se borran.</p>
+          {categories.length === 0 ? (
+            // DEF-026: reabierto desde Ajustes con todas archivadas, la lista vacía no se explicaba.
+            <p data-testid="setup-categories-empty" className="text-callout text-muted-foreground">
+              No tenés categorías activas. Cuando termines, podés crearlas o reactivar las archivadas desde Ajustes.
+            </p>
+          ) : (
+            <p className="text-callout text-muted-foreground">Destildá las que no uses: quedan archivadas, no se borran.</p>
+          )}
+          {categories.length > 0 && (
           <GroupedSection>
             <GroupedCard>
               <ul className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
@@ -186,6 +194,7 @@ export function SetupPage() {
               </ul>
             </GroupedCard>
           </GroupedSection>
+          )}
           <StepActions
             onSkip={() => setStep('accounts')}
             onContinue={() => setStep('accounts')}

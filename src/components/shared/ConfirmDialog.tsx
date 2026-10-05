@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
+import { useModalFocus } from '@/hooks/useModalFocus'
 
 interface ConfirmDialogProps {
   isOpen: boolean
@@ -19,6 +20,9 @@ interface ConfirmDialogProps {
  */
 export function ConfirmDialog({ isOpen, title, children, confirmLabel, busyLabel, testId, onConfirm, onClose }: ConfirmDialogProps) {
   const [busy, setBusy] = useState(false)
+  const panel = useRef<HTMLDivElement>(null)
+  const cancel = useRef<HTMLButtonElement>(null)
+  useModalFocus(isOpen, panel, cancel)
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -51,13 +55,13 @@ export function ConfirmDialog({ isOpen, title, children, confirmLabel, busyLabel
         if (e.target === e.currentTarget && !busy) onClose()
       }}
     >
-      <div className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-5 text-card-foreground shadow-xl">
+      <div ref={panel} className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-5 text-card-foreground shadow-xl">
         <h2 id={`${testId}-title`} className="text-lg font-semibold tracking-tight">
           {title}
         </h2>
         <div className="space-y-2 text-sm text-muted-foreground">{children}</div>
         <div className="flex items-center justify-end gap-2 pt-2">
-          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={busy} data-testid={`${testId}-cancel`}>
+          <Button ref={cancel} type="button" variant="outline" size="sm" onClick={onClose} disabled={busy} data-testid={`${testId}-cancel`}>
             Cancelar
           </Button>
           <Button type="button" variant="destructive" size="sm" onClick={handleConfirm} disabled={busy} data-testid={`${testId}-confirm`}>

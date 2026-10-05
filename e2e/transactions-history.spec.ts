@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+// (dialog.evaluate corre en el navegador: necesita los tipos del DOM)
 import { expect, type Page, test } from '@playwright/test'
 
 // Historial de /transactions: DEF-006 (#147) y DEF-007 (#148). Corre contra el deploy (SMOKE_URL),
@@ -21,7 +23,7 @@ async function signUpAndSkipSetup(page: Page, tag: string) {
   await expect(page).toHaveURL(/\/register$/)
 }
 
-/** Un gasto en Efectivo. Recarga Registrar antes: justo después del alta puede perder lo tipeado. */
+/** Un gasto en Efectivo, desde Registrar cargado de cero (ver DEF-023 en dashboard-amounts.spec.ts). */
 async function registerExpense(page: Page, amount: string, categoryChip: string) {
   await page.goto('/register')
   await page.getByTestId('transaction-form-amount').fill(amount)
@@ -74,4 +76,23 @@ test('DEF-006: un movimiento de una categoría archivada lleva la marca de archi
   await page.goto('/transactions')
   await expect(page.getByTestId('transactions-item')).toHaveCount(1)
   await expect(page.getByTestId('transactions-item-archived')).toContainText('archivada')
+})
+
+test('DEF-024: el diálogo de eliminar transacción toma el foco, lo retiene y lo devuelve', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'foco')
+  await registerExpense(page, '1500', 'otros')
+  await page.goto('/transactions')
+  await page.getByTestId('transactions-item-delete').focus()
+  await page.keyboard.press('Enter')
+
+  const dialog = page.getByTestId('delete-transaction-dialog')
+  await expect(dialog).toBeVisible()
+  await expect(page.getByTestId('delete-transaction-cancel')).toBeFocused()
+  for (let i = 0; i < 4; i++) {
+    await page.keyboard.press('Tab')
+    expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true)
+  }
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(page.getByTestId('transactions-item-delete')).toBeFocused()
 })

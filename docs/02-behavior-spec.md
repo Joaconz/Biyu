@@ -229,6 +229,9 @@ informativa: no son metas ni presupuestos (Out of Scope)._
 4. El dashboard de meses pasados sigue mostrando la barra de esa categoría.
 5. Archivar todas las categorías no las vuelve a sembrar: la siembra de US-43 es solo para quien
    nunca tuvo categorías (DEF-010).
+6. En Ajustes, las archivadas aparecen aparte y se pueden reactivar, salvo que ya haya una activa
+   con el mismo nombre (DEF-019). Sin categorías activas, Registrar lo dice y lleva a Ajustes
+   (DEF-026).
 
 ### Sad path — eliminar una cuenta con movimientos
 

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { useModalFocus } from '@/hooks/useModalFocus'
 import { getTransactionDeletionImpact, type DeletionImpactSummary } from '@/domain/deletion'
 import { formatArs, parseMoney } from '@/domain/money'
 import { formatPeriod } from '@/domain/period'
@@ -22,6 +23,9 @@ export function DeleteTransactionDialog({
   onDeleted,
 }: DeleteTransactionDialogProps) {
   const [deleting, setDeleting] = useState(false)
+  const panel = useRef<HTMLDivElement>(null)
+  const cancel = useRef<HTMLButtonElement>(null)
+  useModalFocus(isOpen && transaction !== null, panel, cancel)
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -75,7 +79,7 @@ export function DeleteTransactionDialog({
         if (e.target === e.currentTarget && !deleting) onClose()
       }}
     >
-      <div className="bg-card text-card-foreground border border-border rounded-xl shadow-xl max-w-sm w-full p-5 space-y-4">
+      <div ref={panel} className="bg-card text-card-foreground border border-border rounded-xl shadow-xl max-w-sm w-full p-5 space-y-4">
         <h2 id="delete-dialog-title" className="text-lg font-semibold tracking-tight">
           ¿Eliminar transacción?
         </h2>
@@ -120,6 +124,7 @@ export function DeleteTransactionDialog({
 
         <div className="flex items-center justify-end gap-2 pt-2">
           <Button
+            ref={cancel}
             type="button"
             variant="outline"
             size="sm"
