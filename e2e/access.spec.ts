@@ -13,6 +13,8 @@ const PASSWORD = 'Smoke-Test-2026'
 // navegaciones caían con milisegundos de diferencia, la página quedaba en blanco. Ese momento no
 // se puede forzar, pero la navegación tardía sí: con la siembra demorada, nada tiene que volver
 // a /register después de llegar a /setup.
+const SLOW_SEED_MS = 4000
+
 test('crear la cuenta lleva a la configuración inicial aunque la siembra tarde (DEF-023)', async ({ page }) => {
   await page.addInitScript(() => {
     const w = window as unknown as { __navigations: string[] }
@@ -26,7 +28,7 @@ test('crear la cuenta lleva a la configuración inicial aunque la siembra tarde 
     }
   })
   await page.route(/\/rest\/v1\/(categories|accounts)/, async (route) => {
-    if (route.request().method() === 'POST') await new Promise((resolve) => setTimeout(resolve, 2500))
+    if (route.request().method() === 'POST') await new Promise((resolve) => setTimeout(resolve, SLOW_SEED_MS))
     await route.continue()
   })
   await page.goto('/signup')
@@ -35,9 +37,10 @@ test('crear la cuenta lleva a la configuración inicial aunque la siembra tarde 
   await page.getByTestId('signup-form-confirm-password').fill(PASSWORD)
   await page.getByTestId('signup-form-submit').click()
 
-  await expect(page.getByTestId('setup-reason-skip')).toBeVisible()
-  // Después de que la siembra lenta termina, sigue en el setup y nada volvió a /register.
-  await page.waitForTimeout(4000)
+  // El setup también espera la siembra lenta para mostrarse: de ahí el margen.
+  await expect(page.getByTestId('setup-reason-skip')).toBeVisible({ timeout: 15_000 })
+  // Se espera a que la siembra lenta termine (con margen): ahí navegaba AuthForm.
+  await page.waitForTimeout(SLOW_SEED_MS + 2000)
   await expect(page).toHaveURL(/\/setup$/)
   await expect(page.getByTestId('setup-reason-skip')).toBeVisible()
   const navigations = await page.evaluate(() => (window as unknown as { __navigations: string[] }).__navigations)
