@@ -203,6 +203,9 @@ isOneToOne: false
 "delete_transaction":
 { Args: { "p_transaction_id": string }; Returns: undefined
                            },
+"restore_transaction":
+{ Args: { "p_transaction_id": string }; Returns: undefined
+                           },
 "upsert_fx_rate":
 { Args: { "p_ars_per_usd": number,"p_period": string }; Returns: string
                            }

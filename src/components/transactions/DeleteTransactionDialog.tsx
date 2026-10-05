@@ -108,13 +108,14 @@ export function DeleteTransactionDialog({
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              El borrado es permanente para los totales del historial.
+              Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.
             </p>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            ¿Estás seguro de que querés eliminar esta transacción?
-          </p>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>¿Estás seguro de que querés eliminar esta transacción?</p>
+            <p className="text-xs">Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.</p>
+          </div>
         )}
 
         <div className="flex items-center justify-end gap-2 pt-2">

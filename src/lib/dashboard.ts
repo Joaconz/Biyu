@@ -130,17 +130,22 @@ export interface DashboardTransaction {
     id: string
     name: string
     color: string | null
+    archived_at: string | null // DEF-006: la fila la marca como archivada
   } | null
   account: {
     id: string
     name: string
     type: string
   } | null
+  deleted_at: string | null // DEF-007: solo en el filtro "Eliminados" de /transactions
   // Imputación del período listado (US-17): qué cuota es y cuánto impacta en el mes.
   installment_number: number
   entry_amount: string // en la moneda de la transacción
   entry_amount_ars: string
 }
+
+/** Qué movimientos lista /transactions: los activos, o los eliminados para restaurarlos (DEF-007). */
+export type TransactionsView = 'active' | 'deleted'
 
 /**
  * Trae las imputaciones del período con su transacción para el usuario autenticado (C7).
@@ -151,6 +156,7 @@ export interface DashboardTransaction {
 export async function fetchMonthlyTransactions(
   period: Period,
   limit?: number,
+  view: TransactionsView = 'active',
 ): Promise<DashboardTransaction[]> {
   const dbPeriod = toDbDate(period)
   let query = supabase
@@ -171,12 +177,14 @@ export async function fetchMonthlyTransactions(
         description,
         created_at,
         deleted_at,
-        category:categories!transactions_category_fk (id, name, color),
+        category:categories!transactions_category_fk (id, name, color, archived_at),
         account:accounts!transactions_account_fk (id, name, type)
       )
     `)
     .eq('period', dbPeriod)
-    .is('transaction.deleted_at', null)
+  // I10: los KPIs y el listado normal nunca ven las eliminadas; el filtro "Eliminados" ve solo esas (DEF-007).
+  query = view === 'deleted' ? query.not('transaction.deleted_at', 'is', null) : query.is('transaction.deleted_at', null)
+  query = query
     // Orden por columnas de la transacción embebida: PostgREST exige que estén en el select.
     .order('transaction(occurred_on)', { ascending: false })
     .order('transaction(created_at)', { ascending: false })
@@ -205,7 +213,8 @@ export async function fetchMonthlyTransactions(
         installments_count: number
         occurred_on: string
         description: string | null
-        category: { id: string; name: string; color: string | null } | null
+        deleted_at: string | null
+        category: { id: string; name: string; color: string | null; archived_at: string | null } | null
         account: { id: string; name: string; type: string } | null
       }
     }>
@@ -221,6 +230,7 @@ export async function fetchMonthlyTransactions(
     description: tx.description,
     category: tx.category,
     account: tx.account,
+    deleted_at: tx.deleted_at,
     installment_number: entry.installment_number,
     entry_amount: String(entry.amount),
     entry_amount_ars: String(entry.amount_ars),

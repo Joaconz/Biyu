@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
@@ -8,20 +10,69 @@ import { formatDayHeading } from '@/domain/period'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { today } from '@/lib/clock'
-import type { DashboardTransaction } from '@/lib/dashboard'
+import type { DashboardTransaction, TransactionsView } from '@/lib/dashboard'
+import { restoreTransaction } from '@/lib/transactions'
+import { cn } from '@/lib/utils'
 import { groupByDay } from '@/lib/transactionGroups'
 
 export function TransactionsPage() {
   const { period, setPeriod, shift } = usePeriodParam()
-  const transactionsState = useMonthlyTransactions(period)
+  // C11: el filtro vive en la URL, junto al período. Sin ?view, los activos.
+  const [params, setParams] = useSearchParams()
+  const view: TransactionsView = params.get('view') === 'deleted' ? 'deleted' : 'active'
+  const transactionsState = useMonthlyTransactions(period, undefined, view)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   const now = today()
+
+  function selectView(next: TransactionsView) {
+    setParams((prev) => {
+      const p = new URLSearchParams(prev)
+      if (next === 'deleted') p.set('view', 'deleted')
+      else p.delete('view')
+      return p
+    })
+  }
+
+  // DEF-007: restaurar no destruye nada, así que no pide confirmación; el toast confirma.
+  async function onRestore(tx: DashboardTransaction) {
+    try {
+      await restoreTransaction(tx.id)
+      toast.success('Movimiento restaurado', { testId: 'transactions-restored' })
+      transactionsState.refresh()
+    } catch (err) {
+      toast.error('No se pudo restaurar el movimiento', { description: (err as { message?: string }).message })
+    }
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
       <PageHeader title="Movimientos" testId="transactions-title" className="flex-wrap items-center">
         <PeriodSwitcher screen="transactions" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
       </PageHeader>
+
+      {/* DEF-007 (FR-08): las eliminadas siguen en el historial, en su propia vista. */}
+      <div role="group" aria-label="Qué movimientos ver" className="mb-5 inline-flex w-fit rounded-lg bg-secondary p-1">
+        {(
+          [
+            ['active', 'Activos'],
+            ['deleted', 'Eliminados'],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={view === value}
+            data-testid={`transactions-filter-${value}`}
+            onClick={() => selectView(value)}
+            className={cn(
+              'press rounded-md px-3 py-1.5 text-footnote font-medium text-muted-foreground',
+              view === value && 'bg-card text-foreground shadow-xs',
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {transactionsState.status === 'loading' && (
         <p data-testid="transactions-loading" className="text-callout text-muted-foreground">
@@ -37,7 +88,9 @@ export function TransactionsPage() {
 
       {transactionsState.status === 'ready' && transactionsState.transactions.length === 0 && (
         <div data-testid="transactions-empty" className="rounded-xl border border-dashed border-input/50 px-6 py-12 text-center">
-          <p className="text-callout text-muted-foreground">No hay movimientos en este mes.</p>
+          <p className="text-callout text-muted-foreground">
+            {view === 'deleted' ? 'No eliminaste movimientos de este mes.' : 'No hay movimientos en este mes.'}
+          </p>
         </div>
       )}
 
@@ -55,7 +108,8 @@ export function TransactionsPage() {
                     transaction={tx}
                     testId="transactions-item"
                     showDate={false}
-                    onDeleteRequest={setTxToDelete}
+                    onDeleteRequest={view === 'active' ? setTxToDelete : undefined}
+                    onRestoreRequest={view === 'deleted' ? onRestore : undefined}
                   />
                 ))}
               </GroupedCard>

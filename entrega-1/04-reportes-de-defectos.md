@@ -13,8 +13,8 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-003 | US-66 (confirmar contraseña) nunca llegó a producción por un error de merge | Media | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre; US-66 no tenía caso propio en el catálogo) | US-66 · Confirmar contraseña al registrarse |
 | DEF-004 | NaN como monto se guarda y rompe el dashboard ("$NaN,undefined") | Crítica | A definir por el PO (sugerida: Alta dado que integridad de datos es I4) | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-11 · No se puede guardar monto cero o negativo |
 | DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
-| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
-| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
+| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Corregido · falta confirmación | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
+| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Corregido · falta confirmación | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
 | DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-002 | US-48 · La app pide login |
 | DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
 | DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Corregido · falta confirmación | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
@@ -31,7 +31,7 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Corregido · falta confirmación | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 1 · Baja: 1 · Total abiertos: 2 (más 14 corregidos que esperan confirmación).
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 0 · Baja: 0 · Total abiertos: 0 (16 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -187,13 +187,14 @@ El servidor acepta contraseñas que no cumplen FR-01/US-67.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-CFG-004 (#75). |
 | Caso de prueba | CP-CFG-004 |
 | Historia | US-44 · Archivar una categoría sin perder historia |
 | Issue | #147 |
+| Test de regresión | `e2e/transactions-history.spec.ts`, caso "DEF-006" (Playwright, en rojo contra producción y en verde con el arreglo) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -218,13 +219,14 @@ Transacción de una categoría archivada no muestra marca de archivada en /trans
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-REG-012 (#75) — el caso "pasa" contra la base (soft delete correcto, KPIs excluyen la fila), pero contradice FR-08 en la UI. |
 | Caso de prueba | CP-REG-012 |
 | Historia | US-65 · Eliminar una transacción (FR-08) |
 | Issue | #148 |
+| Test de regresión | `supabase/tests/database/restore_transaction.test.sql` (pgTAP) y `e2e/transactions-history.spec.ts`, caso "DEF-007" (Playwright) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
