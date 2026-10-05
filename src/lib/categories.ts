@@ -34,3 +34,20 @@ export async function archiveCategory(id: string, archivedAt: string): Promise<v
   const { error } = await supabase.from('categories').update({ archived_at: archivedAt }).eq('id', id)
   if (error) throw error
 }
+
+/** DEF-026: las archivadas, para poder reactivarlas desde Ajustes. */
+export async function listArchivedCategories(): Promise<Category[]> {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .not('archived_at', 'is', null)
+    .order('name')
+  if (error) throw error
+  return data
+}
+
+/** DEF-026: deshace archiveCategory. El índice único rechaza si ya hay una activa con ese nombre (DEF-019). */
+export async function unarchiveCategory(id: string): Promise<void> {
+  const { error } = await supabase.from('categories').update({ archived_at: null }).eq('id', id)
+  if (error) throw error
+}

@@ -105,3 +105,107 @@ test('DEF-011: editar, archivar y eliminar cuentas, con confirmación al elimina
   await page.goto('/dashboard')
   await expect(page.getByTestId('dashboard-empty')).toBeVisible()
 })
+
+/** Un gasto con la cuenta y las cuotas dadas, desde Registrar cargado de cero. */
+async function registerExpense(page: Page, amount: string, account: string, installments?: number) {
+  await page.goto('/register')
+  await page.getByTestId('transaction-form-amount').fill(amount)
+  await page.getByTestId('transaction-form-next').click()
+  await page.getByTestId('transaction-form-category-chip-otros').click()
+  await expect(page.getByTestId('transaction-form-step')).toHaveAttribute('data-step', 'details')
+  await page.getByTestId(`transaction-form-account-chip-${account}`).click()
+  if (installments) await page.getByTestId(`transaction-form-installments-chip-${installments}`).click()
+  await page.getByTestId('transaction-form-submit').click()
+  await expect(page.getByTestId('transaction-form-step')).toHaveAttribute('data-step', 'amount')
+}
+
+test('DEF-024: el diálogo de eliminar cuenta toma el foco, lo retiene y lo devuelve', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'foco')
+  await page.goto('/settings')
+  await page.getByTestId('settings-accounts-edit-efectivo').click()
+  await page.getByTestId('settings-accounts-delete').focus()
+  await page.keyboard.press('Enter')
+
+  const dialog = page.getByTestId('settings-accounts-delete-dialog')
+  await expect(dialog).toBeVisible()
+  // Acción destructiva: el foco arranca en Cancelar.
+  await expect(page.getByTestId('settings-accounts-delete-dialog-cancel')).toBeFocused()
+  for (let i = 0; i < 5; i++) {
+    await page.keyboard.press('Tab')
+    expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true)
+  }
+  await page.keyboard.press('Shift+Tab')
+  expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true)
+
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(page.getByTestId('settings-accounts-delete')).toBeFocused()
+})
+
+test('DEF-025: el error al editar aparece en la fila que se edita', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'error-edicion')
+  await registerExpense(page, '9000', 'tarjeta-de-credito', 3)
+  await page.goto('/settings')
+
+  // Categoría: renombrar a un nombre activo con otras mayúsculas (DEF-019).
+  await page.getByTestId('settings-categories-edit-transporte').click()
+  await page.getByTestId('settings-categories-edit-name').fill('OTROS')
+  await page.getByTestId('settings-categories-save').click()
+  await expect(page.getByTestId('settings-categories-edit-error')).toHaveText('Ya existe una categoría activa con ese nombre')
+  await expect(page.getByTestId('settings-categories-edit-error')).toBeInViewport()
+  await page.getByTestId('settings-categories-cancel').click()
+  await expect(page.getByTestId('settings-categories-edit-error')).toHaveCount(0)
+
+  // Cuenta: sacar de crédito una tarjeta con cuotas (I6, DEF-009).
+  await page.getByTestId('settings-accounts-edit-tarjeta-de-credito').click()
+  await page.getByTestId('settings-accounts-edit-type').click()
+  await page.getByTestId('settings-accounts-edit-type-cash').click()
+  await page.getByTestId('settings-accounts-save').click()
+  await expect(page.getByTestId('settings-accounts-edit-error')).toContainText('compras en cuotas')
+  await expect(page.getByTestId('settings-accounts-edit-error')).toBeInViewport()
+})
+
+test('DEF-026: sin categorías activas hay salida, y las archivadas se pueden reactivar', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'sin-categorias')
+  await page.goto('/settings')
+  const rows = page.getByTestId('settings-categories-list').locator('li')
+  await expect(rows.first()).toBeVisible()
+  while ((await rows.count()) > 0) {
+    const before = await rows.count()
+    await rows.first().getByRole('button', { name: /^Archivar / }).click()
+    await expect(rows).toHaveCount(before - 1)
+  }
+
+  // Registrar explica qué hacer y lleva a Ajustes.
+  await page.goto('/register')
+  await page.getByTestId('transaction-form-amount').fill('500')
+  await page.getByTestId('transaction-form-next').click()
+  await expect(page.getByTestId('transaction-form-category-empty')).toBeVisible()
+  await page.getByTestId('transaction-form-category-empty-settings').click()
+  await expect(page).toHaveURL(/\/settings/)
+
+  // En Ajustes, las archivadas se ven y se reactivan.
+  await page.getByTestId('settings-categories-unarchive-salud').click()
+  await expect(page.getByTestId('settings-categories-edit-salud')).toBeVisible()
+  await expect(page.getByTestId('settings-categories-unarchive-salud')).toHaveCount(0)
+
+  await page.goto('/register')
+  await page.getByTestId('transaction-form-amount').fill('500')
+  await page.getByTestId('transaction-form-next').click()
+  await expect(page.getByTestId('transaction-form-category-chip-salud')).toBeVisible()
+})
+
+test('DEF-026: el paso de categorías del setup no queda vacío sin explicación', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'setup-vacio')
+  await page.goto('/settings')
+  const rows = page.getByTestId('settings-categories-list').locator('li')
+  await expect(rows.first()).toBeVisible()
+  while ((await rows.count()) > 0) {
+    const before = await rows.count()
+    await rows.first().getByRole('button', { name: /^Archivar / }).click()
+    await expect(rows).toHaveCount(before - 1)
+  }
+  await page.getByTestId('settings-nav-setup').click()
+  await page.getByTestId('setup-reason-skip').click()
+  await expect(page.getByTestId('setup-categories-empty')).toBeVisible()
+})

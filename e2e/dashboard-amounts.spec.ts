@@ -61,8 +61,8 @@ test('los montos más grandes entran en sus tarjetas del Resumen a 360 px (DEF-0
     await page.getByTestId('setup-accounts-skip').click()
     await page.getByTestId('setup-expense-skip').click()
   }
-  // Justo después del alta, Registrar a veces se vuelve a montar y pierde lo tipeado (carrera
-  // ajena a DEF-021). Se carga de cero antes de escribir.
+  // Se carga Registrar de cero antes de escribir. Antes de corregir DEF-023 (#193), justo después
+  // del alta podía volver a montarse y perder lo tipeado; se deja para no depender de ese momento.
   await expect(page).toHaveURL(/\/register$/)
   await page.goto('/register')
   await page.getByTestId('transaction-form-amount').fill(MAX_AMOUNT)

@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Archive, Pencil, Sparkles, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, Pencil, Sparkles, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Link } from 'react-router'
 import { LogoutButton } from '@/components/LogoutButton'
@@ -36,6 +36,8 @@ import {
   CATEGORY_COLOR_PALETTE,
   createCategory,
   listActiveCategories,
+  listArchivedCategories,
+  unarchiveCategory,
   updateCategory,
   type Category,
 } from '@/lib/categories'
@@ -168,13 +170,34 @@ function FxRatesSection() {
 
 function CategoriesSection() {
   const [categories, setCategories] = useState<Category[] | null>(null)
+  const [archived, setArchived] = useState<Category[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // DEF-025: el error de la edición va en la fila que se edita, no en el formulario de alta.
+  const [editError, setEditError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     listActiveCategories().then(setCategories).catch((e: Error) => setError(e.message))
+    listArchivedCategories().then(setArchived).catch(() => {})
   }, [])
+
+  function startEditing(id: string | null) {
+    setEditError(null)
+    setEditingId(id)
+  }
+
+  // DEF-026: reactivar deshace el archivado; si ya hay una activa con ese nombre, lo dice.
+  async function onUnarchive(category: Category) {
+    setError(null)
+    try {
+      await unarchiveCategory(category.id)
+      setArchived((prev) => prev.filter((c) => c.id !== category.id))
+      setCategories((prev) => [...(prev ?? []), { ...category, archived_at: null }].sort((a, b) => a.name.localeCompare(b.name)))
+    } catch (err) {
+      setError(isUniqueViolation(err) ? `Ya hay una categoría activa llamada «${category.name}»` : 'No se pudo reactivar la categoría')
+    }
+  }
 
   async function onCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -199,7 +222,7 @@ function CategoriesSection() {
   }
 
   async function onSave(id: string, changes: { name: string; color: string }) {
-    setError(null)
+    setEditError(null)
     try {
       await updateCategory(id, changes)
       setCategories(
@@ -210,14 +233,17 @@ function CategoriesSection() {
       )
       setEditingId(null)
     } catch (err) {
-      setError(isUniqueViolation(err) ? 'Ya existe una categoría activa con ese nombre' : 'No se pudo guardar la categoría')
+      setEditError(isUniqueViolation(err) ? 'Ya existe una categoría activa con ese nombre' : 'No se pudo guardar la categoría')
     }
   }
 
   async function onArchive(id: string) {
     setError(null)
     try {
-      await archiveCategory(id, today().toISOString())
+      const archivedAt = today().toISOString()
+      await archiveCategory(id, archivedAt)
+      const category = categories?.find((c) => c.id === id)
+      if (category) setArchived((prev) => [...prev, { ...category, archived_at: archivedAt }].sort((a, b) => a.name.localeCompare(b.name)))
       setCategories((prev) => prev?.filter((c) => c.id !== id) ?? null)
     } catch {
       setError('No se pudo archivar la categoría')
@@ -233,8 +259,9 @@ function CategoriesSection() {
               <CategoryEditRow
                 key={category.id}
                 category={category}
+                error={editError}
                 onSave={(changes) => onSave(category.id, changes)}
-                onCancel={() => setEditingId(null)}
+                onCancel={() => startEditing(null)}
               />
             ) : (
               <li key={category.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
@@ -247,7 +274,7 @@ function CategoriesSection() {
                   data-testid={`settings-categories-edit-${toTestIdSuffix(category.name)}`}
                   aria-label={`Editar ${category.name}`}
                   className="text-muted-foreground hover:text-foreground"
-                  onClick={() => setEditingId(category.id)}
+                  onClick={() => startEditing(category.id)}
                 >
                   <Pencil strokeWidth={1.6} />
                 </Button>
@@ -278,16 +305,54 @@ function CategoriesSection() {
           Crear categoría
         </Button>
       </form>
+      {/* DEF-026: sin esto, archivar era de ida. */}
+      {archived.length > 0 && (
+        <div className="mt-4 flex flex-col gap-2">
+          <h3 className="px-1 text-footnote font-semibold text-muted-foreground">Archivadas</h3>
+          <GroupedCard>
+            <ul data-testid="settings-categories-archived-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+              {archived.map((category, i) => (
+                <li key={category.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
+                  <CategoryIcon name={category.name} color={category.color} size="sm" />
+                  <span className="min-w-0 flex-1 truncate text-callout font-medium text-muted-foreground">{category.name}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    data-testid={uniqueTestId(`settings-categories-unarchive-${toTestIdSuffix(category.name)}`, archived, i)}
+                    aria-label={`Reactivar ${category.name}`}
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => onUnarchive(category)}
+                  >
+                    <ArchiveRestore strokeWidth={1.6} />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </GroupedCard>
+        </div>
+      )}
     </GroupedSection>
   )
 }
 
+/**
+ * Puede haber dos archivadas con el mismo nombre (archivar "Salud", crear otra "Salud" y archivarla):
+ * la segunda lleva un sufijo para que su data-testid siga siendo único (DEF-015).
+ */
+function uniqueTestId(base: string, items: readonly { name: string }[], index: number): string {
+  const repeats = items.slice(0, index).filter((item) => toTestIdSuffix(item.name) === toTestIdSuffix(items[index].name)).length
+  return repeats === 0 ? base : `${base}-${repeats + 1}`
+}
+
 function CategoryEditRow({
   category,
+  error,
   onSave,
   onCancel,
 }: {
   category: Category
+  error: string | null
   onSave: (changes: { name: string; color: string }) => void
   onCancel: () => void
 }) {
@@ -306,6 +371,11 @@ function CategoryEditRow({
         onChange={setColor}
         testId="settings-categories-edit-color"
       />
+      {error && (
+        <p role="alert" data-testid="settings-categories-edit-error" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={onCancel} data-testid="settings-categories-cancel">
           Cancelar
@@ -329,11 +399,13 @@ function CategoryEditRow({
  */
 function AccountEditRow({
   account,
+  error,
   onSave,
   onDelete,
   onCancel,
 }: {
   account: Account
+  error: string | null
   onSave: (changes: { name: string; type: AccountType }) => void
   onDelete: () => void
   onCancel: () => void
@@ -360,6 +432,11 @@ function AccountEditRow({
           ))}
         </SelectContent>
       </Select>
+      {error && (
+        <p role="alert" data-testid="settings-accounts-edit-error" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
       <div className="flex items-center gap-2">
         <Button
           type="button"
@@ -433,14 +510,20 @@ function AccountsSection() {
   const [submitting, setSubmitting] = useState(false)
 
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editError, setEditError] = useState<string | null>(null) // DEF-025, como en categorías
   const [deleting, setDeleting] = useState<{ account: Account; transactions: number } | null>(null)
+
+  function startEditing(id: string | null) {
+    setEditError(null)
+    setEditingId(id)
+  }
 
   useEffect(() => {
     listActiveAccounts().then(setAccounts).catch((e: Error) => setError(e.message))
   }, [])
 
   async function onSave(id: string, changes: { name: string; type: AccountType }) {
-    setError(null)
+    setEditError(null)
     try {
       await updateAccount(id, changes)
       setAccounts(
@@ -449,7 +532,7 @@ function AccountsSection() {
       )
       setEditingId(null)
     } catch (err) {
-      setError(isUniqueViolation(err) ? 'Ya existe una cuenta activa con ese nombre' : accountSaveErrorMessage(err))
+      setEditError(isUniqueViolation(err) ? 'Ya existe una cuenta activa con ese nombre' : accountSaveErrorMessage(err))
     }
   }
 
@@ -518,9 +601,10 @@ function AccountsSection() {
               <AccountEditRow
                 key={account.id}
                 account={account}
+                error={editError}
                 onSave={(changes) => onSave(account.id, changes)}
                 onDelete={() => askDelete(account)}
-                onCancel={() => setEditingId(null)}
+                onCancel={() => startEditing(null)}
               />
             ) : (
               <li key={account.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
@@ -543,7 +627,7 @@ function AccountsSection() {
                   data-testid={`settings-accounts-edit-${toTestIdSuffix(account.name)}`}
                   aria-label={`Editar ${account.name}`}
                   className="text-muted-foreground hover:text-foreground"
-                  onClick={() => setEditingId(account.id)}
+                  onClick={() => startEditing(account.id)}
                 >
                   <Pencil strokeWidth={1.6} />
                 </Button>

@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+// (addInitScript y page.evaluate corren en el navegador: necesitan los tipos del DOM)
 import { expect, test } from '@playwright/test'
 
 // DEF-008 (#149): sin sesión, abrir una ruta privada lleva a /login?next=…; al iniciar sesión
@@ -5,6 +7,76 @@ import { expect, test } from '@playwright/test'
 // (SMOKE_URL), igual que smoke.spec.ts. La regla del destino también está en
 // tests/lib/postAuthDestination.test.ts; esto cubre el orden real entre AuthForm y el guard.
 const PASSWORD = 'Smoke-Test-2026'
+
+// DEF-023 (#193): después de signUp, AuthForm esperaba la siembra y recién ahí navegaba a
+// /register, pisando la redirección a /setup que AppLayout ya había hecho. Si las dos
+// navegaciones caían con milisegundos de diferencia, la página quedaba en blanco. Ese momento no
+// se puede forzar, pero la navegación tardía sí: con la siembra demorada, nada tiene que volver
+// a /register después de llegar a /setup.
+const SLOW_SEED_MS = 4000
+
+test('crear la cuenta lleva a la configuración inicial aunque la siembra tarde (DEF-023)', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __navigations: string[] }
+    w.__navigations = []
+    for (const method of ['pushState', 'replaceState'] as const) {
+      const original = history[method].bind(history)
+      history[method] = (data: unknown, unused: string, url?: string | URL | null) => {
+        if (url) w.__navigations.push(new URL(String(url), location.href).pathname)
+        return original(data, unused, url)
+      }
+    }
+  })
+  await page.route(/\/rest\/v1\/(categories|accounts)/, async (route) => {
+    if (route.request().method() === 'POST') await new Promise((resolve) => setTimeout(resolve, SLOW_SEED_MS))
+    await route.continue()
+  })
+  await page.goto('/signup')
+  await page.getByTestId('signup-form-email').fill(`access+lenta-${Date.now()}-${test.info().workerIndex}@biyu.test`)
+  await page.getByTestId('signup-form-password').fill(PASSWORD)
+  await page.getByTestId('signup-form-confirm-password').fill(PASSWORD)
+  await page.getByTestId('signup-form-submit').click()
+
+  // El setup también espera la siembra lenta para mostrarse: de ahí el margen.
+  await expect(page.getByTestId('setup-reason-skip')).toBeVisible({ timeout: 15_000 })
+  // Se espera a que la siembra lenta termine (con margen): ahí navegaba AuthForm.
+  await page.waitForTimeout(SLOW_SEED_MS + 2000)
+  await expect(page).toHaveURL(/\/setup$/)
+  await expect(page.getByTestId('setup-reason-skip')).toBeVisible()
+  const navigations = await page.evaluate(() => (window as unknown as { __navigations: string[] }).__navigations)
+  expect(navigations.slice(navigations.indexOf('/setup'))).not.toContain('/register')
+})
+
+// DEF-028: la siembra insertaba categorías y cuentas en paralelo. Si /register leía con las
+// categorías ya guardadas y las cuentas todavía no, seedPlan concluía "ya sembrado" (DEF-010) y
+// la cuenta nueva quedaba sin medios de pago. Se demora solo el insert de cuentas para que esa
+// lectura ocurra siempre. El estado del setup se responde como "hecho" para ir directo a Registrar.
+test('una cuenta nueva siempre llega a Registrar con sus cuentas, aunque la siembra tarde (DEF-028)', async ({ page }) => {
+  await page.route('**/rest/v1/user_setup**', (route) =>
+    route.request().method() === 'GET'
+      ? route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ completed_at: '2026-01-01T00:00:00Z' }) })
+      : route.continue(),
+  )
+  // Lecturas demoradas 1,5 s (las categorías ya están guardadas) e insert de cuentas 4 s (todavía no).
+  await page.route(/\/rest\/v1\/(categories|accounts)/, async (route) => {
+    const method = route.request().method()
+    const isAccounts = route.request().url().includes('/accounts')
+    const delay = method === 'GET' ? 1500 : method === 'POST' && isAccounts ? 4000 : 0
+    if (delay) await new Promise((resolve) => setTimeout(resolve, delay))
+    await route.continue()
+  })
+  await page.goto('/signup')
+  await page.getByTestId('signup-form-email').fill(`access+cuentas-${Date.now()}-${test.info().workerIndex}@biyu.test`)
+  await page.getByTestId('signup-form-password').fill(PASSWORD)
+  await page.getByTestId('signup-form-confirm-password').fill(PASSWORD)
+  await page.getByTestId('signup-form-submit').click()
+
+  await expect(page.getByTestId('transaction-form')).toBeVisible({ timeout: 15_000 })
+  await page.getByTestId('transaction-form-amount').fill('100')
+  await page.getByTestId('transaction-form-next').click()
+  await page.getByTestId('transaction-form-category-chip-otros').click()
+  await expect(page.getByTestId('transaction-form-account-chip-efectivo')).toBeVisible()
+})
 
 test('al iniciar sesión vuelve al destino original con su período (DEF-008)', async ({ page, browser }) => {
   const email = `access+next-${Date.now()}-${test.info().workerIndex}@biyu.test`

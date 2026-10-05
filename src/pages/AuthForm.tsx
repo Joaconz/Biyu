@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { Link } from 'react-router'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { translateAuthError } from '@/lib/authErrors'
-import { postAuthDestination } from '@/lib/navigation'
 import { PASSWORD_CRITERIA, unmetPasswordCriteria } from '@/lib/passwordPolicy'
 import { ensureUserSeeded } from '@/lib/seed'
 import { supabase } from '@/lib/supabase'
@@ -14,8 +13,6 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [password, setPassword] = useState('')
-  const [params] = useSearchParams()
-  const navigate = useNavigate()
   const prefix = mode === 'login' ? 'login' : 'signup'
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -47,10 +44,12 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           setError('Te creamos la cuenta, pero hace falta confirmar el email antes de entrar. Revisá tu casilla.')
           return
         }
-        // US-43 (ADR-014): mejor esfuerzo — un fallo acá no debe dejar al usuario varado.
-        await ensureUserSeeded().catch(() => {})
+        // US-43 (ADR-014): mejor esfuerzo, sin esperarla. useCatalog la repite como red de contención.
+        void ensureUserSeeded().catch(() => {})
       }
-      navigate(postAuthDestination(params.get('next')), { replace: true })
+      // Sin navigate acá: en cuanto aparece la sesión, RedirectIfAuthed lleva al destino (?next,
+      // DEF-008) y AppLayout al setup si está pendiente. Navegar también desde acá, después de
+      // esperar la siembra, pisaba esa redirección y dejaba la página en blanco (DEF-023).
     } finally {
       setSubmitting(false)
     }
