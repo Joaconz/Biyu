@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { seedPlan } from './seedPlan'
 import { CATEGORY_PALETTE } from './visuals'
 
 // FR-04 (pre-entrega.md §3): set inicial de categorías y medios de pago para no arrancar
@@ -27,32 +28,27 @@ export const INITIAL_ACCOUNTS: ReadonlyArray<{
 
 // ADR-014: siembra idempotente del lado del cliente, sin trigger SECURITY DEFINER.
 // Best-effort — se llama desde /signup y, como red de contención, desde /register
-// cuando la lectura de categorías activas vuelve vacía.
+// cuando la lectura de categorías o cuentas activas vuelve vacía. Qué sembrar lo decide seedPlan:
+// solo a quien nunca tuvo categorías (DEF-010).
 export async function ensureUserSeeded() {
-  await Promise.all([seedCategories(), seedAccounts()])
-}
-
-async function seedCategories() {
-  const { data: existing, error } = await supabase.from('categories').select('name').is('archived_at', null)
-  if (error) throw error
-  // Sin distinguir mayúsculas, igual que el índice único (DEF-019): si "salud" ya está activa, no
-  // se inserta "Salud", que haría fallar todo el insert con 23505 y dejaría sin sembrar al resto.
-  const existingNames = new Set(existing.map((c) => c.name.toLowerCase()))
-  const missing = INITIAL_CATEGORIES.filter((c) => !existingNames.has(c.name.toLowerCase()))
-  if (missing.length === 0) return
-  const { error: insertError } = await supabase.from('categories').insert(missing)
-  // 23505: una llamada concurrente (otra pestaña) ya insertó el mismo nombre — no es un error real.
-  if (insertError && insertError.code !== '23505') throw insertError
-}
-
-async function seedAccounts() {
-  const { data: existing, error } = await supabase.from('accounts').select('name').is('archived_at', null)
-  if (error) throw error
-  const existingNames = new Set(existing.map((a) => a.name.toLowerCase())) // DEF-019, como arriba
-  const missing = INITIAL_ACCOUNTS.filter((a) => !existingNames.has(a.name.toLowerCase()))
-  if (missing.length === 0) return
-  const { error: insertError } = await supabase
-    .from('accounts')
-    .insert(missing.map((a) => ({ ...a, currency: 'ARS' as const })))
-  if (insertError && insertError.code !== '23505') throw insertError
+  const [categories, accounts] = await Promise.all([
+    supabase.from('categories').select('name, archived_at'),
+    supabase.from('accounts').select('name'),
+  ])
+  if (categories.error) throw categories.error
+  if (accounts.error) throw accounts.error
+  const plan = seedPlan(
+    { categories: categories.data.map((c) => ({ name: c.name, archived: c.archived_at !== null })), accounts: accounts.data },
+    { categories: INITIAL_CATEGORIES, accounts: INITIAL_ACCOUNTS },
+  )
+  const inserts = await Promise.all([
+    plan.categories.length > 0 ? supabase.from('categories').insert(plan.categories) : { error: null },
+    plan.accounts.length > 0
+      ? supabase.from('accounts').insert(plan.accounts.map((a) => ({ ...a, currency: 'ARS' as const })))
+      : { error: null },
+  ])
+  for (const { error } of inserts) {
+    // 23505: una llamada concurrente (otra pestaña, /signup) ya insertó el mismo nombre — no es un error real.
+    if (error && error.code !== '23505') throw error
+  }
 }

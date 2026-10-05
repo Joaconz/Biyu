@@ -17,12 +17,12 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
 | DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-002 | US-48 · La app pide login |
 | DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
-| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
-| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
+| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Corregido · falta confirmación | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
+| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Corregido · falta confirmación | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
 | DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite, I4/C6) | US-11 · Validación del monto |
 | DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite) | US-19 · Registrar un gasto en USD |
 | DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
-| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
+| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Corregido · falta confirmación | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
 | DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
 | DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
 | DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Corregido · falta confirmación | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
@@ -31,7 +31,7 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Corregido · falta confirmación | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 3 · Baja: 2 · Total abiertos: 5 (más 11 corregidos que esperan confirmación).
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 1 · Baja: 1 · Total abiertos: 2 (más 14 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -312,13 +312,14 @@ Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes vi
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75 (ataque libre). |
 | Caso de prueba | — (FR-04/FR-05) |
 | Historia | US-43 · Set inicial de categorías y cuentas |
 | Issue | #151 |
+| Test de regresión | `tests/lib/seedPlan.test.ts` (Vitest) y `e2e/settings.spec.ts`, caso "DEF-010" (Playwright, en rojo contra producción y en verde con el arreglo) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -343,13 +344,14 @@ Archivar todas las categorías hace que se resiembren las 8 por defecto.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-CFG-006 y ataque libre (#75). |
 | Caso de prueba | — (FR-05, relacionado con CP-CFG-006) |
 | Historia | US-45 · Cuentas (FR-05) |
 | Issue | #152 |
+| Test de regresión | `supabase/tests/database/delete_account.test.sql` (pgTAP) y `e2e/settings.spec.ts`, caso "DEF-011" (Playwright) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -466,13 +468,14 @@ El período 0000-01 en el dashboard muestra un error de base de datos crudo.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75. |
 | Caso de prueba | — (07-plan-de-testing.md §2) |
 | Historia | Transversal (data-testid, plan de testing §2) |
 | Issue | #156 |
+| Test de regresión | `e2e/settings.spec.ts`, caso "DEF-015": todo elemento interactivo de /settings tiene un data-testid único (Playwright) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
