@@ -14,9 +14,9 @@ Desde V2 el equipo se divide por frente: dos desarrollan y tres prueban.
 |---|---|---|
 | Joaquín Nuñez | Features nuevas | Product Owner y desarrollo de las funcionalidades nuevas. Escribe las historias de V2 con criterios de aceptación, decide si un defecto es defecto o es comportamiento esperado mal especificado, y conduce a los agentes de IA que implementan las features |
 | Santiago | Defectos y pendientes de código | Corrige con agentes de IA los defectos reportados y los pendientes técnicos (`data-testid` faltantes, datos sintéticos de rendimiento, accesibilidad, idempotencia). Cada fix lleva su test automático |
-| Tester A | Testing | Diseña y ejecuta casos (ver tabla de propiedad cruzada). Alta y seguimiento de los defectos que encuentra |
-| Tester B | Testing | Ídem |
-| Tester C | Testing | Ídem. Cierra el reporte de ejecución de cada versión |
+| Micaela | Testing | Diseña y ejecuta casos (ver tabla de propiedad cruzada). Alta y seguimiento de los defectos que encuentra |
+| Valentina | Testing | Ídem |
+| Mariana | Testing | Ídem. Cierra el reporte de ejecución de cada versión |
 
 Los tres testers comparten el rol de Test Lead: el plan, el catálogo consolidado, los reportes y el
 criterio de salida de una versión se reparten entre ellos. **Los devs no prueban su propio código.**
@@ -30,9 +30,9 @@ Cada tester es **dueño del diseño** de los casos de ciertos módulos y **ejecu
 
 | Tester | Diseña los casos de (V1 reescrita) | Y de (V2) | Ejecuta los casos de |
 |---|---|---|---|
-| A | Acceso (`ACC`), Configuración (`CFG`) | Deudas (`DEU`) | Tester B |
-| B | Registro (`REG`), Cuotas (`CUO`) | Suscripciones (`SUS`) | Tester C |
-| C | Monedas (`MON`), Dashboard (`DAS`) | Export CSV, Importación, Navegación y no funcionales | Tester A |
+| Micaela | Acceso (`ACC`), Configuración (`CFG`) | Deudas (`DEU`) | Valentina |
+| Valentina | Registro (`REG`), Cuotas (`CUO`) | Suscripciones (`SUS`) | Mariana |
+| Mariana | Monedas (`MON`), Dashboard (`DAS`) | Export CSV, Importación, Navegación y no funcionales | Micaela |
 
 **Por qué.** Nadie prueba lo que diseñó ni lo que implementó. Es la contramedida más barata
 contra el sesgo de confirmación, y hace que cada caso tenga que estar escrito lo bastante
@@ -150,7 +150,12 @@ Un caso vive en la planilla del catálogo (plantilla de la cátedra, una hoja po
    se haya ejecutado antes ni usa datos que dejó otro.
 4. **Datos concretos, no "el usuario de prueba".** Ni "un monto válido": el monto exacto. Los datos van en
    "Datos de prueba", no mezclados con los pre-requisitos. Todo ficticio (C14).
-5. **Un paso, una acción, un resultado observable.** "Observar la pantalla" no es un paso. "Guardar" sin
+5. **Un paso, una acción, un resultado observable, escrito para alguien que nunca vio la app.** Cada
+   click y cada texto que se escribe es un paso propio, con el nombre que se ve en pantalla: "Hacer click en
+   el campo \"Email\"", "Escribir `qa+cp-cuo-001-001@example.com`", "Hacer click en el botón \"Entrar\"". El caso
+   arranca desde el navegador: el inicio de sesión y la navegación hasta la pantalla que se prueba son pasos
+   del caso, no un pre-requisito. Los procedimientos `PR-nn` quedan para preparar datos **antes** del caso
+   (crear el usuario, la cuenta, una compra previa). "Observar la pantalla" no es un paso. "Guardar" sin
    decir qué se ve después, tampoco.
 6. **Variante API ejecutable a mano.** Método, endpoint, headers (por `PR-04`), body JSON y respuesta
    esperada: status HTTP más `code` y mensaje.

@@ -59,7 +59,7 @@ App: <https://biyu-rust.vercel.app> · Repositorio: <https://github.com/Joaconz/
     redirige a `/login?next=<ruta>`.
 - **Criterios de aceptación:**
   - CA-1: Toda ruta salvo `/login` y `/signup` exige sesión.
-  - CA-2: Otro usuario y el rol `anon` ven 0 filas en cada tabla (par pgTAP de C7).
+  - CA-2: Otro usuario ve 0 filas en cada tabla, y el rol `anon` (sin sesión) recibe `permission denied` (42501) (par pgTAP de C7). _Aclarado el 2026-10-06: el texto anterior decía que `anon` ve 0 filas, pero C7 y la base piden `permission denied`._
 - **Trazabilidad:** FR-02 · C7 · NFR-13
 - **Casos de prueba:** CP-ACC-001, CP-ACC-002, CP-ACC-006, CP-ACC-011, CP-REG-014, CP-CUO-011,
   CP-MON-007, CP-DAS-011
@@ -403,7 +403,7 @@ cuotas, fecha, nota y botón "Guardar gasto"/"Guardar ingreso"). Arriba hay una 
   cambiar de cuenta, aviso "Las cuotas volvieron a 1".
 - **Criterios de aceptación:**
   - CA-1: El selector aparece solo si la cuenta es `credit_card` y el tipo es gasto.
-  - CA-2: Si había cuotas elegidas y se cambia a otra cuenta, vuelve a 1 con un aviso.
+  - CA-2: Si había cuotas elegidas y se cambia a una cuenta que no es de crédito (o el tipo pasa a ingreso), vuelve a 1 con un aviso. Entre dos tarjetas de crédito las cuotas se conservan. _Aclarado el 2026-10-06 (`docs/02-behavior-spec.md`, sad path de cuotas)._
   - CA-3: La RPC rechaza `installments_count > 1` sobre cuenta no crediticia o sobre un ingreso (I6).
 - **Trazabilidad:** I6
 - **Casos de prueba:** CP-CUO-003, CP-CUO-012

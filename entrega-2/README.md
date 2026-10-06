@@ -26,7 +26,7 @@ Seguimiento en `entrega-1/piloto-cuo-reescrito.md` (módulo piloto) y en el plan
 |---|---|
 | Joaquín Nuñez | Features nuevas de V2: historias, mocks e implementación con IA |
 | Santiago | Defectos y pendientes de código, con su test de regresión por cada fix |
-| Tester A, B y C | Diseño y ejecución manual de casos, con propiedad cruzada (`docs/07-plan-de-testing.md` §1) |
+| Micaela, Valentina y Mariana | Diseño y ejecución manual de casos, con propiedad cruzada (`docs/07-plan-de-testing.md` §1) |
 
 ## Alcance de V2
 

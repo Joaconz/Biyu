@@ -137,7 +137,7 @@ El evento económico. Una compra, un ingreso. **No es lo que suma el dashboard.*
 | amount | numeric(14,2) | **siempre > 0** — el signo lo da `type` |
 | currency | enum | `ARS` \| `USD` |
 | fx_rate | numeric(14,4) | not null si currency = USD, null si ARS |
-| amount_ars | numeric(14,2) | **columna generada**: `amount` si ARS, `amount * fx_rate` si USD |
+| amount_ars | numeric(14,2) | **columna generada**: `amount` si ARS, `amount * fx_rate` si USD, redondeado half-up a 2 decimales (ADR-013) |
 | category_id | uuid FK → categories | not null si type = expense |
 | account_id | uuid FK → accounts | not null |
 | installments_count | int | default 1, entre 1 y 12 (`transactions_installments_max`, ADR-020) |
@@ -187,7 +187,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | amount | numeric(14,2) | > 0 |
 | currency | enum | `ARS` \| `USD` |
 | fx_rate | numeric(14,4) | mismas reglas que en transactions |
-| amount_ars | numeric(14,2) | columna generada, igual que en `transactions`: `amount` si ARS, `amount * fx_rate` si USD. Necesaria para que el neto de reembolsos (consulta 6) reste en ARS sin convertir al leer (C5) |
+| amount_ars | numeric(14,2) | columna generada, igual que en `transactions`: `amount` si ARS, `amount * fx_rate` si USD, redondeado half-up a 2 decimales (ADR-013). Necesaria para que el neto de reembolsos (consulta 6) reste en ARS sin convertir al leer (C5) |
 | direction | enum | `owed_to_me` \| `i_owe` |
 | status | enum | `pending` \| `settled` |
 | settled_at | timestamptz | null si pending |

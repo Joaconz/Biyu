@@ -149,13 +149,13 @@ así el caso sabe exactamente qué filas existen. **Requiere** PR-01 dos veces, 
 
 ## PR-07 · Registrar un gasto completo en cuotas, con fecha
 
-Para los casos donde la compra es un **dato** y no lo que se prueba. **Requiere** PR-01 y PR-02.
-**Datos.** `<MONTO>`, `<CUOTAS>`, `<FECHA>` en formato DD/MM/AAAA (se fija siempre una fecha pasada
+Para los casos donde la compra es un **dato** y no lo que se prueba. **Requiere** PR-01.
+**Datos.** `<MONTO>`, `<CUOTAS>`, `<FECHA>`, y la cuenta (por defecto "Tarjeta de crédito", que viene en el catálogo inicial) en formato DD/MM/AAAA (se fija siempre una fecha pasada
 explícita: el caso no depende del día en que se ejecuta, C1).
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Hacer PR-06 con `<MONTO>` y "Visa BBVA". | Paso 3/3 con "Visa BBVA" marcada. |
+| 1 | Hacer PR-06 con `<MONTO>` y la cuenta "Tarjeta de crédito". | Paso 3/3 con "Tarjeta de crédito" marcada. |
 | 2 | En "Cuotas", tocar `<CUOTAS>`. | Debajo aparece la previsualización de las cuotas. |
 | 3 | En "Fecha", tocar "Otra" y escribir `<FECHA>`. | La fecha queda cargada. |
 | 4 | Tocar "Guardar gasto". | Aparece el aviso "Gasto guardado" y el botón muestra "Guardado". |
