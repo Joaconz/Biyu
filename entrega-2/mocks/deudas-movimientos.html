@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock Movimientos compartido</title>
+<!--
+  Mock de entrega-2/historias/deudas.md (US-35). Tokens y composición de ADR-023:
+  ecru, espresso, verde cazador, bordó; sin sombras ni degradados; listas agrupadas con filetes.
+  Montos y personas ficticios (C14). No es código de la app.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7;
+    --primary: #1b4d3e; --primary-foreground: #f9f6f0; --secondary: #f1ebe0;
+    --muted-foreground: #6e625a; --destructive: #8b2e2e;
+    --hairline: #e6dfd3; --input: #948877; --ring: #9a7b1f; --gold: #d4af37;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font); }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  .page > h1 { font-size: 1.25rem; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .lead { color: var(--muted-foreground); font-size: .9375rem; margin: 0 0 28px; max-width: 75ch; }
+  .frames { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .frame-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .frame-label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); padding-left: 4px; }
+  .phone { width: 360px; max-width: calc(100vw - 32px); border: 1px solid var(--hairline); border-radius: 28px; background: var(--background); overflow: hidden; position: relative; min-height: 640px; }
+  .screen { padding: 20px 16px 150px; display: flex; flex-direction: column; gap: 22px; }
+  .title { font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.018em; font-weight: 700; margin: 8px 4px 0; }
+  .header { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+  .label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .04em; padding: 0 4px; margin: 0 0 6px; }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .card > * + * { border-top: 1px solid var(--hairline); }
+  .row { min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 10px 16px; font-size: .9375rem; }
+  .muted { color: var(--muted-foreground); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .collapsed { opacity: .5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--input); border-radius: 999px; padding: 8px 14px; font-size: .875rem; background: var(--card); }
+  .chip.on { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+  .seg { display: flex; background: var(--secondary); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg span { flex: 1; text-align: center; padding: 8px 6px; font-size: .875rem; border-radius: 8px; color: var(--muted-foreground); }
+  .seg span.on { background: var(--card); color: var(--foreground); font-weight: 600; border: 1px solid var(--hairline); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .875rem; font-weight: 600; padding: 0 4px; }
+  .input { border: 1px solid var(--input); border-radius: 10px; background: var(--card); min-height: 48px; padding: 0 14px; display: flex; align-items: center; gap: 6px; font-size: 1rem; }
+  .input.error { border-color: var(--destructive); }
+  .input .ph { color: var(--muted-foreground); }
+  .err { color: var(--destructive); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .help { color: var(--muted-foreground); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .switch { width: 51px; height: 31px; border-radius: 999px; background: var(--secondary); border: 1px solid var(--input); position: relative; flex: none; margin-left: auto; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 25px; height: 25px; border-radius: 50%; background: var(--card); border: 1px solid var(--input); }
+  .switch.on { background: var(--primary); border-color: var(--primary); }
+  .switch.on::after { left: 22px; border-color: var(--primary); }
+  .btn { display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 12px; font-weight: 600; font-size: 1rem; background: var(--primary); color: var(--primary-foreground); }
+  .btn.disabled { opacity: .45; }
+  .btn.ghost { background: transparent; color: var(--foreground); border: 1px solid var(--input); }
+  .btn.small { min-height: 36px; font-size: .8125rem; padding: 0 12px; border-radius: 10px; }
+  .link { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .sticky { position: absolute; left: 0; right: 0; bottom: 68px; background: var(--background); border-top: 1px solid var(--hairline); padding: 10px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .hint { text-align: center; font-size: .8125rem; color: var(--muted-foreground); margin: 0; }
+  .toast { position: absolute; left: 16px; right: 16px; top: 14px; background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; font-size: .9rem; display: flex; gap: 10px; align-items: center; z-index: 3; }
+  .toast .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; }
+  .toast.bad .dot { background: var(--destructive); }
+  .toast small { display: block; color: var(--muted-foreground); }
+  .toast .act { margin-left: auto; font-weight: 600; color: var(--primary); }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 68px; background: rgba(249,246,240,.92); border-top: 1px solid var(--hairline); display: flex; justify-content: space-around; align-items: center; font-size: .6875rem; color: var(--muted-foreground); }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tabbar span.on { color: var(--primary); font-weight: 600; }
+  .tabbar i { width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid currentColor; display: block; }
+  .tid { font: 500 .625rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #8a6d12; background: #f6eed2; border-radius: 4px; padding: 2px 4px; white-space: nowrap; }
+  .notes { margin-top: 28px; font-size: .875rem; color: var(--muted-foreground); max-width: 85ch; line-height: 1.5; }
+  .badge { font-size: .6875rem; font-weight: 600; border-radius: 6px; padding: 2px 6px; background: var(--secondary); color: var(--foreground); }
+  .badge.ok { background: #e3ece8; color: var(--primary); }
+  .new { outline: 2px dashed var(--gold); outline-offset: 4px; border-radius: 12px; }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--hairline); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>US-35 · Movimientos y diálogo de borrado de un gasto compartido</h1>
+  <p class="lead">Pantalla <strong>Movimientos</strong> (<code>/transactions</code>): la fila de un gasto con deuda vinculada suma la etiqueta "Compartido con …" (también en "Últimos movimientos" del Resumen). El diálogo "¿Eliminar transacción?" (US-65) suma una línea. Montos ficticios.</p>
+  <div class="frames">
+    <div class="frame-wrap"><div class="frame-label">1 · Fila con etiqueta de compartido</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Movimientos</div><div class="muted" style="padding:0 4px">‹ agosto 2026 ›</div>
+        <div><p class="label">15 ago</p>
+        <div class="card">
+          <div class="row"><div style="flex:1"><strong>Tecnología</strong> <span class="badge">1/12</span> <span class="badge ok new">Compartido con Sofía</span><div class="muted" style="font-size:.8125rem">Visa BBVA</div></div><div class="tabular"><strong>$10.000,00</strong></div></div>
+          <div class="row"><div style="flex:1"><strong>Comida y supermercado</strong><div class="muted" style="font-size:.8125rem">Efectivo</div></div><div class="tabular"><strong>$8.450,00</strong></div></div>
+        </div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tid">transactions-item-shared</span><span class="tid">dashboard-transaction-item-shared</span></div>
+      </div>
+      <div class="tabbar"><span><i></i>Registrar</span><span class="on"><i></i>Resumen</span><span><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">2 · Diálogo de borrado con deuda vinculada</div>
+      <div class="phone" style="background:rgba(43,30,25,.35)"><div class="screen" style="padding-top:140px">
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:12px;border:0">
+          <strong style="font-size:1.125rem">¿Eliminar transacción?</strong>
+          <p class="muted" style="margin:0;font-size:.9rem">Tecnología · $120.000,00 en 12 cuotas</p>
+          <p style="margin:0;font-size:.9rem;color:var(--destructive)">Aviso: Esta transacción tiene imputaciones en meses ya cerrados. Si la eliminás, van a cambiar los siguientes totales:</p>
+          <div style="background:#f7efd9;border:1px solid #e8d9a8;border-radius:8px;padding:10px;font-size:.8125rem;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between"><span><strong>agosto 2026 (cuota 1)</strong></span><strong class="tabular">-$10.000,00</strong></div>
+            <div style="display:flex;justify-content:space-between"><span><strong>septiembre 2026 (cuota 2)</strong></span><strong class="tabular">-$10.000,00</strong></div>
+            <div style="display:flex;justify-content:space-between;border-top:1px solid #e8d9a8;padding-top:6px"><strong>Total meses cerrados:</strong><strong class="tabular">-$20.000,00</strong></div>
+          </div>
+          <p class="new" style="margin:0;font-size:.9rem">También deja de contar la deuda con Sofía por $60.000,00.</p>
+          <span class="tid">delete-transaction-debt-warning</span>
+          <p class="muted" style="margin:0;font-size:.8125rem">Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.</p>
+          <div style="display:flex;gap:8px"><div class="btn ghost" style="flex:1">Cancelar</div><div class="btn" style="flex:1;background:var(--destructive)">Eliminar</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+  <p class="notes">La etiqueta aparece en las 12 cuotas del gasto, una en cada mes. Un gasto sin deuda no tiene la etiqueta ni la línea del diálogo. La redacción del resto del diálogo es la de V1 (US-65); la feature "Navegación e interfaz" puede cambiarla.</p>
+</div>
+</body>
+</html>
