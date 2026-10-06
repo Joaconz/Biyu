@@ -68,7 +68,7 @@ US-36 → US-30.
 
 ## Historias de usuario
 
-#### US-30: Ver el gasto neto de reembolsos en el Resumen · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-30: Ver el gasto neto de reembolsos en el Resumen · [#223](https://github.com/Joaconz/Biyu/issues/223) · Pendiente
 
 - **Objetivo:** Como usuario, quiero ver el gasto neto de reembolsos (pendientes o saldados) como
   dato secundario, para saber cuánto es realmente mío.
@@ -125,7 +125,7 @@ US-36 → US-30.
 - **Trazabilidad:** FR-19 (ajustado, `08-trazabilidad.md`) · supuesto 4 · I10 · C1 · C5 · C11 ·
   ADR-006 · ADR-037 · consulta 6 de `04-data-model.md`
 
-#### US-34: Marcar un gasto como compartido al registrarlo · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-34: Marcar un gasto como compartido al registrarlo · [#224](https://github.com/Joaconz/Biyu/issues/224) · Pendiente
 
 - **Objetivo:** Como usuario, quiero marcar un gasto como compartido al registrarlo, indicando persona
   y monto adeudado, para no tener que cargarlo dos veces.
@@ -208,7 +208,7 @@ US-36 → US-30.
 - **Trazabilidad:** FR-18 · I4 · I5 · I7 · C4 · C6 · ADR-024 · ADR-036 · happy path "registrar un
   gasto en cuotas compartido"
 
-#### US-35: Ver de qué gasto viene cada deuda · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-35: Ver de qué gasto viene cada deuda · [#225](https://github.com/Joaconz/Biyu/issues/225) · Pendiente
 
 - **Objetivo:** Como usuario, quiero que esa deuda quede vinculada al gasto que la originó, para saber
   después de qué venía.
@@ -256,7 +256,7 @@ US-36 → US-30.
     responden "La deuda no existe".
 - **Trazabilidad:** FR-18 · I7 · I10 · C10 · US-65 · ADR-037
 
-#### US-36: Cargar una deuda suelta · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-36: Cargar una deuda suelta · [#226](https://github.com/Joaconz/Biyu/issues/226) · Pendiente
 
 - **Objetivo:** Como usuario, quiero cargar una deuda suelta, sin gasto asociado, para registrar una
   plata que presté en efectivo.
@@ -375,7 +375,7 @@ US-36 → US-30.
     `create_transaction`, y la suite completa (`npm run test:db`) pasa (ADR-037, consecuencias).
 - **Trazabilidad:** FR-18 · I4 · I5 · C2 · C5 · C6 · C7 · ADR-002 · ADR-021 · ADR-037
 
-#### US-37: Ver lo que me deben y lo que debo por separado · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-37: Ver lo que me deben y lo que debo por separado · [#227](https://github.com/Joaconz/Biyu/issues/227) · Pendiente
 
 - **Objetivo:** Como usuario, quiero ver dos totales separados —lo que me deben y lo que debo—, para
   tener el neto claro.
@@ -413,7 +413,7 @@ US-36 → US-30.
   - CA-7: La deuda de un gasto eliminado no suma (US-35 · CA-5).
 - **Trazabilidad:** FR-18 · C5 · ADR-037 · supuesto 5
 
-#### US-38: Filtrar las deudas por pendientes o saldadas · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-38: Filtrar las deudas por pendientes o saldadas · [#228](https://github.com/Joaconz/Biyu/issues/228) · Pendiente
 
 - **Objetivo:** Como usuario, quiero filtrar las deudas por pendientes o saldadas, para enfocarme en lo
   que falta cobrar.
@@ -481,7 +481,7 @@ US-36 → US-30.
   - CA-11: Todos los elementos interactivos de la pantalla tienen su `data-testid`.
 - **Trazabilidad:** FR-18 · C7 · C11 · I10 · ADR-023 · ADR-037
 
-#### US-39: Marcar una deuda como saldada en un toque · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-39: Marcar una deuda como saldada en un toque · [#229](https://github.com/Joaconz/Biyu/issues/229) · Pendiente
 
 - **Objetivo:** Como usuario, quiero marcar una deuda como saldada en un tap, para cerrarla cuando me
   pagan.
@@ -530,7 +530,7 @@ US-36 → US-30.
     (US-37 · CA-5).
 - **Trazabilidad:** FR-18 · I9 · C6 · C7 · ADR-037 · supuesto 5
 
-#### US-40: Volver a pendiente una deuda saldada por error · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-40: Volver a pendiente una deuda saldada por error · [#230](https://github.com/Joaconz/Biyu/issues/230) · Pendiente
 
 - **Objetivo:** Como usuario, quiero poder revertir un "saldada" marcado por error, para corregirme sin
   borrar el registro.
@@ -566,7 +566,7 @@ US-36 → US-30.
   - CA-6: Si la llamada falla, aparece "No se pudo actualizar la deuda" y la fila sigue saldada.
 - **Trazabilidad:** FR-18 · I9 · C6 · C10 (no se borra el registro) · ADR-037
 
-#### US-41: La deuda de un gasto no puede superar el gasto · Issue: _se crea al congelar la historia_ · Pendiente
+#### US-41: La deuda de un gasto no puede superar el gasto · [#231](https://github.com/Joaconz/Biyu/issues/231) · Pendiente
 
 - **Objetivo:** Como usuario, quiero que el monto de una deuda vinculada no pueda superar el gasto de
   origen, para no registrar imposibles.
