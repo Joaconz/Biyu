@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock US-70 · Guardado y reintento</title>
+<style>
+  /* Tokens de ADR-023 (src/index.css). Montos ficticios (C14). */
+  :root {
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7; --primary: #1b4d3e;
+    --primary-foreground: #f9f6f0; --secondary: #f1ebe0; --muted-foreground: #6e625a;
+    --hairline: #e6dfd3; --input: #948877; --gold: #d4af37; --destructive: #8b2e2e;
+    --warning: #7a5c12; --warning-surface: #f3ebd6;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px 16px; background: #ece6da; color: var(--foreground); font-family: var(--font); }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: var(--muted-foreground); margin: 0 0 28px; font-size: 14px; max-width: 780px; }
+  .row { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+  .cap { font-size: 13px; color: var(--muted-foreground); margin: 10px 0 0; max-width: 375px; }
+  .cap b { color: var(--foreground); }
+  .tid { font: 10px ui-monospace, monospace; color: #8a7d70; }
+  .phone { width: 375px; height: 720px; background: var(--background); border: 1px solid var(--input); border-radius: 36px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .status { height: 44px; }
+  .header { height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+  .wordmark { font-weight: 800; font-size: 20px; letter-spacing: -0.03em; }
+  .wordmark::after { content: "."; color: var(--gold); }
+  .steps { display: flex; align-items: center; gap: 8px; padding: 0 20px 18px; }
+  .steps .bar { flex: 1; display: flex; gap: 6px; }
+  .steps .bar i { flex: 1; height: 4px; border-radius: 4px; background: var(--secondary); }
+  .steps .bar i.on { background: var(--primary); }
+  .steps .n { font-size: 13px; color: var(--muted-foreground); width: 32px; text-align: right; }
+  .steps .chev { width: 32px; color: var(--foreground); font-size: 22px; }
+  .content { flex: 1; padding: 0 20px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { background: var(--secondary); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; }
+  .label { font-size: 13px; color: var(--muted-foreground); margin-bottom: 6px; }
+  .field { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; font-size: 15px; display: flex; justify-content: space-between; }
+  .field .v { font-weight: 600; }
+  .action { border-top: 1px solid var(--hairline); background: var(--background); padding: 10px 20px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .alert { border: 1px solid var(--destructive); background: #f6ece8; color: var(--foreground); border-radius: 8px; padding: 10px 12px; display: flex; gap: 10px; font-size: 13px; line-height: 1.35; }
+  .alert .ic { color: var(--destructive); font-weight: 800; font-size: 15px; }
+  .alert b { display: block; font-size: 15px; color: var(--destructive); }
+  .primary { height: 48px; border-radius: 8px; background: var(--primary); color: var(--primary-foreground); font-weight: 600; font-size: 16px; display: grid; place-items: center; }
+  .primary.busy { opacity: .55; }
+  .disabled .field { opacity: .55; }
+  .toast { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); width: 330px; background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; font-size: 14px; z-index: 5; }
+  .toast b { display: block; color: var(--primary); }
+  .toast span { color: var(--muted-foreground); font-size: 13px; }
+  .pending { background: var(--warning-surface); border: 1px solid #d8c9a0; border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+  .pending b { display: block; color: var(--warning); }
+  .pending .prow { border-top: 1px solid #d8c9a0; padding-top: 8px; margin-top: 8px; }
+  .pending .btns { display: flex; gap: 8px; margin-top: 10px; }
+  .pending .btns span { flex: 1; text-align: center; min-height: 44px; line-height: 44px; border-radius: 8px; font-weight: 600; }
+  .pending .restore { background: var(--primary); color: var(--primary-foreground); }
+  .pending .discard { border: 1px solid var(--input); }
+  .seg { display: inline-flex; background: var(--secondary); border-radius: 8px; padding: 4px; font-size: 14px; }
+  .seg span { padding: 6px 14px; border-radius: 6px; }
+  .seg span.on { background: var(--card); font-weight: 600; }
+  .amount { font-size: 56px; font-weight: 800; letter-spacing: -0.035em; text-align: center; margin-top: 60px; color: var(--muted-foreground); }
+  .nav { height: 76px; padding-bottom: 20px; border-top: 1px solid var(--hairline); background: rgba(249,246,240,.8); display: grid; grid-template-columns: repeat(4, 1fr); font-size: 11px; color: var(--muted-foreground); text-align: center; align-items: center; }
+  .nav .on { color: var(--primary); font-weight: 700; }
+  table { border-collapse: collapse; font-size: 13px; margin-top: 36px; max-width: 780px; }
+  td, th { border: 1px solid var(--hairline); padding: 6px 10px; text-align: left; background: var(--card); }
+</style>
+</head>
+<body>
+<h1>US-70 · Aviso de guardado y de error con reintento</h1>
+<p class="lead">Paso 3 de Registrar (ADR-024). El aviso de error vive en el área de acción fija, encima del botón: queda a la vista con el teclado abierto. Bordó para el error, ámbar de <code>--warning</code> para el borrador pendiente (ADR-023). Decisión de reintento: ADR-029.</p>
+
+<div class="row">
+  <!-- 1. Error de red -->
+  <div>
+    <div class="phone">
+      <div class="status"></div>
+      <div class="header"><span class="wordmark">biyu</span></div>
+      <div class="steps"><span class="chev">‹</span><span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="n">3/3</span></div>
+      <div class="content">
+        <div class="chips"><span class="chip">$12.500,00</span><span class="chip">Comida</span></div>
+        <div><div class="label">Cuenta</div><div class="field"><span>Visa BBVA</span><span class="v">✓</span></div></div>
+        <div><div class="label">Cuotas</div><div class="field"><span>1 cuota</span></div></div>
+        <div><div class="label">Fecha</div><div class="field"><span>Hoy · 06/10/2026</span></div></div>
+        <div><div class="label">Nota</div><div class="field"><span>Almuerzo</span></div></div>
+      </div>
+      <div class="action">
+        <div class="alert" role="alert"><span class="ic">!</span><div><b>No se pudo guardar</b>Revisá tu conexión y tocá Reintentar. Lo que cargaste sigue acá.</div></div>
+        <div class="primary">Reintentar</div>
+        <span class="tid">transaction-form-save-error [data-kind="network"] · transaction-form-submit</span>
+      </div>
+      <div class="nav"><span>Registrar</span><span>Resumen</span><span>Deudas</span><span>Suscripciones</span></div>
+    </div>
+    <p class="cap"><b>1 · Error de red (CA-3).</b> Todo sigue cargado. El aviso no se va solo (CA-4). Cambiar un campo lo saca y el botón vuelve a "Guardar gasto" (CA-6).</p>
+  </div>
+
+  <!-- 2. Guardando -->
+  <div>
+    <div class="phone">
+      <div class="status"></div>
+      <div class="header"><span class="wordmark">biyu</span></div>
+      <div class="steps"><span class="chev">‹</span><span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="n">3/3</span></div>
+      <div class="content disabled">
+        <div class="chips"><span class="chip">$12.500,00</span><span class="chip">Comida</span></div>
+        <div><div class="label">Cuenta</div><div class="field"><span>Visa BBVA</span></div></div>
+        <div><div class="label">Cuotas</div><div class="field"><span>1 cuota</span></div></div>
+        <div><div class="label">Fecha</div><div class="field"><span>Hoy · 06/10/2026</span></div></div>
+        <div><div class="label">Nota</div><div class="field"><span>Almuerzo</span></div></div>
+      </div>
+      <div class="action">
+        <div class="primary busy">Guardando…</div>
+        <span class="tid">form aria-busy="true" · espera hasta 15 s (CA-7)</span>
+      </div>
+      <div class="nav"><span>Registrar</span><span>Resumen</span><span>Deudas</span><span>Suscripciones</span></div>
+    </div>
+    <p class="cap"><b>2 · Guardando.</b> Campos y botón deshabilitados: un segundo toque no envía otro pedido (CA-28).</p>
+  </div>
+
+  <!-- 3. Rechazo -->
+  <div>
+    <div class="phone">
+      <div class="status"></div>
+      <div class="header"><span class="wordmark">biyu</span></div>
+      <div class="steps"><span class="chev">‹</span><span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="n">3/3</span></div>
+      <div class="content">
+        <div class="chips"><span class="chip">$12.500,00</span><span class="chip">Comida</span></div>
+        <div><div class="label">Cuenta</div><div class="field"><span>Visa BBVA</span></div></div>
+        <div><div class="label">Cuotas</div><div class="field"><span>1 cuota</span></div></div>
+        <div><div class="label">Fecha</div><div class="field"><span>Hoy · 06/10/2026</span></div></div>
+      </div>
+      <div class="action">
+        <div class="alert" role="alert"><span class="ic">!</span><div><b>No se pudo guardar</b>la categoría no existe, no es tuya o está archivada</div></div>
+        <div class="primary">Guardar gasto</div>
+        <span class="tid">transaction-form-save-error [data-kind="rejected"]</span>
+      </div>
+      <div class="nav"><span>Registrar</span><span>Resumen</span><span>Deudas</span><span>Suscripciones</span></div>
+    </div>
+    <p class="cap"><b>3 · Rechazo de la base (CA-16).</b> Sin "Reintentar": repetir el mismo dato fallaría igual. No se guarda borrador pendiente.</p>
+  </div>
+
+  <!-- 4. Éxito -->
+  <div>
+    <div class="phone">
+      <div class="status"></div>
+      <div class="toast"><b>Gasto guardado</b><span>$120.000,00 en 12 cuotas · Tecnología · Visa BBVA</span><div class="tid">transaction-form-saved</div></div>
+      <div class="header"><span class="wordmark">biyu</span></div>
+      <div class="steps"><span class="chev">‹</span><span class="bar"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="n">3/3</span></div>
+      <div class="content">
+        <div class="chips"><span class="chip">$120.000,00</span><span class="chip">Tecnología</span></div>
+        <div><div class="label">Cuenta</div><div class="field"><span>Visa BBVA</span></div></div>
+        <div><div class="label">Cuotas</div><div class="field"><span>12 cuotas de $10.000,00 · de oct 2026 a sep 2027</span></div></div>
+      </div>
+      <div class="action"><div class="primary">✓ Guardado</div></div>
+      <div class="nav"><span>Registrar</span><span>Resumen</span><span>Deudas</span><span>Suscripciones</span></div>
+    </div>
+    <p class="cap"><b>4 · Éxito (CA-1, CA-2).</b> El toast dice qué se guardó. A los 900 ms vuelve al paso 1 vacío con la última cuenta (US-10).</p>
+  </div>
+
+  <!-- 5. Borrador pendiente -->
+  <div>
+    <div class="phone">
+      <div class="status"></div>
+      <div class="header"><span class="wordmark">biyu</span></div>
+      <div class="steps"><span class="chev" style="visibility:hidden">‹</span><span class="bar"><i class="on"></i><i></i><i></i></span><span class="n">1/3</span></div>
+      <div class="content">
+        <div class="pending" role="region" aria-label="Movimientos sin guardar">
+          <b>Tenés 2 movimientos sin guardar</b>
+          <div class="prow">Gasto · $12.500,00 · Comida · 06/10/2026
+            <div class="btns"><span class="restore">Recuperar</span><span class="discard">Descartar</span></div></div>
+          <div class="prow">Gasto · $3.400,00 · Transporte · 05/10/2026
+            <div class="btns"><span class="restore">Verificando…</span><span class="discard" style="opacity:.5">Descartar</span></div></div>
+          <div class="tid">register-pending-drafts · register-pending-draft[data-request-id] · -restore · -discard</div>
+        </div>
+        <div class="seg"><span class="on">Gasto</span><span>Ingreso</span></div>
+        <div class="amount">$0</div>
+      </div>
+      <div class="action"><div class="primary busy">Siguiente</div></div>
+      <div class="nav"><span>Registrar</span><span>Resumen</span><span>Deudas</span><span>Suscripciones</span></div>
+    </div>
+    <p class="cap"><b>5 · Movimientos pendientes (CA-17, CA-18).</b> Al volver a Registrar después de un error de red. "Recuperar" primero verifica por la API si ya se había guardado (fila de abajo: "Verificando…"); si no, abre el paso 3 con la misma clave (CA-19 a CA-22). Si el mismo gasto falló dos veces con valores distintos, es una sola fila con dos claves (CA-6c).</p>
+  </div>
+</div>
+
+<table>
+  <tr><th>Estado</th><th>Botón principal</th><th>Aviso</th></tr>
+  <tr><td>Listo para guardar</td><td>Guardar gasto / Guardar ingreso</td><td>—</td></tr>
+  <tr><td>Guardando</td><td>Guardando… (deshabilitado)</td><td>—</td></tr>
+  <tr><td>Error de red</td><td>Reintentar</td><td>No se pudo guardar · Revisá tu conexión…</td></tr>
+  <tr><td>Rechazo</td><td>Guardar gasto</td><td>No se pudo guardar · &lt;motivo de la base&gt;</td></tr>
+  <tr><td>Éxito</td><td>✓ Guardado (900 ms)</td><td>Toast con la descripción</td></tr>
+</table>
+<p class="cap" style="max-width:780px"><b>Computadora:</b> los mismos elementos en la columna del formulario (máx. 576 px); el área de acción es la tarjeta con borde al pie. El toast, arriba al centro.</p>
+</body>
+</html>
