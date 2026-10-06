@@ -183,6 +183,7 @@ P2 entra si alcanza el sprint.
 | Suscripciones | [#17](https://github.com/Joaconz/Biyu/issues/17) | V2 | US-52 a US-63 · FR-15 a FR-17 · I11 a I17 · R1 a R8 |
 | Deudas y gastos compartidos | [#18](https://github.com/Joaconz/Biyu/issues/18) | V2 | US-30, US-34 a US-41 · FR-18, FR-19 · I7, I9 |
 | Export CSV | [#19](https://github.com/Joaconz/Biyu/issues/19) | V2 | US-47 · FR-22 · C9 |
+| Importar desde Excel | [#203](https://github.com/Joaconz/Biyu/issues/203) | V2 | US-74 ([#204](https://github.com/Joaconz/Biyu/issues/204)), US-76 ([#205](https://github.com/Joaconz/Biyu/issues/205)), US-77 ([#206](https://github.com/Joaconz/Biyu/issues/206)), US-78 ([#207](https://github.com/Joaconz/Biyu/issues/207)) · FR-06 · C4 · C6 · NFR-10 · ADR-035. Reemplaza a la idea #169 |
 | Interfaz y no funcionales de V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | V2 | `roadmap.md` §V2 · NFR-01 a NFR-10 |
 | Calidad V2 | [#21](https://github.com/Joaconz/Biyu/issues/21) | V2 | Regresión de V1, confirmación de defectos, catálogo de V2 |
 | Automatización | [#22](https://github.com/Joaconz/Biyu/issues/22) | V3 | `roadmap.md` §V3 · NFR-19, NFR-20 |
