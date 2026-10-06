@@ -6,10 +6,14 @@ import { allowsInstallments, type TransactionDraft } from './validation'
  * Lo que el formulario de registro tiene cargado, antes de parsear. Los montos quedan como el
  * texto que tipeó el usuario hasta pasar por decimal.js (C2); el resto ya es el valor final.
  */
-export interface DraftInput extends Omit<TransactionDraft, 'amount' | 'fxRate' | 'description'> {
+export interface DraftInput extends Omit<TransactionDraft, 'amount' | 'fxRate' | 'description' | 'shared'> {
   amount: string
   fxRate: string
   description: string
+  /** Interruptor "Gasto compartido" (US-34). Persona y monto quedan como texto hasta guardar. */
+  shared: boolean
+  sharedPerson: string
+  sharedAmount: string
 }
 
 export type DraftAccount = Pick<DraftInput, 'accountId' | 'accountType'>
@@ -29,17 +33,23 @@ export function emptyDraftInput(today: string, account: DraftAccount = NO_ACCOUN
     installmentsCount: 1,
     occurredOn: today,
     description: '',
+    shared: false,
+    sharedPerson: '',
+    sharedAmount: '',
   }
 }
 
 /** Borrador listo para validateTransactionDraft y createTransaction: montos vacíos o inválidos → null. */
 export function parseDraftInput(input: DraftInput): TransactionDraft {
+  const { shared, sharedPerson, sharedAmount, ...rest } = input
   const trimmed = input.description?.trim()
   return {
-    ...input,
+    ...rest,
     amount: tryParseMoney(input.amount),
     fxRate: tryParseMoney(input.fxRate),
     description: trimmed ? trimmed : null,
+    // Apagado, o si es un ingreso, no viaja ninguna deuda aunque haya algo escrito (US-34 · CA-2, CA-10).
+    shared: shared && input.type === 'expense' ? { person: sharedPerson, amount: sharedAmount } : null,
   }
 }
 
@@ -78,15 +88,36 @@ export function draftInputAfterSave(
  * Aplica un cambio del formulario. Si el borrador deja de admitir cuotas (otra cuenta, o pasa a
  * ingreso) y había más de una elegida, vuelven a 1: el selector se oculta y un valor escondido
  * bloquearía el guardado por I6 (US-14). `installmentsReset` avisa que hay que mostrar el aviso.
+ *
+ * Gasto compartido (US-34): prender o apagar el interruptor, o cambiar el tipo, deja la sección
+ * apagada o vacía (CA-2, CA-10); cambiar la moneda vacía el monto adeudado, que estaba en la
+ * moneda anterior, y conserva la persona (CA-12). `clearedFields` son los campos que el cambio
+ * vació: no muestran error hasta que se vuelvan a tocar.
  */
 export function applyDraftChange(
   prev: DraftInput,
   patch: Partial<DraftInput>,
-): { values: DraftInput; installmentsReset: boolean } {
-  const values = { ...prev, ...patch }
+): { values: DraftInput; installmentsReset: boolean; clearedFields: SharedField[] } {
+  let values = { ...prev, ...patch }
+  let clearedFields: SharedField[] = []
+  if (values.type !== prev.type || values.shared !== prev.shared) {
+    if (values.type !== prev.type) values = { ...values, shared: false }
+    values = { ...values, sharedPerson: '', sharedAmount: '' }
+    clearedFields = ['sharedPerson', 'sharedAmount']
+  } else if (values.currency !== prev.currency) {
+    values = { ...values, sharedAmount: '' }
+    clearedFields = ['sharedAmount']
+  }
   const installmentsReset = values.installmentsCount > 1 && !allowsInstallments(values)
-  return { values: installmentsReset ? { ...values, installmentsCount: 1 } : values, installmentsReset }
+  return {
+    values: installmentsReset ? { ...values, installmentsCount: 1 } : values,
+    installmentsReset,
+    clearedFields,
+  }
 }
+
+/** Campos de la sección "Gasto compartido" que un cambio puede vaciar: vuelven a "sin tocar". */
+export type SharedField = 'sharedPerson' | 'sharedAmount'
 
 /**
  * Aplica el TC de referencia que llegó de forma asíncrona solo si el usuario sigue en el mismo

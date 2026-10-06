@@ -20,7 +20,7 @@ describe('emptyDraftInput', () => {
     expect(emptyDraftInput(TODAY)).toEqual({
       type: 'expense', amount: '', currency: 'ARS', fxRate: '', categoryId: null,
       accountId: null, accountType: null, installmentsCount: 1, occurredOn: TODAY,
-      description: '',
+      description: '', shared: false, sharedPerson: '', sharedAmount: '',
     })
   })
   it('la fecha es el today que recibe, no la del reloj (C1)', () =>
@@ -250,7 +250,7 @@ describe('applyDraftChange (US-14)', () => {
   }
   it('un cambio cualquiera se aplica tal cual y no resetea las cuotas', () =>
     expect(applyDraftChange(inSixOnCredit, { amount: '700' })).toEqual({
-      values: { ...inSixOnCredit, amount: '700' }, installmentsReset: false,
+      values: { ...inSixOnCredit, amount: '700' }, installmentsReset: false, clearedFields: [],
     }))
   it.each(['cash', 'debit_card', 'bank_account', 'wallet'] as const)(
     'pasar de tarjeta de crédito a %s con 6 cuotas las vuelve a 1 y avisa', (accountType) => {

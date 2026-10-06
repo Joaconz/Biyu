@@ -1,5 +1,6 @@
 import { MAX_FX_RATE, type Currency } from './fx'
 import { convertToArs, Decimal, prorate } from './money'
+import { validateSharedDebt, type SharedDebtInput } from './sharedDebt'
 
 export const MAX_INSTALLMENTS = 12
 /** El máximo de numeric(14,2), la columna de amount y de amount_ars (DEF-012). */
@@ -16,9 +17,20 @@ export interface TransactionDraft {
   installmentsCount: number
   occurredOn: string // YYYY-MM-DD
   description: string | null
+  /** Deuda vinculada de un gasto compartido (US-34, ADR-036); null o ausente si no se comparte. */
+  shared?: SharedDebtInput | null
 }
 
-export type DraftField = 'amount' | 'fxRate' | 'categoryId' | 'accountId' | 'installmentsCount' | 'occurredOn' | 'description'
+export type DraftField =
+  | 'amount'
+  | 'fxRate'
+  | 'categoryId'
+  | 'accountId'
+  | 'installmentsCount'
+  | 'occurredOn'
+  | 'description'
+  | 'sharedPerson'
+  | 'sharedAmount'
 export type DraftErrors = Partial<Record<DraftField, string>>
 
 /** I6: solo un gasto con tarjeta de crédito admite más de una cuota (US-14). */
@@ -73,6 +85,8 @@ export function validateTransactionDraft(draft: TransactionDraft, today: string)
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.occurredOn)) errors.occurredOn = 'Fecha inválida'
   else if (draft.occurredOn > today) errors.occurredOn = 'La fecha no puede ser futura'
+  // Un ingreso no se comparte: si llegara una deuda, create_transaction la rechaza igual.
+  if (draft.type === 'expense' && draft.shared) Object.assign(errors, validateSharedDebt(draft.shared, draft))
   return errors
 }
 

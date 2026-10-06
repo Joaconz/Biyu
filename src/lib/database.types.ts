@@ -195,7 +195,7 @@ isOneToOne: false
           }
           Functions: {
             "create_transaction":
-{ Args: { "p_account_id": string,"p_amount": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description"?: string,"p_fx_rate": number,"p_installments_count": number,"p_occurred_on": string,"p_type": Database["public"]['Enums']["transaction_type"] }; Returns: string
+{ Args: { "p_account_id": string,"p_amount": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description"?: string,"p_fx_rate": number,"p_installments_count": number,"p_occurred_on": string,"p_shared_amount"?: number,"p_shared_person"?: string,"p_type": Database["public"]['Enums']["transaction_type"] }; Returns: string
                            },
 "delete_account":
 { Args: { "p_account_id": string }; Returns: number

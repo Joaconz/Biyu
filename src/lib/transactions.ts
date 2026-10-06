@@ -1,4 +1,5 @@
 import { Decimal, serializeMoney } from '@/domain/money'
+import { debtOfDraft } from '@/domain/sharedDebt'
 import type { TransactionDraft } from '@/domain/validation'
 import { supabase } from './supabase'
 
@@ -9,6 +10,9 @@ const asNumeric = (d: Decimal) => serializeMoney(d) as unknown as number
 
 export async function createTransaction(draft: TransactionDraft) {
   if (!draft.amount || !draft.accountId) throw new Error('Borrador incompleto: validalo antes de guardar')
+  // La deuda de un gasto compartido viaja en la misma llamada (ADR-036): nunca un insert a debts.
+  const debt = debtOfDraft(draft)
+  if (draft.type === 'expense' && draft.shared && !debt) throw new Error('Borrador incompleto: validalo antes de guardar')
   const { data, error } = await supabase.rpc('create_transaction', {
     p_type: draft.type,
     p_amount: asNumeric(draft.amount),
@@ -19,6 +23,8 @@ export async function createTransaction(draft: TransactionDraft) {
     p_installments_count: draft.installmentsCount,
     p_occurred_on: draft.occurredOn,
     p_description: draft.description ?? undefined,
+    p_shared_person: debt?.person,
+    p_shared_amount: debt ? asNumeric(debt.amount) : undefined,
   })
   if (error) throw error
   return data
