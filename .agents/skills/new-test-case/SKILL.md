@@ -37,30 +37,41 @@ Un negativo por cada regla que rechaza algo, no solo el camino feliz.
 
 ## 3. Formato de salida
 
-Un caso por bloque, con los campos de §4 en este orden:
+Un caso por bloque, con los campos de `docs/07-plan-de-testing.md` §4 en este orden:
 
 | Campo | Contenido |
 |---|---|
-| ID | `CP-<módulo>-<nnn>`. Módulos: `CUO` cuotas · `MON` monedas y TC · `DAS` dashboard · `SUS` suscripciones · `DEU` deudas · `ACC` acceso y autorización · `REG` registro, validaciones de alta y baja lógica · `CFG` categorías, cuentas y TC de referencia |
-| Historia de usuario | `FR-xx` (y la regla R* si aplica) |
+| ID | `CP-<módulo>-<nnn>`. Módulos: `CUO` cuotas · `MON` monedas y TC · `DAS` dashboard · `SUS` suscripciones · `DEU` deudas · `ACC` acceso y autorización · `REG` registro, validaciones de alta y baja lógica · `CFG` categorías, cuentas y TC de referencia · `EXP` export CSV · `IMP` importación desde Excel · `NAV` navegación, feedback y confirmaciones · `NFR` no funcionales |
+| Título | Qué se verifica y con qué dato |
+| Historia y criterio | `US-nn · CA-k` y FR / R* |
 | Invariante cubierta | `I1 … I17`, o "—" si no aplica |
-| Técnica | Una de §3 |
+| Técnica | Una de §3 del plan |
 | Tipo | Positivo · Negativo · Límite |
-| Precondiciones | Estado y datos, con montos **ficticios** (C14) |
-| Pasos | Numerados, ejecutables por alguien que no diseñó el caso |
-| Resultado esperado | Concreto: "$33.333,34", no "el monto correcto" |
+| Canal · Caso par | `UI` o `API`, y el ID del caso hermano si es un negativo |
+| Pre-requisitos | Numerados (`S 1`…). Procedimientos por ID (`PR-01`…, `docs/12-procedimientos-de-prueba.md`) |
+| Datos de prueba | Numerados, con valores **exactos** y montos ficticios (C14) |
+| Pasos | Numerados, **un paso una acción**, ejecutables por alguien que no diseñó el caso |
+| Resultado esperado | Uno **por paso**, observable y exacto: "$33.333,34", no "el monto correcto" |
+| Post-condición | Cómo queda el sistema y la limpieza |
 | Prioridad | Alta · Media · Baja |
 | Automatizable | Sí · No · V3 |
 
 Numerá a partir del último `nnn` existente del módulo. Si no hay catálogo todavía, empezá en 001.
 
-## 4. Reglas de calidad
+## 4. Reglas de calidad (estándar de ADR-028)
 
-- **Todo caso negativo tiene dos variantes** (C6): por la UI, y directo contra la RPC/API con el
-  cliente saltado. Si la UI lo previene, igual se prueba que la base lo rechaza.
+- **Atómico.** Una condición o partición y un juego de datos por caso, con un único veredicto.
+  Probar 0, 1, 2, 12 y 13 cuotas son cinco casos. Una tabla de decisión de 6 filas son 6 casos.
+- **UI y API en casos separados** (C6): todo negativo tiene su caso por la UI y su caso directo
+  contra la RPC/API con el cliente saltado, enlazados por "Caso par". Si la UI lo previene, igual se
+  prueba que la base lo rechaza.
+- **Independiente.** Cada caso arranca con su propio usuario (`PR-01`); ninguno depende de otro.
+- **Variante API ejecutable a mano:** método, endpoint, body JSON y respuesta esperada (status HTTP
+  más `code` de Postgres). Los headers y el token salen de `PR-04`.
 - **Resultado esperado con valores exactos** y montos como string decimal, nunca `number` (C2).
-- **Un caso sin oráculo no es un caso.** Si no podés anclarlo a una I*, una R* o un FR, marcalo
-  como hueco del spec y reportalo en vez de inventar el resultado esperado.
+- **Un caso sin oráculo no es un caso.** Si no podés anclarlo a un criterio de aceptación, una I*, una R* o
+  un FR, marcalo como hueco del spec y reportalo en vez de inventar el resultado esperado. El oráculo sale
+  del spec, **nunca de lo que la app hace hoy**.
 - **`today` entra como dato de la precondición** (C1): fijá la fecha, no dependas del reloj.
 - Cualquier caso que toque una tabla incluye, en su módulo `ACC`, el par de autorización:
   otra sesión → 0 filas, rol `anon` → `permission denied` 42501 (C7).

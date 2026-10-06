@@ -79,7 +79,7 @@ Más que estilo, y **sin repetir lo que V1 ya trajo** — la previsualización d
 ### Terminado cuando
 
 - Todo lo anterior está desplegado y usable desde el celular.
-- El catálogo de V1 volvió a ejecutarse completo como **suite de regresión**, con su reporte.
+- Los casos de V1 **seleccionados por riesgo** (ADR-027) volvieron a ejecutarse a mano como **regresión**, con su reporte.
 - Los defectos de V1 están **confirmados** (re-testeados) y cerrados o justificados.
 - Existe y está ejecutado el catálogo nuevo de V2.
 

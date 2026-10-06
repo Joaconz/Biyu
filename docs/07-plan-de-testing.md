@@ -7,34 +7,41 @@ se automatiza. Es el documento que sostiene lo que la materia evalúa._
 
 ## 1. Equipo
 
-Cinco integrantes. Los roles ordenan la coordinación; **no concentran el trabajo de
-testing**.
+Cinco integrantes. Los roles ordenan la coordinación; **no concentran el trabajo de testing**.
+Desde V2 el equipo se divide por frente: dos desarrollan y tres prueban.
 
-| Rol | Responsabilidad principal |
-|---|---|
-| Product Owner | Mantiene requerimientos e historias de usuario con criterios de aceptación. Prioriza el backlog. Es quien decide si un defecto es defecto o es comportamiento esperado mal especificado |
-| Test Lead | Plan de pruebas, catálogo consolidado, reportes de ejecución, criterio de salida de cada versión |
-| Dev Backend | Conduce los agentes de IA sobre `api/`. Responsable de que el dominio quede puro y testeable |
-| Dev Frontend | Conduce los agentes de IA sobre `web/`. Responsable de que la UI exponga los estados que hay que probar |
-| QA / Automatización | Alta y seguimiento de defectos hasta el cierre. Lidera la automatización de V3 |
+| Quién | Frente | Responsabilidad principal |
+|---|---|---|
+| Joaquín Nuñez | Features nuevas | Product Owner y desarrollo de las funcionalidades nuevas. Escribe las historias de V2 con criterios de aceptación, decide si un defecto es defecto o es comportamiento esperado mal especificado, y conduce a los agentes de IA que implementan las features |
+| Santiago | Defectos y pendientes de código | Corrige con agentes de IA los defectos reportados y los pendientes técnicos (`data-testid` faltantes, datos sintéticos de rendimiento, accesibilidad, idempotencia). Cada fix lleva su test automático |
+| Tester A | Testing | Diseña y ejecuta casos (ver tabla de propiedad cruzada). Alta y seguimiento de los defectos que encuentra |
+| Tester B | Testing | Ídem |
+| Tester C | Testing | Ídem. Cierra el reporte de ejecución de cada versión |
+
+Los tres testers comparten el rol de Test Lead: el plan, el catálogo consolidado, los reportes y el
+criterio de salida de una versión se reparten entre ellos. **Los devs no prueban su propio código.**
+
+_V1 se hizo con la división original de cinco roles (PO, Test Lead, Dev Backend, Dev Frontend,
+QA/Automatización). La división de arriba rige desde la Entrega 2._
 
 ### Regla de propiedad cruzada
 
-Cada integrante es **dueño del diseño** de los casos de un módulo y **ejecutor** de los de
-otro:
+Cada tester es **dueño del diseño** de los casos de ciertos módulos y **ejecutor** de los de otro tester:
 
-| Integrante | Diseña los casos de | Ejecuta los casos de |
-|---|---|---|
-| 1 | Cuotas y prorrateo | Dashboard |
-| 2 | Monedas y tipo de cambio | Cuotas y prorrateo |
-| 3 | Dashboard y KPIs | Suscripciones |
-| 4 | Suscripciones | Deudas |
-| 5 | Deudas, acceso y autorización | Monedas y tipo de cambio |
+| Tester | Diseña los casos de (V1 reescrita) | Y de (V2) | Ejecuta los casos de |
+|---|---|---|---|
+| A | Acceso (`ACC`), Configuración (`CFG`) | Deudas (`DEU`) | Tester B |
+| B | Registro (`REG`), Cuotas (`CUO`) | Suscripciones (`SUS`) | Tester C |
+| C | Monedas (`MON`), Dashboard (`DAS`) | Export CSV, Importación, Navegación y no funcionales | Tester A |
 
 **Por qué.** Nadie prueba lo que diseñó ni lo que implementó. Es la contramedida más barata
 contra el sesgo de confirmación, y hace que cada caso tenga que estar escrito lo bastante
 claro como para que otro lo ejecute sin preguntar. Un caso que solo entiende quien lo
 escribió es un caso mal escrito.
+
+**Flujo de un defecto.** El tester lo reporta (`DEF-nnn`) → Santiago lo corrige con IA y lo mergea
+→ el mismo tester que lo reportó lo confirma. Si el defecto está en una feature nueva que todavía no
+se mergeó, lo corrige Joaquín.
 
 ### Ceremonias
 
@@ -52,13 +59,13 @@ Defecto abierto · Hecho`.
 
 | Nivel | Qué prueba | Quién | Cuándo |
 |---|---|---|---|
-| Unitario / dominio | Cálculos puros: prorrateo, conversión, resúmenes, ocurrencias | Devs, con agentes | Continuo desde V1 |
-| Integración / API | Atomicidad, validación de servidor, autorización, efectos en base | Devs + QA | Continuo desde V1 |
-| Sistema / funcional | Casos de usuario de punta a punta, manuales | Todo el equipo | Cierre de cada versión |
-| Regresión | Reejecución del catálogo de la versión anterior | Test Lead reparte | V2 y V3 |
+| Unitario / dominio | Cálculos puros: prorrateo, conversión, resúmenes, ocurrencias | Joaquín y Santiago, con agentes | Continuo desde V1 |
+| Integración / API | Atomicidad, validación de servidor, autorización, efectos en base | Joaquín y Santiago + testers | Continuo desde V1 |
+| Sistema / funcional | Casos de usuario de punta a punta, **manuales** | Testers | Cierre de cada versión |
+| Regresión | Reejecución de los casos de la versión anterior **seleccionados por riesgo** (ADR-027) | Testers, por propiedad cruzada | V2 y V3 |
 | Confirmación | Re-test de cada defecto corregido | Quien lo reportó | Continuo |
-| No funcional | Rendimiento del dashboard, accesibilidad, usabilidad | Test Lead + QA | V2 |
-| Automatizado | Subconjunto de V1 y V2 | QA lidera | V3 |
+| No funcional | Rendimiento del dashboard, accesibilidad, usabilidad | Testers (Santiago prepara los datos) | V2 |
+| Automatizado | Subconjunto de V1 y V2 | Todo el equipo | V3 |
 
 **Selectores estables desde V1.** Todo elemento interactivo de la UI (botones, inputs, selects,
 links de navegación, filas clickeables) lleva un atributo `data-testid` en kebab-case con el
@@ -106,20 +113,48 @@ presente" es la que nadie escribe si va improvisando, y es un caso negativo real
 
 ## 4. Formato del caso de prueba
 
-Un caso vive en la planilla del catálogo con estas columnas:
+Un caso vive en la planilla del catálogo (plantilla de la cátedra, una hoja por caso) con estos campos:
 
 | Campo | Contenido |
 |---|---|
 | ID | `CP-<módulo>-<nnn>` — ej. `CP-CUO-007` |
-| Historia de usuario | Referencia a `02-behavior-spec.md` o `06-suscripciones.md` |
+| Título | Una frase que dice qué se verifica y con qué dato: "12 cuotas de $100,00 dan 12 imputaciones" |
+| Historia de usuario y criterio | `US-nn · CA-k`: la historia **y el criterio de aceptación** que el caso verifica (`02-behavior-spec.md` o `06-suscripciones.md`). Más FR / R* |
 | Invariante cubierta | I1 … I17, si aplica |
-| Técnica | Cuál de las de arriba |
+| Técnica | Cuál de las de §3 |
 | Tipo | Positivo · Negativo · Límite |
-| Precondiciones | Estado del sistema y datos necesarios |
-| Pasos | Numerados, ejecutables por alguien que no diseñó el caso |
-| Resultado esperado | Concreto y verificable. "$33.333,34", no "el monto correcto" |
+| Canal | `UI` o `API`. Un caso es de un solo canal; el par del otro canal se enlaza en "Caso par" |
+| Caso par | ID del caso hermano (UI ↔ API) cuando es un negativo, o "—" |
+| Pre-requisitos | Numerados (`S 1`, `S 2`…). Procedimientos comunes por ID (`PR-01`), no copiados |
+| Datos de prueba | Numerados, con **valores exactos**: email, montos, cantidad de cuotas, TC, fecha de hoy fijada |
+| Pasos | Numerados. **Un paso, una acción**. Ejecutables por alguien que no diseñó el caso |
+| Resultado esperado | Uno **por paso**, observable y exacto: texto del mensaje, URL, monto formateado ("$33.333,34"), orden, estado del botón; en API, status HTTP y `code` |
+| Post-condición | Estado en que queda el sistema, y la limpieza si hace falta |
 | Prioridad | Alta · Media · Baja |
 | Automatizable | Sí · No · V3 |
+
+### Estándar de redacción (lo que revisa `spec-critic` antes de aprobar un caso)
+
+1. **Atómico.** Una condición o partición y un juego de datos por caso, con un único veredicto. Si el
+   caso falla, se sabe cuál fue la causa. Un caso que prueba 0, 1, 2, 12 y 13 cuotas son cinco casos.
+   Cuando un caso viejo se parte, el primero conserva el ID y los otros toman los siguientes del módulo;
+   la tabla de mapeo `ID anterior → IDs nuevos` mantiene la trazabilidad.
+2. **UI y API van en casos separados.** El negativo por UI y el negativo directo contra la RPC (C6) son
+   dos casos enlazados por "Caso par". Así un fallo del servidor no tapa que la UI se comporta bien, ni
+   al revés.
+3. **Independiente.** Cada caso arranca con su propio usuario (`PR-01`). Ningún caso necesita que otro
+   se haya ejecutado antes ni usa datos que dejó otro.
+4. **Datos concretos, no "el usuario de prueba".** Ni "un monto válido": el monto exacto. Los datos van en
+   "Datos de prueba", no mezclados con los pre-requisitos. Todo ficticio (C14).
+5. **Un paso, una acción, un resultado observable.** "Observar la pantalla" no es un paso. "Guardar" sin
+   decir qué se ve después, tampoco.
+6. **Variante API ejecutable a mano.** Método, endpoint, headers (por `PR-04`), body JSON y respuesta
+   esperada: status HTTP más `code` y mensaje.
+7. **Oráculo anclado al spec.** Cada resultado sale del criterio de aceptación, de una I* o de una R*, no
+   de lo que la app hace hoy. Un caso sin oráculo es un hueco del spec: se reporta, no se inventa.
+8. **Post-condición y limpieza** declaradas, y trazabilidad al criterio (`US-nn · CA-k`).
+
+Los procedimientos comunes (`PR-nn`) están en `docs/12-procedimientos-de-prueba.md`. La decisión de fondo está en ADR-028.
 
 **La columna de invariante es la que hace fuerte al catálogo.** Un caso que se puede anclar a
 "I1: la suma de las imputaciones es exactamente el monto" tiene un oráculo objetivo. Un caso
@@ -188,7 +223,7 @@ Se cierra una versión cuando, todo junto:
 2. Cero defectos de severidad alta abiertos, o cada uno con una justificación aceptada por el PO y registrada.
 3. Todos los casos de prioridad alta ejecutados.
 4. Toda invariante de `04-data-model.md` tiene al menos un caso ejecutado que la verifica.
-5. En V2 y V3: la suite de regresión de la versión anterior ejecutada, y todos los defectos corregidos confirmados.
+5. En V2 y V3: los casos de regresión seleccionados de la versión anterior (ADR-027) ejecutados, y todos los defectos corregidos confirmados.
 
 El punto 4 es el que conecta el plan de pruebas con el modelo de dominio, y es la métrica M1
 del brief.

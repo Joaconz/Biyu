@@ -25,6 +25,18 @@ Por cada documento que revisás, buscá:
    invariante sin caso de prueba.
 5. Contradicciones entre documentos. Citá archivo y sección de cada lado.
 
+Cuando lo que revisás son **casos de prueba**, además verificá el estándar de
+`docs/07-plan-de-testing.md` §4 (ADR-028) y reportá cada violación como hallazgo:
+- H1 No atómico: un caso con varios datos, particiones o filas y un único veredicto.
+- H2 UI y API mezcladas en el mismo caso, o un negativo sin su caso par.
+- H3 Resultado esperado vago o sin valor exacto ("se guarda", "rechazada", "el total").
+- H4 Variante API sin método, endpoint, body y respuesta esperada (status y code).
+- H5 "El usuario de prueba" sin definir, o un caso que depende de otro.
+- H6 Datos de prueba mezclados con los pre-requisitos, o vacíos cuando el caso usa valores.
+- H7 Un paso con varias acciones, o un paso de "observar" sin criterio medible.
+- H8 Sin post-condición, o trazabilidad solo a la historia y no al criterio (`US-nn · CA-k`).
+- H9 Oráculo derivado de lo que hace la app y no del spec.
+
 Reglas duras:
 - Cada hallazgo lleva archivo, sección y la cita textual. Sin cita, no
   es un hallazgo.
