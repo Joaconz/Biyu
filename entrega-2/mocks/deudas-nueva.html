@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock Nueva deuda</title>
+<!--
+  Mock de entrega-2/historias/deudas.md (US-36). Tokens y composición de ADR-023:
+  ecru, espresso, verde cazador, bordó; sin sombras ni degradados; listas agrupadas con filetes.
+  Montos y personas ficticios (C14). No es código de la app.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7;
+    --primary: #1b4d3e; --primary-foreground: #f9f6f0; --secondary: #f1ebe0;
+    --muted-foreground: #6e625a; --destructive: #8b2e2e;
+    --hairline: #e6dfd3; --input: #948877; --ring: #9a7b1f; --gold: #d4af37;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font); }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  .page > h1 { font-size: 1.25rem; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .lead { color: var(--muted-foreground); font-size: .9375rem; margin: 0 0 28px; max-width: 75ch; }
+  .frames { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .frame-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .frame-label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); padding-left: 4px; }
+  .phone { width: 360px; max-width: calc(100vw - 32px); border: 1px solid var(--hairline); border-radius: 28px; background: var(--background); overflow: hidden; position: relative; min-height: 640px; }
+  .screen { padding: 20px 16px 150px; display: flex; flex-direction: column; gap: 22px; }
+  .title { font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.018em; font-weight: 700; margin: 8px 4px 0; }
+  .header { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+  .label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .04em; padding: 0 4px; margin: 0 0 6px; }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .card > * + * { border-top: 1px solid var(--hairline); }
+  .row { min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 10px 16px; font-size: .9375rem; }
+  .muted { color: var(--muted-foreground); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .collapsed { opacity: .5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--input); border-radius: 999px; padding: 8px 14px; font-size: .875rem; background: var(--card); }
+  .chip.on { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+  .seg { display: flex; background: var(--secondary); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg span { flex: 1; text-align: center; padding: 8px 6px; font-size: .875rem; border-radius: 8px; color: var(--muted-foreground); }
+  .seg span.on { background: var(--card); color: var(--foreground); font-weight: 600; border: 1px solid var(--hairline); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .875rem; font-weight: 600; padding: 0 4px; }
+  .input { border: 1px solid var(--input); border-radius: 10px; background: var(--card); min-height: 48px; padding: 0 14px; display: flex; align-items: center; gap: 6px; font-size: 1rem; }
+  .input.error { border-color: var(--destructive); }
+  .input .ph { color: var(--muted-foreground); }
+  .err { color: var(--destructive); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .help { color: var(--muted-foreground); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .switch { width: 51px; height: 31px; border-radius: 999px; background: var(--secondary); border: 1px solid var(--input); position: relative; flex: none; margin-left: auto; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 25px; height: 25px; border-radius: 50%; background: var(--card); border: 1px solid var(--input); }
+  .switch.on { background: var(--primary); border-color: var(--primary); }
+  .switch.on::after { left: 22px; border-color: var(--primary); }
+  .btn { display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 12px; font-weight: 600; font-size: 1rem; background: var(--primary); color: var(--primary-foreground); }
+  .btn.disabled { opacity: .45; }
+  .btn.ghost { background: transparent; color: var(--foreground); border: 1px solid var(--input); }
+  .btn.small { min-height: 36px; font-size: .8125rem; padding: 0 12px; border-radius: 10px; }
+  .link { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .sticky { position: absolute; left: 0; right: 0; bottom: 68px; background: var(--background); border-top: 1px solid var(--hairline); padding: 10px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .hint { text-align: center; font-size: .8125rem; color: var(--muted-foreground); margin: 0; }
+  .toast { position: absolute; left: 16px; right: 16px; top: 14px; background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; font-size: .9rem; display: flex; gap: 10px; align-items: center; z-index: 3; }
+  .toast .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; }
+  .toast.bad .dot { background: var(--destructive); }
+  .toast small { display: block; color: var(--muted-foreground); }
+  .toast .act { margin-left: auto; font-weight: 600; color: var(--primary); }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 68px; background: rgba(249,246,240,.92); border-top: 1px solid var(--hairline); display: flex; justify-content: space-around; align-items: center; font-size: .6875rem; color: var(--muted-foreground); }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tabbar span.on { color: var(--primary); font-weight: 600; }
+  .tabbar i { width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid currentColor; display: block; }
+  .tid { font: 500 .625rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #8a6d12; background: #f6eed2; border-radius: 4px; padding: 2px 4px; white-space: nowrap; }
+  .notes { margin-top: 28px; font-size: .875rem; color: var(--muted-foreground); max-width: 85ch; line-height: 1.5; }
+  .badge { font-size: .6875rem; font-weight: 600; border-radius: 6px; padding: 2px 6px; background: var(--secondary); color: var(--foreground); }
+  .badge.ok { background: #e3ece8; color: var(--primary); }
+  .new { outline: 2px dashed var(--gold); outline-offset: 4px; border-radius: 12px; }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--hairline); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>US-36 · Nueva deuda</h1>
+  <p class="lead">Pantalla nueva <strong>Nueva deuda</strong> (<code>/debts/new</code>) para una deuda suelta, sin gasto asociado. Las etiquetas amarillas son los <code>data-testid</code>. Montos ficticios.</p>
+  <div class="frames">
+
+    <div class="frame-wrap"><div class="frame-label">1 · Inicial</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Nueva deuda</div>
+        <div class="field"><label>Dirección</label><div class="seg"><span class="on">Me deben</span><span>Debo</span></div><span class="tid">debt-form-direction</span></div>
+        <div class="field"><label>Persona</label><div class="input" style="border-color:var(--ring);border-width:2px"><span class="ph">Nombre</span></div><span class="tid">debt-form-person</span></div>
+        <div class="field"><label>Monto</label><div style="display:flex;gap:8px"><div class="input tabular" style="flex:1"><span class="ph">0,00</span></div><div class="seg" style="width:120px"><span class="on">ARS</span><span>US$</span></div></div><div style="display:flex;gap:6px"><span class="tid">debt-form-amount</span><span class="tid">debt-form-currency</span></div></div>
+        <div class="field"><label>Fecha</label><div class="input tabular">06/10/2026</div><span class="tid">debt-form-date</span></div>
+        <div class="field"><label>Nota (opcional)</label><div class="input"><span class="ph">Préstamo en efectivo</span></div><span class="tid">debt-form-notes</span></div>
+      </div>
+      <div class="sticky" style="bottom:0"><p class="hint">Ingresá el nombre de la persona</p><div class="btn disabled">Guardar deuda</div><div class="btn ghost">Cancelar</div><div style="display:flex;gap:6px"><span class="tid">debt-form-hint</span><span class="tid">debt-form-submit</span><span class="tid">debt-form-cancel</span></div></div>
+      </div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">2 · En dólares con TC de referencia</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Nueva deuda</div>
+        <div class="field"><label>Dirección</label><div class="seg"><span class="on">Me deben</span><span>Debo</span></div></div>
+        <div class="field"><label>Persona</label><div class="input">Juan</div></div>
+        <div class="field"><label>Monto</label><div style="display:flex;gap:8px"><div class="input tabular" style="flex:1"><span class="muted">US$</span>40</div><div class="seg" style="width:120px"><span>ARS</span><span class="on">US$</span></div></div></div>
+        <div class="field"><label>Tipo de cambio (ARS por US$)</label><div class="input tabular">1.250,00</div><p class="help tabular">≈ $50.000,00</p><div style="display:flex;gap:6px"><span class="tid">debt-form-fx-rate</span><span class="tid">debt-form-fx-ars-equivalent</span></div></div>
+        <div class="field"><label>Fecha</label><div class="input tabular">01/10/2026</div></div>
+        <div class="field"><label>Nota (opcional)</label><div class="input">Préstamo en efectivo</div></div>
+      </div>
+      <div class="sticky" style="bottom:0"><div class="btn">Guardar deuda</div><div class="btn ghost">Cancelar</div></div>
+      </div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">3 · Errores y US$ sin referencia</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Nueva deuda</div>
+        <div class="field"><label>Dirección</label><div class="seg"><span>Me deben</span><span class="on">Debo</span></div></div>
+        <div class="field"><label>Persona</label><div class="input error"><span class="ph">Nombre</span></div><p class="err" role="alert">Ingresá el nombre de la persona</p><span class="tid">debt-form-person-error</span></div>
+        <div class="field"><label>Monto</label><div style="display:flex;gap:8px"><div class="input error tabular" style="flex:1"><span class="muted">US$</span>0,001</div><div class="seg" style="width:120px"><span>ARS</span><span class="on">US$</span></div></div><p class="err" role="alert">El monto admite hasta 2 decimales</p><span class="tid">debt-form-amount-error</span></div>
+        <div class="field"><label>Tipo de cambio (ARS por US$)</label><div class="input error"><span class="ph">0,00</span></div><p class="help">No tenés un tipo de cambio configurado para este mes · <span class="link">Ir a Ajustes</span></p><p class="err" role="alert">Falta el tipo de cambio</p><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tid">debt-form-fx-rate-status</span><span class="tid">debt-form-fx-rate-error</span><span class="tid">debt-form-fx-settings</span></div></div>
+        <div class="field"><label>Fecha</label><div class="input error tabular">07/10/2026</div><p class="err" role="alert">La fecha no puede ser futura</p><span class="tid">debt-form-date-error</span></div>
+      </div>
+      <div class="sticky" style="bottom:0"><p class="hint">Ingresá el nombre de la persona</p><div class="btn disabled">Guardar deuda</div><div class="btn ghost">Cancelar</div></div>
+      </div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">4 · Cargando TC, guardando y error</div>
+      <div class="phone">
+        <div class="toast bad"><span class="dot"></span><div>No se pudo guardar la deuda<small>La fecha no puede ser posterior a hoy</small></div></div>
+        <div class="screen" style="padding-top:90px">
+          <span class="tid">debt-form-save-error</span>
+          <div class="field"><label>Tipo de cambio (ARS por US$)</label><div class="input"><span class="spinner"></span><span class="muted">Buscando el tipo de cambio del mes…</span></div><span class="tid">debt-form-fx-loading</span></div>
+          <hr style="border:0;border-top:1px dashed var(--hairline);width:100%">
+          <div class="field"><label>Tipo de cambio (ARS por US$)</label><div class="input"><span class="ph">0,00</span></div><p class="help">No pudimos traer el tipo de cambio de referencia</p></div>
+        </div>
+        <div class="sticky" style="bottom:0"><div class="btn disabled">Guardando…</div><div class="btn ghost disabled">Cancelar</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="notes">Al guardar bien: aviso "Deuda guardada" (<code>debt-form-saved</code>) y vuelta a <code>/debts?status=pending</code>. "Cancelar" vuelve a <code>/debts</code> sin preguntar. El foco arranca en "Persona" (borde dorado del marco 1).</p>
+</div>
+</body>
+</html>

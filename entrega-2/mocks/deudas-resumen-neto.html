@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock Resumen neto</title>
+<!--
+  Mock de entrega-2/historias/deudas.md (US-30). Tokens y composición de ADR-023:
+  ecru, espresso, verde cazador, bordó; sin sombras ni degradados; listas agrupadas con filetes.
+  Montos y personas ficticios (C14). No es código de la app.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7;
+    --primary: #1b4d3e; --primary-foreground: #f9f6f0; --secondary: #f1ebe0;
+    --muted-foreground: #6e625a; --destructive: #8b2e2e;
+    --hairline: #e6dfd3; --input: #948877; --ring: #9a7b1f; --gold: #d4af37;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font); }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  .page > h1 { font-size: 1.25rem; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .lead { color: var(--muted-foreground); font-size: .9375rem; margin: 0 0 28px; max-width: 75ch; }
+  .frames { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .frame-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .frame-label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); padding-left: 4px; }
+  .phone { width: 360px; max-width: calc(100vw - 32px); border: 1px solid var(--hairline); border-radius: 28px; background: var(--background); overflow: hidden; position: relative; min-height: 640px; }
+  .screen { padding: 20px 16px 150px; display: flex; flex-direction: column; gap: 22px; }
+  .title { font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.018em; font-weight: 700; margin: 8px 4px 0; }
+  .header { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+  .label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .04em; padding: 0 4px; margin: 0 0 6px; }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .card > * + * { border-top: 1px solid var(--hairline); }
+  .row { min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 10px 16px; font-size: .9375rem; }
+  .muted { color: var(--muted-foreground); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .collapsed { opacity: .5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--input); border-radius: 999px; padding: 8px 14px; font-size: .875rem; background: var(--card); }
+  .chip.on { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+  .seg { display: flex; background: var(--secondary); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg span { flex: 1; text-align: center; padding: 8px 6px; font-size: .875rem; border-radius: 8px; color: var(--muted-foreground); }
+  .seg span.on { background: var(--card); color: var(--foreground); font-weight: 600; border: 1px solid var(--hairline); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .875rem; font-weight: 600; padding: 0 4px; }
+  .input { border: 1px solid var(--input); border-radius: 10px; background: var(--card); min-height: 48px; padding: 0 14px; display: flex; align-items: center; gap: 6px; font-size: 1rem; }
+  .input.error { border-color: var(--destructive); }
+  .input .ph { color: var(--muted-foreground); }
+  .err { color: var(--destructive); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .help { color: var(--muted-foreground); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .switch { width: 51px; height: 31px; border-radius: 999px; background: var(--secondary); border: 1px solid var(--input); position: relative; flex: none; margin-left: auto; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 25px; height: 25px; border-radius: 50%; background: var(--card); border: 1px solid var(--input); }
+  .switch.on { background: var(--primary); border-color: var(--primary); }
+  .switch.on::after { left: 22px; border-color: var(--primary); }
+  .btn { display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 12px; font-weight: 600; font-size: 1rem; background: var(--primary); color: var(--primary-foreground); }
+  .btn.disabled { opacity: .45; }
+  .btn.ghost { background: transparent; color: var(--foreground); border: 1px solid var(--input); }
+  .btn.small { min-height: 36px; font-size: .8125rem; padding: 0 12px; border-radius: 10px; }
+  .link { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .sticky { position: absolute; left: 0; right: 0; bottom: 68px; background: var(--background); border-top: 1px solid var(--hairline); padding: 10px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .hint { text-align: center; font-size: .8125rem; color: var(--muted-foreground); margin: 0; }
+  .toast { position: absolute; left: 16px; right: 16px; top: 14px; background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; font-size: .9rem; display: flex; gap: 10px; align-items: center; z-index: 3; }
+  .toast .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; }
+  .toast.bad .dot { background: var(--destructive); }
+  .toast small { display: block; color: var(--muted-foreground); }
+  .toast .act { margin-left: auto; font-weight: 600; color: var(--primary); }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 68px; background: rgba(249,246,240,.92); border-top: 1px solid var(--hairline); display: flex; justify-content: space-around; align-items: center; font-size: .6875rem; color: var(--muted-foreground); }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tabbar span.on { color: var(--primary); font-weight: 600; }
+  .tabbar i { width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid currentColor; display: block; }
+  .tid { font: 500 .625rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #8a6d12; background: #f6eed2; border-radius: 4px; padding: 2px 4px; white-space: nowrap; }
+  .notes { margin-top: 28px; font-size: .875rem; color: var(--muted-foreground); max-width: 85ch; line-height: 1.5; }
+  .badge { font-size: .6875rem; font-weight: 600; border-radius: 6px; padding: 2px 6px; background: var(--secondary); color: var(--foreground); }
+  .badge.ok { background: #e3ece8; color: var(--primary); }
+  .new { outline: 2px dashed var(--gold); outline-offset: 4px; border-radius: 12px; }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--hairline); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>US-30 · Resumen con neto de reembolsos</h1>
+  <p class="lead">Pantalla <strong>Resumen</strong> (<code>/dashboard?period=AAAA-MM</code>). Se agrega una fila en la tarjeta verde, en un bloque propio entre el total y el pie con "Cuotas de meses anteriores" y los días con registro. El número grande sigue siendo el bruto (ADR-006). Montos ficticios.</p>
+  <div class="frames">
+    <div class="frame-wrap"><div class="frame-label">1 · Gasto en 1 cuota con deuda de $60.000</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Resumen</div><div class="muted" style="padding:0 4px">‹ octubre 2026 ›</div>
+        <div style="background:var(--primary);color:var(--primary-foreground);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px">
+          <div style="opacity:.8;font-size:.875rem">Gastado en octubre</div>
+          <div class="tabular" style="font-size:2.75rem;font-weight:700;letter-spacing:-.025em;line-height:1">$120.000,00</div>
+          <div class="new" style="display:flex;flex-direction:column;gap:4px;padding:4px 0">
+            <div style="font-size:.875rem;display:flex;justify-content:space-between"><span style="opacity:.8">Neto de reembolsos</span><strong class="tabular">$60.000,00</strong></div>
+            <span style="font-size:.8125rem;text-decoration:underline;text-underline-offset:3px">Ver deudas</span>
+          </div>
+          <div style="border-top:1px solid rgba(249,246,240,.25);padding-top:8px;display:flex;flex-direction:column;gap:6px">
+            <div style="opacity:.8;font-size:.875rem;display:flex;justify-content:space-between"><span>Cuotas de meses anteriores</span><strong class="tabular">$0,00</strong></div>
+            <div style="opacity:.8;font-size:.875rem">4 de 6 días con registro</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tid">dashboard-net-reimbursements</span><span class="tid">dashboard-net-reimbursements-amount</span><span class="tid">dashboard-net-reimbursements-link</span></div>
+        <div class="card collapsed"><div class="row">Ingresos · Balance</div></div>
+      </div>
+      <div class="tabbar"><span><i></i>Registrar</span><span class="on"><i></i>Resumen</span><span><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">2 · Compra en 12 cuotas: neto negativo en el mes de la compra</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Resumen</div><div class="muted" style="padding:0 4px">‹ agosto 2026 ›</div>
+        <div style="background:var(--primary);color:var(--primary-foreground);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px">
+          <div style="opacity:.8;font-size:.875rem">Gastado en agosto</div>
+          <div class="tabular" style="font-size:2.75rem;font-weight:700;letter-spacing:-.025em;line-height:1">$10.000,00</div>
+          <div class="new" style="display:flex;flex-direction:column;gap:4px;padding:4px 0">
+            <div style="font-size:.875rem;display:flex;justify-content:space-between"><span style="opacity:.8">Neto de reembolsos</span><strong class="tabular">-$50.000,00</strong></div>
+            <span style="font-size:.75rem;opacity:.8">Las deudas se descuentan enteras en el mes de la compra, aunque sea en cuotas.</span>
+            <span style="font-size:.8125rem;text-decoration:underline;text-underline-offset:3px">Ver deudas</span>
+          </div>
+          <div style="border-top:1px solid rgba(249,246,240,.25);padding-top:8px;display:flex;flex-direction:column;gap:6px">
+            <div style="opacity:.8;font-size:.875rem;display:flex;justify-content:space-between"><span>Cuotas de meses anteriores</span><strong class="tabular">$0,00</strong></div>
+            <div style="opacity:.8;font-size:.875rem">1 de 31 días con registro</div>
+          </div>
+        </div>
+        <span class="tid">dashboard-net-reimbursements-note</span>
+      </div>
+      <div class="tabbar"><span><i></i>Registrar</span><span class="on"><i></i>Resumen</span><span><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">3 · Mes sin deudas que cuenten: sin fila</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Resumen</div><div class="muted" style="padding:0 4px">‹ septiembre 2026 ›</div>
+        <div style="background:var(--primary);color:var(--primary-foreground);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px">
+          <div style="opacity:.8;font-size:.875rem">Gastado en septiembre</div>
+          <div class="tabular" style="font-size:2.75rem;font-weight:700;letter-spacing:-.025em;line-height:1">$45.300,00</div>
+          <div style="opacity:.8;font-size:.875rem;display:flex;justify-content:space-between"><span>Cuotas de meses anteriores</span><strong class="tabular">$10.000,00</strong></div>
+          <div style="opacity:.8;font-size:.875rem">12 de 30 días con registro</div>
+        </div>
+      </div>
+      <div class="tabbar"><span><i></i>Registrar</span><span class="on"><i></i>Resumen</span><span><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+  </div>
+  <p class="notes">Cargando, error y mes vacío son los estados del Resumen de V1 (<code>dashboard-loading</code>, <code>dashboard-error</code>, <code>dashboard-empty</code>); la fila no aparece en ninguno. Barra inferior de V2 dibujada solo para ubicar (#172).</p>
+</div>
+</body>
+</html>

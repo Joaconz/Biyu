@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock Deudas</title>
+<!--
+  Mock de entrega-2/historias/deudas.md (US-35, US-37 a US-40). Tokens y composición de ADR-023:
+  ecru, espresso, verde cazador, bordó; sin sombras ni degradados; listas agrupadas con filetes.
+  Montos y personas ficticios (C14). No es código de la app.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7;
+    --primary: #1b4d3e; --primary-foreground: #f9f6f0; --secondary: #f1ebe0;
+    --muted-foreground: #6e625a; --destructive: #8b2e2e;
+    --hairline: #e6dfd3; --input: #948877; --ring: #9a7b1f; --gold: #d4af37;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font); }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  .page > h1 { font-size: 1.25rem; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .lead { color: var(--muted-foreground); font-size: .9375rem; margin: 0 0 28px; max-width: 75ch; }
+  .frames { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .frame-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .frame-label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); padding-left: 4px; }
+  .phone { width: 360px; max-width: calc(100vw - 32px); border: 1px solid var(--hairline); border-radius: 28px; background: var(--background); overflow: hidden; position: relative; min-height: 640px; }
+  .screen { padding: 20px 16px 150px; display: flex; flex-direction: column; gap: 22px; }
+  .title { font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.018em; font-weight: 700; margin: 8px 4px 0; }
+  .header { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+  .label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .04em; padding: 0 4px; margin: 0 0 6px; }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .card > * + * { border-top: 1px solid var(--hairline); }
+  .row { min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 10px 16px; font-size: .9375rem; }
+  .muted { color: var(--muted-foreground); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .collapsed { opacity: .5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--input); border-radius: 999px; padding: 8px 14px; font-size: .875rem; background: var(--card); }
+  .chip.on { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+  .seg { display: flex; background: var(--secondary); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg span { flex: 1; text-align: center; padding: 8px 6px; font-size: .875rem; border-radius: 8px; color: var(--muted-foreground); }
+  .seg span.on { background: var(--card); color: var(--foreground); font-weight: 600; border: 1px solid var(--hairline); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .875rem; font-weight: 600; padding: 0 4px; }
+  .input { border: 1px solid var(--input); border-radius: 10px; background: var(--card); min-height: 48px; padding: 0 14px; display: flex; align-items: center; gap: 6px; font-size: 1rem; }
+  .input.error { border-color: var(--destructive); }
+  .input .ph { color: var(--muted-foreground); }
+  .err { color: var(--destructive); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .help { color: var(--muted-foreground); font-size: .8125rem; padding: 0 4px; margin: 0; }
+  .switch { width: 51px; height: 31px; border-radius: 999px; background: var(--secondary); border: 1px solid var(--input); position: relative; flex: none; margin-left: auto; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 25px; height: 25px; border-radius: 50%; background: var(--card); border: 1px solid var(--input); }
+  .switch.on { background: var(--primary); border-color: var(--primary); }
+  .switch.on::after { left: 22px; border-color: var(--primary); }
+  .btn { display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 12px; font-weight: 600; font-size: 1rem; background: var(--primary); color: var(--primary-foreground); }
+  .btn.disabled { opacity: .45; }
+  .btn.ghost { background: transparent; color: var(--foreground); border: 1px solid var(--input); }
+  .btn.small { min-height: 36px; font-size: .8125rem; padding: 0 12px; border-radius: 10px; }
+  .link { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .sticky { position: absolute; left: 0; right: 0; bottom: 68px; background: var(--background); border-top: 1px solid var(--hairline); padding: 10px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .hint { text-align: center; font-size: .8125rem; color: var(--muted-foreground); margin: 0; }
+  .toast { position: absolute; left: 16px; right: 16px; top: 14px; background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; font-size: .9rem; display: flex; gap: 10px; align-items: center; z-index: 3; }
+  .toast .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; }
+  .toast.bad .dot { background: var(--destructive); }
+  .toast small { display: block; color: var(--muted-foreground); }
+  .toast .act { margin-left: auto; font-weight: 600; color: var(--primary); }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 68px; background: rgba(249,246,240,.92); border-top: 1px solid var(--hairline); display: flex; justify-content: space-around; align-items: center; font-size: .6875rem; color: var(--muted-foreground); }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tabbar span.on { color: var(--primary); font-weight: 600; }
+  .tabbar i { width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid currentColor; display: block; }
+  .tid { font: 500 .625rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #8a6d12; background: #f6eed2; border-radius: 4px; padding: 2px 4px; white-space: nowrap; }
+  .notes { margin-top: 28px; font-size: .875rem; color: var(--muted-foreground); max-width: 85ch; line-height: 1.5; }
+  .badge { font-size: .6875rem; font-weight: 600; border-radius: 6px; padding: 2px 6px; background: var(--secondary); color: var(--foreground); }
+  .badge.ok { background: #e3ece8; color: var(--primary); }
+  .new { outline: 2px dashed var(--gold); outline-offset: 4px; border-radius: 12px; }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--hairline); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>US-35 · US-37 a US-40 · Deudas</h1>
+  <p class="lead">Pantalla nueva <strong>Deudas</strong> (<code>/debts?status=pending|settled|all</code>). Totales de pendientes, filtro en la URL (C11) y una fila por deuda con su acción. Las etiquetas amarillas son los <code>data-testid</code>. Personas y montos ficticios.</p>
+  <div class="frames">
+
+    <div class="frame-wrap"><div class="frame-label">1 · Pendientes (por defecto)</div>
+      <div class="phone"><div class="screen">
+        <div class="header"><div class="title">Deudas</div><div class="btn small">Nueva deuda</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tid">debts-title</span><span class="tid">debts-new</span></div>
+        <div class="card">
+          <div class="row" style="align-items:stretch;padding:14px 16px">
+            <div style="flex:1"><div class="muted" style="font-size:.8125rem">Te deben</div><div class="tabular" style="font-size:1.375rem;font-weight:700;color:var(--primary)">$110.000,00</div><span class="tid">debts-total-owed-to-me</span></div>
+            <div style="flex:1"><div class="muted" style="font-size:.8125rem">Debés</div><div class="tabular" style="font-size:1.375rem;font-weight:700;color:var(--destructive)">$15.000,00</div><span class="tid">debts-total-i-owe</span></div>
+          </div>
+          <div class="row" style="justify-content:space-between"><span class="tabular"><strong>A tu favor $95.000,00</strong></span><span class="tid">debts-net</span></div>
+        </div>
+        <p class="help" style="margin-top:-14px">Solo suman las deudas pendientes.</p>
+        <div class="seg" role="radiogroup"><span class="on">Pendientes</span><span>Saldadas</span><span>Todas</span></div>
+        <div class="card">
+          <div class="row" style="align-items:flex-start">
+            <div style="flex:1;min-width:0"><div><strong>Juan</strong> <span class="muted">· Te debe</span></div>
+              <div class="muted" style="font-size:.8125rem">Deuda suelta · Préstamo en efectivo</div>
+              <div class="muted" style="font-size:.8125rem">01/10/2026 · <span class="badge">Pendiente</span></div></div>
+            <div style="text-align:right"><div class="tabular"><strong>US$40,00</strong></div><div class="muted tabular" style="font-size:.8125rem">≈ $50.000,00</div><div class="btn small ghost" style="margin-top:6px">Marcar saldada</div></div>
+          </div>
+          <div class="row" style="align-items:flex-start">
+            <div style="flex:1;min-width:0"><div><strong>Ana</strong> <span class="muted">· Le debés</span></div>
+              <div class="muted" style="font-size:.8125rem">Deuda suelta</div>
+              <div class="muted" style="font-size:.8125rem">20/09/2026 · <span class="badge">Pendiente</span></div></div>
+            <div style="text-align:right"><div class="tabular" style="color:var(--destructive)"><strong>$15.000,00</strong></div><div class="btn small ghost" style="margin-top:6px">Marcar saldada</div></div>
+          </div>
+          <div class="row" style="align-items:flex-start">
+            <div style="flex:1;min-width:0"><div><strong>Sofía</strong> <span class="muted">· Te debe</span></div>
+              <div class="muted" style="font-size:.8125rem">Gasto compartido: Tecnología, $120.000,00 del 15/08/2026</div>
+              <div class="muted" style="font-size:.8125rem">15/08/2026 · <span class="badge">Pendiente</span></div></div>
+            <div style="text-align:right"><div class="tabular"><strong>$60.000,00</strong></div><div class="btn small ghost" style="margin-top:6px">Marcar saldada</div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tid">debts-item-person</span><span class="tid">debts-item-direction</span><span class="tid">debts-item-origin</span><span class="tid">debts-item-notes</span><span class="tid">debts-item-date</span><span class="tid">debts-item-status</span><span class="tid">debts-item-amount</span><span class="tid">debts-item-amount-ars</span><span class="tid">debts-item-settle</span></div>
+      </div>
+      <div class="tabbar"><span><i></i>Registrar</span><span><i></i>Resumen</span><span class="on"><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">2 · Saldada en un toque (US-39)</div>
+      <div class="phone">
+        <div class="toast"><span class="dot"></span><div>Deuda con Sofía saldada</div><span class="act">Deshacer</span></div>
+        <div class="screen" style="padding-top:84px">
+          <div style="display:flex;gap:6px"><span class="tid">debts-settled</span><span class="tid">debts-settled-undo</span></div>
+          <div class="card"><div class="row" style="justify-content:space-between"><span>Te deben <strong class="tabular" style="color:var(--primary)">$50.000,00</strong></span><span>Debés <strong class="tabular" style="color:var(--destructive)">$15.000,00</strong></span></div><div class="row tabular"><strong>A tu favor $35.000,00</strong></div></div>
+          <div class="seg"><span class="on">Pendientes</span><span>Saldadas</span><span>Todas</span></div>
+          <div class="card">
+            <div class="row"><div style="flex:1"><strong>Juan</strong> <span class="muted">· Te debe</span><div class="muted" style="font-size:.8125rem">Deuda suelta · Préstamo en efectivo</div></div><div class="tabular"><strong>US$40,00</strong></div></div>
+            <div class="row"><div style="flex:1"><strong>Ana</strong> <span class="muted">· Le debés</span><div class="muted" style="font-size:.8125rem">Deuda suelta</div></div><div class="tabular" style="color:var(--destructive)"><strong>$15.000,00</strong></div></div>
+          </div>
+        </div>
+        <div class="tabbar"><span><i></i>Registrar</span><span><i></i>Resumen</span><span class="on"><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">3 · Saldadas · volver a pendiente (US-40)</div>
+      <div class="phone"><div class="screen">
+        <div class="header"><div class="title">Deudas</div><div class="btn small">Nueva deuda</div></div>
+        <div class="seg"><span>Pendientes</span><span class="on">Saldadas</span><span>Todas</span></div>
+        <span class="help">URL: <code>/debts?status=settled</code></span>
+        <div class="card">
+          <div class="row" style="align-items:flex-start">
+            <div style="flex:1"><div><strong>Sofía</strong> <span class="muted">· Te debe</span></div>
+              <div class="muted" style="font-size:.8125rem">Gasto compartido: Tecnología, $120.000,00 del 15/08/2026</div>
+              <div class="muted" style="font-size:.8125rem">15/08/2026 · <span class="badge ok">Saldada el 06/10/2026</span></div></div>
+            <div style="text-align:right"><div class="tabular"><strong>$60.000,00</strong></div><div class="btn small ghost" style="margin-top:6px">Volver a pendiente</div></div>
+          </div>
+          <div class="row" style="align-items:flex-start">
+            <div style="flex:1"><div><strong>Pedro</strong> <span class="muted">· Te debe</span></div>
+              <div class="muted" style="font-size:.8125rem">Deuda suelta</div>
+              <div class="muted" style="font-size:.8125rem">02/09/2026 · <span class="badge ok">Saldada el 10/09/2026</span></div></div>
+            <div style="text-align:right"><div class="tabular"><strong>$8.000,00</strong></div><div class="btn small ghost" style="margin-top:6px">Volver a pendiente</div></div>
+          </div>
+        </div>
+        <span class="tid">debts-item-reopen</span>
+      </div>
+      <div class="tabbar"><span><i></i>Registrar</span><span><i></i>Resumen</span><span class="on"><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+
+    <div class="frame-wrap"><div class="frame-label">4 · Vacío, cargando y error (US-38)</div>
+      <div class="phone"><div class="screen">
+        <div class="title">Deudas</div>
+        <div class="card"><div class="row" style="justify-content:space-between"><span>Te deben <strong class="tabular">$0,00</strong></span><span>Debés <strong class="tabular">$0,00</strong></span></div><div class="row"><strong>En cero</strong></div></div>
+        <div class="seg"><span class="on">Pendientes</span><span>Saldadas</span><span>Todas</span></div>
+        <div style="text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;padding:12px 0">
+          <p class="muted" style="margin:0">No tenés deudas pendientes.</p>
+          <div class="btn ghost small">Cargar una deuda</div>
+          <div style="display:flex;gap:6px"><span class="tid">debts-empty</span><span class="tid">debts-empty-new</span></div>
+        </div>
+        <hr style="border:0;border-top:1px dashed var(--hairline);width:100%">
+        <div style="display:flex;gap:10px;align-items:center"><span class="spinner"></span><span class="muted">Cargando deudas…</span><span class="tid">debts-loading</span></div>
+        <hr style="border:0;border-top:1px dashed var(--hairline);width:100%">
+        <div style="display:flex;flex-direction:column;gap:10px"><p class="err" style="font-size:.9375rem" role="alert">No pudimos cargar tus deudas.</p><div class="btn ghost small" style="align-self:flex-start">Reintentar</div><div style="display:flex;gap:6px"><span class="tid">debts-error</span><span class="tid">debts-retry</span></div></div>
+      </div>
+      <div class="tabbar"><span><i></i>Registrar</span><span><i></i>Resumen</span><span class="on"><i></i>Deudas</span><span><i></i>Suscripciones</span></div></div>
+    </div>
+  </div>
+  <p class="notes">La barra inferior con "Deudas" es la de V2 (#172, otra feature); se dibuja para ubicar la pantalla. Los totales solo suman pendientes y no dependen del filtro (US-37). Una deuda de un gasto eliminado no aparece (US-35, ADR-037).</p>
+</div>
+</body>
+</html>
