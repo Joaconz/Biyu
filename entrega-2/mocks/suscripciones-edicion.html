@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editar suscripción</title>
+<style>
+/* Mocks de Suscripciones (V2). Tokens copiados de src/index.css (ADR-023): ecru, papel, verde cazador,
+   bordó, oro solo decorativo, sin sombras ni degradados. Montos ficticios (C14). */
+:root {
+  --background: #f9f6f0;
+  --foreground: #2b1e19;
+  --card: #fdfbf7;
+  --primary: #1b4d3e;
+  --primary-foreground: #f9f6f0;
+  --muted: #f1ebe0;
+  --muted-foreground: #6e625a;
+  --accent: #efe8dc;
+  --destructive: #8b2e2e;
+  --hairline: #e6dfd3;
+  --input: #948877;
+  --ring: #9a7b1f;
+  --gold: #d4af37;
+  --warning: #7a5c12;
+  --warning-surface: #f3ebd6;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #e9e3d8; color: var(--foreground); font-family: var(--font); font-size: 15px; }
+.board { display: flex; flex-wrap: wrap; gap: 32px; padding: 32px 16px; justify-content: center; }
+.board > h1 { width: 100%; text-align: center; font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.board > p.lead { width: 100%; text-align: center; margin: 0 0 8px; color: var(--muted-foreground); font-size: 13px; }
+.state { display: flex; flex-direction: column; gap: 8px; align-items: center; max-width: 100%; }
+.state > .label { font-size: 12px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.06em; }
+.phone { position: relative; width: 375px; max-width: 100%; height: 780px; background: var(--background); border: 1px solid var(--hairline); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; }
+.screen { flex: 1; overflow: hidden; padding: 0 16px 16px; }
+.status-bar { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; font-size: 13px; font-weight: 600; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0 16px; }
+.header h2 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.018em; font-weight: 700; }
+.header h3 { margin: 0; font-size: 20px; letter-spacing: -0.01em; font-weight: 700; flex: 1; }
+.back { width: 36px; height: 36px; border-radius: 999px; display: grid; place-items: center; color: var(--foreground); border: 1px solid var(--hairline); background: var(--card); font-size: 18px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 8px; font: inherit; font-weight: 600; border: 1px solid transparent; cursor: default; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-outline { background: var(--card); color: var(--foreground); border-color: var(--input); }
+.btn-ghost { background: transparent; color: var(--primary); }
+.btn-destructive { background: var(--destructive); color: #fdfbf7; }
+.btn-destructive-outline { background: var(--card); color: var(--destructive); border-color: var(--destructive); }
+.btn-sm { min-height: 36px; padding: 0 12px; font-size: 14px; }
+.btn[disabled] { opacity: 0.55; }
+.section-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted-foreground); margin: 20px 4px 6px; }
+.group { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--hairline); min-height: 56px; }
+.row:first-child { border-top: 0; }
+.row .grow { flex: 1; min-width: 0; }
+.row .title { font-weight: 600; }
+.row .sub { font-size: 13px; color: var(--muted-foreground); }
+.row .amount { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.chev { color: var(--input); }
+.icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; flex: none; }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+.tag-warning { color: var(--warning); background: var(--warning-surface); }
+.tag-muted { color: var(--muted-foreground); background: var(--muted); }
+.tag-primary { color: var(--primary); background: #e3ece6; }
+.tag-deleted { color: var(--destructive); background: #f4e4e2; }
+.hero { background: var(--primary); color: var(--primary-foreground); border-radius: 12px; padding: 16px; }
+.hero .k { font-size: 13px; opacity: 0.85; }
+.hero .v { font-size: 34px; font-weight: 700; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; margin: 4px 0; }
+.hero .s { font-size: 13px; opacity: 0.9; }
+.hero .pending { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(249, 246, 240, 0.25); font-size: 13px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 13px; font-weight: 600; margin: 0 2px 6px; }
+.input { width: 100%; min-height: 44px; border: 1px solid var(--input); border-radius: 8px; background: var(--card); padding: 10px 12px; font: inherit; color: var(--foreground); display: flex; align-items: center; justify-content: space-between; }
+.input.placeholder { color: var(--muted-foreground); }
+.input.readonly { border-style: dashed; background: var(--muted); }
+.input.error { border-color: var(--destructive); }
+.help { font-size: 12px; color: var(--muted-foreground); margin: 6px 2px 0; }
+.err { font-size: 12px; color: var(--destructive); margin: 6px 2px 0; font-weight: 600; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--input); border-radius: 8px; overflow: hidden; }
+.seg span { text-align: center; padding: 10px; font-weight: 600; background: var(--card); }
+.seg span.on { background: var(--primary); color: var(--primary-foreground); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.footer { display: flex; gap: 10px; padding: 12px 16px calc(12px + 20px); border-top: 1px solid var(--hairline); background: var(--background); }
+.footer .btn { flex: 1; }
+.nav { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--hairline); background: rgba(249, 246, 240, 0.8); padding-bottom: 20px; }
+.nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; font-size: 11px; font-weight: 500; color: var(--muted-foreground); text-decoration: none; position: relative; }
+.nav a .i { font-size: 20px; }
+.nav a.on { color: var(--primary); font-weight: 700; }
+.nav a.on::before { content: ''; position: absolute; top: 3px; width: 4px; height: 4px; border-radius: 99px; background: var(--gold); }
+.banner { border-radius: 10px; padding: 12px; font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+.banner-warning { background: var(--warning-surface); color: var(--warning); border: 1px solid #e6d7ae; }
+.banner-error { background: #f4e4e2; color: var(--destructive); border: 1px solid #e7c9c5; }
+.banner-info { background: var(--muted); color: var(--foreground); border: 1px solid var(--hairline); }
+.banner .grow { flex: 1; }
+.banner .btn { margin-top: 8px; }
+.overlay { position: absolute; inset: 0; background: rgba(43, 30, 25, 0.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.dialog { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 20px; width: 100%; }
+.dialog h4 { margin: 0 0 10px; font-size: 18px; letter-spacing: -0.01em; }
+.dialog p { margin: 0 0 12px; font-size: 14px; line-height: 1.45; }
+.dialog .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+.toast { position: absolute; left: 16px; right: 16px; bottom: 96px; background: var(--foreground); color: var(--background); border-radius: 10px; padding: 12px 14px; font-size: 14px; font-weight: 500; }
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px; border-top: 1px solid var(--hairline); font-size: 14px; }
+.kv:first-child { border-top: 0; }
+.kv .k { color: var(--muted-foreground); }
+.kv .v { font-weight: 600; text-align: right; }
+.actions-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.center { text-align: center; }
+.empty { border: 1px dashed var(--input); border-radius: 12px; padding: 32px 20px; text-align: center; color: var(--muted-foreground); }
+.empty .btn { margin-top: 14px; }
+.note { font-size: 12px; color: var(--muted-foreground); max-width: 375px; text-align: left; line-height: 1.45; }
+.note code { font-size: 11px; background: var(--muted); padding: 1px 4px; border-radius: 4px; }
+.preview { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; }
+.preview .title { font-weight: 700; margin-bottom: 6px; }
+.preview .summary { font-size: 14px; margin: 0 0 10px; }
+.preview .sublabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted-foreground); margin: 10px 0 4px; }
+.preview .li { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-top: 1px solid var(--hairline); font-variant-numeric: tabular-nums; }
+.preview .li:first-of-type { border-top: 0; }
+.preview .li.blocked { color: var(--warning); }
+.spinner { width: 28px; height: 28px; border-radius: 99px; border: 3px solid var(--hairline); border-top-color: var(--primary); margin: 0 auto 12px; }
+</style>
+</head>
+<body>
+<div class="board">
+  <h1>Editar suscripción · <code>/subscriptions/:id/edit</code></h1>
+  <p class="lead">US-59 · ADR-031. Hoy: 06/10/2026. Montos ficticios.</p>
+
+  <div class="state">
+    <span class="label">Edición de una activa</span>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen" style="overflow:auto">
+        <div class="header"><span class="back" data-testid="subscription-form-back">‹</span><h3>Editar suscripción</h3></div>
+        <div class="banner banner-info" style="margin-bottom:14px">Los cambios aplican desde el próximo cobro. Los gastos ya cargados no cambian.</div>
+        <form data-testid="subscription-form">
+          <div class="field"><label>Nombre</label><div class="input" data-testid="subscription-form-name">Netflix</div></div>
+          <div class="two">
+            <div class="field"><label>Monto</label><div class="input" data-testid="subscription-form-amount">7.000,00</div></div>
+            <div class="field"><label>Moneda</label><div class="input readonly" data-testid="subscription-form-currency-readonly">ARS</div></div>
+          </div>
+          <div class="field"><label>Categoría</label><div class="input" data-testid="subscription-form-category">Entretenimiento <span>▾</span></div></div>
+          <div class="field"><label>Medio de pago</label><div class="input" data-testid="subscription-form-account">Visa vieja (archivada) <span>▾</span></div>
+            <p class="help">Si la cambiás, no la vas a poder volver a elegir.</p></div>
+          <div class="field"><label>Día de cobro</label><div class="input" data-testid="subscription-form-billing-day">10</div>
+            <p class="help">Si el mes tiene menos días, se cobra el último día del mes.</p></div>
+          <div class="two">
+            <div class="field"><label>Mes de inicio</label><div class="input readonly" data-testid="subscription-form-start-period-readonly">mayo 2026</div></div>
+            <div class="field"><label>Mes de fin (opcional)</label><div class="input placeholder" data-testid="subscription-form-end-period">Sin fin <span>▾</span></div></div>
+          </div>
+          <div class="field"><label>Descripción (opcional)</label><div class="input" data-testid="subscription-form-description" style="min-height:56px;align-items:flex-start">Plan estándar</div></div>
+        </form>
+        <div class="banner banner-info" data-testid="subscription-form-next-charge">Próximo cobro: 10/10/2026 por $7.000,00</div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-outline" data-testid="subscription-form-cancel">Cancelar</button>
+        <button class="btn btn-primary" data-testid="subscription-form-submit">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="state">
+    <span class="label">Errores · cancelada · después de guardar</span>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+      <div class="screen">
+        <div class="header"><span class="back">‹</span><h3>Editar suscripción</h3></div>
+        <div class="field"><label>Mes de fin (opcional)</label><div class="input error">septiembre 2026 <span>▾</span></div><p class="err">El mes de fin no puede ser anterior a octubre 2026</p></div>
+        <div class="banner banner-error" data-testid="subscription-form-error" role="alert">No se pudo guardar: revisá tu conexión y probá de nuevo</div>
+        <div class="section-label">Suscripción cancelada</div>
+        <div class="empty">Esta suscripción está cancelada y no se puede editar.<br><a class="btn btn-outline" data-testid="subscription-form-cancelled-back">Volver</a></div>
+        <div class="section-label">No existe o es de otro usuario</div>
+        <div class="empty" data-testid="subscription-form-not-found">No encontramos esta suscripción.</div>
+      </div>
+      <div class="toast" data-testid="subscription-toast">Cambios guardados. Antes se cargaron 2 gastos vencidos con los datos anteriores.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
