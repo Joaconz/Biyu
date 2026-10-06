@@ -13,8 +13,8 @@ es la del proyecto de Supabase que usa ese deploy.
 | PR-01 | Crear un usuario de prueba nuevo y saltear la configuración inicial | Sesión iniciada en Registrar, con el catálogo inicial |
 | PR-02 | Crear la cuenta "Visa BBVA" de tipo tarjeta de crédito | Cuenta disponible en Registrar |
 | PR-03 | Cargar el tipo de cambio de referencia del mes | Referencia guardada |
-| PR-04 | Obtener el token de sesión y llamar a la API directo | Token válido y llamada de ejemplo |
-| PR-05 | Crear dos usuarios de prueba (A y B), cada uno con datos | Dos sesiones aisladas con su token |
+| PR-04 | Obtener el token y los uuid, y llamar a la API directo | Token, uuid de categorías y cuentas, y plantilla de llamada |
+| PR-05 | Crear dos usuarios de prueba, A y B | Dos sesiones aisladas con su token, sin datos |
 | PR-06 | Llegar al paso 3/3 de Registrar con un monto y una cuenta | Formulario listo para elegir cuotas o fecha |
 | PR-07 | Registrar un gasto completo en cuotas, con fecha | Compra guardada, para casos que la usan como dato |
 | PR-08 | Leer por la API las filas propias (oráculo de verificación) | Filas de `transactions` y `ledger_entries` del usuario |
@@ -72,7 +72,7 @@ Sirve para toda variante **API** de un caso (C6: la validación real es la de Po
 diseño; se ve en la pestaña Network del navegador, en el header `apikey` de cualquier llamada de la app).
 La `service_role` **nunca** se usa para probar (C8).
 
-**Paso 1 · Iniciar sesión y guardar el token.**
+**Paso 1 · Iniciar sesión y guardar el token.** No escribe nada en la base.
 
 ```bash
 curl -s -X POST "<SUPABASE_URL>/auth/v1/token?grant_type=password" \
@@ -82,7 +82,18 @@ curl -s -X POST "<SUPABASE_URL>/auth/v1/token?grant_type=password" \
 
 Resultado esperado: HTTP 200 y un JSON con `access_token` (de ahí sale `<TOKEN>`) y `user.id`.
 
-**Paso 2 · Llamar a la RPC.** Todas las llamadas llevan los mismos dos headers de autorización:
+**Paso 2 · Obtener los uuid de categoría y cuenta.** Solo lectura: no escribe nada.
+
+```bash
+curl -s "<SUPABASE_URL>/rest/v1/categories?select=id,name" -H "apikey: <ANON_KEY>" -H "Authorization: Bearer <TOKEN>"
+curl -s "<SUPABASE_URL>/rest/v1/accounts?select=id,name,type" -H "apikey: <ANON_KEY>" -H "Authorization: Bearer <TOKEN>"
+```
+
+Resultado esperado: HTTP 200 y las listas del catálogo inicial. De ahí salen `<uuid Otros>`, `<uuid Visa BBVA>`,
+`<uuid Efectivo>`, etc.
+
+**Plantilla de llamada a la RPC (no es un paso).** Es el formato de las llamadas que cada caso API escribe completas, con
+sus propios valores. **No se ejecuta tal cual como parte de un pre-requisito**: crearía una transacción.
 
 ```bash
 curl -s -i -X POST "<SUPABASE_URL>/rest/v1/rpc/create_transaction" \
@@ -96,29 +107,33 @@ curl -s -i -X POST "<SUPABASE_URL>/rest/v1/rpc/create_transaction" \
 ```
 
 - **Éxito:** HTTP 200 y el cuerpo es el `uuid` de la transacción creada.
-- **Rechazo de Postgres:** HTTP 4xx con `code` y `message` en el JSON. Cada caso que usa esta variante
-  declara el `code` y el texto esperados (por ejemplo `23514` / `check_violation`, o `42501`).
+- **Rechazo de Postgres:** HTTP 4xx con `code` y `message` en el JSON. Cada caso declara el `code` y el texto esperados
+  (por ejemplo `23514` / `check_violation`).
 - Los montos viajan como string decimal, nunca como número (C2).
-
-**Cómo obtener los uuid.** `GET <SUPABASE_URL>/rest/v1/categories?select=id,name` y
-`GET <SUPABASE_URL>/rest/v1/accounts?select=id,name,type`, con los mismos dos headers de autorización.
 
 **Otras RPC.** `upsert_fx_rate` (`p_period` fecha del primer día del mes, `p_ars_per_usd` numérico) y
 `delete_transaction` (`p_transaction_id` uuid), por el mismo endpoint `/rest/v1/rpc/<nombre>`.
 Los parámetros de las RPC nuevas de V2 se agregan acá cuando se especifican.
 
-**Rol `anon`.** Para probar `permission denied`, repetir la llamada con `Authorization: Bearer <ANON_KEY>`
-(sin sesión). Esperado: HTTP 401 o 403 con `code` `42501`.
+**Rol `anon`.** Para repetir una llamada sin sesión, cambiar el header por `Authorization: Bearer <ANON_KEY>`.
+Lo que debe responder lo dice cada caso (la regla vigente de US-48 · CA-2 y C7 se verifica en el módulo `ACC`).
 
-## PR-05 · Dos usuarios de prueba, A y B, cada uno con datos
+---
 
-Para los casos de aislamiento (C7). **Requiere** PR-01 hecho dos veces, con dos emails distintos.
+## PR-05 · Crear dos usuarios de prueba, A y B
+
+Para los casos de aislamiento (C7). Los datos de cada usuario los carga el caso (por ejemplo con `PR-07`),
+así el caso sabe exactamente qué filas existen. **Requiere** PR-01 dos veces, con dos emails distintos.
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Hacer PR-01 con `qa+<ID>-A@example.com` y registrar un gasto de ARS 1.000,00 (categoría "Otros"). | El gasto aparece en Movimientos del usuario A. |
-| 2 | En una segunda ventana de incógnito, hacer PR-01 con `qa+<ID>-B@example.com` y registrar un gasto de ARS 2.000,00. | El gasto aparece en Movimientos del usuario B. |
+| 1 | Hacer PR-01 con `qa+<ID>-A@example.com`. | Usuario A con sesión iniciada. |
+| 2 | En una segunda ventana de incógnito, hacer PR-01 con `qa+<ID>-B@example.com`. | Usuario B con sesión iniciada, en una sesión aparte de la de A. |
 | 3 | Hacer PR-04 paso 1 para A y para B. | Dos `access_token` distintos: `<TOKEN-A>` y `<TOKEN-B>`. |
+
+**Post-condición.** A y B no tienen ninguna transacción. Quien cita este procedimiento cargará los datos que necesite.
+
+---
 
 ## PR-06 · Llegar al paso 3/3 de Registrar con un monto y una cuenta
 
