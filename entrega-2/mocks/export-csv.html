@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock US-47 · Exportar CSV</title>
+<!--
+  Mock de US-47 (entrega-2/historias/export-csv.md). Tokens y composición de ADR-023:
+  ecru, espresso, verde cazador, bordó; sin sombras ni degradados; listas agrupadas con filetes.
+  Montos ficticios (C14). No es código de la app.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7;
+    --primary: #1b4d3e; --primary-foreground: #f9f6f0; --secondary: #f1ebe0;
+    --muted-foreground: #6e625a; --accent: #efe8dc; --destructive: #8b2e2e;
+    --hairline: #e6dfd3; --input: #948877; --ring: #9a7b1f; --gold: #d4af37;
+    --warning: #7a5c12; --warning-surface: #f3ebd6;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font); }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  .page > h1 { font-size: 1.25rem; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .page > p.lead { color: var(--muted-foreground); font-size: .9375rem; margin: 0 0 28px; max-width: 75ch; }
+  .frames { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .frame-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .frame-label { font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); padding-left: 4px; max-width: 360px; }
+  .frame-label code { font-weight: 500; }
+  .phone { width: 360px; height: 640px; max-width: calc(100vw - 32px); border: 1px solid var(--hairline); border-radius: 28px; background: var(--background); overflow: hidden; position: relative; }
+  .screen { padding: 20px 16px 96px; display: flex; flex-direction: column; gap: 16px; }
+  .header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+  .title { font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.018em; font-weight: 700; margin: 0 4px; }
+  .switcher { display: flex; align-items: center; gap: 2px; }
+  .switcher .arrow { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--muted-foreground); font-size: 1.1rem; }
+  .switcher .month { height: 34px; padding: 0 14px; border-radius: 999px; background: var(--secondary); font-size: .9375rem; font-weight: 600; display: flex; align-items: center; }
+  .export-btn { all: unset; box-sizing: border-box; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--input); display: inline-flex; align-items: center; gap: 6px; font-size: .875rem; font-weight: 600; color: var(--foreground); cursor: pointer; }
+  .export-btn[disabled] { color: var(--muted-foreground); border-color: var(--hairline); cursor: not-allowed; }
+  .export-btn:focus-visible, button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .highlight { outline: 2px dashed var(--gold); outline-offset: 3px; }
+  .filter { display: inline-flex; width: fit-content; border-radius: 8px; background: var(--secondary); padding: 4px; font-size: .8125rem; }
+  .filter span { padding: 6px 12px; border-radius: 6px; color: var(--muted-foreground); font-weight: 500; }
+  .filter span.on { background: var(--card); color: var(--foreground); }
+  .daylabel { font-size: .8125rem; color: var(--muted-foreground); font-weight: 600; padding: 0 4px; margin-top: 4px; }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .card > * + * { border-top: 1px solid var(--hairline); }
+  .row { min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 16px; font-size: .9375rem; }
+  .row .amt { margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .row .amt.income { color: var(--primary); }
+  .row small { display: block; color: var(--muted-foreground); font-size: .75rem; }
+  .future { font-size: .8125rem; color: var(--warning); background: var(--warning-surface); border-radius: 8px; padding: 8px 12px; margin: 0; }
+  .empty-list { border: 1px dashed rgba(148,136,119,.5); border-radius: 12px; padding: 40px 20px; text-align: center; color: var(--muted-foreground); font-size: .9375rem; }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 68px; background: rgba(249,246,240,.92); border-top: 1px solid var(--hairline); display: flex; justify-content: space-around; align-items: center; font-size: .6875rem; color: var(--muted-foreground); }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tabbar i { width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid currentColor; display: block; }
+  /* Hoja inferior */
+  .scrim { position: absolute; inset: 0; background: rgba(43,30,25,.32); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--hairline); border-radius: 16px 16px 0 0; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--hairline); margin: 0 auto 4px; }
+  .sheet h2 { font-size: 1.25rem; letter-spacing: -0.01em; margin: 0; }
+  .options { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; background: var(--background); }
+  .options label { min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 16px; font-size: .9375rem; }
+  .options label + label { border-top: 1px solid var(--hairline); }
+  .radio { width: 20px; height: 20px; border-radius: 50%; border: 1.6px solid var(--input); flex: none; display: flex; align-items: center; justify-content: center; }
+  .radio.on { border-color: var(--primary); }
+  .radio.on::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+  .disabled { opacity: .5; }
+  .hint { font-size: .8125rem; color: var(--muted-foreground); margin: 0; line-height: 1.35; }
+  .msg { font-size: .9375rem; margin: 0; }
+  .msg.error { color: var(--destructive); }
+  .msg.empty { color: var(--muted-foreground); }
+  .actions { display: flex; gap: 10px; }
+  .btn { all: unset; box-sizing: border-box; flex: 1; height: 46px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: .9375rem; font-weight: 600; cursor: pointer; }
+  .btn.primary { background: var(--primary); color: var(--primary-foreground); }
+  .btn.primary[aria-busy="true"] { opacity: .7; cursor: default; }
+  .btn.outline { border: 1px solid var(--input); color: var(--foreground); }
+  .btn[disabled] { cursor: default; }
+  .btn.outline[disabled] { opacity: .5; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(249,246,240,.4); border-top-color: var(--primary-foreground); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: 84px; background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; font-size: .9375rem; display: flex; gap: 10px; align-items: center; }
+  .toast .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; }
+  .download { position: absolute; top: 10px; right: 12px; background: var(--foreground); color: var(--background); font-size: .75rem; border-radius: 10px; padding: 8px 10px; z-index: 2; }
+  .file { flex: 1 1 100%; min-width: 0; }
+  .file pre { margin: 0; background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; padding: 14px 16px; font: .75rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-x: auto; white-space: pre; }
+  .file .bom { color: var(--muted-foreground); }
+  .notes { margin-top: 28px; font-size: .875rem; color: var(--muted-foreground); max-width: 85ch; line-height: 1.5; }
+  .notes code, .frame-label code { font-size: .8125rem; }
+  svg { flex: none; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>US-47 · Exportar movimientos a CSV</h1>
+  <p class="lead">Pantalla <strong>Movimientos</strong> (<code>/transactions?period=AAAA-MM</code>) con el botón nuevo "Exportar" y la hoja "Exportar movimientos". El período sale de la URL (C11). Cada marco es un estado de la historia. Montos ficticios.</p>
+
+  <template id="dl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></template>
+
+  <div class="frames" id="frames"></div>
+
+  <div class="frames" style="margin-top:28px">
+    <div class="frame-wrap file">
+      <div class="frame-label" style="max-width:none">Contenido de <code>biyu-movimientos-2026-08.csv</code> ("Solo agosto 2026", abierto como texto)</div>
+<pre><span class="bom">[BOM EF BB BF]</span>fecha,tipo,monto,moneda,tipo_de_cambio,monto_ars,categoria,cuenta,cuotas,primer_periodo,descripcion,id
+2026-08-01,ingreso,850000.00,ARS,,850000.00,,Caja de ahorro,1,2026-08,Sueldo agosto,0b6e2a4c-1d3f-4e5a-8b7c-9d0e1f2a3b4c
+2026-08-15,gasto,300.00,USD,1250.5000,375150.00,Hogar,Visa BBVA,3,2026-08,"Heladera, 3 cuotas",3f1c5b7d-2e4a-4c6b-9d8e-0a1b2c3d4e5f
+2026-08-20,gasto,4500.00,ARS,,4500.00,Salidas,Efectivo,1,2026-08,"Pizza ""a la piedra""",9a42c6e8-3f5b-4d7c-8e9f-1a2b3c4d5e6f
+2026-08-28,gasto,12000.00,ARS,,12000.00,Supermercado,Débito Galicia,1,2026-08,"'-5, promo",c7d8e9f0-4a5b-4c6d-8e7f-2b3c4d5e6f70</pre>
+    </div>
+  </div>
+
+  <p class="notes">Fila 2: USD en 3 cuotas, una sola fila con el total, solo en el export de agosto; no aparece en los de septiembre ni octubre. Fila 3: la descripción tiene comillas y va entre comillas dobles. Fila 4: <code>-5, promo</code> empieza con <code>-</code>: primero se le agrega <code>'</code> para que la planilla no la calcule y después va entre comillas por la coma. Las eliminadas no salen. Los UUID son inventados. La barra inferior es la de V2 (ADR-023) y no es parte de esta historia.</p>
+</div>
+
+<script>
+  // Arma los marcos a partir de un esqueleto común para que no difieran por error.
+  const icon = document.getElementById('dl-icon').innerHTML;
+  const tabbar = '<div class="tabbar"><span><i></i>Registrar</span><span><i></i>Resumen</span><span><i></i>Deudas</span><span><i></i>Suscripciones</span></div>';
+  const list = `
+    <div class="filter"><span class="on">Activos</span><span>Eliminados</span></div>
+    <div class="daylabel">Lunes 15 de septiembre</div>
+    <div class="card">
+      <div class="row">Supermercado<small style="margin-left:6px">Débito Galicia</small><span class="amt">$ 38.420,00</span></div>
+      <div class="row">Salidas<small style="margin-left:6px">Efectivo</small><span class="amt">$ 9.800,00</span></div>
+    </div>
+    <div class="daylabel">Lunes 1 de septiembre</div>
+    <div class="card"><div class="row">Sueldo<small style="margin-left:6px">Caja de ahorro</small><span class="amt income">+$ 850.000,00</span></div></div>`;
+  function header(month, disabled, hl) {
+    return `<div class="header"><div class="title">Movimientos</div>
+      <button class="export-btn ${hl ? 'highlight' : ''}" type="button" data-testid="transactions-export" ${disabled ? 'disabled aria-disabled="true"' : ''}>${icon}Exportar</button>
+      <div class="switcher"><span class="arrow">‹</span><span class="month">${month}</span><span class="arrow">›</span></div></div>`;
+  }
+  function sheet({ scope = 'month', busy = false, msg = '' }) {
+    const r = (on) => `<span class="radio ${on ? 'on' : ''}"></span>`;
+    return `<div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="t" data-testid="transactions-export-dialog">
+        <div class="grabber"></div>
+        <h2 id="t">Exportar movimientos</h2>
+        <div class="options ${busy ? 'disabled' : ''}" role="radiogroup">
+          <label data-testid="transactions-export-scope-month">${r(scope === 'month')}Solo septiembre 2026</label>
+          <label data-testid="transactions-export-scope-year">${r(scope === 'year')}Todo 2026</label>
+        </div>
+        ${msg}
+        <p class="hint">Se exportan los movimientos activos con fecha en ese período. Las cuotas de compras anteriores no se incluyen.</p>
+        <div class="actions">
+          <button class="btn outline" type="button" data-testid="transactions-export-cancel" ${busy ? 'disabled' : ''}>Cancelar</button>
+          <button class="btn primary" type="button" data-testid="transactions-export-submit" ${busy ? 'disabled aria-busy="true"' : ''}>${busy ? '<span class="spinner" aria-hidden="true"></span>Exportando…' : icon + 'Descargar CSV'}</button>
+        </div>
+      </div>`;
+  }
+  const frames = [
+    ['1 · Movimientos con el botón "Exportar"', header('Septiembre 2026', false, true) + list, ''],
+    ['2 · Hoja abierta (Inicial: "Solo &lt;mes año&gt;" elegido)', header('Septiembre 2026') + list, sheet({})],
+    ['3 · Exportando ("Todo 2026" elegido)', header('Septiembre 2026') + list, sheet({ scope: 'year', busy: true })],
+    ['4 · Vacío (sin descarga, la hoja sigue abierta)', header('Septiembre 2026') + list, sheet({ msg: '<p class="msg empty" data-testid="transactions-export-empty">No tenés movimientos con fecha en septiembre 2026.</p>' })],
+    ['5 · Error (sin descarga, se reintenta con "Descargar CSV")', header('Septiembre 2026') + list, sheet({ msg: '<p class="msg error" role="alert" data-testid="transactions-export-error">No pudimos exportar tus movimientos. Probá de nuevo.</p>' })],
+    ['6 · Éxito: la hoja se cierra, descarga y aviso <code>transactions-export-success</code>', header('Septiembre 2026') + list,
+      '<div class="download">↓ biyu-movimientos-2026-09.csv</div><div class="toast" data-testid="transactions-export-success"><span class="dot"></span>Exportamos 3 movimientos</div>'],
+    ['7 · Mes futuro: "Exportar" deshabilitado', header('Noviembre 2026', true, true) +
+      '<p class="future" data-testid="transactions-export-future">Solo podés exportar el mes actual o meses anteriores.</p><div class="filter"><span class="on">Activos</span><span>Eliminados</span></div><div class="empty-list">No hay movimientos en noviembre 2026.</div>', ''],
+  ];
+  document.getElementById('frames').innerHTML = frames.map(([label, screen, overlay]) =>
+    `<div class="frame-wrap"><div class="frame-label">${label}</div>
+      <div class="phone"><div class="screen">${screen}</div>${tabbar}${overlay}</div></div>`).join('');
+</script>
+</body>
+</html>
