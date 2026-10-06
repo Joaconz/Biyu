@@ -18,7 +18,8 @@ export function resolveFxRate(input: {
   return value ? { kind: 'rate', value } : { kind: 'missing' }
 }
 
-const MAX_FX_RATE = new Decimal('9999999999.9999')
+/** El máximo de numeric(14,4), la columna de fx_rate. */
+export const MAX_FX_RATE = new Decimal('9999999999.9999')
 
 export type FxRateValidation =
   | { rate: Decimal; error: null }

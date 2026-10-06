@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import type { Category } from '@/lib/catalog'
 import { sortCategoriesForGrid } from '@/lib/visuals'
@@ -19,8 +20,13 @@ export function CategorySection({
     <div className="grid gap-2.5">
       <span id="transaction-form-category-label" className="sr-only">Categoría</span>
       {categories.length === 0 ? (
+        // DEF-026: si archivó todas, no se vuelven a sembrar (DEF-010); hay que decir dónde se arregla.
         <p data-testid="transaction-form-category-empty" className="text-callout text-muted-foreground">
-          Todavía no tenés categorías cargadas.
+          No tenés categorías activas. Creá una o reactivá una archivada en{' '}
+          <Link to="/settings" data-testid="transaction-form-category-empty-settings" className="font-medium text-primary underline">
+            Ajustes
+          </Link>
+          .
         </p>
       ) : (
         <ChipGroup

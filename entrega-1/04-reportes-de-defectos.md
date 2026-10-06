@@ -12,26 +12,32 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-002 | <html lang="en"> y título de pestaña "scaffold" en toda la app | Baja | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre) | Transversal (NFR-06, accesibilidad) |
 | DEF-003 | US-66 (confirmar contraseña) nunca llegó a producción por un error de merge | Media | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre; US-66 no tenía caso propio en el catálogo) | US-66 · Confirmar contraseña al registrarse |
 | DEF-004 | NaN como monto se guarda y rompe el dashboard ("$NaN,undefined") | Crítica | A definir por el PO (sugerida: Alta dado que integridad de datos es I4) | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-11 · No se puede guardar monto cero o negativo |
-| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
-| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
-| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
-| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | CP-ACC-002 | US-48 · La app pide login |
-| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
-| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
-| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
-| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite, I4/C6) | US-11 · Validación del monto |
-| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (valores límite) | US-19 · Registrar un gasto en USD |
-| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
-| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
-| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Abierto · se reproduce el 2026-09-28 | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
+| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
+| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Corregido · falta confirmación | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
+| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Corregido · falta confirmación | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
+| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-002 | US-48 · La app pide login |
+| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
+| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Corregido · falta confirmación | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
+| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Corregido · falta confirmación | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
+| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite, I4/C6) | US-11 · Validación del monto |
+| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite) | US-19 · Registrar un gasto en USD |
+| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
+| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Corregido · falta confirmación | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
+| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
 | DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
-| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
-| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
-| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Abierto · nuevo en la Entrega 1 | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
-| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Abierto · reportado el 2026-09-29 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
+| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Corregido · falta confirmación | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
+| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Corregido en #183 · falta confirmación | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
+| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Corregido · falta confirmación | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Corregido · falta confirmación | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
+| DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | A definir por el PO | Corregido · falta confirmación | — (aparece en e2e/setup.spec.ts, "una cuenta nueva ve el setup…") | US-68 · Configuración inicial al crear la cuenta; US-51 · Entrar directo tras registrarse |
+| DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | A definir por el PO | Corregido · falta confirmación | — (NFR-06, WCAG 2.1 AA en flujos críticos) | US-65 · Eliminar una transacción; DEF-011 · Eliminar una cuenta |
+| DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-CFG-003 y DEF-009) | US-42 · Categorías; DEF-011 · Editar cuentas |
+| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | A definir por el PO | Corregido · falta confirmación | — (derivado de DEF-010) | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
+| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con US-50 · Traducir errores de Auth) | US-50 · Traducir errores de Auth y evitar doble submit |
+| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | A definir por el PO | Corregido · falta confirmación | — (derivado de DEF-010 y DEF-023) | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 8 · Baja: 8 · Total abiertos: 16.
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 0 · Baja: 0 · Total abiertos: 0 (22 corregidos que esperan confirmación).
 
 ## DEF-001 · Ruta inexistente muestra el error crudo del router, sin salida a la app
 
@@ -156,13 +162,14 @@ NaN como monto se guarda y rompe el dashboard ("$NaN,undefined").
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, variante servidor de CP-ACC-004. |
 | Caso de prueba | CP-ACC-004, variante servidor |
 | Historia | US-67 · Criterios de contraseña (FR-01) |
 | Issue | #146 |
+| Test de regresión | `tests/lib/passwordPolicy.test.ts` (Vitest: `supabase/config.toml` exige los mismos criterios que US-67) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local: Supabase Auth local (minimum_password_length = 6, password_requirements = ""). No verificado en producción |
 
@@ -186,13 +193,14 @@ El servidor acepta contraseñas que no cumplen FR-01/US-67.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-CFG-004 (#75). |
 | Caso de prueba | CP-CFG-004 |
 | Historia | US-44 · Archivar una categoría sin perder historia |
 | Issue | #147 |
+| Test de regresión | `e2e/transactions-history.spec.ts`, caso "DEF-006" (Playwright, en rojo contra producción y en verde con el arreglo) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -217,13 +225,14 @@ Transacción de una categoría archivada no muestra marca de archivada en /trans
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-REG-012 (#75) — el caso "pasa" contra la base (soft delete correcto, KPIs excluyen la fila), pero contradice FR-08 en la UI. |
 | Caso de prueba | CP-REG-012 |
 | Historia | US-65 · Eliminar una transacción (FR-08) |
 | Issue | #148 |
+| Test de regresión | `supabase/tests/database/restore_transaction.test.sql` (pgTAP) y `e2e/transactions-history.spec.ts`, caso "DEF-007" (Playwright) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -248,13 +257,14 @@ Una transacción eliminada desaparece del historial en vez de quedar marcada com
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución completa de CP-ACC-002 (#75) — el guard en sí funciona (redirige a /login?next=... correctamente), pero el recorrido completo (login → destino original) falla. |
 | Caso de prueba | CP-ACC-002 |
 | Historia | US-48 · La app pide login |
 | Issue | #149 |
+| Test de regresión | `tests/lib/postAuthDestination.test.ts` (Vitest) y `e2e/access.spec.ts` (Playwright, en rojo contra producción y en verde contra el Preview del PR) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28. Mismo código en producción, probablemente reproduce igual |
 
@@ -277,13 +287,14 @@ Tras iniciar sesión se ignora el destino original (next) y siempre entra a /reg
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, derivado de CP-CUO-003. |
 | Caso de prueba | — (derivado de CP-CUO-003, I6) |
 | Historia | US-45 · Crear cuentas indicando su tipo (I6) |
 | Issue | #150 |
+| Test de regresión | `supabase/tests/database/db_defects.test.sql` (pgTAP, corre en la CI) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -309,13 +320,14 @@ Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes vi
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75 (ataque libre). |
 | Caso de prueba | — (FR-04/FR-05) |
 | Historia | US-43 · Set inicial de categorías y cuentas |
 | Issue | #151 |
+| Test de regresión | `tests/lib/seedPlan.test.ts` (Vitest) y `e2e/settings.spec.ts`, caso "DEF-010" (Playwright, en rojo contra producción y en verde con el arreglo) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -340,13 +352,14 @@ Archivar todas las categorías hace que se resiembren las 8 por defecto.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-CFG-006 y ataque libre (#75). |
 | Caso de prueba | — (FR-05, relacionado con CP-CFG-006) |
 | Historia | US-45 · Cuentas (FR-05) |
 | Issue | #152 |
+| Test de regresión | `supabase/tests/database/delete_account.test.sql` (pgTAP) y `e2e/settings.spec.ts`, caso "DEF-011" (Playwright) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -369,13 +382,14 @@ No se pueden editar ni archivar cuentas (medios de pago) desde la UI.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75 (valores límite no escritos). |
 | Caso de prueba | — (valores límite, I4/C6) |
 | Historia | US-11 · Validación del monto |
 | Issue | #153 |
+| Test de regresión | `tests/domain/validation.test.ts`, casos "DEF-012" (monto y equivalente en pesos), y `tests/lib/errors.test.ts` (traducción de 22003) (Vitest) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -400,13 +414,14 @@ Un monto extremo pasa la validación del cliente y termina en un error técnico 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75 (valores límite no escritos). |
 | Caso de prueba | — (valores límite) |
 | Historia | US-19 · Registrar un gasto en USD |
 | Issue | #154 |
+| Test de regresión | `tests/domain/validation.test.ts`, caso "DEF-013" (Vitest) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -431,13 +446,14 @@ Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75, relacionado con CP-DAS-003. |
 | Caso de prueba | — (relacionado con CP-DAS-003, Media) |
 | Historia | US-26 · Cambiar de mes con un selector |
 | Issue | #155 |
+| Test de regresión | `tests/domain/period-fx-money.test.ts`, caso "parsePeriod rechaza el año 0000 (DEF-014)" (Vitest) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -460,13 +476,14 @@ El período 0000-01 en el dashboard muestra un error de base de datos crudo.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75. |
 | Caso de prueba | — (07-plan-de-testing.md §2) |
 | Historia | Transversal (data-testid, plan de testing §2) |
 | Issue | #156 |
+| Test de regresión | `e2e/settings.spec.ts`, caso "DEF-015": todo elemento interactivo de /settings tiene un data-testid único (Playwright) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -491,13 +508,14 @@ Los botones de la paleta de color en /settings no tienen data-testid.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · se reproduce el 2026-09-28 |
+| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, intentando verificar I7. |
 | Caso de prueba | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) |
 | Historia | V2 · Deudas (I7), latente en el schema |
 | Issue | #157 |
+| Test de regresión | `supabase/tests/database/db_defects.test.sql` (pgTAP, corre en la CI) |
 | Reportó | Sesión test-adversary (#75), coordinada por Joaquin Nuñez |
 | Entorno | Local, 2026-09-28 |
 
@@ -555,13 +573,14 @@ La historia US-68 entra en el alcance de la Entrega 1 pero no tiene implementaci
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · nuevo en la Entrega 1 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-01) |
 | Caso de prueba | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) |
 | Historia | US-21 · Pisar el tipo de cambio sugerido |
 | Issue | #184 |
+| Test de regresión | `tests/domain/validation.test.ts`, caso "DEF-018" (Vitest) |
 | Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-01) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -587,13 +606,14 @@ En Ajustes el tipo de cambio de referencia se valida a 4 decimales ("Usá hasta 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · nuevo en la Entrega 1 |
+| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-02) |
 | Caso de prueba | — (exploración, variante de CP-CFG-003) |
 | Historia | US-42 · Crear, renombrar y elegir color de categorías |
 | Issue | #185 |
+| Test de regresión | `supabase/tests/database/db_defects.test.sql` (pgTAP, corre en la CI) |
 | Reportó | Ejecución de la Entrega 1 (exploración de bordes EXP-02) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -619,13 +639,14 @@ La regla de CP-CFG-003 (no dos categorías activas con el mismo nombre) compara 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · nuevo en la Entrega 1 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Ejecución de la Entrega 1, caso CP-MON-003 |
 | Caso de prueba | CP-MON-003 (PASSED: el valor sugerido es correcto) |
 | Historia | US-20 · Sugerir el tipo de cambio de referencia del mes |
 | Issue | #186 |
+| Test de regresión | `tests/domain/draft.test.ts`, caso "DEF-020" (Vitest) |
 | Reportó | Ejecución de la Entrega 1 (CP-MON-003) |
 | Entorno | Local: Vite http://localhost:5180 + Supabase local, main 44f1519, Chromium 390×844, 2026-09-28 |
 
@@ -651,13 +672,14 @@ El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Abierto · reportado el 2026-09-29 |
+| Estado | Corregido · falta la confirmación de quien lo reportó |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | uso manual en producción desde un iPhone, fuera del catálogo escrito. |
 | Caso de prueba | — (uso manual; relacionado con DEF-012, montos extremos) |
 | Historia | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | Issue | #167 |
+| Test de regresión | `e2e/dashboard-amounts.spec.ts` (Playwright a 360 px, en rojo contra producción y en verde contra el Preview del PR) |
 | Reportó | Uso manual en producción, equipo Biyu |
 | Entorno | Producción (Vercel), Safari en iPhone, ancho ~390 px, 2026-09-29 |
 
@@ -711,3 +733,192 @@ Después del merge de US-68, las cuentas creadas antes de esa historia tenían q
 **Evidencia.** Tests de regresión en rojo antes de la corrección: e2e/setup.spec.ts (fallan "si guardar el setup falla", "si leer el estado falla" y "cuenta sin fila") y e2e/smoke.spec.ts (esperaba /register después del signup). Después de #176: e2e 28/28 en Chromium y WebKit, pgTAP 175/175, Vitest 246/246.
 
 **Notas.** No saltó ninguna alarma porque ningún test cubría cuentas previas ni fallas al guardar, y la prueba de humo, que sí fallaba, no corre en la CI. Corrección (ADR-025 §6): trigger que crea la fila pendiente al registrarse (sin fila = cuenta anterior) y el guard falla abierto. Las migraciones se aplicaron en producción con supabase db push y el flujo se verificó allí.
+
+## DEF-023 · Después de crear la cuenta, a veces la pantalla queda en blanco en /register
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Severidad | Alta |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo completo del 2026-10-05: dos fallos intermitentes de e2e (setup.spec.ts y dashboard-amounts.spec.ts) contra producción. |
+| Caso de prueba | — (aparece en e2e/setup.spec.ts, "una cuenta nueva ve el setup…") |
+| Historia | US-68 · Configuración inicial al crear la cuenta; US-51 · Entrar directo tras registrarse |
+| Issue | #193 |
+| Test de regresión | `e2e/access.spec.ts`, caso "DEF-023": con la siembra demorada a propósito, nada vuelve a /register después de llegar a /setup (Playwright; en rojo antes del arreglo en Chromium y WebKit) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Producción (Vercel + Supabase hosteado), main e6b2e0c, 2026-10-05. Reproducido también en local (Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05) |
+
+Justo después de crear la cuenta, la app a veces se queda con la pantalla vacía en /register: no muestra ni la configuración inicial ni el formulario de registro. Recargar la página la destraba. Es intermitente: depende de en qué orden terminan dos pedidos.
+
+**Pasos para reproducir**
+
+1. Abrir /signup sin sesión.
+2. Escribir un email nuevo y una contraseña válida en "Contraseña" y "Confirmar contraseña", y tocar "Crear cuenta".
+3. Observar la pantalla durante los 20 segundos siguientes.
+4. Repetir varias veces: en producción con WebKit pasó en 2 de 12 altas; en local, 1 de cada ~80.
+
+**Resultado esperado.** La cuenta nueva va a la configuración inicial ("¿Para qué vas a usar Biyu?", US-68) en uno o dos segundos.
+
+**Resultado obtenido.** La URL queda en /register y la página no muestra nada: el contenedor de la app está vacío (solo queda el de las notificaciones). La sesión sí está iniciada. Al recargar, va a /setup.
+
+**Evidencia.** Registro de navegaciones de una corrida colgada: 3543 ms replaceState /register (RedirectIfAuthed, al aparecer la sesión) → 3737 ms replaceState /setup (AppLayout: setup pendiente) → 3740 ms replaceState /register (AuthForm). Todos los pedidos a Supabase terminan con 200/201; no hay errores de JavaScript.
+
+**Notas.** Causa: después de signUp, AuthForm espera la siembra (ensureUserSeeded) y recién ahí navega a /register. Para entonces RedirectIfAuthed ya llevó a /register y AppLayout ya mandó a /setup: la navegación tardía de AuthForm la pisa, y el <Navigate to="/setup"> que ya se ejecutó no vuelve a dispararse. La misma carrera explica dos síntomas vistos el 2026-10-02: la cuenta que a veces entraba sin pasar por el setup y el formulario de registro que perdía el monto tipeado.
+
+## DEF-024 · Los diálogos de confirmación no toman el foco del teclado
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo exploratorio del 2026-10-05 (accesibilidad). |
+| Caso de prueba | — (NFR-06, WCAG 2.1 AA en flujos críticos) |
+| Historia | US-65 · Eliminar una transacción; DEF-011 · Eliminar una cuenta |
+| Issue | #194 |
+| Test de regresión | `e2e/settings.spec.ts` y `e2e/transactions-history.spec.ts`, casos "DEF-024": foco en Cancelar al abrir, Tab no sale del diálogo, Escape lo cierra y el foco vuelve (Playwright) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05 |
+
+Al abrir "¿Estás seguro de que querés eliminar esta transacción?" o "¿Seguro que querés eliminar «…»?", el foco del teclado se queda en el botón de atrás. Con teclado o lector de pantalla se sigue navegando la página de fondo, y al cerrar el foco no vuelve a un lugar previsible.
+
+**Pasos para reproducir**
+
+1. Iniciar sesión y abrir /settings.
+2. En "Cuentas", tocar el lápiz de "Efectivo" y después "Eliminar".
+3. Sin usar el mouse, mirar dónde está el foco (document.activeElement) y apretar Tab varias veces.
+4. Repetir en /transactions con el tacho de un movimiento.
+
+**Resultado esperado.** Diálogo modal accesible (WCAG 2.4.3, patrón dialog de ARIA): el foco entra al diálogo al abrirlo, Tab no sale de él, Escape lo cierra y el foco vuelve al botón que lo abrió.
+
+**Resultado obtenido.** El foco queda en "Eliminar" (settings-accounts-delete), fuera del diálogo; Tab recorre la página de fondo.
+
+**Evidencia.** focoAlAbrir = settings-accounts-delete, focoDentro = false. DeleteTransactionDialog tiene el mismo código y el mismo comportamiento.
+
+**Notas.** Afecta a src/components/shared/ConfirmDialog.tsx (nuevo en #191) y a src/components/transactions/DeleteTransactionDialog.tsx (anterior).
+
+## DEF-025 · El error al editar una cuenta o una categoría aparece fuera de la pantalla
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo exploratorio del 2026-10-05. |
+| Caso de prueba | — (relacionado con CP-CFG-003 y DEF-009) |
+| Historia | US-42 · Categorías; DEF-011 · Editar cuentas |
+| Issue | #195 |
+| Test de regresión | `e2e/settings.spec.ts`, caso "DEF-025": el error de edición de categoría y de cuenta aparece en la fila y dentro de la pantalla (Playwright) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05 |
+
+Si guardar la edición de una cuenta o de una categoría falla, el mensaje se muestra en el formulario de alta ("Nueva cuenta" o "Nueva categoría"), entre 200 y 360 px más abajo. En la fila que se está editando no pasa nada visible.
+
+**Pasos para reproducir**
+
+1. Iniciar sesión y registrar un gasto en 3 cuotas con "Tarjeta de crédito".
+2. Abrir /settings y, en "Cuentas", tocar el lápiz de "Tarjeta de crédito".
+3. Cambiar el tipo a "Efectivo" y tocar "Guardar".
+4. Para categorías: tocar el lápiz de "Transporte", escribir "OTROS" y tocar "Guardar".
+
+**Resultado esperado.** El motivo ("Esta cuenta tiene compras en cuotas: tiene que seguir siendo tarjeta de crédito", "Ya existe una categoría activa con ese nombre") aparece en la fila que se está editando.
+
+**Resultado obtenido.** La fila sigue abierta sin ningún cambio. El mensaje está debajo del formulario de alta: 357 px más abajo en cuentas (fuera de la pantalla, con 720 px de alto) y 209 px en categorías.
+
+**Evidencia.** Medición en el navegador: settings-accounts-error top = 795 px, settings-accounts-save top = 438 px, alto de la ventana = 720 px.
+
+**Notas.** Las secciones de Ajustes usan un solo estado de error para el alta y la edición.
+
+## DEF-026 · Sin categorías activas, el registro y el setup quedan sin salida
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo exploratorio del 2026-10-05, combinando DEF-010 con la configuración inicial. |
+| Caso de prueba | — (derivado de DEF-010) |
+| Historia | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
+| Issue | #196 |
+| Test de regresión | `e2e/settings.spec.ts`, casos "DEF-026": link a Ajustes desde Registrar, reactivar una archivada y aviso en el paso de categorías del setup (Playwright) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, main e6b2e0c, Chromium y WebKit, 2026-10-05 |
+
+Desde DEF-010, archivar todas las categorías ya no las vuelve a sembrar. Pero entonces Registrar y la configuración inicial muestran "Todavía no tenés categorías cargadas." sin ninguna salida, y las categorías archivadas no se pueden reactivar desde ningún lado.
+
+**Pasos para reproducir**
+
+1. Iniciar sesión y abrir /settings.
+2. En "Categorías", tocar "Archivar" en todas.
+3. Ir a Registrar, escribir un monto y tocar "Siguiente".
+4. Volver a Ajustes y tocar "Volver a hacer la configuración inicial"; avanzar hasta "Tus categorías" y hasta "Registrá tu primer gasto".
+
+**Resultado esperado.** La app explica qué hacer: un acceso a Ajustes para crear o reactivar categorías, y en Ajustes una forma de reactivar las archivadas.
+
+**Resultado obtenido.** Registrar dice "Todavía no tenés categorías cargadas." sin link. El paso "Tus categorías" del setup queda vacío, aunque dice "Destildá las que no uses". En Ajustes las archivadas no aparecen.
+
+**Evidencia.** Capturas del paso "Tus categorías" vacío y del paso "¿En qué?" sin chips (testeo del 2026-10-05).
+
+**Notas.** Antes de DEF-010 este caso no existía porque /register volvía a sembrar las 8 categorías.
+
+## DEF-027 · Al llegar al límite de altas, el mensaje dice "Probá de nuevo"
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Severidad | Baja |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | testeo completo del 2026-10-05: la suite e2e llegó al límite de altas de Supabase Auth en producción. |
+| Caso de prueba | — (relacionado con US-50 · Traducir errores de Auth) |
+| Historia | US-50 · Traducir errores de Auth y evitar doble submit |
+| Issue | #197 |
+| Test de regresión | `tests/lib/authErrors.test.ts`, caso "DEF-027" (Vitest) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Producción (Vercel + Supabase hosteado), main e6b2e0c, 2026-10-05 (429 observado). Mensaje verificado en local simulando el 429 |
+
+Cuando Supabase Auth corta por demasiadas altas desde la misma IP (429, over_request_rate_limit), el formulario muestra el mensaje genérico "No se pudo completar la operación. Probá de nuevo". Reintentar sigue fallando durante un buen rato.
+
+**Pasos para reproducir**
+
+1. Crear muchas cuentas seguidas desde la misma IP (en producción alcanzó con correr la suite e2e un par de veces en una hora).
+2. En /signup, completar email, contraseña y confirmación, y tocar "Crear cuenta".
+
+**Resultado esperado.** Un mensaje que diga que hubo demasiados intentos y que hay que esperar unos minutos, como ya pasa con over_email_send_rate_limit.
+
+**Resultado obtenido.** "No se pudo completar la operación. Probá de nuevo".
+
+**Evidencia.** Consola de producción: "Failed to load resource: the server responded with a status of 429". Mensaje de la UI con el 429 simulado: ["No se pudo completar la operación. Probá de nuevo"].
+
+**Notas.** translateAuthError no tiene entrada para over_request_rate_limit.
+
+## DEF-028 · Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda
+
+| Campo | Contenido |
+|---|---|
+| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | revisando un fallo del Preview de #198 el 2026-10-05; la causa viene del arreglo de DEF-010 (#191). |
+| Caso de prueba | — (derivado de DEF-010 y DEF-023) |
+| Historia | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
+| Issue | #199 |
+| Test de regresión | `e2e/access.spec.ts`, caso "DEF-028" (Playwright: 6/6 en rojo antes del arreglo, en verde después) |
+| Reportó | Testeo completo posterior a #191 y #192, con Claude Code |
+| Entorno | Local: Vite http://localhost:5173 + Supabase local, rama fix/defectos-023-027, Chromium y WebKit, 2026-10-05 |
+
+La siembra inicial insertaba categorías y cuentas en paralelo. Desde DEF-010, solo se siembra a quien nunca tuvo categorías. Si Registrar leía el catálogo cuando las categorías ya estaban guardadas y las cuentas todavía no, concluía "ya sembrado" y la cuenta nueva quedaba sin medios de pago: no se puede registrar ningún gasto.
+
+**Pasos para reproducir**
+
+1. Crear una cuenta nueva en /signup en una red lenta, o con el insert de cuentas demorado (en el test, 4 s) y las lecturas del catálogo demoradas 1,5 s.
+2. Llegar a Registrar (con el setup ya hecho o salteado), escribir un monto, tocar "Siguiente" y elegir una categoría.
+3. Mirar las cuentas disponibles en "Detalles".
+
+**Resultado esperado.** Están las 5 cuentas de la siembra inicial (US-43).
+
+**Resultado obtenido.** No aparece ninguna cuenta: la lectura vio las categorías ya guardadas, seedPlan no sembró nada más y la relectura llegó antes de que se guardaran las cuentas.
+
+**Evidencia.** e2e/access.spec.ts, caso "DEF-028": falla 6/6 (Chromium y WebKit) antes del arreglo, con el locator transaction-form-account-chip-efectivo sin encontrar.
+
+**Notas.** No se observó en uso real; apareció al revisar por qué un test tardaba en el Preview. Corrección: la siembra guarda primero las cuentas y después las categorías, que son la marca de "ya sembrado".

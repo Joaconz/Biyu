@@ -107,6 +107,11 @@ Decisiones que tomé sin confirmación explícita. Revisá esta lista: si alguna
 43. Como usuario, quiero que la app venga con un set de categorías inicial, para no arrancar con una pantalla vacía.
 44. Como usuario, quiero archivar una categoría que ya no uso sin perder las transacciones históricas que la usaban, para limpiar el formulario sin romper el pasado.
 45. Como usuario, quiero crear mis cuentas indicando su tipo, para que la app sepa cuáles admiten cuotas.
+
+_FR-05 para medios de pago (DEF-011, ADR-026): una cuenta se puede editar (nombre y tipo; una con
+compras en cuotas no deja de ser tarjeta de crédito, I6), archivar (conserva el historial, como
+US-44) o eliminar. Eliminar borra también sus transacciones, después de una confirmación que dice
+cuántas son; modifica FR-05 de `pre-entrega.md`, que solo ofrecía archivar si había transacciones._
 46. Como usuario, quiero cargar el tipo de cambio de referencia de cada mes, para que el registro en USD sea rápido.
 47. Como usuario, quiero exportar todas mis transacciones a CSV, para tener mis datos afuera de la app.
 
@@ -210,13 +215,31 @@ informativa: no son metas ni presupuestos (Out of Scope)._
 1. El usuario borra en octubre una compra de agosto en 12 cuotas.
 2. El sistema marca la transacción como eliminada y **todas** sus imputaciones dejan de contar, incluidas las de agosto y septiembre.
 3. Se advierte explícitamente antes de confirmar que esto altera los totales de meses ya cerrados.
+4. La transacción sale de los totales y del listado normal, pero sigue en el historial: en
+   Movimientos, el filtro "Eliminados" (`?view=deleted`, C11) la muestra con la marca "eliminada"
+   (FR-08, DEF-007). Desde ahí se puede restaurar (`restore_transaction`), y vuelven a contar todas
+   sus cuotas.
 
 ### Sad path — categoría archivada
 
 1. El usuario archiva "Salidas".
 2. La categoría desaparece del formulario de registro.
-3. Las transacciones históricas la siguen mostrando, con una marca visual de archivada.
+3. Las transacciones históricas la siguen mostrando, con una marca visual de archivada, en el
+   Resumen y en Movimientos (DEF-006).
 4. El dashboard de meses pasados sigue mostrando la barra de esa categoría.
+5. Archivar todas las categorías no las vuelve a sembrar: la siembra de US-43 es solo para quien
+   nunca tuvo categorías (DEF-010).
+6. En Ajustes, las archivadas aparecen aparte y se pueden reactivar, salvo que ya haya una activa
+   con el mismo nombre (DEF-019). Sin categorías activas, Registrar lo dice y lleva a Ajustes
+   (DEF-026).
+
+### Sad path — eliminar una cuenta con movimientos
+
+1. El usuario edita la cuenta "Visa vieja" y toca "Eliminar".
+2. La confirmación dice "¿Seguro que querés eliminar «Visa vieja»?", cuántos movimientos se van
+   con ella, que no se puede deshacer y que archivar conserva el historial.
+3. Si confirma, la cuenta y sus movimientos se borran (ADR-026) y dejan de contar en todos los
+   totales, también los de meses cerrados. Si cancela, no cambia nada.
 
 ### BDD scenarios
 

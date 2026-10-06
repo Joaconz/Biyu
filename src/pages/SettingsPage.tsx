@@ -1,8 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Archive, Pencil, Sparkles } from 'lucide-react'
+import { Archive, ArchiveRestore, Pencil, Sparkles, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Link } from 'react-router'
 import { LogoutButton } from '@/components/LogoutButton'
 import { AccountIcon } from '@/components/shared/AccountIcon'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -18,8 +20,13 @@ import {
 } from '@/components/ui/select'
 import {
   ACCOUNT_TYPE_LABELS,
+  accountSaveErrorMessage,
+  archiveAccount,
+  countAccountTransactions,
   createAccount,
+  deleteAccount,
   listActiveAccounts,
+  updateAccount,
   type Account,
   type AccountCurrency,
   type AccountType,
@@ -29,11 +36,14 @@ import {
   CATEGORY_COLOR_PALETTE,
   createCategory,
   listActiveCategories,
+  listArchivedCategories,
+  unarchiveCategory,
   updateCategory,
   type Category,
 } from '@/lib/categories'
 import { isUniqueViolation } from '@/lib/errors'
 import { today } from '@/lib/clock'
+import { toTestIdSuffix } from '@/lib/utils'
 import { validateFxRateInput } from '@/domain/fx'
 import { formatRate, parseMoney } from '@/domain/money'
 import { formatPeriod, formatPeriodLong, fromDbDate, parsePeriod } from '@/domain/period'
@@ -160,13 +170,34 @@ function FxRatesSection() {
 
 function CategoriesSection() {
   const [categories, setCategories] = useState<Category[] | null>(null)
+  const [archived, setArchived] = useState<Category[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // DEF-025: el error de la edición va en la fila que se edita, no en el formulario de alta.
+  const [editError, setEditError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     listActiveCategories().then(setCategories).catch((e: Error) => setError(e.message))
+    listArchivedCategories().then(setArchived).catch(() => {})
   }, [])
+
+  function startEditing(id: string | null) {
+    setEditError(null)
+    setEditingId(id)
+  }
+
+  // DEF-026: reactivar deshace el archivado; si ya hay una activa con ese nombre, lo dice.
+  async function onUnarchive(category: Category) {
+    setError(null)
+    try {
+      await unarchiveCategory(category.id)
+      setArchived((prev) => prev.filter((c) => c.id !== category.id))
+      setCategories((prev) => [...(prev ?? []), { ...category, archived_at: null }].sort((a, b) => a.name.localeCompare(b.name)))
+    } catch (err) {
+      setError(isUniqueViolation(err) ? `Ya hay una categoría activa llamada «${category.name}»` : 'No se pudo reactivar la categoría')
+    }
+  }
 
   async function onCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -191,7 +222,7 @@ function CategoriesSection() {
   }
 
   async function onSave(id: string, changes: { name: string; color: string }) {
-    setError(null)
+    setEditError(null)
     try {
       await updateCategory(id, changes)
       setCategories(
@@ -202,14 +233,17 @@ function CategoriesSection() {
       )
       setEditingId(null)
     } catch (err) {
-      setError(isUniqueViolation(err) ? 'Ya existe una categoría activa con ese nombre' : 'No se pudo guardar la categoría')
+      setEditError(isUniqueViolation(err) ? 'Ya existe una categoría activa con ese nombre' : 'No se pudo guardar la categoría')
     }
   }
 
   async function onArchive(id: string) {
     setError(null)
     try {
-      await archiveCategory(id, today().toISOString())
+      const archivedAt = today().toISOString()
+      await archiveCategory(id, archivedAt)
+      const category = categories?.find((c) => c.id === id)
+      if (category) setArchived((prev) => [...prev, { ...category, archived_at: archivedAt }].sort((a, b) => a.name.localeCompare(b.name)))
       setCategories((prev) => prev?.filter((c) => c.id !== id) ?? null)
     } catch {
       setError('No se pudo archivar la categoría')
@@ -225,8 +259,9 @@ function CategoriesSection() {
               <CategoryEditRow
                 key={category.id}
                 category={category}
+                error={editError}
                 onSave={(changes) => onSave(category.id, changes)}
-                onCancel={() => setEditingId(null)}
+                onCancel={() => startEditing(null)}
               />
             ) : (
               <li key={category.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
@@ -236,10 +271,10 @@ function CategoriesSection() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  data-testid="settings-categories-edit"
+                  data-testid={`settings-categories-edit-${toTestIdSuffix(category.name)}`}
                   aria-label={`Editar ${category.name}`}
                   className="text-muted-foreground hover:text-foreground"
-                  onClick={() => setEditingId(category.id)}
+                  onClick={() => startEditing(category.id)}
                 >
                   <Pencil strokeWidth={1.6} />
                 </Button>
@@ -247,7 +282,7 @@ function CategoriesSection() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  data-testid="settings-categories-archive"
+                  data-testid={`settings-categories-archive-${toTestIdSuffix(category.name)}`}
                   aria-label={`Archivar ${category.name}`}
                   className="text-muted-foreground hover:text-foreground"
                   onClick={() => onArchive(category.id)}
@@ -270,16 +305,54 @@ function CategoriesSection() {
           Crear categoría
         </Button>
       </form>
+      {/* DEF-026: sin esto, archivar era de ida. */}
+      {archived.length > 0 && (
+        <div className="mt-4 flex flex-col gap-2">
+          <h3 className="px-1 text-footnote font-semibold text-muted-foreground">Archivadas</h3>
+          <GroupedCard>
+            <ul data-testid="settings-categories-archived-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+              {archived.map((category, i) => (
+                <li key={category.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
+                  <CategoryIcon name={category.name} color={category.color} size="sm" />
+                  <span className="min-w-0 flex-1 truncate text-callout font-medium text-muted-foreground">{category.name}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    data-testid={uniqueTestId(`settings-categories-unarchive-${toTestIdSuffix(category.name)}`, archived, i)}
+                    aria-label={`Reactivar ${category.name}`}
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => onUnarchive(category)}
+                  >
+                    <ArchiveRestore strokeWidth={1.6} />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </GroupedCard>
+        </div>
+      )}
     </GroupedSection>
   )
 }
 
+/**
+ * Puede haber dos archivadas con el mismo nombre (archivar "Salud", crear otra "Salud" y archivarla):
+ * la segunda lleva un sufijo para que su data-testid siga siendo único (DEF-015).
+ */
+function uniqueTestId(base: string, items: readonly { name: string }[], index: number): string {
+  const repeats = items.slice(0, index).filter((item) => toTestIdSuffix(item.name) === toTestIdSuffix(items[index].name)).length
+  return repeats === 0 ? base : `${base}-${repeats + 1}`
+}
+
 function CategoryEditRow({
   category,
+  error,
   onSave,
   onCancel,
 }: {
   category: Category
+  error: string | null
   onSave: (changes: { name: string; color: string }) => void
   onCancel: () => void
 }) {
@@ -298,6 +371,11 @@ function CategoryEditRow({
         onChange={setColor}
         testId="settings-categories-edit-color"
       />
+      {error && (
+        <p role="alert" data-testid="settings-categories-edit-error" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={onCancel} data-testid="settings-categories-cancel">
           Cancelar
@@ -307,6 +385,78 @@ function CategoryEditRow({
           size="sm"
           onClick={() => name.trim() && onSave({ name: name.trim(), color })}
           data-testid="settings-categories-save"
+        >
+          Guardar
+        </Button>
+      </div>
+    </li>
+  )
+}
+
+/**
+ * Edición de una cuenta. Eliminar va acá y no en la fila: es la única acción que no se deshace
+ * (ADR-026), así que queda a un paso más que archivar y siempre pasa por la confirmación.
+ */
+function AccountEditRow({
+  account,
+  error,
+  onSave,
+  onDelete,
+  onCancel,
+}: {
+  account: Account
+  error: string | null
+  onSave: (changes: { name: string; type: AccountType }) => void
+  onDelete: () => void
+  onCancel: () => void
+}) {
+  const [name, setName] = useState(account.name)
+  const [type, setType] = useState<AccountType>(account.type)
+  return (
+    <li className="flex flex-col gap-3 bg-secondary/40 p-4">
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        data-testid="settings-accounts-edit-name"
+        aria-label="Nombre de la cuenta"
+      />
+      <Select value={type} onValueChange={(value) => value && setType(value as AccountType)}>
+        <SelectTrigger data-testid="settings-accounts-edit-type" aria-label="Tipo de cuenta" className="w-full">
+          <SelectValue>{(value: AccountType) => ACCOUNT_TYPE_LABELS[value]}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {(Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[]).map((option) => (
+            <SelectItem key={option} value={option} data-testid={`settings-accounts-edit-type-${toTestIdSuffix(option)}`}>
+              {ACCOUNT_TYPE_LABELS[option]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {error && (
+        <p role="alert" data-testid="settings-accounts-edit-error" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onDelete}
+          data-testid="settings-accounts-delete"
+          className="mr-auto text-destructive hover:text-destructive"
+        >
+          <Trash2 strokeWidth={1.6} />
+          Eliminar
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel} data-testid="settings-accounts-cancel">
+          Cancelar
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => name.trim() && onSave({ name: name.trim(), type })}
+          data-testid="settings-accounts-save"
         >
           Guardar
         </Button>
@@ -344,6 +494,7 @@ function ColorSwatchPicker({
           role="radio"
           aria-checked={current === color}
           aria-label={color}
+          data-testid={`${testId}-${color.slice(1).toLowerCase()}`} // DEF-015
           onClick={() => select(color)}
           className="press size-8 rounded-full ring-offset-2 ring-offset-card outline-none aria-checked:ring-2 aria-checked:ring-foreground focus-visible:ring-2 focus-visible:ring-ring"
           style={{ backgroundColor: color }}
@@ -358,9 +509,65 @@ function AccountsSection() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editError, setEditError] = useState<string | null>(null) // DEF-025, como en categorías
+  const [deleting, setDeleting] = useState<{ account: Account; transactions: number } | null>(null)
+
+  function startEditing(id: string | null) {
+    setEditError(null)
+    setEditingId(id)
+  }
+
   useEffect(() => {
     listActiveAccounts().then(setAccounts).catch((e: Error) => setError(e.message))
   }, [])
+
+  async function onSave(id: string, changes: { name: string; type: AccountType }) {
+    setEditError(null)
+    try {
+      await updateAccount(id, changes)
+      setAccounts(
+        (prev) =>
+          prev?.map((a) => (a.id === id ? { ...a, ...changes } : a)).sort((a, b) => a.name.localeCompare(b.name)) ?? null,
+      )
+      setEditingId(null)
+    } catch (err) {
+      setEditError(isUniqueViolation(err) ? 'Ya existe una cuenta activa con ese nombre' : accountSaveErrorMessage(err))
+    }
+  }
+
+  async function onArchive(id: string) {
+    setError(null)
+    try {
+      await archiveAccount(id, today().toISOString())
+      setAccounts((prev) => prev?.filter((a) => a.id !== id) ?? null)
+    } catch {
+      setError('No se pudo archivar la cuenta')
+    }
+  }
+
+  // La confirmación dice cuántos movimientos se van con la cuenta: se cuentan antes de abrirla.
+  async function askDelete(account: Account) {
+    setError(null)
+    try {
+      setDeleting({ account, transactions: await countAccountTransactions(account.id) })
+    } catch {
+      setError('No se pudo preparar la eliminación de la cuenta')
+    }
+  }
+
+  async function onConfirmDelete() {
+    if (!deleting) return
+    try {
+      await deleteAccount(deleting.account.id)
+      setAccounts((prev) => prev?.filter((a) => a.id !== deleting.account.id) ?? null)
+      setEditingId(null)
+      toast.success('Cuenta eliminada', { testId: 'settings-accounts-deleted' })
+      setDeleting(null)
+    } catch {
+      toast.error('No se pudo eliminar la cuenta')
+    }
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -389,21 +596,55 @@ function AccountsSection() {
     <GroupedSection title="Cuentas">
       <GroupedCard>
         <ul data-testid="settings-accounts-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
-          {(accounts ?? []).map((account) => (
-            <li key={account.id} className="flex min-h-14 items-center gap-3 py-2 pr-4 pl-3.5">
-              <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
-                <AccountIcon type={account.type} className="size-4" />
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-callout font-medium">{account.name}</span>
-                {/* El tipo solo cuando dice algo que el nombre no dice. */}
-                {ACCOUNT_TYPE_LABELS[account.type] !== account.name && (
-                  <span className="truncate text-footnote text-muted-foreground">{ACCOUNT_TYPE_LABELS[account.type]}</span>
-                )}
-              </span>
-              {account.currency === 'USD' && <span className="text-footnote font-medium text-muted-foreground">US$</span>}
-            </li>
-          ))}
+          {(accounts ?? []).map((account) =>
+            editingId === account.id ? (
+              <AccountEditRow
+                key={account.id}
+                account={account}
+                error={editError}
+                onSave={(changes) => onSave(account.id, changes)}
+                onDelete={() => askDelete(account)}
+                onCancel={() => startEditing(null)}
+              />
+            ) : (
+              <li key={account.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
+                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                  <AccountIcon type={account.type} className="size-4" />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-callout font-medium">{account.name}</span>
+                  {/* El tipo solo cuando dice algo que el nombre no dice. */}
+                  {ACCOUNT_TYPE_LABELS[account.type] !== account.name && (
+                    <span className="truncate text-footnote text-muted-foreground">{ACCOUNT_TYPE_LABELS[account.type]}</span>
+                  )}
+                </span>
+                {account.currency === 'USD' && <span className="text-footnote font-medium text-muted-foreground">US$</span>}
+                {/* DEF-011 (FR-05): editar y archivar, como las categorías. Eliminar está dentro de la edición. */}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  data-testid={`settings-accounts-edit-${toTestIdSuffix(account.name)}`}
+                  aria-label={`Editar ${account.name}`}
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => startEditing(account.id)}
+                >
+                  <Pencil strokeWidth={1.6} />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  data-testid={`settings-accounts-archive-${toTestIdSuffix(account.name)}`}
+                  aria-label={`Archivar ${account.name}`}
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => onArchive(account.id)}
+                >
+                  <Archive strokeWidth={1.6} />
+                </Button>
+              </li>
+            ),
+          )}
         </ul>
       </GroupedCard>
       <form onSubmit={onSubmit} data-testid="settings-accounts-form" className="mt-2 flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
@@ -419,7 +660,7 @@ function AccountsSection() {
             </SelectTrigger>
             <SelectContent>
               {(Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[]).map((type) => (
-                <SelectItem key={type} value={type}>
+                <SelectItem key={type} value={type} data-testid={`settings-accounts-type-${toTestIdSuffix(type)}`}>
                   {ACCOUNT_TYPE_LABELS[type]}
                 </SelectItem>
               ))}
@@ -433,8 +674,8 @@ function AccountsSection() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ARS">ARS</SelectItem>
-              <SelectItem value="USD">USD</SelectItem>
+              <SelectItem value="ARS" data-testid="settings-accounts-currency-ars">ARS</SelectItem>
+              <SelectItem value="USD" data-testid="settings-accounts-currency-usd">USD</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -443,6 +684,25 @@ function AccountsSection() {
           Crear cuenta
         </Button>
       </form>
+      <ConfirmDialog
+        isOpen={deleting !== null}
+        title={`¿Seguro que querés eliminar «${deleting?.account.name ?? ''}»?`}
+        confirmLabel="Eliminar"
+        busyLabel="Eliminando…"
+        testId="settings-accounts-delete-dialog"
+        onConfirm={onConfirmDelete}
+        onClose={() => setDeleting(null)}
+      >
+        {deleting && deleting.transactions > 0 ? (
+          <p data-testid="settings-accounts-delete-impact" className="font-medium text-destructive">
+            También se van a eliminar {deleting.transactions === 1 ? 'su movimiento' : `sus ${deleting.transactions} movimientos`}, que
+            dejan de contar en todos los totales.
+          </p>
+        ) : (
+          <p data-testid="settings-accounts-delete-impact">No tiene movimientos.</p>
+        )}
+        <p>No se puede deshacer. Si querés conservar el historial, archivala en vez de eliminarla.</p>
+      </ConfirmDialog>
     </GroupedSection>
   )
 }

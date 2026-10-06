@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Period } from '@/domain/period'
-import { fetchMonthlyTransactions, type DashboardTransaction } from '@/lib/dashboard'
+import { fetchMonthlyTransactions, type DashboardTransaction, type TransactionsView } from '@/lib/dashboard'
 
 export type MonthlyTransactionsState =
   | { status: 'loading' }
@@ -14,6 +14,7 @@ export type MonthlyTransactionsState =
 export function useMonthlyTransactions(
   period: Period,
   limit?: number,
+  view: TransactionsView = 'active',
 ): MonthlyTransactionsState & { refresh: () => void } {
   const [state, setState] = useState<MonthlyTransactionsState>({ status: 'loading' })
   const [version, setVersion] = useState(0)
@@ -22,7 +23,7 @@ export function useMonthlyTransactions(
     let cancelled = false
     setState({ status: 'loading' })
 
-    fetchMonthlyTransactions(period, limit)
+    fetchMonthlyTransactions(period, limit, view)
       .then((transactions) => {
         if (!cancelled) {
           setState({ status: 'ready', transactions })
@@ -37,7 +38,7 @@ export function useMonthlyTransactions(
     return () => {
       cancelled = true
     }
-  }, [period.year, period.month, limit, version])
+  }, [period.year, period.month, limit, view, version])
 
   return {
     ...state,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORY_PALETTE, categoryIconKey, displayCategoryColor, sortCategoriesForGrid } from '@/lib/visuals'
+import { CATEGORY_PALETTE, categoryIconKey, displayCategoryColor, fitAmountFontSize, sortCategoriesForGrid } from '@/lib/visuals'
 
 describe('displayCategoryColor', () => {
   it('traduce la paleta saturada anterior a la apagada, sin importar mayúsculas', () => {
@@ -29,5 +29,12 @@ describe('sortCategoriesForGrid', () => {
   it('alfabético en español, con Otros al final', () => {
     const sorted = sortCategoriesForGrid([{ name: 'Otros' }, { name: 'Salud' }, { name: 'Educación' }, { name: 'Comida y supermercado' }])
     expect(sorted.map((c) => c.name)).toEqual(['Comida y supermercado', 'Educación', 'Salud', 'Otros'])
+  })
+})
+
+describe('fitAmountFontSize (DEF-021)', () => {
+  it('achica en proporción al largo del monto, sin pasar del máximo de la tarjeta', () => {
+    expect(fitAmountFontSize('$0,00')).toBe('min(var(--amount-max), calc(100cqi / 3.10))')
+    expect(fitAmountFontSize('-$999.999.999.999,99')).toBe('min(var(--amount-max), calc(100cqi / 12.40))')
   })
 })

@@ -1,4 +1,4 @@
-import { tryParseMoney } from './money'
+import { formatRate, parseMoney, tryParseMoney } from './money'
 import { isSamePeriod, tryPeriodOf, type Period } from './period'
 import { allowsInstallments, type TransactionDraft } from './validation'
 
@@ -109,7 +109,8 @@ export function applyReferenceRateSuggestion(
     return prev
   }
 
-  return referenceRate === null ? prev : { ...prev, fxRate: referenceRate }
+  // DEF-020: PostgREST devuelve "1250.0000"; el campo lo muestra como el resto de la app ("1.250,00").
+  return referenceRate === null ? prev : { ...prev, fxRate: formatRate(parseMoney(referenceRate)) }
 }
 
 /**
