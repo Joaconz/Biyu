@@ -13,7 +13,7 @@ resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-p
 | B | `04-ejecucion.md` / `.xlsx` + `evidencia/` | Ejecución manual de V2, regresión y confirmación de defectos | Pendiente |
 | B | `05-reportes-de-defectos.md` / `.xlsx` | Defectos de V2, con la funcionalidad que afectan (desde DEF-029) | Pendiente |
 | B | `06-reporte-de-ejecucion.md` / `.xlsx` | % PASSED / FAILED / BLOCKED, gráfico y cambios de estado por caso entre entregas | Pendiente |
-| Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | Pendiente |
+| Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | Plantillas listas, registro en curso |
 | B | `08-presentacion.html` | Presentación de 15 minutos con la demo | Pendiente |
 | Estudio | `09-resumen-de-estudio.md` | Para explicar todo oralmente | Pendiente |
 
