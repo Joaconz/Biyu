@@ -41,6 +41,7 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 | Schema e invariantes I1–I17 | `docs/04-data-model.md` |
 | Higiene del repo público | `docs/05-repo-publico.md` |
 | Testing: técnicas, defectos, propiedad cruzada | `docs/07-plan-de-testing.md` |
+| Pasos comunes de los casos (`PR-nn`): usuario de prueba, cuenta, token y llamadas a la API | `docs/12-procedimientos-de-prueba.md` |
 | FR/NFR → historias → issues → casos | `docs/08-trazabilidad.md` |
 | Instalar el repo y trabajar con Codex/Antigravity | `docs/09-guia-de-inicio.md` |
 | Backlog y tablero (épicas, historias V1, tareas) | [Project Biyu](https://github.com/users/Joaconz/projects/3), milestones V1–V3 |

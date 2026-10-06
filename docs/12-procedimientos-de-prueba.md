@@ -15,6 +15,9 @@ es la del proyecto de Supabase que usa ese deploy.
 | PR-03 | Cargar el tipo de cambio de referencia del mes | Referencia guardada |
 | PR-04 | Obtener el token de sesión y llamar a la API directo | Token válido y llamada de ejemplo |
 | PR-05 | Crear dos usuarios de prueba (A y B), cada uno con datos | Dos sesiones aisladas con su token |
+| PR-06 | Llegar al paso 3/3 de Registrar con un monto y una cuenta | Formulario listo para elegir cuotas o fecha |
+| PR-07 | Registrar un gasto completo en cuotas, con fecha | Compra guardada, para casos que la usan como dato |
+| PR-08 | Leer por la API las filas propias (oráculo de verificación) | Filas de `transactions` y `ledger_entries` del usuario |
 
 ---
 
@@ -116,3 +119,47 @@ Para los casos de aislamiento (C7). **Requiere** PR-01 hecho dos veces, con dos 
 | 1 | Hacer PR-01 con `qa+<ID>-A@example.com` y registrar un gasto de ARS 1.000,00 (categoría "Otros"). | El gasto aparece en Movimientos del usuario A. |
 | 2 | En una segunda ventana de incógnito, hacer PR-01 con `qa+<ID>-B@example.com` y registrar un gasto de ARS 2.000,00. | El gasto aparece en Movimientos del usuario B. |
 | 3 | Hacer PR-04 paso 1 para A y para B. | Dos `access_token` distintos: `<TOKEN-A>` y `<TOKEN-B>`. |
+
+## PR-06 · Llegar al paso 3/3 de Registrar con un monto y una cuenta
+
+**Requiere** PR-01, y PR-02 si `<CUENTA>` es "Visa BBVA". **Datos.** `<MONTO>`, `<CUENTA>`.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Registrar". | Se abre Registrar en el paso 1/3 ("¿Cuánto?"), con "Gasto" y "ARS" seleccionados y el cursor en el monto. |
+| 2 | Escribir `<MONTO>` en el monto. | El monto queda cargado y se habilita "Siguiente". |
+| 3 | Tocar "Siguiente". | Pasa al paso 2/3 ("¿En qué?") con la grilla de categorías. |
+| 4 | Tocar el chip "Otros". | Avanza solo al paso 3/3 ("Revisá y guardá"). |
+| 5 | En "Cuenta", tocar `<CUENTA>`. | `<CUENTA>` queda marcada. |
+
+## PR-07 · Registrar un gasto completo en cuotas, con fecha
+
+Para los casos donde la compra es un **dato** y no lo que se prueba. **Requiere** PR-01 y PR-02.
+**Datos.** `<MONTO>`, `<CUOTAS>`, `<FECHA>` en formato DD/MM/AAAA (se fija siempre una fecha pasada
+explícita: el caso no depende del día en que se ejecuta, C1).
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Hacer PR-06 con `<MONTO>` y "Visa BBVA". | Paso 3/3 con "Visa BBVA" marcada. |
+| 2 | En "Cuotas", tocar `<CUOTAS>`. | Debajo aparece la previsualización de las cuotas. |
+| 3 | En "Fecha", tocar "Otra" y escribir `<FECHA>`. | La fecha queda cargada. |
+| 4 | Tocar "Guardar gasto". | Aparece el aviso "Gasto guardado" y el botón muestra "Guardado". |
+
+## PR-08 · Leer por la API las filas propias (oráculo de verificación)
+
+Reemplaza a "mirar la base": funciona igual contra producción, porque la RLS devuelve solo las filas
+del usuario del token (C7). **Requiere** PR-04 paso 1 (`<TOKEN>`). Como cada caso usa su propio usuario,
+todas las filas que aparecen son las de ese caso.
+
+```bash
+# Imputaciones del usuario, en orden
+curl -s "<SUPABASE_URL>/rest/v1/ledger_entries?select=installment_number,period,amount,amount_ars&order=installment_number" \
+  -H "apikey: <ANON_KEY>" -H "Authorization: Bearer <TOKEN>"
+
+# Transacciones del usuario
+curl -s "<SUPABASE_URL>/rest/v1/transactions?select=id,amount,amount_ars,installments_count,deleted_at" \
+  -H "apikey: <ANON_KEY>" -H "Authorization: Bearer <TOKEN>"
+```
+
+Los importes llegan como **string** (`"10000.00"`): se leen tal cual, no se redondean (C2). El período es el
+primer día del mes (`"2026-08-01"`).
