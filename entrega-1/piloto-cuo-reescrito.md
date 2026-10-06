@@ -10,7 +10,7 @@ completo con el estándar de `docs/07-plan-de-testing.md` §4 y los procedimient
 - **Pasos explícitos:** cada click y cada texto escrito es un paso, con el nombre que se ve en pantalla. Cada caso
   empieza abriendo el navegador e iniciando sesión; nadie necesita conocer la app para ejecutarlo.
 - **La verificación es por la pantalla** (Movimientos y Resumen) siempre que la app muestra el dato. Solo los
-  casos de canal API (llamadas directas a Supabase, ver la decisión pendiente en §5) usan `curl`.
+  casos de canal API (negativos directos a Supabase, C6) usan `curl`.
 - `<APP>` es la dirección del deploy bajo prueba. Cada caso usa **su propio usuario** (`qa+<ID del caso>-001@example.com`,
   contraseña `Clave123!`), creado antes con PR-01. Las compras usan la cuenta "Tarjeta de crédito", que viene en el
   catálogo inicial.
@@ -801,7 +801,7 @@ de cada rechazo son los del contrato de `create_transaction` (`supabase/migratio
 2. **US-14 · CA-2:** las cuotas vuelven a 1 solo al pasar a una cuenta que no es de crédito (o a ingreso); entre dos tarjetas se conservan. Se corrigió el criterio y se agregó CP-CUO-022.
 3. **Redondeo de `amount_ars`:** half-up a 2 decimales, como ya decía ADR-013. Se agregó a `04-data-model.md`.
 
-**Decisión pendiente (Joaquín):** si se mantienen los casos de canal API (CP-CUO-011, 013, 014, 017, 018, 021).
+4. **Casos de canal API:** se mantienen solo para los negativos (C6), con el `curl` listo para copiar. El resto se verifica por la pantalla. Decidido por Joaquín el 2026-10-06.
 
 **Huecos que quedan como casos por escribir** (no entraron al piloto): par UI del rechazo de una cuota menor a $0,01 (CP-CUO-013 solo tiene el lado API) y su borde válido ($0,03 en 3 cuotas); el segundo trigger de I6 (una cuenta con compras en cuotas no puede dejar de ser de crédito, DEF-009); la vista previa en USD; "n/N" en "Últimos movimientos"; doble toque en "Guardar gasto". Los criterios que son escenarios BDD (US-13 · CA-2, US-16 · CA-2, US-18 · CA-2) no tienen caso manual: hay que decidir qué test automatizado los cubre.
 
