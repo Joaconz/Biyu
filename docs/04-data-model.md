@@ -183,7 +183,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | id | uuid PK | |
 | user_id | uuid FK → users | |
 | transaction_id | uuid FK → transactions | **opcional** — null para deudas sueltas |
-| person | text | not null |
+| person | text | not null; recortada, de 1 a 60 caracteres (`debts_person_length`, ADR-037 §2) |
 | amount | numeric(14,2) | > 0 |
 | currency | enum | `ARS` \| `USD` |
 | fx_rate | numeric(14,4) | mismas reglas que en transactions |
@@ -191,7 +191,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | direction | enum | `owed_to_me` \| `i_owe` |
 | status | enum | `pending` \| `settled` |
 | settled_at | timestamptz | null si pending |
-| notes | text | |
+| notes | text | hasta 200 caracteres (`debts_notes_length`, ADR-037 §2) |
 | incurred_on | date | |
 | created_at | timestamptz | |
 
@@ -250,10 +250,10 @@ Cada tabla (`categories`, `accounts`, `fx_rates`, `subscriptions`, `transactions
 create policy "select_own_rows" on transactions
   for select using (user_id = auth.uid());
 -- análogas para insert/update/delete en las tablas de escritura directa (categories, accounts,
--- fx_rates, subscriptions). transactions y ledger_entries son de solo lectura para el
--- cliente: se escriben únicamente vía create_transaction (ADR-020). debts no admite update
--- directo: su estado cambia con settle_debt y reopen_debt (ADR-037 §1, US-39); insert y delete
--- directos siguen hasta que create_debt (US-36) los reemplace.
+-- fx_rates, subscriptions). transactions, ledger_entries y debts son de solo lectura para el
+-- cliente: transactions y ledger_entries se escriben únicamente vía create_transaction (ADR-020);
+-- debts, vía create_transaction (deuda vinculada, ADR-036), create_debt (deuda suelta, US-36) y
+-- settle_debt / reopen_debt (estado, US-39), ADR-037 §1.
 ```
 
 Reglas, sin excepciones:

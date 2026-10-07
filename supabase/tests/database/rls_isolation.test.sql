@@ -1,7 +1,7 @@
 -- C7 / NFR-13: para cada tabla, otra sesión y el rol anon ven cero filas y no pueden escribir
 -- sobre filas ajenas. Además las tablas de solo-RPC no aceptan escritura directa (C4, C10).
 begin;
-select plan(34);
+select plan(35);
 
 -- Datos ficticios (C14). A es el dueño; B es otra sesión.
 insert into auth.users (id, instance_id, aud, role, email) values
@@ -44,7 +44,8 @@ select throws_ok($$update fx_rates set ars_per_usd = 1$$, '42501', null, 'authen
 with u as (update subscriptions set name = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza subscriptions de A');
 select throws_ok($$update debts set person = 'hack'$$, '42501', null, 'authenticated no actualiza debts directo: se salda por RPC (ADR-037 §1)');
 with d as (delete from categories returning 1) select is((select count(*) from d), 0::bigint, 'B no borra categories de A');
-with d as (delete from debts returning 1) select is((select count(*) from d), 0::bigint, 'B no borra debts de A');
+select throws_ok($$delete from debts$$, '42501', null, 'authenticated no borra debts directo (ADR-037 §1)');
+select throws_ok($$insert into debts (user_id, person, amount, currency, direction, incurred_on) values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','x',1,'ARS','owed_to_me','2026-08-15')$$, '42501', null, 'authenticated no inserta debts directo: se crean con create_debt (US-36 CA-9)');
 
 -- B no puede insertar filas a nombre de A.
 select throws_ok($$insert into categories (user_id, name) values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','x')$$, '42501', null, 'B no inserta categories con user_id de A (RLS with check)');
