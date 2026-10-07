@@ -437,3 +437,50 @@ describe('Próximo cobro en el detalle (US-54)', () => {
     expect(nextChargeText(sub({ endPeriod: { year: 2027, month: 2 } }), NONE, new Date(2027, 1, 28))).toBe('—')
   })
 })
+
+// ---------------------------------------------------------------------------
+// US-55: el mes corriente aparece recién el día del cobro (R5).
+// ---------------------------------------------------------------------------
+
+describe('el mes corriente, recién el día del cobro (US-55)', () => {
+  const day28 = state({ billingDay: 28, generateFromPeriod: { year: 2026, month: 8 } })
+  const pastDone = new Set(['2026-08', '2026-09'])
+
+  it('CA-1: el día 27 no se genera la del mes corriente', () => {
+    expect(due(day28, new Date(2026, 9, 27), pastDone)).toEqual([])
+  })
+
+  it('CA-2: el día 28 sí', () => {
+    expect(due(day28, new Date(2026, 9, 28), pastDone)).toEqual(['2026-10-28'])
+  })
+
+  it('CA-3: el día 29 también, si no existía', () => {
+    expect(due(day28, new Date(2026, 9, 29), pastDone)).toEqual(['2026-10-28'])
+    expect(due(day28, new Date(2026, 9, 29), new Set([...pastDone, '2026-10']))).toEqual([])
+  })
+
+  it('CA-4: los períodos anteriores se generan siempre, aunque hoy sea día 1', () => {
+    const s = state({ billingDay: 28, generateFromPeriod: { year: 2026, month: 7 } })
+    expect(due(s, new Date(2026, 9, 1))).toEqual(['2026-07-28', '2026-08-28', '2026-09-28'])
+  })
+
+  it('CA-6: día 31 en un mes de 30 días → se genera el 30, no antes', () => {
+    const s = state({ billingDay: 31, generateFromPeriod: { year: 2026, month: 11 } })
+    expect(due(s, new Date(2026, 10, 29))).toEqual([])
+    expect(due(s, new Date(2026, 10, 30))).toEqual(['2026-11-30'])
+    expect(due(s, new Date(2026, 11, 1))).toEqual(['2026-11-30'])
+  })
+
+  it('"Próximo cobro": la fecha de este mes mientras no llegue el día, y desde ese día la del siguiente', () => {
+    const s = record({ billingDay: 28, generateFromPeriod: { year: 2026, month: 8 } })
+    expect(nextChargeText(s, pastDone, new Date(2026, 9, 27))).toBe('28/10/2026')
+    expect(nextChargeText(s, pastDone, new Date(2026, 9, 28))).toBe('28/11/2026')
+    expect(nextChargeText(s, pastDone, new Date(2026, 9, 29))).toBe('28/11/2026')
+    // Lo que se ve después de la puesta al día de ese día: octubre ya generado (R2 + R5).
+    expect(nextChargeText(s, new Set([...pastDone, '2026-10']), new Date(2026, 9, 28))).toBe('28/11/2026')
+    const s31 = record({ billingDay: 31, generateFromPeriod: { year: 2026, month: 8 } })
+    expect(nextChargeText(s31, NONE, new Date(2027, 3, 29))).toBe('30/04/2027')
+    expect(nextChargeText(s31, NONE, new Date(2027, 3, 30))).toBe('31/05/2027')
+    expect(nextChargeText(s31, NONE, new Date(2027, 4, 1))).toBe('31/05/2027')
+  })
+})
