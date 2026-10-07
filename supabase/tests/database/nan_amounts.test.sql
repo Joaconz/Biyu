@@ -1,7 +1,7 @@
 -- DEF-004 (Crítica, #145): 'NaN'::numeric > 0 es verdadero en Postgres, así que un check
 -- "amount > 0" no lo rechaza. create_transaction() ya se cubre en create_transaction.test.sql;
--- acá se cubren las tablas donde RLS permite el insert directo (sin pasar por una RPC): debts y
--- subscriptions. fx_rates ya tenía su propio test en upsert_fx_rate.test.sql. ledger_entries
+-- acá se cubren las tablas donde RLS permite el insert directo (sin pasar por una RPC): debts y,
+-- hasta ADR-030, subscriptions. fx_rates ya tenía su propio test en upsert_fx_rate.test.sql. ledger_entries
 -- también quedó protegida por el mismo constraint (ver la migración), pero authenticated no tiene
 -- INSERT directo ahí (C4, C10: solo vía RPC) y por eso no hay caso equivalente acá.
 begin;
@@ -29,11 +29,14 @@ select throws_ok(
   '23514', null, 'debts.fx_rate NaN se rechaza (DEF-004, I5)');
 select is((select count(*) from debts), 0::bigint, 'ningún debt NaN quedó insertado');
 
+-- subscriptions ya no acepta insert directo (ADR-030): el CHECK sigue como red final y se prueba
+-- como dueño de la tabla. create_subscription con NaN está en create_subscription.test.sql.
+reset role;
 select throws_ok(
   $$insert into subscriptions (user_id, name, amount, currency, category_id, account_id, billing_day, start_period, generate_from_period)
     values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Netflix','NaN','ARS','c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',5,'2026-08-01','2026-08-01')$$,
   '23514', null, 'subscriptions.amount NaN se rechaza (DEF-004, I4)');
-select is((select count(*) from subscriptions), 0::bigint, 'ninguna subscription NaN quedó insertada');
+select is((select count(*) from subscriptions where user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), 0::bigint, 'ninguna subscription NaN quedó insertada');
 
 select * from finish();
 rollback;

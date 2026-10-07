@@ -101,6 +101,11 @@ pantalla, incluida la de edición.** Cuando el formulario de edición se muestra
 nada atrasado. Está anotado como una precondición del endpoint de edición, y tiene su caso de
 prueba.
 
+> **Actualización (ADR-030).** El hueco ya no depende de una regla de orden de la UI: toda
+> escritura sobre `subscriptions` es una RPC que pone al día la suscripción **dentro de la misma
+> transacción**, antes de aplicar el cambio. Una llamada directa a la API no puede reabrirlo,
+> porque el cliente no tiene `update` sobre la tabla.
+
 ## Pausar, reanudar, cancelar
 
 | Acción | Efecto |
@@ -152,6 +157,7 @@ _Continúan la numeración de `02-behavior-spec.md`._
 61. Como usuario, quiero ver qué transacciones vinieron de una suscripción y de cuál, para reconocerlas en el listado.
 62. Como usuario, quiero que una suscripción en USD sin tipo de cambio cargado me avise en vez de inventar un valor, para no ensuciar los totales.
 63. Como usuario, quiero ver el total mensual comprometido en suscripciones activas, para saber cuánto del mes ya está tomado antes de gastar nada.
+75. Como usuario, quiero ver qué meses se van a cargar antes de dar de alta una suscripción, para no llevarme sorpresas al guardar (vista previa del calendario; `entrega-2/historias/suscripciones.md`).
 
 ## Escenarios BDD
 
@@ -245,7 +251,10 @@ Además de los escenarios de arriba, estos entran al catálogo de V2:
 - `end_period` igual a `start_period` (genera exactamente una ocurrencia).
 - `end_period` anterior a `start_period` (rechazado, I12).
 - Suscripción sobre una categoría o una cuenta **archivada**: no se puede crear, pero una ya existente sigue generando.
-- Dos suscripciones del mismo usuario con el mismo nombre (rechazado); una cancelada y una nueva con el mismo nombre (aceptado).
+- Dos suscripciones del mismo usuario con el mismo nombre (rechazado), también sin distinguir mayúsculas ni espacios de los bordes ("Netflix" contra " netflix "); una cancelada y una nueva con el mismo nombre (aceptado).
+- Nombre de 60 caracteres (aceptado) y de 61 (rechazado), contados como `char_length` (un emoji cuenta 1) (ADR-032).
+- Mes de inicio en los bordes: 24 meses antes del corriente y 12 después (aceptados); 25 antes y 13 después (rechazados) (ADR-032).
+- Extender una suscripción terminada (`end_period` anterior al corriente): los meses entre el fin viejo y hoy no se cargan (ADR-032).
 - Cincuenta suscripciones activas con dos años de atraso: la puesta al día tiene que terminar en un tiempo razonable y no bloquear la respuesta.
 - Dos pedidos concurrentes del mismo usuario disparando la puesta al día a la vez: uno de los dos falla contra el índice único y tiene que degradar a "ya estaba generado", no a error 500.
 

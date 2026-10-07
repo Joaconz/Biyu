@@ -91,7 +91,7 @@ interesante y está en `06-suscripciones.md`.
 |---|---|---|
 | id | uuid PK | |
 | user_id | uuid FK → users | not null |
-| name | text | not null — "Netflix" |
+| name | text | not null — "Netflix". De 1 a 60 caracteres (`char_length`), sin espacios en los bordes (ADR-032) |
 | amount | numeric(14,2) | > 0 |
 | currency | enum | `ARS` \| `USD` |
 | category_id | uuid FK → categories | not null |
@@ -99,15 +99,23 @@ interesante y está en `06-suscripciones.md`.
 | billing_day | int | 1..31 — día del mes en que se cobra |
 | start_period | date | día 1 del primer mes que corresponde cobrar |
 | end_period | date | día 1; null = indefinida |
-| generate_from_period | date | día 1. **Piso móvil de generación.** Arranca igual a `start_period`; reanudar una suscripción pausada lo mueve al período corriente |
+| generate_from_period | date | día 1. **Piso móvil de generación.** Arranca igual a `start_period`; pausar lo lleva al período siguiente al corriente y reanudar, al corriente, siempre con `max` (R8). Ninguna RPC lo recibe del cliente (ADR-030) |
 | status | enum | `active` \| `paused` \| `cancelled` |
 | paused_at | timestamptz | not null si `status = 'paused'` |
 | cancelled_at | timestamptz | not null si `status = 'cancelled'` |
-| description | text | opcional |
+| description | text | opcional; hasta 200 caracteres (`char_length`), vacía se guarda como null (ADR-032) |
 | created_at | timestamptz | default now() |
 
-Índice único **parcial**: (`user_id`, `name`) `where status <> 'cancelled'`. Mismo criterio
-que en `categories` y `accounts`: se puede reutilizar el nombre de una suscripción cancelada.
+Índice único **parcial**: (`user_id`, `lower(name)`) `where status <> 'cancelled'`, así "Netflix"
+y "netflix" chocan (ADR-032). Mismo criterio que en `categories` y `accounts`: se puede reutilizar
+el nombre de una suscripción cancelada. `CHECK` de largo: `char_length(name) between 1 and 60` y
+`description is null or char_length(description) <= 200`.
+
+**Solo lectura para el cliente (ADR-030).** `authenticated` tiene `select` y nada más: alta,
+edición, pausa, reanudación y cancelación son RPC `security definer` que ponen al día la
+suscripción en la misma transacción (`create_subscription` hoy; las demás llegan con US-56 a
+US-59). Las ocurrencias las inserta `insert_transaction_with_entries`, la misma función interna que
+usa `create_transaction` (C4).
 
 **Por qué no hay `fx_rate` acá.** Una suscripción en USD no congela un tipo de cambio: cada
 ocurrencia toma el `fx_rates` de **su propio período** al momento de generarse, y lo congela
@@ -249,9 +257,10 @@ Cada tabla (`categories`, `accounts`, `fx_rates`, `subscriptions`, `transactions
 ```sql
 create policy "select_own_rows" on transactions
   for select using (user_id = auth.uid());
--- análogas para insert/update/delete en las tablas de escritura directa (categories, accounts,
--- fx_rates, subscriptions). transactions y ledger_entries son de solo lectura para el
--- cliente: se escriben únicamente vía create_transaction (ADR-020). debts no admite update
+-- análogas para insert/update/delete en las tablas de escritura directa (categories, accounts).
+-- transactions y ledger_entries son de solo lectura para el cliente: se escriben únicamente vía
+-- create_transaction (ADR-020). subscriptions también: se escribe por RPC (create_subscription y
+-- las operaciones de ADR-030). debts no admite update
 -- directo: su estado cambia con settle_debt y reopen_debt (ADR-037 §1, US-39); insert y delete
 -- directos siguen hasta que create_debt (US-36) los reemplace.
 ```

@@ -27,6 +27,7 @@ export type Database = {
                   Row: {
                     "archived_at": string | null,"created_at": string,"currency": Database["public"]['Enums']["currency_code"],"id": string,"name": string,"type": Database["public"]['Enums']["account_type"],"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "archived_at"?: string | null,"created_at"?: string,"currency": Database["public"]['Enums']["currency_code"],"id"?: string,"name": string,"type": Database["public"]['Enums']["account_type"],"user_id"?: string
                   }
@@ -40,6 +41,7 @@ export type Database = {
                   Row: {
                     "archived_at": string | null,"color": string | null,"created_at": string,"icon": string | null,"id": string,"name": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "archived_at"?: string | null,"color"?: string | null,"created_at"?: string,"icon"?: string | null,"id"?: string,"name": string,"user_id"?: string
                   }
@@ -53,6 +55,7 @@ export type Database = {
                   Row: {
                     "amount": number,"amount_ars": number | null,"created_at": string,"currency": Database["public"]['Enums']["currency_code"],"direction": Database["public"]['Enums']["debt_direction"],"fx_rate": number | null,"id": string,"incurred_on": string,"notes": string | null,"person": string,"settled_at": string | null,"status": Database["public"]['Enums']["debt_status"],"transaction_id": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount": number,"amount_ars"?: never,"created_at"?: string,"currency": Database["public"]['Enums']["currency_code"],"direction": Database["public"]['Enums']["debt_direction"],"fx_rate"?: number | null,"id"?: string,"incurred_on": string,"notes"?: string | null,"person": string,"settled_at"?: string | null,"status"?: Database["public"]['Enums']["debt_status"],"transaction_id"?: string | null,"user_id"?: string
                   }
@@ -78,6 +81,7 @@ isOneToOne: false
                   Row: {
                     "ars_per_usd": number,"created_at": string,"id": string,"period": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "ars_per_usd": number,"created_at"?: string,"id"?: string,"period": string,"user_id"?: string
                   }
@@ -91,6 +95,7 @@ isOneToOne: false
                   Row: {
                     "amount": number,"amount_ars": number,"id": string,"installment_number": number,"period": string,"transaction_id": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount": number,"amount_ars": number,"id"?: string,"installment_number": number,"period": string,"transaction_id": string,"user_id"?: string
                   }
@@ -116,6 +121,7 @@ isOneToOne: false
                   Row: {
                     "account_id": string,"amount": number,"billing_day": number,"cancelled_at": string | null,"category_id": string,"created_at": string,"currency": Database["public"]['Enums']["currency_code"],"description": string | null,"end_period": string | null,"generate_from_period": string,"id": string,"name": string,"paused_at": string | null,"start_period": string,"status": Database["public"]['Enums']["subscription_status"],"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "account_id": string,"amount": number,"billing_day": number,"cancelled_at"?: string | null,"category_id": string,"created_at"?: string,"currency": Database["public"]['Enums']["currency_code"],"description"?: string | null,"end_period"?: string | null,"generate_from_period": string,"id"?: string,"name": string,"paused_at"?: string | null,"start_period": string,"status"?: Database["public"]['Enums']["subscription_status"],"user_id"?: string
                   }
@@ -141,6 +147,7 @@ isOneToOne: false
                   Row: {
                     "account_id": string,"amount": number,"amount_ars": number | null,"category_id": string | null,"created_at": string,"currency": Database["public"]['Enums']["currency_code"],"deleted_at": string | null,"description": string | null,"first_period": string,"fx_rate": number | null,"id": string,"installments_count": number,"occurred_on": string,"subscription_id": string | null,"subscription_period": string | null,"type": Database["public"]['Enums']["transaction_type"],"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "account_id": string,"amount": number,"amount_ars"?: never,"category_id"?: string | null,"created_at"?: string,"currency": Database["public"]['Enums']["currency_code"],"deleted_at"?: string | null,"description"?: string | null,"first_period": string,"fx_rate"?: number | null,"id"?: string,"installments_count"?: number,"occurred_on": string,"subscription_id"?: string | null,"subscription_period"?: string | null,"type": Database["public"]['Enums']["transaction_type"],"user_id"?: string
                   }
@@ -172,6 +179,7 @@ isOneToOne: false
                   Row: {
                     "completed_at": string | null,"created_at": string,"usage_reason": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "completed_at"?: string | null,"created_at"?: string,"usage_reason"?: string | null,"user_id"?: string
                   }
@@ -188,13 +196,23 @@ isOneToOne: false
                   Row: {
                     "entries_amount": number | null,"entries_amount_ars": number | null,"transaction_amount": number | null,"transaction_amount_ars": number | null,"transaction_id": string | null,"user_id": string | null
                   }
+                  ComputedFields: never
                   Relationships: [
                     
                   ]
                 }
           }
           Functions: {
-            "create_transaction":
+            "argentina_today":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"catch_up_subscriptions":
+{ Args: { "p_subscription_id"?: string,"p_today": string,"p_user_id": string }; Returns: Json
+                           },
+"create_subscription":
+{ Args: { "p_account_id": string,"p_amount": number,"p_billing_day": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description"?: string,"p_end_period"?: string,"p_name": string,"p_start_period": string }; Returns: Json
+                           },
+"create_transaction":
 { Args: { "p_account_id": string,"p_amount": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description"?: string,"p_fx_rate": number,"p_installments_count": number,"p_occurred_on": string,"p_shared_amount"?: number,"p_shared_person"?: string,"p_type": Database["public"]['Enums']["transaction_type"] }; Returns: string
                            },
 "delete_account":
@@ -202,6 +220,12 @@ isOneToOne: false
                            },
 "delete_transaction":
 { Args: { "p_transaction_id": string }; Returns: undefined
+                           },
+"insert_transaction_with_entries":
+{ Args: { "p_account_id": string,"p_amount": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description": string,"p_fx_rate": number,"p_installments_count": number,"p_occurred_on": string,"p_subscription_id"?: string,"p_subscription_period"?: string,"p_type": Database["public"]['Enums']["transaction_type"],"p_user_id": string }; Returns: string
+                           },
+"period_label":
+{ Args: { "p_period": string }; Returns: string
                            },
 "reopen_debt":
 { Args: { "p_debt_id": string }; Returns: undefined
@@ -211,6 +235,9 @@ isOneToOne: false
                            },
 "settle_debt":
 { Args: { "p_debt_id": string }; Returns: undefined
+                           },
+"trim_js":
+{ Args: { "p_text": string }; Returns: string
                            },
 "upsert_fx_rate":
 { Args: { "p_ars_per_usd": number,"p_period": string }; Returns: string

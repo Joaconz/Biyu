@@ -3,9 +3,12 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { DebtsPage } from '@/pages/DebtsPage'
+import { NewSubscriptionPage } from '@/pages/NewSubscriptionPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { SetupPage } from '@/pages/SetupPage'
+import { SubscriptionDetailPage } from '@/pages/SubscriptionDetailPage'
+import { SubscriptionsPage } from '@/pages/SubscriptionsPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 import { RedirectIfAuthed, RequireAuth } from '@/pages/RequireAuth'
 import { SettingsPage } from '@/pages/SettingsPage'
@@ -26,6 +29,9 @@ export const router = createBrowserRouter([
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/transactions', element: <TransactionsPage /> },
           { path: '/debts', element: <DebtsPage /> },
+          { path: '/subscriptions', element: <SubscriptionsPage /> },
+          { path: '/subscriptions/new', element: <NewSubscriptionPage /> },
+          { path: '/subscriptions/:id', element: <SubscriptionDetailPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

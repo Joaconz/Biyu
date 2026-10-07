@@ -41,7 +41,7 @@ select is((select count(*) from transactions where id = '70000000-0000-0000-0000
 with u as (update categories set name = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza categories de A');
 with u as (update accounts set name = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza accounts de A');
 select throws_ok($$update fx_rates set ars_per_usd = 1$$, '42501', null, 'authenticated no actualiza fx_rates directo');
-with u as (update subscriptions set name = 'hack' returning 1) select is((select count(*) from u), 0::bigint, 'B no actualiza subscriptions de A');
+select throws_ok($$update subscriptions set name = 'hack'$$, '42501', null, 'authenticated no actualiza subscriptions directo: se escribe por RPC (ADR-030)');
 select throws_ok($$update debts set person = 'hack'$$, '42501', null, 'authenticated no actualiza debts directo: se salda por RPC (ADR-037 §1)');
 with d as (delete from categories returning 1) select is((select count(*) from d), 0::bigint, 'B no borra categories de A');
 with d as (delete from debts returning 1) select is((select count(*) from d), 0::bigint, 'B no borra debts de A');

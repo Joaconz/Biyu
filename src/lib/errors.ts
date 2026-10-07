@@ -4,6 +4,17 @@ export function isUniqueViolation(error: unknown): boolean {
   return typeof error === 'object' && error !== null && (error as { code?: string }).code === '23505'
 }
 
+/** Sin código de Postgres no es un rechazo de la base: es la red ("TypeError: Failed to fetch"). */
+export function isNetworkError(error: unknown): boolean {
+  const { code } = (typeof error === 'object' && error !== null ? error : {}) as { code?: string }
+  return !code
+}
+
+/** Motivo de "No se pudo guardar: <motivo>" en Suscripciones (US-52): sin red, el texto del issue. */
+export function saveFailureReason(error: unknown): string {
+  return isNetworkError(error) ? 'revisá tu conexión y probá de nuevo' : saveErrorMessage(error)
+}
+
 /**
  * Motivo del toast "No se pudo guardar". Los errores propios de la base ya vienen en español
  * (I4–I8, create_transaction); los de Postgres no, así que se traducen los que pueden llegar

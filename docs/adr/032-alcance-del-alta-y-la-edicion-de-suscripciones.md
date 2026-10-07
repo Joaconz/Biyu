@@ -17,10 +17,10 @@ diferencia de `categories` y `accounts` (DEF-019).
 
 | Campo | Regla |
 |---|---|
-| Nombre | Obligatorio. Se guarda sin espacios al principio ni al final (`btrim`) y tiene que quedar de 1 a 60 caracteres, contados como puntos de código (`char_length` de Postgres; el cliente cuenta igual, no con `maxLength` del navegador). Único entre las suscripciones no canceladas del usuario **sin distinguir mayúsculas** (índice `(user_id, lower(name)) where status <> 'cancelled'`) |
+| Nombre | Obligatorio. Se guarda sin espacios al principio ni al final (`trim_js`: la misma clase de espacios que `String.prototype.trim` del cliente, migración `20261006000000`; `btrim` solo saca U+0020 y dejaba pasar un tab) y tiene que quedar de 1 a 60 caracteres, contados como puntos de código (`char_length` de Postgres; el cliente cuenta igual, no con `maxLength` del navegador). Único entre las suscripciones no canceladas del usuario **sin distinguir mayúsculas** (índice `(user_id, lower(name)) where status <> 'cancelled'`) |
 | Mes de inicio | Desde 24 meses antes del período corriente hasta 12 meses después, inclusive |
 | Mes de fin | Opcional; si está, mayor o igual al mes de inicio (I12) y como máximo diciembre de 2099 |
-| Descripción | Opcional; se guarda con `btrim` y vacía pasa a `null`; hasta 200 caracteres contados igual que el nombre |
+| Descripción | Opcional; se recorta igual que el nombre y vacía pasa a `null`; hasta 200 caracteres contados igual que el nombre |
 
 El límite de 24 meses hacia atrás coincide con el caso de borde de rendimiento de `06-suscripciones.md`
 (dos años de atraso): un alta no puede generar más de 25 ocurrencias de golpe.
