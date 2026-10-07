@@ -19,10 +19,9 @@ insert into transactions (id, user_id, type, amount, currency, category_id, acco
   ('70000000-0000-0000-0000-000000000002','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','expense',1000,'ARS','c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000002',1,'2026-08-01','2026-08-15',null),
   ('70000000-0000-0000-0000-000000000003','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','expense',3000,'ARS','c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000003',3,'2026-08-01','2026-08-15','2026-08-20');
 
-set local role authenticated;
-set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}';
+-- DEF-016: una deuda válida se acepta; I7 sigue rechazando las inválidas. El trigger de I7 se prueba
+-- como dueño de la tabla: authenticated ya no inserta debts directo (ADR-037 §1, US-36 CA-15).
 
--- DEF-016: una deuda válida se acepta; I7 sigue rechazando las inválidas.
 select lives_ok(
   $$insert into debts (user_id, transaction_id, person, amount, currency, direction, incurred_on)
     values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','70000000-0000-0000-0000-000000000002','Sofía',400,'ARS','owed_to_me','2026-08-15')$$,
@@ -37,7 +36,10 @@ select throws_ok(
     values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','70000000-0000-0000-0000-000000000002','Juan',1,'USD',1000,'owed_to_me','2026-08-15')$$,
   '23514', 'I7: la deuda debe tener la misma moneda que su transacción',
   'I7 sigue rechazando una moneda distinta a la de la transacción');
-select is((select count(*) from debts), 1::bigint, 'solo quedó la deuda válida');
+select is((select count(*) from debts where user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), 1::bigint, 'solo quedó la deuda válida');
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}';
 select throws_ok(
   $$select public.check_debt_rule()$$,
   '42501', null, 'authenticated no puede ejecutar check_debt_rule fuera del trigger');

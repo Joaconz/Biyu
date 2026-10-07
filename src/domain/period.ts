@@ -40,6 +40,16 @@ export function tryPeriodOf(date: string): Period | null {
   return parsePeriod(date.slice(0, 7))
 }
 
+/** Si "YYYY-MM-DD" es un día que existe en el calendario: "2026-02-31" o "2026-10-00" no lo son. */
+export function isValidIsoDate(date: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+  if (!match) return false
+  const [year, month, day] = match.slice(1).map(Number)
+  // Date.UTC con argumentos es aritmética de calendario, no lee el reloj (C1).
+  const parsed = new Date(Date.UTC(year, month - 1, day))
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day
+}
+
 export function isSamePeriod(a: Period, b: Period): boolean {
   return a.year === b.year && a.month === b.month
 }

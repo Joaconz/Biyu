@@ -194,7 +194,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "create_transaction":
+            "create_debt":
+{ Args: { "p_amount": number,"p_currency": Database["public"]['Enums']["currency_code"],"p_direction": Database["public"]['Enums']["debt_direction"],"p_fx_rate": number,"p_incurred_on": string,"p_notes"?: string,"p_person": string }; Returns: string
+                           },
+"create_transaction":
 { Args: { "p_account_id": string,"p_amount": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description"?: string,"p_fx_rate": number,"p_installments_count": number,"p_occurred_on": string,"p_shared_amount"?: number,"p_shared_person"?: string,"p_type": Database["public"]['Enums']["transaction_type"] }; Returns: string
                            },
 "delete_account":
