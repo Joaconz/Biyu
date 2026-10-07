@@ -7,6 +7,7 @@ import {
   debtTotals,
   debtUpdateErrorReason,
   isStaleDebtError,
+  reopenedNoticeText,
   settledNoticeText,
   debtsForFilter,
   emptyDebtsMessage,
@@ -204,7 +205,21 @@ describe('saldar una deuda (US-39)', () => {
   it.each([
     ['La deuda ya está saldada', true],
     ['La deuda no existe', true],
-    ['TypeError: Failed to fetch', false],
+    ['Probá de nuevo en un momento', false],
     ['La deuda ya está pendiente', false],
-  ])('"%s" vuelve a pedir la lista: %s', (reason, stale) => expect(isStaleDebtError(reason)).toBe(stale))
+  ])('al saldar, "%s" vuelve a pedir la lista: %s', (reason, stale) =>
+    expect(isStaleDebtError(reason, 'settle')).toBe(stale))
+})
+
+describe('volver a pendiente (US-40)', () => {
+  it('aviso de éxito con la persona (CA-1)', () =>
+    expect(reopenedNoticeText('Sofía')).toBe('La deuda con Sofía volvió a pendiente'))
+
+  it.each([
+    ['La deuda ya está pendiente', true],
+    ['La deuda no existe', true],
+    ['Probá de nuevo en un momento', false],
+    ['La deuda ya está saldada', false],
+  ])('al reabrir, "%s" vuelve a pedir la lista: %s', (reason, stale) =>
+    expect(isStaleDebtError(reason, 'reopen')).toBe(stale))
 })

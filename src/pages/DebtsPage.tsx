@@ -15,6 +15,7 @@ import {
   emptyDebtsMessage,
   isStaleDebtError,
   parseDebtStatusFilter,
+  reopenedNoticeText,
   type DebtRecord,
   type DebtStatusFilter,
 } from '@/domain/debts'
@@ -30,10 +31,10 @@ export function DebtsPage() {
   const filter = parseDebtStatusFilter(params.get('status'))
   const debtsState = useDebts()
   const { reload } = debtsState
-  // Las filas que esperan settle_debt. El ref corta el doble toque antes de que React vuelva a pintar
-  // el botón deshabilitado (CA-3); el estado es lo que se ve.
-  const settlingRef = useRef(new Set<string>())
-  const [settling, setSettling] = useState<ReadonlySet<string>>(new Set())
+  // Las filas que esperan settle_debt o reopen_debt. El ref corta el doble toque antes de que React
+  // vuelva a pintar el botón deshabilitado (US-39 CA-3); el estado es lo que se ve.
+  const busyRef = useRef(new Set<string>())
+  const [busy, setBusy] = useState<ReadonlySet<string>>(new Set())
   const undoNotices = useRef(new Set<string | number>())
   // Sube al cambiar de filtro o salir de la pantalla: un saldado que termina después ya no muestra
   // "Deshacer", porque el aviso dura hasta ese cambio.
@@ -48,10 +49,10 @@ export function DebtsPage() {
   // "Deshacer" dura hasta que se cambia de pantalla (y de filtro, en selectFilter).
   useEffect(() => dismissUndoNotices, [])
 
-  function setRowSettling(id: string, on: boolean) {
-    if (on) settlingRef.current.add(id)
-    else settlingRef.current.delete(id)
-    setSettling(new Set(settlingRef.current))
+  function setRowBusy(id: string, on: boolean) {
+    if (on) busyRef.current.add(id)
+    else busyRef.current.delete(id)
+    setBusy(new Set(busyRef.current))
   }
 
   function showUpdateError(error: unknown) {
@@ -61,19 +62,19 @@ export function DebtsPage() {
   }
 
   async function handleSettle(debt: DebtRecord) {
-    if (settlingRef.current.has(debt.id)) return
-    setRowSettling(debt.id, true)
+    if (busyRef.current.has(debt.id)) return
+    setRowBusy(debt.id, true)
     const generation = noticeGeneration.current
     try {
       await settleDebt(debt.id)
     } catch (error) {
-      if (isStaleDebtError(showUpdateError(error))) await reload()
-      setRowSettling(debt.id, false)
+      if (isStaleDebtError(showUpdateError(error), 'settle')) await reload()
+      setRowBusy(debt.id, false)
       return
     }
     // La fila cambia cuando llega la lista nueva, con el settled_at del servidor (CA-2) y los totales.
     await reload()
-    setRowSettling(debt.id, false)
+    setRowBusy(debt.id, false)
     if (generation !== noticeGeneration.current) return
     const id = toast.custom(
       (toastId) => (
@@ -95,6 +96,22 @@ export function DebtsPage() {
       { duration: UNDO_MS, onAutoClose: (t) => undoNotices.current.delete(t.id) },
     )
     undoNotices.current.add(id)
+  }
+
+  // "Volver a pendiente" (US-40): sin diálogo ni "Deshacer", porque se revierte con "Marcar saldada".
+  async function handleReopen(debt: DebtRecord) {
+    if (busyRef.current.has(debt.id)) return
+    setRowBusy(debt.id, true)
+    try {
+      await reopenDebt(debt.id)
+    } catch (error) {
+      if (isStaleDebtError(showUpdateError(error), 'reopen')) await reload()
+      setRowBusy(debt.id, false)
+      return
+    }
+    await reload()
+    setRowBusy(debt.id, false)
+    toast.success(reopenedNoticeText(debt.person), { testId: 'debts-reopened' })
   }
 
   function selectFilter(next: DebtStatusFilter) {
@@ -161,7 +178,13 @@ export function DebtsPage() {
           ) : (
             <GroupedCard data-testid="debts-list">
               {debts.map((debt) => (
-                <DebtItem key={debt.id} debt={debt} settling={settling.has(debt.id)} onSettle={handleSettle} />
+                <DebtItem
+                  key={debt.id}
+                  debt={debt}
+                  busy={busy.has(debt.id)}
+                  onSettle={handleSettle}
+                  onReopen={handleReopen}
+                />
               ))}
             </GroupedCard>
           )}

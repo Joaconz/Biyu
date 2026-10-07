@@ -172,12 +172,18 @@ export function debtUpdateErrorReason(error: unknown): string {
   return code && message ? message : 'Probá de nuevo en un momento'
 }
 
+/** Aviso de éxito al volver a pendiente (US-40). */
+export function reopenedNoticeText(person: string): string {
+  return `La deuda con ${person} volvió a pendiente`
+}
+
 /**
- * Rechazos que dicen que la lista quedó vieja (otra pestaña la saldó, o se eliminó su gasto): además
- * del aviso se vuelven a pedir la lista y los totales (US-39).
+ * Rechazos que dicen que la lista quedó vieja (otra pestaña ya hizo el cambio, o se eliminó el gasto):
+ * además del aviso se vuelven a pedir la lista y los totales (US-39, US-40).
  */
-export function isStaleDebtError(reason: string): boolean {
-  return reason === 'La deuda ya está saldada' || reason === 'La deuda no existe'
+export function isStaleDebtError(reason: string, action: 'settle' | 'reopen'): boolean {
+  const already = action === 'settle' ? 'La deuda ya está saldada' : 'La deuda ya está pendiente'
+  return reason === already || reason === 'La deuda no existe'
 }
 
 /** Mensaje del estado vacío de cada filtro (US-38), y si ofrece "Cargar una deuda". */

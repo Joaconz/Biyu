@@ -5,16 +5,20 @@ import { cn } from '@/lib/utils'
 /**
  * Fila de la lista de Deudas (US-38): persona y dirección arriba, la nota, la fecha con el estado, y
  * el monto a la derecha (en US$, con su equivalente en pesos congelado, C5). Lo que se debe va en
- * rojo, como en los totales. Una pendiente tiene "Marcar saldada" debajo del monto (US-39).
+ * rojo, como en los totales. Debajo del monto, una pendiente tiene "Marcar saldada" (US-39) y una
+ * saldada, "Volver a pendiente" (US-40).
  */
 export function DebtItem({
   debt,
-  settling,
+  busy,
   onSettle,
+  onReopen,
 }: {
   debt: DebtRecord
-  settling: boolean
+  /** Esperando settle_debt o reopen_debt de esta fila. */
+  busy: boolean
   onSettle: (debt: DebtRecord) => void
+  onReopen: (debt: DebtRecord) => void
 }) {
   const text = debtRowText(debt)
   const settled = debt.status === 'settled'
@@ -72,15 +76,25 @@ export function DebtItem({
             {text.amountArs}
           </span>
         )}
-        {!settled && (
+        {settled ? (
+          <button
+            type="button"
+            data-testid="debts-item-reopen"
+            disabled={busy}
+            onClick={() => onReopen(debt)}
+            className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'mt-1.5 -mr-2')}
+          >
+            {busy ? 'Actualizando…' : 'Volver a pendiente'}
+          </button>
+        ) : (
           <button
             type="button"
             data-testid="debts-item-settle"
-            disabled={settling}
+            disabled={busy}
             onClick={() => onSettle(debt)}
             className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'mt-1.5 -mr-2')}
           >
-            {settling ? 'Saldando…' : 'Marcar saldada'}
+            {busy ? 'Saldando…' : 'Marcar saldada'}
           </button>
         )}
       </div>
