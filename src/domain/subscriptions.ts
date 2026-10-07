@@ -2,7 +2,7 @@
 // entra por parámetro (C1) y es el hoy de Argentina (ADR-031 §7). Postgres repite cada validación
 // en create_subscription con los mismos mensajes (C6).
 import type { Currency } from './fx'
-import { convertToArs, Decimal, formatArs, formatUsdCode, tryParseMoney } from './money'
+import { convertToArs, Decimal, formatArs, formatUsdCode, parseMoney, tryParseMoney } from './money'
 import {
   addMonths,
   argentinaDateOf,
@@ -339,6 +339,71 @@ export function validateSubscriptionForm(
       description: description || null,
     },
   }
+}
+
+// ---------------------------------------------------------------------------
+// Total mensual comprometido (US-63, ADR-033)
+// ---------------------------------------------------------------------------
+
+export interface CommittedMonthly {
+  /** El período corriente, el del rótulo. */
+  period: Period
+  /** Pesos: las ARS más las USD convertidas con el tipo de cambio del período corriente. */
+  totalArs: Decimal
+  /** Cuántas suscripciones entran, también las USD que no se pudieron convertir. */
+  count: number
+  /** La suma sin convertir de las USD que entran cuando el período corriente no tiene tipo de cambio; null si no hay. */
+  usdPending: Decimal | null
+}
+
+/**
+ * Cuánto está comprometido en suscripciones este mes (ADR-033): las `active` con `generateFromPeriod` ≤
+ * período corriente y `endPeriod` null o ≥ corriente, con el **monto actual**, ya cobradas o no (es una
+ * estimación: no mira las transacciones generadas). Las USD se convierten con el tipo de cambio del
+ * período corriente (`fxRatesByPeriod`, por `YYYY-MM`; los demás meses no se usan), redondeando cada una a 2 decimales (half-up) antes de sumar (ADR-013).
+ * Sin ese tipo de cambio no entran al total en pesos y se informan aparte en `usdPending`.
+ */
+export function committedMonthlyTotal(
+  subscriptions: ReadonlyArray<
+    Pick<SubscriptionRecord, 'status' | 'amount' | 'currency' | 'generateFromPeriod' | 'endPeriod'>
+  >,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal>,
+  today: Date,
+): CommittedMonthly {
+  const period = currentPeriod(today)
+  const currentFxRate = fxRatesByPeriod.get(formatPeriod(period)) ?? null
+  let totalArs = new Decimal(0)
+  let usdPending: Decimal | null = null
+  let count = 0
+  for (const subscription of subscriptions) {
+    if (subscription.status !== 'active') continue
+    if (isPeriodBefore(period, subscription.generateFromPeriod)) continue
+    if (subscription.endPeriod && isPeriodBefore(subscription.endPeriod, period)) continue
+    count += 1
+    const amount = parseMoney(subscription.amount)
+    if (subscription.currency === 'USD' && !currentFxRate) {
+      usdPending = (usdPending ?? new Decimal(0)).plus(amount)
+    } else {
+      totalArs = totalArs.plus(convertToArs(amount, subscription.currency === 'USD' ? currentFxRate : null))
+    }
+  }
+  return { period, totalArs, count, usdPending }
+}
+
+/** "Comprometido en octubre 2026" */
+export function committedLabel(period: Period): string {
+  return `Comprometido en ${formatPeriodLong(period)}`
+}
+
+/** "4 suscripciones activas este mes", "1 suscripción activa este mes" o, sin ninguna, "No tenés suscripciones activas este mes". */
+export function committedCountText(count: number): string {
+  if (count <= 0) return 'No tenés suscripciones activas este mes'
+  return count === 1 ? '1 suscripción activa este mes' : `${count} suscripciones activas este mes`
+}
+
+/** "+ USD 10,00 sin tipo de cambio de octubre 2026" */
+export function committedUsdPendingText(usdPending: Decimal, period: Period): string {
+  return `+ ${formatUsdCode(usdPending)} sin tipo de cambio de ${formatPeriodLong(period)}`
 }
 
 // ---------------------------------------------------------------------------
