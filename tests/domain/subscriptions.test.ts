@@ -3,8 +3,10 @@ import { Decimal } from '@/domain/money'
 import { formatPeriod } from '@/domain/period'
 import {
   acceptBillingDayInput,
+  buildCalendarPreview,
   catchupGeneratedText,
   computeDueOccurrences,
+  evaluateOccurrences,
   codePointLength,
   emptySubscriptionForm,
   fieldOfSaveError,
@@ -15,7 +17,10 @@ import {
   limitCodePoints,
   nextChargeDate,
   nextChargeText,
+  noMoreChargesText,
   occurrenceDate,
+  previewSummaryText,
+  upcomingCharges,
   savedNoticeText,
   startPeriodRange,
   statusText,
@@ -482,5 +487,221 @@ describe('el mes corriente, recién el día del cobro (US-55)', () => {
     expect(nextChargeText(s31, NONE, new Date(2027, 3, 29))).toBe('30/04/2027')
     expect(nextChargeText(s31, NONE, new Date(2027, 3, 30))).toBe('31/05/2027')
     expect(nextChargeText(s31, NONE, new Date(2027, 4, 1))).toBe('31/05/2027')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Vista previa del calendario (US-75). Hoy: 2026-10-06.
+// ---------------------------------------------------------------------------
+
+const fx = (entries: Record<string, string>) => new Map(Object.entries(entries).map(([k, v]) => [k, new Decimal(v)]))
+const NO_FX = new Map<string, Decimal>()
+const previewOf = (patch: Partial<SubscriptionFormValues>, rates: ReadonlyMap<string, Decimal> = NO_FX, today = TODAY) => {
+  const preview = buildCalendarPreview(form({ startPeriod: '2026-08', ...patch }), rates, today)
+  if (preview.kind !== 'ready') throw new Error('se esperaba un calendario')
+  return preview
+}
+const dueOf = (preview: ReturnType<typeof previewOf>) => preview.due.map((r) => `${r.periodKey} ${r.text.split(' · ')[1]}`)
+const upcomingOf = (preview: ReturnType<typeof previewOf>) => preview.upcoming.map((r) => `${r.periodKey} ${r.text.split(' · ')[1]}`)
+
+describe('vista previa: qué se carga y qué viene (US-75)', () => {
+  it('cada fila dice el mes y la fecha: "agosto 2026 · 10/08/2026"', () => {
+    expect(previewOf({}).due[0].text).toBe('agosto 2026 · 10/08/2026')
+  })
+
+  it('CA-1: $5.000,00 día 10 desde agosto 2026, sin fin: agosto y septiembre al guardar; octubre a diciembre, próximos', () => {
+    const preview = previewOf({})
+    expect(dueOf(preview)).toEqual(['2026-08 10/08/2026', '2026-09 10/09/2026'])
+    expect(upcomingOf(preview)).toEqual(['2026-10 10/10/2026', '2026-11 10/11/2026', '2026-12 10/12/2026'])
+    expect(preview.summary).toBe('Al guardar se cargan 2 gastos de $5.000,00 (total $10.000,00).')
+    expect(preview.noMoreText).toBeNull()
+  })
+
+  it('CA-2: con día 6 (hoy = día de cobro), octubre pasa a "Se cargan al guardar" (R5)', () => {
+    const preview = previewOf({ billingDay: '6' })
+    expect(dueOf(preview)).toEqual(['2026-08 06/08/2026', '2026-09 06/09/2026', '2026-10 06/10/2026'])
+    expect(upcomingOf(preview)).toEqual(['2026-11 06/11/2026', '2026-12 06/12/2026', '2027-01 06/01/2027'])
+    expect(preview.summary).toBe('Al guardar se cargan 3 gastos de $5.000,00 (total $15.000,00).')
+  })
+
+  it('el día anterior al de cobro, el período corriente todavía es un próximo cobro', () => {
+    const preview = previewOf({ billingDay: '7' })
+    expect(dueOf(preview)).toEqual(['2026-08 07/08/2026', '2026-09 07/09/2026'])
+    expect(upcomingOf(preview)[0]).toBe('2026-10 07/10/2026')
+  })
+
+  it('CA-3: mes de inicio enero 2027: no se carga ningún gasto y los próximos cobros empiezan en enero', () => {
+    const preview = previewOf({ startPeriod: '2027-01' })
+    expect(preview.due).toEqual([])
+    expect(preview.summary).toBe('Al guardar no se carga ningún gasto.')
+    expect(upcomingOf(preview)).toEqual(['2027-01 10/01/2027', '2027-02 10/02/2027', '2027-03 10/03/2027'])
+  })
+
+  it('CA-4: desde marzo hasta mayo 2026: exactamente marzo, abril y mayo, y "No hay más cobros"', () => {
+    const preview = previewOf({ startPeriod: '2026-03', endPeriod: '2026-05' })
+    expect(preview.due.map((r) => r.periodKey)).toEqual(['2026-03', '2026-04', '2026-05'])
+    expect(preview.upcoming).toEqual([])
+    expect(preview.noMoreText).toBe('No hay más cobros: termina en mayo 2026.')
+  })
+
+  it('con el fin a la vuelta, los próximos cobros son menos de tres', () => {
+    const preview = previewOf({ endPeriod: '2026-11' })
+    expect(upcomingOf(preview)).toEqual(['2026-10 10/10/2026', '2026-11 10/11/2026'])
+    expect(preview.noMoreText).toBeNull()
+  })
+
+  it('un fin igual al período corriente: el cobro de este mes todavía es "próximo" si no llegó el día', () => {
+    expect(upcomingOf(previewOf({ endPeriod: '2026-10' }))).toEqual(['2026-10 10/10/2026'])
+  })
+
+  it('CA-5: día 31 sigue R4 (30/09/2026 y 28/02/2027)', () => {
+    const preview = previewOf({ billingDay: '31', startPeriod: '2026-09' })
+    expect(dueOf(preview)).toEqual(['2026-09 30/09/2026'])
+    const later = previewOf({ billingDay: '31', startPeriod: '2027-01' })
+    expect(upcomingOf(later)).toEqual(['2027-01 31/01/2027', '2027-02 28/02/2027', '2027-03 31/03/2027'])
+  })
+
+  it('1 gasto: singular y sin total', () => {
+    const preview = previewOf({ startPeriod: '2026-09' })
+    expect(preview.summary).toBe('Al guardar se carga 1 gasto de $5.000,00.')
+  })
+
+  it('en USD el monto va como "USD 10,00" y el total no se convierte', () => {
+    const preview = previewOf({ currency: 'USD', amount: '10,00' }, fx({ '2026-08': '1200', '2026-09': '1250' }))
+    expect(preview.summary).toBe('Al guardar se cargan 2 gastos de USD 10,00 (total USD 20,00).')
+  })
+
+  it('CA-6: USD sin tipo de cambio de septiembre: esa fila queda bloqueada y no cuenta en el resumen', () => {
+    const preview = previewOf({ currency: 'USD', amount: '10,00' }, fx({ '2026-08': '1200' }))
+    expect(preview.due.map((r) => [r.periodKey, r.blockedBy])).toEqual([
+      ['2026-08', null],
+      ['2026-09', 'missing_fx_rate'],
+    ])
+    expect(preview.summary).toBe('Al guardar se carga 1 gasto de USD 10,00.')
+    expect(preview.due[1].blockedText).toBe('Sin tipo de cambio: se carga cuando lo cargues')
+    expect(preview.due[0].blockedText).toBeNull()
+  })
+
+  it('sin poder leer los tipos de cambio: USD no inventa filas bloqueadas, ARS no los necesita', () => {
+    expect(buildCalendarPreview(form({ startPeriod: '2026-08', currency: 'USD', amount: '10,00' }), null, TODAY)).toEqual({ kind: 'fx-unavailable' })
+    expect(buildCalendarPreview(form({ startPeriod: '2026-08' }), null, TODAY).kind).toBe('ready')
+  })
+
+  it('USD con todos los períodos sin tipo de cambio: ningún gasto, pero las filas se muestran bloqueadas', () => {
+    const preview = previewOf({ currency: 'USD', amount: '10,00' })
+    expect(preview.summary).toBe('Al guardar no se carga ningún gasto.')
+    expect(preview.due.every((r) => r.blockedBy === 'missing_fx_rate')).toBe(true)
+  })
+
+  it('un monto en pesos fuera de rango también queda bloqueado, como en el servidor (ADR-030)', () => {
+    const preview = previewOf({ currency: 'USD', amount: '999.999.999.999,99' }, fx({ '2026-08': '1200', '2026-09': '1' }))
+    expect(preview.due.map((r) => [r.periodKey, r.blockedBy])).toEqual([
+      ['2026-08', 'amount_ars_out_of_range'],
+      ['2026-09', null],
+    ])
+  })
+
+  it('un tipo de cambio de otro período no sirve para este (R6)', () => {
+    const preview = previewOf({ currency: 'USD', amount: '10,00' }, fx({ '2026-07': '1200', '2026-10': '1300' }))
+    expect(preview.due.every((r) => r.blockedBy === 'missing_fx_rate')).toBe(true)
+  })
+
+  it.each([
+    ['monto vacío', { amount: '' }],
+    ['monto en cero', { amount: '0' }],
+    ['monto con 3 decimales', { amount: '1,234' }],
+    ['día de cobro vacío', { billingDay: '' }],
+    ['día de cobro 32', { billingDay: '32' }],
+    ['mes de inicio vacío', { startPeriod: '' }],
+    ['mes de inicio fuera de rango', { startPeriod: '2024-09' }],
+    ['mes de fin anterior al de inicio', { endPeriod: '2026-07' }],
+  ])('CA-8: %s: no hay calendario', (_name, patch) => {
+    expect(buildCalendarPreview(form({ startPeriod: '2026-08', ...patch }), NO_FX, TODAY)).toEqual({ kind: 'empty' })
+  })
+
+  it('el nombre, la categoría y el medio de pago no cambian el calendario', () => {
+    const preview = buildCalendarPreview(form({ startPeriod: '2026-08', name: '', categoryId: '', accountId: '' }), NO_FX, TODAY)
+    expect(preview.kind).toBe('ready')
+  })
+
+  it('CA-9: a las 22:00 de Argentina del día anterior al de cobro, el período corriente es un próximo cobro', () => {
+    // 2026-10-09 22:00 en Argentina ya es 10/10 01:00 UTC: el hoy argentino sigue siendo el 9 (ADR-031 §7).
+    const preview = previewOf({}, NO_FX, new Date(2026, 9, 9))
+    expect(dueOf(preview)).toEqual(['2026-08 10/08/2026', '2026-09 10/09/2026'])
+    expect(upcomingOf(preview)[0]).toBe('2026-10 10/10/2026')
+    // Y con el hoy argentino del día de cobro, pasa a "Se cargan al guardar".
+    expect(dueOf(previewOf({}, NO_FX, new Date(2026, 9, 10)))).toContain('2026-10 10/10/2026')
+  })
+
+  it('CA-7: las filas no bloqueadas son exactamente lo que genera la puesta al día', () => {
+    const values = form({ startPeriod: '2026-05', currency: 'USD', amount: '10,00', billingDay: '31' })
+    const rates = fx({ '2026-05': '1100', '2026-06': '1110', '2026-08': '1130', '2026-09': '1140', '2026-10': '1150' })
+    const preview = buildCalendarPreview(values, rates, new Date(2026, 9, 31))
+    if (preview.kind !== 'ready') throw new Error('se esperaba un calendario')
+    const generated = computeDueOccurrences(
+      { status: 'active', amount: new Decimal('10'), currency: 'USD', billingDay: 31, generateFromPeriod: { year: 2026, month: 5 }, endPeriod: null },
+      new Set(),
+      rates,
+      new Date(2026, 9, 31),
+    )
+    expect(preview.due.filter((r) => !r.blockedBy).map((r) => [r.periodKey, r.text.split(' · ')[1]])).toEqual(
+      generated.map((d) => [formatPeriod(d.period), d.occurredOn.split('-').reverse().join('/')]),
+    )
+    expect(preview.due.filter((r) => r.blockedBy).map((r) => r.periodKey)).toEqual(['2026-07'])
+  })
+})
+
+describe('evaluateOccurrences: la regla única de la puesta al día (US-75, US-62)', () => {
+  const usd = (patch: Partial<SubscriptionState> = {}): SubscriptionState => ({
+    status: 'active',
+    amount: new Decimal('10'),
+    currency: 'USD',
+    billingDay: 1,
+    generateFromPeriod: { year: 2026, month: 6 },
+    endPeriod: null,
+    ...patch,
+  })
+
+  it('saltea lo ya generado (R2) y marca bloqueado lo que no se puede generar (R6), en orden de período', () => {
+    const evaluations = evaluateOccurrences(usd(), new Set(['2026-07']), fx({ '2026-06': '1000' }), new Date(2026, 8, 15))
+    expect(evaluations.map((e) => [formatPeriod(e.period), e.blockedBy])).toEqual([
+      ['2026-06', null],
+      ['2026-08', 'missing_fx_rate'],
+      ['2026-09', 'missing_fx_rate'],
+    ])
+  })
+
+  it('una pausada o cancelada no evalúa nada (R3)', () => {
+    expect(evaluateOccurrences(usd({ status: 'paused' }), new Set(), NO_FX, TODAY)).toEqual([])
+    expect(evaluateOccurrences(usd({ status: 'cancelled' }), new Set(), NO_FX, TODAY)).toEqual([])
+  })
+
+  it('computeDueOccurrences sigue devolviendo solo los generables', () => {
+    const due = computeDueOccurrences(usd(), new Set(), fx({ '2026-06': '1000' }), new Date(2026, 8, 15))
+    expect(due.map((d) => formatPeriod(d.period))).toEqual(['2026-06'])
+    expect(due[0].fxRate?.toFixed()).toBe('1000')
+  })
+})
+
+describe('upcomingCharges y textos de la vista previa (US-75)', () => {
+  it('nunca devuelve más de lo pedido ni pasa del mes de fin', () => {
+    const base = { billingDay: 10, generateFromPeriod: { year: 2026, month: 1 } }
+    expect(upcomingCharges({ ...base, endPeriod: null }, TODAY, 5)).toHaveLength(5)
+    expect(upcomingCharges({ ...base, endPeriod: { year: 2026, month: 3 } }, TODAY)).toEqual([])
+  })
+
+  it('previewSummaryText: 0, 1 y N', () => {
+    const amount = new Decimal('5000')
+    expect(previewSummaryText(0, amount, 'ARS')).toBe('Al guardar no se carga ningún gasto.')
+    expect(previewSummaryText(1, amount, 'ARS')).toBe('Al guardar se carga 1 gasto de $5.000,00.')
+    expect(previewSummaryText(3, amount, 'ARS')).toBe('Al guardar se cargan 3 gastos de $5.000,00 (total $15.000,00).')
+  })
+
+  it('el total de N montos con centavos es exacto (C2)', () => {
+    expect(previewSummaryText(3, new Decimal('0.10'), 'ARS')).toBe('Al guardar se cargan 3 gastos de $0,10 (total $0,30).')
+  })
+
+  it('noMoreChargesText', () => {
+    expect(noMoreChargesText({ year: 2026, month: 5 })).toBe('No hay más cobros: termina en mayo 2026.')
   })
 })

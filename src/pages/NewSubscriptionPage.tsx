@@ -35,7 +35,12 @@ export function NewSubscriptionPage() {
       )}
 
       {catalog.status === 'ready' && (
-        <SubscriptionForm categories={catalog.categories} accounts={catalog.accounts} today={todayInArgentina()} />
+        <SubscriptionForm
+          categories={catalog.categories}
+          accounts={catalog.accounts}
+          fxRates={catalog.fxRates}
+          today={todayInArgentina()}
+        />
       )}
     </div>
   )

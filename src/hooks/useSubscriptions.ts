@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
+import type { Decimal } from '@/domain/money'
 import { fetchActiveAccounts, fetchActiveCategories, type Account, type Category } from '@/lib/catalog'
+import { fetchFxRatesByPeriod } from '@/lib/fxRates'
 import { fetchGeneratedPeriods, fetchSubscription, fetchSubscriptions } from '@/lib/subscriptions'
 
 export type Loadable<T> = { status: 'loading' } | { status: 'error' } | ({ status: 'ready' } & T)
@@ -46,10 +48,18 @@ export function useSubscription(id: string) {
   }, [id])
 }
 
-/** Categorías y cuentas activas para el alta: solo esas se ofrecen (create_subscription rechaza las archivadas). */
+/**
+ * Categorías y cuentas activas para el alta (solo esas se ofrecen: create_subscription rechaza las
+ * archivadas) y los tipos de cambio del usuario, que necesita la vista previa del calendario (US-75).
+ */
 export function useSubscriptionCatalog() {
   return useLoad(async () => {
-    const [categories, accounts] = await Promise.all([fetchActiveCategories(), fetchActiveAccounts()])
-    return { categories, accounts } as { categories: Category[]; accounts: Account[] }
+    const [categories, accounts, fxRates] = await Promise.all([
+      fetchActiveCategories(),
+      fetchActiveAccounts(),
+      // Solo alimenta la vista previa: si falla, el alta sigue disponible (ADR-031: una feature secundaria no bloquea).
+      fetchFxRatesByPeriod().catch(() => null),
+    ])
+    return { categories, accounts, fxRates } as { categories: Category[]; accounts: Account[]; fxRates: Map<string, Decimal> | null }
   }, [])
 }
