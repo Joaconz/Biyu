@@ -2,7 +2,7 @@
 
 **Épica:** Interfaz y no funcionales de V2 ([#20](https://github.com/Joaconz/Biyu/issues/20)) ·
 **Milestone:** V2 · **Fuente:** `docs/roadmap.md` §V2 "Cambios de interfaz", ADR-023, ADR-024,
-ADR-029 · Versión del documento: 2026-10-06
+ADR-034 · Versión del documento: 2026-10-06
 
 Mismo formato que `entrega-1/01-historias-de-usuario.md`: cada criterio se numera `CA-k` para que
 los casos de prueba citen `US-nn · CA-k`. La UI de referencia es `main` al 2026-10-06 (`a255aa0`).
@@ -183,7 +183,7 @@ Los `<pantalla>-nav-transactions` de V1 dejan de existir.
   del navegador ("TypeError: Failed to fetch"). Si el primer pedido sí había llegado, reintentar a
   mano crea un duplicado. El roadmap dice que "un fallo de red vacía el formulario", pero en `main` ya
   no pasa.
-- **Decisión de diseño:** ADR-029 (clave de idempotencia y movimientos pendientes en el dispositivo),
+- **Decisión de diseño:** ADR-034 (clave de idempotencia y movimientos pendientes en el dispositivo),
   en estado "propuesta" hasta que el equipo apruebe esta historia.
 
 ### Ruta y estructura
@@ -205,7 +205,7 @@ Cómo se clasifica un fallo al guardar, según el código de Postgres que devuel
 
 Así, un fallo a mitad de la escritura que no sea una regla (sad path "fallo parcial de escritura" de
 `02-behavior-spec.md`) es reintentable. El `23505` del índice de idempotencia nunca llega al cliente:
-lo resuelve la RPC (ADR-029).
+lo resuelve la RPC (ADR-034).
 
 ### Botones y textos
 
@@ -213,7 +213,7 @@ lo resuelve la RPC (ADR-029).
 |---|---|---|---|
 | Botón principal | "Guardar gasto" / "Guardar ingreso" | Paso 3, salvo durante un error de red sin cambios | Guarda (una sola RPC, C4) |
 | Botón principal | "Guardando…" (deshabilitado) | Mientras espera la respuesta | — |
-| Botón principal | "Reintentar" | Paso 3, después de un error de red, mientras los valores sean los del intento que falló | Vuelve a guardar con la misma clave (ADR-029) |
+| Botón principal | "Reintentar" | Paso 3, después de un error de red, mientras los valores sean los del intento que falló | Vuelve a guardar con la misma clave (ADR-034) |
 | Botón principal | "✓ Guardado" | Durante 900 ms al guardar con éxito (V1, US-10) | — |
 | Aviso de error de red | Título "No se pudo guardar". Texto "Revisá tu conexión y tocá Reintentar. Lo que cargaste sigue acá." | Después de un error de red | — |
 | Aviso de rechazo | Título "No se pudo guardar". Texto: el motivo de la base, como en V1 (`saveErrorMessage`). Con `42501` o HTTP 401: "Tu sesión venció. Volvé a entrar." | Después de un rechazo | — |
@@ -250,7 +250,7 @@ Ejemplos de fila del aviso: "Gasto · $12.500,00 · Comida · 06/10/2026" ·
 - **Éxito:** toast con la descripción nueva, botón "✓ Guardado" y vuelta al paso 1 con el formulario
   vacío y la última cuenta usada (US-10, sin cambios).
 
-### Movimientos pendientes (NFR-09, ADR-029)
+### Movimientos pendientes (NFR-09, ADR-034)
 
 - **Cuándo se guarda uno:** después de un error de **red**, el borrador (todos sus campos, incluido
   el tipo de cambio, y su clave) queda guardado en este dispositivo para este usuario. Un rechazo no
@@ -350,7 +350,7 @@ Usuario de prueba según PR-01, con "Visa BBVA" (PR-02). Montos ficticios.
 - CA-12 (API): si el usuario B llama con un `p_request_id` que ya usó el usuario A, se crea una
   transacción de B y la respuesta no es el `id` de la de A (C7).
 - CA-13 (API): una segunda llamada con el mismo `p_request_id` y **otro** monto devuelve el `id` de
-  la primera y no cambia su monto (ADR-029).
+  la primera y no cambia su monto (ADR-034).
 - CA-14 (API): una segunda llamada con el mismo `p_request_id` cuando la categoría de la primera ya
   está archivada devuelve el `id` de la primera, sin error.
 - CA-15 (API): una llamada sin `p_request_id` se comporta como en V1: crea una transacción por
@@ -392,7 +392,7 @@ Usuario de prueba según PR-01, con "Visa BBVA" (PR-02). Montos ficticios.
 
 - **Trazabilidad:** FR-06 · `02-behavior-spec.md` sad path "fallo parcial de escritura" (paso 3) ·
   NFR-06 · NFR-08 · NFR-09 · NFR-10 · NFR-18 · C4 · C5 · C6 · C7 · C10 · US-09 · US-10 · US-11 ·
-  US-68 · ADR-024 · ADR-029.
+  US-68 · ADR-024 · ADR-034.
 
 ### Supuestos
 
@@ -417,7 +417,7 @@ Usuario de prueba según PR-01, con "Visa BBVA" (PR-02). Montos ficticios.
    (`PGRST301`), se muestra como rechazo con "Tu sesión venció. Volvé a entrar." y no se guarda
    pendiente. No se puede provocar a mano de forma confiable, así que no tiene criterio.
 6. **Gastos compartidos (US-34):** si al implementar las deudas `create_transaction` también crea la
-   deuda, la clave cubre toda la operación (ADR-029) y el borrador incluye los campos de "compartido".
+   deuda, la clave cubre toda la operación (ADR-034) y el borrador incluye los campos de "compartido".
 
 ---
 
@@ -454,7 +454,7 @@ decisión del equipo:
 
 ## Pendientes fuera de este archivo
 
-Este documento se limitó a `entrega-2/historias/navegacion.md`, el ADR-029 y los mocks. Lo
+Este documento se limitó a `entrega-2/historias/navegacion.md`, el ADR-034 y los mocks. Lo
 siguiente queda para quien corresponda:
 
 | Qué | Dónde | Por qué |
@@ -464,7 +464,7 @@ siguiente queda para quien corresponda:
 | Enmendar NFR-09 con la interpretación de US-70 (el borrador se guarda en el dispositivo al fallar el guardado, y sobrevive hasta guardarse, descartarse o cerrar sesión), o registrar que el equipo la acepta | `docs/pre-entrega.md` §4 | US-70, supuesto 2. Un caso escrito contra el texto literal fallaría por diseño |
 | Registrar que la "confirmación destructiva" de V2 la cubre US-65 | `docs/roadmap.md` §V2, `entrega-2/README.md` §Alcance | Sección US-71 |
 | Sumar `request_id` a la lectura por API y el parámetro `p_request_id` | `docs/12-procedimientos-de-prueba.md` PR-04 y PR-08 | CA-5, CA-8 y CA-20 de US-70 |
-| Columna e invariante nuevas al implementar | `docs/04-data-model.md` | ADR-029 |
-| Agregar "movimiento pendiente" (borrador que falló al guardarse y todavía no es una transacción) y "clave de idempotencia" | `docs/01-domain-glossary.md` | US-70, ADR-029 |
+| Columna e invariante nuevas al implementar | `docs/04-data-model.md` | ADR-034 |
+| Agregar "movimiento pendiente" (borrador que falló al guardarse y todavía no es una transacción) y "clave de idempotencia" | `docs/01-domain-glossary.md` | US-70, ADR-034 |
 | Ajustar el nombre del entregable (el README planea `01-historias-de-usuario-v2.md`) y quitar "un fallo de red vacía el formulario" | `entrega-2/README.md`, `docs/roadmap.md` §V2 | US-70, "Qué cambia respecto de V1" |
 | Reportar el ámbar fuera de paleta del diálogo de borrado | `entrega-2/05-reportes-de-defectos` | Sección US-71, punto 3 |

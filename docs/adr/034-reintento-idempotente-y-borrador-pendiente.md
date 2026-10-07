@@ -1,6 +1,6 @@
 # ADR-034 — Reintento del guardado con clave de idempotencia y movimientos pendientes locales
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** aceptada · **Fecha:** 2026-10
 
 ## Contexto
 
