@@ -3,6 +3,8 @@ import { applyDraftChange, emptyDraftInput, parseDraftInput, type DraftInput } f
 import { parseMoney } from '@/domain/money'
 import {
   debtOfDraft,
+  deletionDebtWarning,
+  sharedExpenseLabel,
   sharedDebtPreview,
   sharedDebtSavedMessage,
   sharedDebtSummary,
@@ -99,6 +101,18 @@ describe('textos de la deuda', () => {
   it('sin persona o monto válido no hay deuda que mandar', () => {
     expect(toSharedDebt({ person: ' ', amount: '10' })).toBeNull()
     expect(toSharedDebt({ person: 'Sofía', amount: 'abc' })).toBeNull()
+  })
+})
+
+describe('el gasto compartido en Movimientos y en el borrado (US-35)', () => {
+  it('etiqueta de la fila (CA-3)', () => expect(sharedExpenseLabel('Sofía')).toBe('Compartido con Sofía'))
+  it('aviso del diálogo de borrado, en la moneda del gasto (CA-4)', () => {
+    expect(deletionDebtWarning({ person: 'Sofía', amount: parseMoney('60000') }, 'ARS')).toBe(
+      'También deja de contar la deuda con Sofía por $60.000,00.',
+    )
+    expect(deletionDebtWarning({ person: 'Marcos', amount: parseMoney('40') }, 'USD')).toBe(
+      'También deja de contar la deuda con Marcos por US$40,00.',
+    )
   })
 })
 

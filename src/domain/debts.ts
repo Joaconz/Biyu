@@ -26,6 +26,16 @@ export interface DebtRecord {
   createdAt: string // timestamptz
   transactionId: string | null
   linkedTransactionDeleted: boolean
+  /** El gasto de origen (US-35), o null si la deuda es suelta. */
+  origin: DebtOrigin | null
+}
+
+/** Lo que se muestra del gasto de origen: el total de la compra en su moneda, no la cuota. */
+export interface DebtOrigin {
+  categoryName: string | null
+  amount: string
+  currency: Currency
+  occurredOn: string // YYYY-MM-DD
 }
 
 /** Sin parámetro o con uno desconocido, "Pendientes" (US-38 CA-1, CA-4). */
@@ -84,6 +94,8 @@ export interface DebtRowText {
   /** "≈ $50.000,00", solo si la deuda es en US$. */
   amountArs: string | null
   date: string
+  /** "Gasto compartido: Tecnología, $120.000,00 del 15/08/2026" o "Deuda suelta" (US-35). */
+  origin: string
   notes: string | null
   status: string
 }
@@ -96,12 +108,25 @@ export function debtRowText(debt: DebtRecord): DebtRowText {
     amount: debt.currency === 'USD' ? formatUsd(amount) : formatArs(amount),
     amountArs: debt.currency === 'USD' ? `≈ ${formatArs(parseMoney(debt.amountArs))}` : null,
     date: formatDisplayDate(debt.incurredOn),
+    origin: debtOriginText(debt.origin),
     notes: debt.notes,
     status:
       debt.status === 'settled' && debt.settledAt
         ? `Saldada el ${formatDisplayDate(argentinaDateOf(debt.settledAt))}`
         : 'Pendiente',
   }
+}
+
+/**
+ * Línea de origen de la fila (US-35). Una categoría archivada se muestra con su nombre igual; un
+ * gasto siempre tiene categoría (I8), así que sin nombre solo queda monto y fecha.
+ */
+export function debtOriginText(origin: DebtOrigin | null): string {
+  if (!origin) return 'Deuda suelta'
+  const amount = parseMoney(origin.amount)
+  const total = origin.currency === 'USD' ? formatUsd(amount) : formatArs(amount)
+  const what = origin.categoryName ? `${origin.categoryName}, ${total}` : total
+  return `Gasto compartido: ${what} del ${formatDisplayDate(origin.occurredOn)}`
 }
 
 /** Mensaje del estado vacío de cada filtro (US-38), y si ofrece "Cargar una deuda". */

@@ -138,6 +138,8 @@ export interface DashboardTransaction {
     type: string
   } | null
   deleted_at: string | null // DEF-007: solo en el filtro "Eliminados" de /transactions
+  /** Deuda vinculada de un gasto compartido (US-35, ADR-036): una por gasto, o null. */
+  shared_debt: { person: string; amount: string } | null
   // Imputación del período listado (US-17): qué cuota es y cuánto impacta en el mes.
   installment_number: number
   entry_amount: string // en la moneda de la transacción
@@ -178,7 +180,8 @@ export async function fetchMonthlyTransactions(
         created_at,
         deleted_at,
         category:categories!transactions_category_fk (id, name, color, archived_at),
-        account:accounts!transactions_account_fk (id, name, type)
+        account:accounts!transactions_account_fk (id, name, type),
+        debts:debts!debts_transaction_fk (person, amount_text:amount::text)
       )
     `)
     .eq('period', dbPeriod)
@@ -216,6 +219,7 @@ export async function fetchMonthlyTransactions(
         deleted_at: string | null
         category: { id: string; name: string; color: string | null; archived_at: string | null } | null
         account: { id: string; name: string; type: string } | null
+        debts: { person: string; amount_text: string }[] | null
       }
     }>
   ).map(({ transaction: tx, ...entry }) => ({
@@ -231,6 +235,8 @@ export async function fetchMonthlyTransactions(
     category: tx.category,
     account: tx.account,
     deleted_at: tx.deleted_at,
+    // La deuda viene en la misma consulta: el diálogo de borrado nunca se abre sin saber si hay una.
+    shared_debt: tx.debts?.[0] ? { person: tx.debts[0].person, amount: tx.debts[0].amount_text } : null,
     installment_number: entry.installment_number,
     entry_amount: String(entry.amount),
     entry_amount_ars: String(entry.amount_ars),
