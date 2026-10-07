@@ -12,7 +12,10 @@ export async function fetchDebts(): Promise<DebtRecord[]> {
     .select(`
       id, person, direction, amount_text:amount::text, amount_ars_text:amount_ars::text, currency, incurred_on, notes, status, settled_at,
       created_at, transaction_id,
-      transaction:transactions!debts_transaction_fk (deleted_at)
+      transaction:transactions!debts_transaction_fk (
+        deleted_at, currency, occurred_on, amount_text:amount::text,
+        category:categories!transactions_category_fk (name)
+      )
     `)
   if (error) throw error
   // C2: PostgREST manda numeric como número JSON; con ::text llega exacto, como en fxRates.ts.
@@ -31,5 +34,13 @@ export async function fetchDebts(): Promise<DebtRecord[]> {
     createdAt: row.created_at,
     transactionId: row.transaction_id,
     linkedTransactionDeleted: row.transaction?.deleted_at != null,
+    origin: row.transaction
+      ? {
+          categoryName: row.transaction.category?.name ?? null,
+          amount: row.transaction.amount_text as string,
+          currency: row.transaction.currency,
+          occurredOn: row.transaction.occurred_on,
+        }
+      : null,
   }))
 }

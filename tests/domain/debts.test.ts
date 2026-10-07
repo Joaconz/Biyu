@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   argentinaDateOf,
+  debtOriginText,
   debtRowText,
   debtsForFilter,
   emptyDebtsMessage,
@@ -22,6 +23,7 @@ const debt = (over: Partial<DebtRecord>): DebtRecord => ({
   createdAt: '2026-08-15T12:00:00.000000+00:00',
   transactionId: null,
   linkedTransactionDeleted: false,
+  origin: null,
   ...over,
 })
 
@@ -92,6 +94,7 @@ describe('textos de la fila (US-38 CA-6)', () => {
       amount: '$60.000,00',
       amountArs: null,
       date: '15/08/2026',
+      origin: 'Deuda suelta',
       notes: null,
       status: 'Pendiente',
     })
@@ -106,6 +109,26 @@ describe('textos de la fila (US-38 CA-6)', () => {
     // 01:30 UTC del 21/08 son las 22:30 del 20/08 en Argentina (UTC−3).
     expect(debtRowText(debt({ status: 'settled', settledAt: '2026-08-21T01:30:00+00:00' })).status).toBe('Saldada el 20/08/2026')
     expect(argentinaDateOf('2026-08-21T03:00:00.000001+00:00')).toBe('2026-08-21')
+  })
+})
+
+describe('origen de la deuda (US-35)', () => {
+  it('vinculada: categoría, total de la compra en su moneda y fecha del gasto (CA-2)', () => {
+    expect(debtOriginText({ categoryName: 'Tecnología', amount: '120000.00', currency: 'ARS', occurredOn: '2026-08-15' })).toBe(
+      'Gasto compartido: Tecnología, $120.000,00 del 15/08/2026',
+    )
+    expect(debtOriginText({ categoryName: 'Viajes', amount: '100.00', currency: 'USD', occurredOn: '2026-09-01' })).toBe(
+      'Gasto compartido: Viajes, US$100,00 del 01/09/2026',
+    )
+  })
+  it('suelta (CA-2)', () => expect(debtOriginText(null)).toBe('Deuda suelta'))
+  it('sin nombre de categoría (no debería pasar, I8): solo monto y fecha', () =>
+    expect(debtOriginText({ categoryName: null, amount: '500.00', currency: 'ARS', occurredOn: '2026-08-15' })).toBe(
+      'Gasto compartido: $500,00 del 15/08/2026',
+    ))
+  it('la fila la incluye', () => {
+    const origin = { categoryName: 'Tecnología', amount: '120000.00', currency: 'ARS' as const, occurredOn: '2026-08-15' }
+    expect(debtRowText(debt({ transactionId: 't', origin })).origin).toBe('Gasto compartido: Tecnología, $120.000,00 del 15/08/2026')
   })
 })
 

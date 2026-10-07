@@ -95,3 +95,16 @@ export function sharedDebtPreview(input: SharedDebtInput, expenseAmount: string,
 export function sharedDebtSavedMessage(debt: SharedDebt, currency: Currency): string {
   return `${debt.person} te debe ${formatIn(currency, debt.amount)}`
 }
+
+/** Etiqueta de la fila de un gasto compartido en Movimientos y en el Resumen (US-35): "Compartido con Sofía". */
+export function sharedExpenseLabel(person: string): string {
+  return `Compartido con ${person}`
+}
+
+/**
+ * Línea del diálogo de borrado de un gasto con deuda vinculada (US-35, ADR-037 §4): la deuda deja de
+ * contar mientras el gasto esté eliminado. El monto va en la moneda del gasto, que es la de la deuda.
+ */
+export function deletionDebtWarning(debt: SharedDebt, currency: Currency): string {
+  return `También deja de contar la deuda con ${debt.person} por ${formatIn(currency, debt.amount)}.`
+}

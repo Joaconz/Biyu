@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useModalFocus } from '@/hooks/useModalFocus'
 import { getTransactionDeletionImpact, type DeletionImpactSummary } from '@/domain/deletion'
 import { formatArs, parseMoney } from '@/domain/money'
+import { deletionDebtWarning } from '@/domain/sharedDebt'
 import { formatPeriod } from '@/domain/period'
 import { today } from '@/lib/clock'
 import type { DashboardTransaction } from '@/lib/dashboard'
@@ -49,6 +50,16 @@ export function DeleteTransactionDialog({
       type: transaction.type,
     },
     today(),
+  )
+
+  // US-35: la deuda vinculada deja de contar mientras el gasto esté eliminado (ADR-037 §4).
+  const debtWarning = transaction.shared_debt && (
+    <p data-testid="delete-transaction-debt-warning" className="text-xs font-medium text-foreground">
+      {deletionDebtWarning(
+        { person: transaction.shared_debt.person, amount: parseMoney(transaction.shared_debt.amount) },
+        transaction.currency,
+      )}
+    </p>
   )
 
   async function handleConfirm() {
@@ -111,6 +122,7 @@ export function DeleteTransactionDialog({
                 <span>-{formatArs(impact.totalClosedAmountArs)}</span>
               </div>
             </div>
+            {debtWarning}
             <p className="text-xs text-muted-foreground">
               Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.
             </p>
@@ -118,6 +130,7 @@ export function DeleteTransactionDialog({
         ) : (
           <div className="space-y-2 text-sm text-muted-foreground">
             <p>¿Estás seguro de que querés eliminar esta transacción?</p>
+            {debtWarning}
             <p className="text-xs">Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.</p>
           </div>
         )}

@@ -3,6 +3,7 @@ import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { formatInstallmentLabel } from '@/domain/installments'
 import { formatArs, formatUsd, parseMoney } from '@/domain/money'
 import { formatDayShort } from '@/domain/period'
+import { sharedExpenseLabel } from '@/domain/sharedDebt'
 import type { DashboardTransaction } from '@/lib/dashboard'
 
 interface TransactionItemProps {
@@ -42,8 +43,9 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
       )}
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-callout font-medium text-foreground">{title}</span>
+        {/* Las etiquetas bajan de renglón antes que recortar el título a una letra (US-35 suma una larga). */}
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="max-w-full truncate text-callout font-medium text-foreground">{title}</span>
           {/* DEF-006 (02-behavior-spec, sad path "categoría archivada"): la misma marca que el Resumen. */}
           {transaction.category?.archived_at && (
             <span
@@ -70,6 +72,16 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
               className="tabular shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
             >
               {installmentLabel}
+            </span>
+          )}
+          {/* US-35: el gasto compartido lo dice en cada cuota, junto a las otras etiquetas. Va última y sin
+            recortar: el nombre es lo que importa, y en el celular baja de renglón. */}
+          {transaction.shared_debt && (
+            <span
+              data-testid={`${baseTestId}-shared`}
+              className="max-w-full rounded-md break-words bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+            >
+              {sharedExpenseLabel(transaction.shared_debt.person)}
             </span>
           )}
         </div>

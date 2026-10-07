@@ -26,6 +26,9 @@ export function DebtItem({ debt }: { debt: DebtRecord }) {
             {text.direction}
           </span>
         </div>
+        <span data-testid="debts-item-origin" className="text-footnote break-words text-muted-foreground">
+          {text.origin}
+        </span>
         {text.notes && (
           <span data-testid="debts-item-notes" className="text-footnote break-words text-muted-foreground">
             {text.notes}
