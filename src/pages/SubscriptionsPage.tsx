@@ -10,7 +10,8 @@ import { todayInArgentina } from '@/lib/clock'
 /** Suscripciones (US-52): Activas, Pausadas y Canceladas, cada grupo solo si tiene filas. */
 export function SubscriptionsPage() {
   const state = useSubscriptions()
-  const today = todayInArgentina()
+  // El mismo "hoy" con el que el hook calculó las bloqueadas.
+  const today = state.status === 'ready' ? state.today : todayInArgentina()
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
@@ -61,7 +62,12 @@ export function SubscriptionsPage() {
               <GroupedSection key={group.status} title={group.label} data-status-group={group.status}>
                 <GroupedCard>
                   {group.items.map((subscription) => (
-                    <SubscriptionItem key={subscription.id} subscription={subscription} today={today} />
+                    <SubscriptionItem
+                      key={subscription.id}
+                      subscription={subscription}
+                      today={today}
+                      blocked={state.blocked.get(subscription.id)}
+                    />
                   ))}
                 </GroupedCard>
               </GroupedSection>

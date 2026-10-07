@@ -73,7 +73,8 @@ export function occurrenceDate(period: Period, billingDay: number): string {
   return `${formatPeriod(period)}-${String(Math.min(billingDay, daysInMonth(period))).padStart(2, '0')}`
 }
 
-const MIN_AMOUNT = new Decimal('0.01')
+/** Piso del monto en pesos de una ocurrencia (ADR-030); lo usa también el texto de US-62. */
+export const MIN_AMOUNT = new Decimal('0.01')
 
 /**
  * "Próximo cobro" del detalle (US-54, US-55): la fecha real del próximo cargo según R4, la misma que
