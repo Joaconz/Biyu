@@ -1,7 +1,7 @@
-# ADR-033 — Si la puesta al día falla, la app se muestra igual y lo avisa
+# ADR-031 — Si la puesta al día falla, la app se muestra igual y lo avisa
 
 **Estado:** propuesta · **Fecha:** 2026-10
-**Relacionada:** ADR-017 · ADR-021 · ADR-033 · `06-suscripciones.md` (R6) · `03-architecture-spec.md` §4
+**Relacionada:** ADR-017 · ADR-021 · ADR-030 · `06-suscripciones.md` (R6) · `03-architecture-spec.md` §4
 
 ## Contexto
 
@@ -37,7 +37,7 @@ secundaria.
 6. **Bloqueadas no se persisten.** Una suscripción está bloqueada si está activa y tiene al menos un
    período vencido según R1, R4 y R5, dentro de `[generate_from_period, end_period]`, sin transacción
    generada y que no se puede generar: por falta de `fx_rates` de ese período (R6) o porque su monto en
-   pesos queda fuera de rango (mayor a $999.999.999.999,99 o menor a $0,01, ADR-033). Se deriva al
+   pesos queda fuera de rango (mayor a $999.999.999.999,99 o menor a $0,01, ADR-030). Se deriva al
    leer con la función de dominio de la vista previa, sin columna nueva, y se muestra en Suscripciones,
    no en el Resumen.
 7. **"Hoy" en el cliente** es el día calendario de Argentina, calculado por una función de
@@ -59,7 +59,7 @@ secundaria.
 
 ## Consecuencias
 
-- El hueco de R7 no depende de esta pantalla: lo cierra ADR-033 en la RPC. Por eso la app puede
+- El hueco de R7 no depende de esta pantalla: lo cierra ADR-030 en la RPC. Por eso la app puede
   mostrarse aunque la puesta al día haya fallado.
 - El tope de 8 segundos protege la UX, pero no mide rendimiento: el caso de 50 suscripciones con 24 meses
   de atraso tiene su propio criterio de tiempo, que exige terminar bien (US-53).

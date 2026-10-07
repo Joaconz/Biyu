@@ -77,5 +77,5 @@ mantener consistentes.
 > **Nota posterior (2026-10).** La última consecuencia quedó superada por DEF-007: `restore_transaction`
 > restaura una transacción con baja lógica, incluida una ocurrencia de suscripción borrada por error.
 > Como la fila nunca se borró físicamente, restaurarla no choca con el índice único (I11). Ver también
-> ADR-033 a ADR-033, que detallan las operaciones, la falla de la puesta al día, la edición y el total
+> ADR-030 a ADR-033, que detallan las operaciones, la falla de la puesta al día, la edición y el total
 > comprometido.
