@@ -1,11 +1,12 @@
 // Navegación global (ADR-023). Sin React ni Supabase: se testea en tests/lib/.
 
-export type Screen = 'register' | 'dashboard' | 'transactions' | 'settings'
+export type Screen = 'register' | 'dashboard' | 'transactions' | 'debts' | 'settings'
 
 export const SCREEN_PATHS: Record<Screen, string> = {
   register: '/register',
   dashboard: '/dashboard',
   transactions: '/transactions',
+  debts: '/debts',
   settings: '/settings',
 }
 
