@@ -181,7 +181,7 @@ P2 entra si alcanza el sprint.
 | Épica | Issue | Milestone | Contenido |
 |---|---|---|---|
 | Suscripciones | [#17](https://github.com/Joaconz/Biyu/issues/17) | V2 | US-52 a US-63 · FR-15 a FR-17 · I11 a I17 · R1 a R8 |
-| Deudas y gastos compartidos | [#18](https://github.com/Joaconz/Biyu/issues/18) | V2 | US-30, US-34 a US-41 · FR-18, FR-19 · I7, I9 |
+| Deudas y gastos compartidos | [#18](https://github.com/Joaconz/Biyu/issues/18) | V2 | US-30, US-34 a US-41, US-79 · FR-18, FR-19 · I7, I9 |
 | Export CSV | [#19](https://github.com/Joaconz/Biyu/issues/19) | V2 | US-47 ([#201](https://github.com/Joaconz/Biyu/issues/201)) · FR-22 · C9 · ADR-029 |
 | Importar desde Excel | [#203](https://github.com/Joaconz/Biyu/issues/203) | V2 | US-74 ([#204](https://github.com/Joaconz/Biyu/issues/204)), US-76 ([#205](https://github.com/Joaconz/Biyu/issues/205)), US-77 ([#206](https://github.com/Joaconz/Biyu/issues/206)), US-78 ([#207](https://github.com/Joaconz/Biyu/issues/207)) · FR-06 · C4 · C6 · NFR-10 · ADR-035. Reemplaza a la idea #169 |
 | Dashboard por categoría | [#14](https://github.com/Joaconz/Biyu/issues/14) (épica de V1) | V2 | US-72 ([#242](https://github.com/Joaconz/Biyu/issues/242)), US-73 ([#243](https://github.com/Joaconz/Biyu/issues/243)) · FR-20 · C11 · ADR-038. Reemplaza a las ideas #170 y #171 |
