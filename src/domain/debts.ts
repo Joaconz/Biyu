@@ -10,9 +10,9 @@ export type DebtStatusFilter = DebtStatus | 'all'
 export type DebtDirectionFilter = DebtDirection | 'all'
 
 /**
- * Una deuda como llega de la base. Los montos son string: PostgREST devuelve `numeric` así y no
- * se pasan por `number` (C2). `linkedTransactionDeleted` es la baja lógica del gasto de origen, o
- * false si la deuda es suelta.
+ * Una deuda como llega de la base. Los montos son string: `src/lib/debts.ts` los pide con `::text`
+ * (sin el cast PostgREST los manda como número JSON) y no se pasan por `number` (C2).
+ * `linkedTransactionDeleted` es la baja lógica del gasto de origen, o false si la deuda es suelta.
  */
 export interface DebtRecord {
   id: string

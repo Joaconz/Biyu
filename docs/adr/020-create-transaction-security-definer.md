@@ -41,5 +41,5 @@ para que nada las toque por fuera de esa función (C3, C10).
 - Toda función `security definer` futura hereda estas reglas: `search_path` vacío, `user_id` desde
   `auth.uid()`, `EXECUTE` cerrado a `anon`.
 - El rechazo de `SECURITY DEFINER` de ADR-014 era sobre un trigger en `auth.users`; acá es una RPC acotada y explícita.
-- V2 reemplaza la función para agregar la deuda (gasto compartido) en la misma operación.
+- V2 reemplaza la función para agregar la deuda (gasto compartido) en la misma operación (hecho en ADR-036: firma de 11 parámetros, con la deuda opcional).
 - Un rechazo por cuota menor a 0,01 (`I4`) es explícito en vez de un error crudo del CHECK de `ledger_entries`.

@@ -50,7 +50,9 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 ## Reglas que no se negocian
 
 - **Montos nunca en `float`/`number`.** `numeric(14,2)` en Postgres, `decimal.js` en TS. PostgREST
-  devuelve `numeric` como string: no lo parsees a `number` (C2, ADR-013).
+  devuelve `numeric` como número JSON, que el navegador ya lee como `float`: pedí los montos como
+  texto en el `select` (`amount_text:amount::text`, como `src/lib/fxRates.ts`) y pasalos a
+  `decimal.js` como string (C2, ADR-013).
 - **La suma de las imputaciones = el monto de la transacción**, la última cuota absorbe el resto (C3).
 - **Crear una transacción es una sola llamada RPC** (`create_transaction`), nunca inserts sueltos a
   `transactions`/`ledger_entries`/`debts` (C4). El dashboard lee imputaciones materializadas, no

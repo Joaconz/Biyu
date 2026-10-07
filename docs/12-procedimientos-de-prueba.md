@@ -109,7 +109,8 @@ curl -s -i -X POST "<SUPABASE_URL>/rest/v1/rpc/create_transaction" \
 - **Éxito:** HTTP 200 y el cuerpo es el `uuid` de la transacción creada.
 - **Rechazo de Postgres:** HTTP 4xx con `code` y `message` en el JSON. Cada caso declara el `code` y el texto esperados
   (por ejemplo `23514` / `check_violation`).
-- Los montos viajan como string decimal, nunca como número (C2).
+- Los montos se mandan como string decimal, nunca como número (C2). En las lecturas, PostgREST devuelve
+  `numeric` como número JSON: para comparar el valor exacto, pedilo con `::text` (`select=amount_text:amount::text`).
 
 **Otras RPC.** `upsert_fx_rate` (`p_period` fecha del primer día del mes, `p_ars_per_usd` numérico) y
 `delete_transaction` (`p_transaction_id` uuid), por el mismo endpoint `/rest/v1/rpc/<nombre>`.
