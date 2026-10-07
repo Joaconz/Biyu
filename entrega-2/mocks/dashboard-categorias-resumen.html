@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock US-72 · Resumen con torta</title>
+<!-- Mock de US-72 (entrega-2/historias/dashboard-categorias.md). Tokens de ADR-023. Montos ficticios: datos D1. -->
+<style>
+  :root {
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7; --primary: #1b4d3e;
+    --primary-foreground: #f9f6f0; --secondary: #f1ebe0; --muted-foreground: #6e625a;
+    --hairline: #e6dfd3; --input: #948877; --gold: #d4af37; --income: #1b4d3e;
+    --comida: #b5653a; --transporte: #3e5c76; --servicios: #4a7a6d; --indumentaria: #a1666e; --musgo: #6f7d4a;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #e9e3d8; color: var(--foreground); font: 15px/1.4 -apple-system, "Inter", system-ui, sans-serif; display: flex; gap: 32px; justify-content: center; padding: 24px 16px; flex-wrap: wrap; }
+  .phone { width: 390px; max-width: 100%; background: var(--background); border-radius: 28px; overflow: hidden; border: 1px solid var(--hairline); position: relative; }
+  .screen { padding: 16px 16px 96px; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 16px; }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+  .period { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; }
+  .period button { border: 0; background: none; font-size: 20px; color: var(--primary); width: 36px; height: 36px; }
+  .total { background: var(--primary); color: var(--primary-foreground); border-radius: 16px; padding: 20px; }
+  .total small { opacity: .75; font-size: 13px; }
+  .total .big { font-size: 36px; font-weight: 700; display: block; margin: 4px 0; }
+  .total .foot { border-top: 1px solid rgb(249 246 240 / .15); margin-top: 16px; padding-top: 12px; font-size: 13px; display: flex; justify-content: space-between; opacity: .9; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .kpi { background: var(--card); border: 1px solid var(--hairline); border-radius: 16px; padding: 14px; }
+  .kpi small { color: var(--muted-foreground); font-size: 13px; }
+  .kpi b { display: block; font-size: 20px; margin-top: 4px; color: var(--income); }
+  .badge { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: color-mix(in srgb, var(--income) 12%, var(--card)); color: var(--income); float: right; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .04em; margin: 28px 4px 8px; }
+  .group { background: var(--card); border: 1px solid var(--hairline); border-radius: 14px; overflow: hidden; }
+  .chart { display: flex; justify-content: center; padding: 20px 0 16px; border-bottom: 1px solid var(--hairline); }
+  .pie { width: 176px; height: 176px; overflow: visible; }
+  .pie path { stroke: #fdfbf7; stroke-width: 2; stroke-linejoin: round; }
+  .list { list-style: none; padding: 0; }
+  .list li { border-bottom: 1px solid var(--hairline); }
+  .list li:last-child { border-bottom: 0; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; color: inherit; text-decoration: none; min-height: 56px; }
+  .dot { width: 30px; height: 30px; border-radius: 9px; flex: none; }
+  .body { flex: 1; min-width: 0; }
+  .line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .amt { font-weight: 600; white-space: nowrap; }
+  .pct { color: var(--muted-foreground); font-size: 13px; min-width: 48px; text-align: right; display: inline-block; }
+  .bar { height: 6px; background: var(--secondary); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 99px; }
+  .archived { font-size: 11px; background: var(--secondary); color: var(--muted-foreground); padding: 1px 6px; border-radius: 6px; margin-left: 6px; font-weight: 500; }
+  .chev { color: var(--input); font-size: 20px; flex: none; }
+  nav { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; padding: 10px 0 22px; background: rgb(249 246 240 / .85); border-top: 1px solid var(--hairline); font-size: 11px; color: var(--muted-foreground); }
+  nav .on { color: var(--primary); font-weight: 600; }
+  .note { width: 340px; max-width: 100%; font-size: 13px; color: var(--muted-foreground); }
+  .note h2 { font-size: 15px; color: var(--foreground); margin: 8px 0; }
+  .note li { margin: 6px 0 6px 16px; }
+  code { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <header>
+      <h1 data-testid="dashboard-title">Resumen</h1>
+      <div class="period"><button aria-label="Mes anterior">‹</button><span data-testid="dashboard-period" data-period="2026-09">Septiembre 2026</span><button aria-label="Mes siguiente">›</button></div>
+    </header>
+
+    <div class="total" data-testid="dashboard-total">
+      <small>Gastado en septiembre</small>
+      <span class="big tabular" data-testid="dashboard-total-expenses">$150.000,00</span>
+      <small class="tabular">Incluye US$10,00 en dólares</small>
+      <div class="foot"><span>Cuotas de meses anteriores <b class="tabular">$15.000,00</b></span><span>8 de 30 días con registro</span></div>
+    </div>
+    <div class="pair">
+      <div class="kpi"><small>Ingresos</small><b class="tabular">$507.000,00</b></div>
+      <div class="kpi"><small>Balance</small><span class="badge">Superávit</span><b class="tabular">$357.000,00</b></div>
+    </div>
+
+    <section data-testid="dashboard-category-bars">
+      <p class="section-title">Por categoría</p>
+      <div class="group">
+        <div class="chart">
+          <svg class="pie" viewBox="0 0 176 176" role="img" data-testid="dashboard-category-chart" data-period="2026-09"
+             aria-label="Gasto por categoría en septiembre 2026: Comida y supermercado 40,0 %, Transporte 25,0 %, Servicios 15,0 %, Indumentaria 10,0 %, Viajes 10,0 %">
+            <path data-testid="dashboard-category-chart-slice-{id-comida}" data-amount="60000.00" data-percentage="40.0" data-start-angle="0.0" data-end-angle="144.0" d="M88 88 L88.00 0.00 A88 88 0 0 1 139.73 159.19 Z" fill="#b5653a"/>
+            <path data-testid="dashboard-category-chart-slice-{id-transporte}" data-amount="37500.00" data-percentage="25.0" data-start-angle="144.0" data-end-angle="234.0" d="M88 88 L139.73 159.19 A88 88 0 0 1 16.81 139.73 Z" fill="#3e5c76"/>
+            <path data-testid="dashboard-category-chart-slice-{id-servicios}" data-amount="22500.00" data-percentage="15.0" data-start-angle="234.0" data-end-angle="288.0" d="M88 88 L16.81 139.73 A88 88 0 0 1 4.31 60.81 Z" fill="#4a7a6d"/>
+            <path data-testid="dashboard-category-chart-slice-{id-indumentaria}" data-amount="15000.00" data-percentage="10.0" data-start-angle="288.0" data-end-angle="324.0" d="M88 88 L4.31 60.81 A88 88 0 0 1 36.27 16.81 Z" fill="#a1666e"/>
+            <path data-testid="dashboard-category-chart-slice-{id-viajes}" data-amount="15000.00" data-percentage="10.0" data-start-angle="324.0" data-end-angle="360.0" d="M88 88 L36.27 16.81 A88 88 0 0 1 88.00 0.00 Z" fill="#6f7d4a"/>
+          </svg>
+        </div>
+        <ul class="list" data-testid="dashboard-categories-list">
+          <li><a class="row" href="#detalle" data-testid="dashboard-category-bar-{id-comida}" aria-label="Ver detalle de Comida y supermercado">
+            <span class="dot" style="background:var(--comida)"></span>
+            <div class="body"><div class="line"><span class="name">Comida y supermercado</span><span><span class="amt tabular">$60.000,00</span> <span class="pct tabular">40,0 %</span></span></div><div class="bar"><i style="width:40%;background:var(--comida)"></i></div></div>
+            <span class="chev" aria-hidden="true">›</span>
+          </a></li>
+          <li><a class="row" href="#detalle" data-testid="dashboard-category-bar-{id-transporte}" aria-label="Ver detalle de Transporte">
+            <span class="dot" style="background:var(--transporte)"></span>
+            <div class="body"><div class="line"><span class="name">Transporte</span><span><span class="amt tabular">$37.500,00</span> <span class="pct tabular">25,0 %</span></span></div><div class="bar"><i style="width:25%;background:var(--transporte)"></i></div></div>
+            <span class="chev" aria-hidden="true">›</span>
+          </a></li>
+          <li><a class="row" href="#detalle" data-testid="dashboard-category-bar-{id-servicios}" aria-label="Ver detalle de Servicios">
+            <span class="dot" style="background:var(--servicios)"></span>
+            <div class="body"><div class="line"><span class="name">Servicios</span><span><span class="amt tabular">$22.500,00</span> <span class="pct tabular">15,0 %</span></span></div><div class="bar"><i style="width:15%;background:var(--servicios)"></i></div></div>
+            <span class="chev" aria-hidden="true">›</span>
+          </a></li>
+          <li><a class="row" href="#detalle" data-testid="dashboard-category-bar-{id-indumentaria}" aria-label="Ver detalle de Indumentaria">
+            <span class="dot" style="background:var(--indumentaria)"></span>
+            <div class="body"><div class="line"><span class="name">Indumentaria</span><span><span class="amt tabular">$15.000,00</span> <span class="pct tabular">10,0 %</span></span></div><div class="bar"><i style="width:10%;background:var(--indumentaria)"></i></div></div>
+            <span class="chev" aria-hidden="true">›</span>
+          </a></li>
+          <li><a class="row" href="#detalle" data-testid="dashboard-category-bar-{id-viajes}" aria-label="Ver detalle de Viajes">
+            <span class="dot" style="background:var(--musgo)"></span>
+            <div class="body"><div class="line"><span class="name">Viajes<span class="archived">archivada</span></span><span><span class="amt tabular">$15.000,00</span> <span class="pct tabular">10,0 %</span></span></div><div class="bar"><i style="width:10%;background:var(--musgo)"></i></div></div>
+            <span class="chev" aria-hidden="true">›</span>
+          </a></li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="section-title">Por cuenta</p>
+    <div class="group" style="padding:14px;color:var(--muted-foreground);font-size:13px">Sin cambios (US-28)</div>
+    <p class="section-title">Últimos movimientos</p>
+    <div class="group" style="padding:14px;color:var(--muted-foreground);font-size:13px">Sin cambios (US-31)</div>
+  </div>
+  <nav aria-label="Navegación"><span>Registrar</span><span class="on">Resumen</span><span>Deudas</span><span>Suscripciones</span></nav>
+</div>
+
+<div class="note">
+  <h2>US-72 · Qué cambia</h2>
+  <ul>
+    <li>Torta de 176 px arriba de la lista, desde las 12 en sentido horario, en el orden de la lista. No es tocable.</li>
+    <li>Cada fila de la lista es un enlace al detalle (US-73), con "›" a la derecha.</li>
+    <li>Con 7 categorías o más: 5 porciones y "Resto (N categorías)" en <code>#948877</code>; la lista sigue mostrando todas.</li>
+    <li>Indumentaria y Viajes empatan en $15.000,00: va primero Indumentaria (orden alfabético).</li>
+    <li>Los ingresos ($500.000,00 y el de $7.000,00 con categoría) no entran en la torta.</li>
+    <li>Filete de 2 px color papel entre porciones; ángulos en <code>data-start-angle</code>/<code>data-end-angle</code>.</li>
+    <li><code>{id-…}</code> representa el UUID de la categoría.</li>
+  </ul>
+</div>
+</body>
+</html>

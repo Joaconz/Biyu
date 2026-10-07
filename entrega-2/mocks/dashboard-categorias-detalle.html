@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock US-73 · Detalle de categoría</title>
+<!-- Mock de US-73 (entrega-2/historias/dashboard-categorias.md). Tokens de ADR-023. Montos ficticios: datos D1. -->
+<style>
+  :root {
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7; --primary: #1b4d3e;
+    --primary-foreground: #f9f6f0; --secondary: #f1ebe0; --muted-foreground: #6e625a;
+    --hairline: #e6dfd3; --input: #948877; --destructive: #8b2e2e; --comida: #b5653a;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #e9e3d8; color: var(--foreground); font: 15px/1.4 -apple-system, "Inter", system-ui, sans-serif; display: flex; gap: 32px; justify-content: center; align-items: flex-start; padding: 24px 16px; flex-wrap: wrap; }
+  .phone { width: 390px; max-width: 100%; background: var(--background); border-radius: 28px; overflow: hidden; border: 1px solid var(--hairline); position: relative; }
+  .phone.small { width: 300px; }
+  .screen { padding: 16px 16px 96px; }
+  .small .screen { padding-bottom: 32px; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .back { color: var(--primary); text-decoration: none; font-weight: 500; display: inline-block; padding: 8px 0; }
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 4px 0 16px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .period { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; }
+  .period button { border: 0; background: none; font-size: 20px; color: var(--primary); width: 36px; height: 36px; }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 16px; padding: 18px; border-left: 4px solid var(--comida); }
+  .card small { color: var(--muted-foreground); font-size: 13px; }
+  .card .big { font-size: 34px; font-weight: 700; display: block; margin: 2px 0 4px; }
+  .card .meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted-foreground); border-top: 1px solid var(--hairline); padding-top: 10px; margin-top: 10px; }
+  .card .meta b { color: var(--foreground); }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .04em; margin: 26px 4px 8px; }
+  .group { background: var(--card); border: 1px solid var(--hairline); border-radius: 14px; overflow: hidden; }
+  .bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: end; height: 170px; padding: 16px 14px 8px; }
+  .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; border: 0; background: none; font: inherit; color: inherit; padding: 0; }
+  .col .v { font-size: 11px; color: var(--muted-foreground); white-space: nowrap; }
+  .col i { width: 100%; max-width: 34px; border-radius: 6px 6px 2px 2px; background: color-mix(in srgb, var(--comida) 35%, #fdfbf7); display: block; min-height: 4px; }
+  .col[aria-current="true"] i { background: var(--comida); }
+  .col[aria-current="true"] .v { color: var(--foreground); font-weight: 600; }
+  .months { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 0 14px 12px; font-size: 12px; color: var(--muted-foreground); text-align: center; }
+  .months .on { color: var(--foreground); font-weight: 600; }
+  .tx { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--hairline); min-height: 64px; }
+  .tx:last-child { border-bottom: 0; }
+  .tx .ico { width: 34px; height: 34px; border-radius: 10px; background: color-mix(in srgb, var(--comida) 18%, var(--card)); flex: none; }
+  .tx .b { flex: 1; min-width: 0; }
+  .tx .t { font-weight: 500; }
+  .tx .s { font-size: 13px; color: var(--muted-foreground); }
+  .tx .a { font-weight: 600; }
+  nav { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; padding: 10px 0 22px; background: rgb(249 246 240 / .85); border-top: 1px solid var(--hairline); font-size: 11px; color: var(--muted-foreground); }
+  nav .on { color: var(--primary); font-weight: 600; }
+  .state { padding: 40px 20px; text-align: center; color: var(--muted-foreground); }
+  .state p { margin-bottom: 16px; }
+  .btn { display: inline-block; background: var(--primary); color: var(--primary-foreground); border-radius: 8px; padding: 10px 16px; text-decoration: none; font-weight: 600; border: 0; font: inherit; }
+  .err { color: var(--destructive); }
+  .caption { font-size: 12px; color: var(--muted-foreground); margin: 0 0 8px 4px; font-weight: 600; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+</style>
+</head>
+<body>
+<div class="phone" id="detalle">
+  <div class="screen">
+    <a class="back" href="#" data-testid="category-detail-back">‹ Resumen</a>
+    <div class="head">
+      <h1 data-testid="category-detail-title">Comida y supermercado</h1>
+      <div class="period"><button aria-label="Mes anterior" data-testid="category-detail-period-prev">‹</button><span data-testid="category-detail-period" data-period="2026-09">Septiembre 2026</span><input type="month" hidden data-testid="category-detail-period-select" value="2026-09"><button aria-label="Mes siguiente" data-testid="category-detail-period-next">›</button></div>
+    </div>
+
+    <div class="card" data-testid="category-detail-total">
+      <small>Gastado en septiembre</small>
+      <span class="big tabular" data-testid="category-detail-total-amount">$60.000,00</span>
+      <small data-testid="category-detail-percentage">40,0 % del gasto de septiembre</small>
+      <div class="meta"><span>Cuotas de meses anteriores <b class="tabular" data-testid="category-detail-inherited-amount">$0,00</b></span></div>
+    </div>
+
+    <p class="section-title">Últimos 6 meses</p>
+    <div class="group" data-testid="category-detail-evolution">
+      <div class="bars">
+        <button class="col" data-testid="category-detail-evolution-bar-2026-04" data-amount="52000.00" aria-label="abril 2026: $52.000,00"><span class="v tabular">$52,0 mil</span><i style="height:102px"></i></button>
+        <button class="col" data-testid="category-detail-evolution-bar-2026-05" data-amount="48500.00" aria-label="mayo 2026: $48.500,00"><span class="v tabular">$48,5 mil</span><i style="height:95px"></i></button>
+        <button class="col" data-testid="category-detail-evolution-bar-2026-06" data-amount="55000.00" aria-label="junio 2026: $55.000,00"><span class="v tabular">$55,0 mil</span><i style="height:108px"></i></button>
+        <button class="col" data-testid="category-detail-evolution-bar-2026-07" data-amount="61200.00" aria-label="julio 2026: $61.200,00"><span class="v tabular">$61,2 mil</span><i style="height:120px"></i></button>
+        <button class="col" data-testid="category-detail-evolution-bar-2026-08" data-amount="57800.00" aria-label="agosto 2026: $57.800,00"><span class="v tabular">$57,8 mil</span><i style="height:113px"></i></button>
+        <button class="col" data-testid="category-detail-evolution-bar-2026-09" data-amount="60000.00" aria-current="true" aria-label="septiembre 2026: $60.000,00"><span class="v tabular">$60,0 mil</span><i style="height:118px"></i></button>
+      </div>
+      <div class="months" aria-hidden="true"><span>abr</span><span>may</span><span>jun</span><span>jul</span><span>ago</span><span class="on">sep</span></div>
+    </div>
+
+    <p class="section-title">Gastos de septiembre 2026</p>
+    <div class="group" data-testid="category-detail-transactions">
+      <div class="tx" data-testid="category-detail-transaction-item"><span class="ico"></span><div class="b"><div class="t">Comida y supermercado</div><div class="s">28 sep · Tarjeta de débito</div></div><span class="a tabular">-$24.500,00</span></div>
+      <div class="tx" data-testid="category-detail-transaction-item"><span class="ico"></span><div class="b"><div class="t">Comida y supermercado</div><div class="s">14 sep · Efectivo</div></div><span class="a tabular">-$8.300,00</span></div>
+      <div class="tx" data-testid="category-detail-transaction-item"><span class="ico"></span><div class="b"><div class="t">Comida y supermercado</div><div class="s">14 sep · Tarjeta de crédito</div></div><span class="a tabular">-$18.700,00</span></div>
+      <div class="tx" data-testid="category-detail-transaction-item"><span class="ico"></span><div class="b"><div class="t">Comida y supermercado</div><div class="s">5 sep · Billetera virtual</div></div><span class="a tabular">-$8.500,00</span></div>
+    </div>
+  </div>
+  <nav aria-label="Navegación"><span>Registrar</span><span class="on">Resumen</span><span>Deudas</span><span>Suscripciones</span></nav>
+</div>
+
+<div class="stack">
+  <div>
+    <p class="caption">Estado: categoría no encontrada (sin "‹ Resumen", título ni selector)</p>
+    <div class="phone small"><div class="screen">
+      <div class="state" data-testid="category-detail-not-found">
+        <p>No encontramos esta categoría.</p>
+        <a class="btn" href="#" data-testid="category-detail-not-found-back">Volver al Resumen</a>
+      </div>
+    </div></div>
+  </div>
+  <div>
+    <p class="caption">Estado: cargando</p>
+    <div class="phone small"><div class="screen">
+      <a class="back" href="#" data-testid="category-detail-back">‹ Resumen</a>
+      <p class="state" data-testid="category-detail-loading">Cargando…</p>
+    </div></div>
+  </div>
+  <div>
+    <p class="caption">Estado: error al cargar (solo "‹ Resumen" arriba)</p>
+    <div class="phone small"><div class="screen">
+      <a class="back" href="#" data-testid="category-detail-back">‹ Resumen</a>
+      <div class="state">
+        <p role="alert" class="err" data-testid="category-detail-error">No se pudo cargar la categoría.</p>
+        <button class="btn" data-testid="category-detail-retry">Reintentar</button>
+      </div>
+    </div></div>
+  </div>
+  <div>
+    <p class="caption">Estado: mes sin gastos en la categoría (lista)</p>
+    <div class="phone small"><div class="screen">
+      <p class="state" data-testid="category-detail-transactions-empty" style="padding:20px">No hay gastos de Transporte en marzo 2027.</p>
+    </div></div>
+  </div>
+</div>
+</body>
+</html>

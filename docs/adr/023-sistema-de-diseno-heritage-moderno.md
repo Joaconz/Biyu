@@ -76,6 +76,8 @@ se esconde con el teclado abierto (`useVisualViewportInset`) para que "Guardar" 
   captura del informe de pruebas se vuelve doble. No hay ninguna historia que lo pida.
 - **Gráfico de dona para el gasto por categoría.** Es lo habitual en apps de finanzas, pero con
   seis u ocho categorías los ángulos no se comparan a simple vista y CP-DAS-004 pide barras.
+  _Sigue descartado como reemplazo de las barras; la torta como complemento se decidió en V2
+  (ADR-038)._
 - **Serif de marca (Playfair) junto a la sans.** Daba carácter, pero dos familias con
   personalidades opuestas en una pantalla chica compiten; el peso de una sola sans alcanza para
   la jerarquía (apple-design §15).
