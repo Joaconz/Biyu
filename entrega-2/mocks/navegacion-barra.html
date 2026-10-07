@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock US-69 · Barra de navegación V2</title>
+<style>
+  /* Tokens de ADR-023 (src/index.css). Montos ficticios (C14). */
+  :root {
+    --background: #f9f6f0; --foreground: #2b1e19; --card: #fdfbf7; --primary: #1b4d3e;
+    --primary-foreground: #f9f6f0; --secondary: #f1ebe0; --muted-foreground: #6e625a;
+    --hairline: #e6dfd3; --input: #948877; --gold: #d4af37; --destructive: #8b2e2e;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px 16px; background: #ece6da; color: var(--foreground); font-family: var(--font); }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: var(--muted-foreground); margin: 0 0 28px; font-size: 14px; max-width: 760px; }
+  .row { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+  .cap { font-size: 13px; color: var(--muted-foreground); margin: 10px 0 0; max-width: 375px; }
+  .cap b { color: var(--foreground); }
+  /* Teléfono de 375 px */
+  .phone { width: 375px; height: 720px; background: var(--background); border: 1px solid var(--input); border-radius: 36px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .phone.narrow { width: 320px; }
+  .status { height: 44px; }
+  .header { height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 20px; }
+  .wordmark { font-weight: 800; font-size: 20px; letter-spacing: -0.03em; }
+  .wordmark::after { content: "."; color: var(--gold); }
+  .gear { width: 44px; height: 44px; display: grid; place-items: center; color: var(--muted-foreground); }
+  .content { flex: 1; padding: 8px 20px; overflow: hidden; }
+  .title { font-size: 28px; font-weight: 700; letter-spacing: -0.018em; margin: 8px 0 16px; }
+  .back { color: var(--primary); font-size: 15px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; }
+  .hero { background: var(--primary); color: var(--primary-foreground); border-radius: 8px; padding: 18px; }
+  .hero small { opacity: .75; font-size: 13px; }
+  .hero .big { font-size: 34px; font-weight: 700; letter-spacing: -0.025em; margin-top: 4px; }
+  .group-label { font-size: 13px; color: var(--muted-foreground); margin: 22px 4px 6px; display: flex; justify-content: space-between; }
+  .group-label a { color: var(--primary); font-weight: 500; text-decoration: none; font-size: 15px; }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 12px; }
+  .item { display: flex; justify-content: space-between; padding: 12px 14px; border-top: 1px solid var(--hairline); font-size: 15px; }
+  .item:first-child { border-top: 0; }
+  .item span:last-child { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .empty { border: 1px dashed var(--input); border-radius: 8px; padding: 40px 20px; text-align: center; color: var(--muted-foreground); font-size: 15px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; background: var(--primary); color: var(--primary-foreground); border-radius: 8px; padding: 12px 18px; font-weight: 600; font-size: 15px; margin-top: 16px; }
+  .link { display: block; margin-top: 12px; color: var(--primary); font-weight: 500; font-size: 15px; min-height: 44px; line-height: 44px; }
+  .seg { display: inline-flex; background: var(--secondary); border-radius: 8px; padding: 4px; margin-bottom: 16px; font-size: 13px; }
+  .seg span { padding: 6px 12px; border-radius: 6px; }
+  .seg span.on { background: var(--card); font-weight: 600; }
+  /* Barra inferior */
+  .nav { height: calc(56px + 20px); padding-bottom: 20px; border-top: 1px solid var(--hairline); background: rgba(249,246,240,.8); display: grid; grid-template-columns: repeat(4, 1fr); }
+  .nav a { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--muted-foreground); text-decoration: none; font-size: 11px; font-weight: 500; letter-spacing: .01em; min-height: 44px; }
+  .nav a svg { width: 24px; height: 24px; }
+  .nav a.on { color: var(--primary); font-weight: 700; }
+  .nav a.on::before { content: ""; position: absolute; top: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+  .tid { font: 10px ui-monospace, monospace; color: #8a7d70; }
+  /* Computadora */
+  .desktop { width: 1000px; max-width: 100%; height: 520px; background: var(--background); border: 1px solid var(--input); border-radius: 12px; display: flex; overflow: hidden; }
+  .side { width: 240px; border-right: 1px solid var(--hairline); padding: 36px 16px 24px; display: flex; flex-direction: column; }
+  .side .wordmark { font-size: 28px; padding: 0 12px 32px; }
+  .side a { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border-radius: 8px; color: var(--muted-foreground); text-decoration: none; font-size: 15px; font-weight: 500; position: relative; }
+  .side a svg { width: 20px; height: 20px; }
+  .side a.on { background: var(--secondary); color: var(--primary); font-weight: 700; }
+  .side a.on::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px; background: var(--gold); }
+  .side .foot { margin-top: auto; }
+  .main { flex: 1; padding: 40px; }
+  .notes { max-width: 760px; font-size: 14px; line-height: 1.5; margin-top: 36px; }
+  .notes code { font-size: 12px; background: var(--card); border: 1px solid var(--hairline); padding: 1px 4px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>US-69 · Barra de navegación con Deudas y Suscripciones</h1>
+<p class="lead">Registrar · Resumen · Deudas · Suscripciones. Movimientos sale de la barra y cuelga del Resumen. Ajustes sigue en el engranaje (celular) y al pie de la barra lateral (computadora). Sistema de diseño de ADR-023: sin sombras, oro solo decorativo.</p>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-reg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-6"/></symbol>
+  <symbol id="i-debt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="7" r="3"/><path d="M3 14h3l4 3h5a2 2 0 0 0 0-4h-3M3 20h4l3-1"/></symbol>
+  <symbol id="i-subs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+</svg>
+
+<div class="row">
+  <!-- 1. Resumen con movimientos -->
+  <div>
+    <div class="phone">
+      <div class="status"></div>
+      <div class="header"><span class="wordmark">biyu</span><span class="gear"><svg width="22" height="22"><use href="#i-gear"/></svg></span></div>
+      <div class="content">
+        <div class="title">Octubre 2026</div>
+        <div class="hero"><small>Gastaste en octubre</small><div class="big">$184.250,00</div></div>
+        <div class="group-label"><span>Últimos movimientos</span><a>Ver todos</a></div>
+        <div class="card">
+          <div class="item"><span>Comida · Visa BBVA</span><span>$12.500,00</span></div>
+          <div class="item"><span>Transporte · Efectivo</span><span>$3.400,00</span></div>
+          <div class="item"><span>Tecnología · 2/12</span><span>$10.000,00</span></div>
+        </div>
+        <p class="tid">dashboard-transactions-view-all</p>
+      </div>
+      <nav class="nav" aria-label="Principal">
+        <a><svg><use href="#i-reg"/></svg>Registrar</a>
+        <a class="on" aria-current="page"><svg><use href="#i-dash"/></svg>Resumen</a>
+        <a><svg><use href="#i-debt"/></svg>Deudas</a>
+        <a><svg><use href="#i-subs"/></svg>Suscripciones</a>
+      </nav>
+    </div>
+    <p class="cap"><b>1 · Resumen (375 px).</b> Cuatro ítems iguales; el activo en verde, negrita y punto dorado. testids: <span class="tid">dashboard-nav-register · dashboard-nav-dashboard · dashboard-nav-debts · dashboard-nav-subscriptions · dashboard-nav-settings</span></p>
+  </div>
+
+  <!-- 2. Movimientos con volver -->
+  <div>
+    <div class="phone">
+      <div class="status"></div>
+      <div class="header"><span class="wordmark">biyu</span><span class="gear"><svg width="22" height="22"><use href="#i-gear"/></svg></span></div>
+      <div class="content">
+        <a class="back">‹ Resumen</a>
+        <div class="title" style="margin-top:0">Movimientos</div>
+        <div class="seg"><span class="on">Activos</span><span>Eliminados</span></div>
+        <div class="card">
+          <div class="item"><span>Comida · Visa BBVA</span><span>$12.500,00</span></div>
+          <div class="item"><span>Transporte · Efectivo</span><span>$3.400,00</span></div>
+          <div class="item"><span>Tecnología · 2/12</span><span>$10.000,00</span></div>
+          <div class="item"><span>Sueldo · Banco</span><span style="color:var(--primary)">+$300.000,00</span></div>
+        </div>
+        <p class="tid">transactions-back</p>
+      </div>
+      <nav class="nav" aria-label="Principal">
+        <a><svg><use href="#i-reg"/></svg>Registrar</a>
+        <a class="on" aria-current="page"><svg><use href="#i-dash"/></svg>Resumen</a>
+        <a><svg><use href="#i-debt"/></svg>Deudas</a>
+        <a><svg><use href="#i-subs"/></svg>Suscripciones</a>
+      </nav>
+    </div>
+    <p class="cap"><b>2 · Movimientos.</b> No está en la barra: se llega por "Ver todos" y se vuelve con "‹ Resumen" (mismo <code>?period</code>). En la barra queda activo Resumen (CA-3).</p>
+  </div>
+
+  <!-- 3. Resumen vacío, 320 px -->
+  <div>
+    <div class="phone narrow">
+      <div class="status"></div>
+      <div class="header"><span class="wordmark">biyu</span><span class="gear"><svg width="22" height="22"><use href="#i-gear"/></svg></span></div>
+      <div class="content">
+        <div class="title">Agosto 2026</div>
+        <div class="empty">
+          No tenés movimientos registrados en agosto 2026.<br>
+          <span class="btn">⊕ Registrar un gasto</span>
+          <a class="link">Ver movimientos</a>
+          <span class="tid">dashboard-empty-view-transactions</span>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Principal">
+        <a><svg><use href="#i-reg"/></svg>Registrar</a>
+        <a class="on" aria-current="page"><svg><use href="#i-dash"/></svg>Resumen</a>
+        <a><svg><use href="#i-debt"/></svg>Deudas</a>
+        <a><svg><use href="#i-subs"/></svg>Suscripciones</a>
+      </nav>
+    </div>
+    <p class="cap"><b>3 · Resumen vacío a 320 px.</b> "Ver movimientos" deja llegar a Eliminados en un mes vacío (CA-8). Los cuatro rótulos entran completos (CA-4).</p>
+  </div>
+</div>
+
+<h2 style="margin:40px 0 12px;font-size:18px">Computadora (1280 px)</h2>
+<div class="desktop">
+  <nav class="side" aria-label="Principal">
+    <span class="wordmark">biyu</span>
+    <a><svg><use href="#i-reg"/></svg>Registrar</a>
+    <a><svg><use href="#i-dash"/></svg>Resumen</a>
+    <a class="on" aria-current="page"><svg><use href="#i-debt"/></svg>Deudas</a>
+    <a><svg><use href="#i-subs"/></svg>Suscripciones</a>
+    <div class="foot"><a><svg><use href="#i-gear"/></svg>Ajustes</a></div>
+  </nav>
+  <div class="main">
+    <div class="title">Deudas</div>
+    <div class="empty">Contenido definido por las historias de Deudas (US-34 a US-41).</div>
+  </div>
+</div>
+<p class="cap" style="max-width:760px"><b>4 · Barra lateral.</b> Es la misma <code>&lt;nav&gt;</code> que la barra de abajo (un solo juego de testids, CA-6). Activo: fondo lino y filete dorado. Ajustes al pie.</p>
+
+<div class="notes">
+  <b>Fuera de este mock:</b> el contenido de Deudas y Suscripciones (sus historias), Ajustes (sin cambios) y la barra con el teclado abierto (se esconde, como en V1).
+</div>
+</body>
+</html>
