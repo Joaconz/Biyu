@@ -14,8 +14,8 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
     .select(`
       period,
       installment_number,
-      amount,
-      amount_ars,
+      amount_text:amount::text,
+      amount_ars_text:amount_ars::text,
       transaction:transactions!ledger_entries_transaction_fk!inner (
         id,
         type,
@@ -45,13 +45,14 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
   if (!data) return []
 
   // PostgREST devuelve los datos con la relación `transaction`.
-  // C2: amount y amount_ars pasan como string al dominio (parseMoney).
+  // C2: amount y amount_ars se piden con ::text (sin el cast llegarían como número JSON) y pasan
+  // como string al dominio (parseMoney).
   return (
     data as unknown as Array<{
       period: string
       installment_number: number
-      amount: number | string
-      amount_ars: number | string
+      amount_text: string
+      amount_ars_text: string
       transaction: {
         id: string
         type: 'expense' | 'income'
@@ -77,8 +78,8 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
   ).map((row) => ({
     period: row.period,
     installment_number: row.installment_number,
-    amount: String(row.amount),
-    amount_ars: String(row.amount_ars),
+    amount: row.amount_text,
+    amount_ars: row.amount_ars_text,
     transaction: {
       id: row.transaction.id,
       type: row.transaction.type,
@@ -200,15 +201,15 @@ export async function fetchMonthlyTransactions(
     .from('ledger_entries')
     .select(`
       installment_number,
-      amount,
-      amount_ars,
+      amount_text:amount::text,
+      amount_ars_text:amount_ars::text,
       transaction:transactions!ledger_entries_transaction_fk!inner (
         id,
         type,
-        amount,
+        amount_text:amount::text,
         currency,
-        fx_rate,
-        amount_ars,
+        fx_rate_text:fx_rate::text,
+        amount_ars_text:amount_ars::text,
         installments_count,
         occurred_on,
         description,
@@ -235,19 +236,20 @@ export async function fetchMonthlyTransactions(
   if (error) throw error
   if (!data) return []
 
-  // C2: los montos pasan como string; nunca se parsean a number.
+  // C2: los montos se piden con ::text (sin el cast llegarían como número JSON) y pasan como string;
+  // nunca se parsean a number.
   return (
     data as unknown as Array<{
       installment_number: number
-      amount: number | string
-      amount_ars: number | string
+      amount_text: string
+      amount_ars_text: string
       transaction: {
         id: string
         type: 'expense' | 'income'
-        amount: number | string
+        amount_text: string
         currency: 'ARS' | 'USD'
-        fx_rate: number | string | null
-        amount_ars: number | string
+        fx_rate_text: string | null
+        amount_ars_text: string
         installments_count: number
         occurred_on: string
         description: string | null
@@ -260,10 +262,10 @@ export async function fetchMonthlyTransactions(
   ).map(({ transaction: tx, ...entry }) => ({
     id: tx.id,
     type: tx.type,
-    amount: String(tx.amount),
+    amount: tx.amount_text,
     currency: tx.currency,
-    fx_rate: tx.fx_rate ? String(tx.fx_rate) : null,
-    amount_ars: String(tx.amount_ars),
+    fx_rate: tx.fx_rate_text,
+    amount_ars: tx.amount_ars_text,
     installments_count: tx.installments_count,
     occurred_on: tx.occurred_on,
     description: tx.description,
@@ -273,7 +275,7 @@ export async function fetchMonthlyTransactions(
     // La deuda viene en la misma consulta: el diálogo de borrado nunca se abre sin saber si hay una.
     shared_debt: tx.debts?.[0] ? { person: tx.debts[0].person, amount: tx.debts[0].amount_text } : null,
     installment_number: entry.installment_number,
-    entry_amount: String(entry.amount),
-    entry_amount_ars: String(entry.amount_ars),
+    entry_amount: entry.amount_text,
+    entry_amount_ars: entry.amount_ars_text,
   }))
 }

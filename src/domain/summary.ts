@@ -1,7 +1,7 @@
 import { formatPeriod, type Period } from './period'
 import { Decimal, parseMoney } from './money'
 
-// Filas tal como las devuelve PostgREST: los montos son string (C2).
+// Filas como las entrega src/lib/dashboard.ts: los montos son string porque se piden con ::text (C2).
 export interface SummaryEntry {
   period: string // YYYY-MM-01
   installment_number: number

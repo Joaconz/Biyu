@@ -4,7 +4,7 @@ import { supabase } from './supabase'
 
 export interface ReferenceRate {
   period: string // YYYY-MM-01
-  arsPerUsd: string // numeric(14,4) viaja como string por PostgREST (C2)
+  arsPerUsd: string // numeric(14,4) como string, gracias al cast ::text (C2)
 }
 
 export async function listReferenceRates(limit = 12): Promise<ReferenceRate[]> {
@@ -18,7 +18,7 @@ export async function listReferenceRates(limit = 12): Promise<ReferenceRate[]> {
   return data.map((r) => ({ period: r.period, arsPerUsd: String(r.ars_per_usd_text) }))
 }
 
-/** Devuelve el numeric como string (C2); null significa que ese período no tiene TC configurado. */
+/** Devuelve el numeric como string, pedido con ::text (C2); null significa que ese período no tiene TC configurado. */
 export async function getReferenceRate(period: Period): Promise<string | null> {
   const { data, error } = await supabase
     .from('fx_rates')

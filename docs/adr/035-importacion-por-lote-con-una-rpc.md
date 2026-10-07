@@ -112,9 +112,9 @@ eso devuelve el problema del fallo a mitad de camino.
   `permission denied`, C7). La migración pasa por `rls-migration-reviewer`.
 - ADR-020 sigue valiendo: `create_transaction` es la única función que escribe `transactions` y
   `ledger_entries`; `import_transactions` no las toca, solo la llama.
-- `create_transaction` no cambia. Depende de su firma: si las deudas de V2 la reemplazan por una
-  versión con deuda opcional, `import_transactions` se actualiza en la misma migración y pasa la deuda
-  vacía.
+- Depende de la firma de `create_transaction`. Las deudas de V2 ya la reemplazaron por una versión con
+  deuda opcional (ADR-036: 11 parámetros, `p_shared_person` y `p_shared_amount` en `default null`), así
+  que `import_transactions` la llama con parámetros nombrados y sin pasar la deuda.
 - Los textos de error de `create_transaction` pasan a ser contrato de la importación.
 - La idempotencia cubre el reintento de **la misma** importación, no subir dos veces el mismo archivo:
   eso genera dos `p_import_id` y duplica. La historia lo avisa en pantalla y pide confirmación antes de

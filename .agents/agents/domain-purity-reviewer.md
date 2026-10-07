@@ -14,7 +14,8 @@ Chequeá:
 
 1. **Montos (C2, ADR-013):** ningún importe, tipo de cambio o total pasa por `number`,
    `parseFloat`, `Number()`, `parseInt`, `toFixed`, `Math.round` ni operadores `+ - * /`
-   directos. Todo va por `decimal.js`, y los `numeric` de PostgREST se mantienen como string
+   directos. Todo va por `decimal.js`, y los `numeric` de PostgREST se piden como texto
+   (`amount_text:amount::text`; sin el cast llegan como número JSON) y se mantienen como string
    hasta entrar a `domain/money.ts`. El parseo del input y la serialización están en un único
    módulo.
 2. **Reloj (C1):** en `src/domain/` no aparece `new Date()`, `Date.now()`, `performance.now()`

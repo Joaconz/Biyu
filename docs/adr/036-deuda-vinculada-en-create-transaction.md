@@ -81,6 +81,9 @@ cliente y qué deriva el servidor, y cómo se valida I7 antes de escribir.
   por cuota. Cómo cuenta en el neto del Resumen está en `04-data-model.md` (consulta 6) y en ADR-037.
 - **ADR-035 (`import_transactions`) depende de esta firma:** dice que si las deudas de V2 reemplazan
   `create_transaction`, `import_transactions` se actualiza en la misma migración y pasa la deuda
-  vacía. Esta migración lo hace: llama a `create_transaction` con parámetros nombrados y
-  `p_shared_person`/`p_shared_amount` en `null`.
+  vacía. Al implementarse este ADR, `import_transactions` todavía no existía (ADR-035 sigue en
+  propuesta), así que no hubo nada que actualizar. La migración reemplaza la firma de 9 parámetros
+  por la de 11 con `p_shared_person` y `p_shared_amount` en `default null`: una llamada sin deuda
+  sigue siendo válida tal cual. Cuando se escriba `import_transactions`, llama a
+  `create_transaction` con parámetros nombrados y sin pasar la deuda.
 - Actualiza la consecuencia de ADR-020 ("V2 reemplaza la función para agregar la deuda").
