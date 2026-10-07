@@ -1,12 +1,21 @@
+import { buttonVariants } from '@/components/ui/button'
 import { debtRowText, type DebtRecord } from '@/domain/debts'
 import { cn } from '@/lib/utils'
 
 /**
  * Fila de la lista de Deudas (US-38): persona y dirección arriba, la nota, la fecha con el estado, y
  * el monto a la derecha (en US$, con su equivalente en pesos congelado, C5). Lo que se debe va en
- * rojo, como en los totales.
+ * rojo, como en los totales. Una pendiente tiene "Marcar saldada" debajo del monto (US-39).
  */
-export function DebtItem({ debt }: { debt: DebtRecord }) {
+export function DebtItem({
+  debt,
+  settling,
+  onSettle,
+}: {
+  debt: DebtRecord
+  settling: boolean
+  onSettle: (debt: DebtRecord) => void
+}) {
   const text = debtRowText(debt)
   const settled = debt.status === 'settled'
   return (
@@ -62,6 +71,17 @@ export function DebtItem({ debt }: { debt: DebtRecord }) {
           <span data-testid="debts-item-amount-ars" className="tabular text-footnote text-muted-foreground">
             {text.amountArs}
           </span>
+        )}
+        {!settled && (
+          <button
+            type="button"
+            data-testid="debts-item-settle"
+            disabled={settling}
+            onClick={() => onSettle(debt)}
+            className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'mt-1.5 -mr-2')}
+          >
+            {settling ? 'Saldando…' : 'Marcar saldada'}
+          </button>
         )}
       </div>
     </div>

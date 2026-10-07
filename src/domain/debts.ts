@@ -158,6 +158,28 @@ export function debtNetText(net: Decimal): string {
   return `${net.isPositive() ? 'A tu favor' : 'En contra'} ${formatArs(net.abs())}`
 }
 
+/** Aviso de éxito al saldar (US-39). */
+export function settledNoticeText(person: string): string {
+  return `Deuda con ${person} saldada`
+}
+
+/**
+ * Motivo del aviso "No se pudo actualizar la deuda": el mensaje de Postgres, que ya viene en español.
+ * Un error sin código (la red, "TypeError: Failed to fetch") no lo es: se muestra uno genérico.
+ */
+export function debtUpdateErrorReason(error: unknown): string {
+  const { code, message } = (typeof error === 'object' && error !== null ? error : {}) as { code?: string; message?: string }
+  return code && message ? message : 'Probá de nuevo en un momento'
+}
+
+/**
+ * Rechazos que dicen que la lista quedó vieja (otra pestaña la saldó, o se eliminó su gasto): además
+ * del aviso se vuelven a pedir la lista y los totales (US-39).
+ */
+export function isStaleDebtError(reason: string): boolean {
+  return reason === 'La deuda ya está saldada' || reason === 'La deuda no existe'
+}
+
 /** Mensaje del estado vacío de cada filtro (US-38), y si ofrece "Cargar una deuda". */
 export function emptyDebtsMessage(filter: DebtStatusFilter): { message: string; offerNew: boolean } {
   switch (filter) {

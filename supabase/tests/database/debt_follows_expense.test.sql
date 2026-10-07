@@ -20,8 +20,8 @@ select set_config('t.tx', create_transaction(
   p_installments_count => 12, p_occurred_on => '2026-08-15',
   p_shared_person => 'Sofía', p_shared_amount => 60000)::text, true);
 
--- Una deuda saldada, para ver que restaurar no la vuelve a pendiente. Hoy solo el dueño de la tabla
--- puede fijar el estado así; settle_debt llega con US-39.
+-- Una deuda saldada, para ver que restaurar no la vuelve a pendiente. Se fija como dueño de la tabla
+-- para tener un settled_at conocido; settle_debt pondría now() (US-39).
 reset role;
 update debts set status = 'settled', settled_at = '2026-08-20 15:00:00+00'
  where transaction_id = current_setting('t.tx')::uuid;

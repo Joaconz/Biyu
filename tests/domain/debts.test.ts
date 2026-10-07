@@ -5,6 +5,9 @@ import {
   debtOriginText,
   debtRowText,
   debtTotals,
+  debtUpdateErrorReason,
+  isStaleDebtError,
+  settledNoticeText,
   debtsForFilter,
   emptyDebtsMessage,
   parseDebtStatusFilter,
@@ -186,4 +189,22 @@ describe('totales de Deudas (US-37, ADR-037 §5)', () => {
     ['-0.01', 'En contra $0,01'],
     ['-1234567.89', 'En contra $1.234.567,89'],
   ])('neto %s → %s', (net, expected) => expect(debtNetText(new Decimal(net))).toBe(expected))
+})
+
+describe('saldar una deuda (US-39)', () => {
+  it('aviso de éxito con la persona', () => expect(settledNoticeText('Sofía')).toBe('Deuda con Sofía saldada'))
+
+  it('el motivo es el mensaje de Postgres; un error de red o sin mensaje, uno genérico (CA-5)', () => {
+    expect(debtUpdateErrorReason({ code: '23514', message: 'La deuda ya está saldada' })).toBe('La deuda ya está saldada')
+    expect(debtUpdateErrorReason({ code: '', message: 'TypeError: Failed to fetch' })).toBe('Probá de nuevo en un momento')
+    expect(debtUpdateErrorReason({ code: '23514', message: '' })).toBe('Probá de nuevo en un momento')
+    expect(debtUpdateErrorReason(null)).toBe('Probá de nuevo en un momento')
+  })
+
+  it.each([
+    ['La deuda ya está saldada', true],
+    ['La deuda no existe', true],
+    ['TypeError: Failed to fetch', false],
+    ['La deuda ya está pendiente', false],
+  ])('"%s" vuelve a pedir la lista: %s', (reason, stale) => expect(isStaleDebtError(reason)).toBe(stale))
 })

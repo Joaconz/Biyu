@@ -1,12 +1,27 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { toast } from 'sonner'
 import { DebtItem } from '@/components/debts/DebtItem'
 import { DebtsFilter } from '@/components/debts/DebtsFilter'
 import { DebtsTotals } from '@/components/debts/DebtsTotals'
+import { SettledNotice } from '@/components/debts/SettledNotice'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { buttonVariants } from '@/components/ui/button'
-import { debtTotals, debtsForFilter, emptyDebtsMessage, parseDebtStatusFilter, type DebtStatusFilter } from '@/domain/debts'
+import {
+  debtTotals,
+  debtUpdateErrorReason,
+  debtsForFilter,
+  emptyDebtsMessage,
+  isStaleDebtError,
+  parseDebtStatusFilter,
+  type DebtRecord,
+  type DebtStatusFilter,
+} from '@/domain/debts'
 import { useDebts } from '@/hooks/useDebts'
+import { reopenDebt, settleDebt } from '@/lib/debts'
+
+const UNDO_MS = 5000
 
 /** Deudas (US-38): la lista con su filtro en la URL (C11). */
 export function DebtsPage() {
@@ -14,8 +29,76 @@ export function DebtsPage() {
   // Un valor desconocido se lee como "Pendientes" y la URL queda como está hasta que se elige otro (CA-4).
   const filter = parseDebtStatusFilter(params.get('status'))
   const debtsState = useDebts()
+  const { reload } = debtsState
+  // Las filas que esperan settle_debt. El ref corta el doble toque antes de que React vuelva a pintar
+  // el botón deshabilitado (CA-3); el estado es lo que se ve.
+  const settlingRef = useRef(new Set<string>())
+  const [settling, setSettling] = useState<ReadonlySet<string>>(new Set())
+  const undoNotices = useRef(new Set<string | number>())
+  // Sube al cambiar de filtro o salir de la pantalla: un saldado que termina después ya no muestra
+  // "Deshacer", porque el aviso dura hasta ese cambio.
+  const noticeGeneration = useRef(0)
+
+  function dismissUndoNotices() {
+    noticeGeneration.current += 1
+    undoNotices.current.forEach((id) => toast.dismiss(id))
+    undoNotices.current.clear()
+  }
+
+  // "Deshacer" dura hasta que se cambia de pantalla (y de filtro, en selectFilter).
+  useEffect(() => dismissUndoNotices, [])
+
+  function setRowSettling(id: string, on: boolean) {
+    if (on) settlingRef.current.add(id)
+    else settlingRef.current.delete(id)
+    setSettling(new Set(settlingRef.current))
+  }
+
+  function showUpdateError(error: unknown) {
+    const reason = debtUpdateErrorReason(error)
+    toast.error('No se pudo actualizar la deuda', { testId: 'debts-update-error', description: reason })
+    return reason
+  }
+
+  async function handleSettle(debt: DebtRecord) {
+    if (settlingRef.current.has(debt.id)) return
+    setRowSettling(debt.id, true)
+    const generation = noticeGeneration.current
+    try {
+      await settleDebt(debt.id)
+    } catch (error) {
+      if (isStaleDebtError(showUpdateError(error))) await reload()
+      setRowSettling(debt.id, false)
+      return
+    }
+    // La fila cambia cuando llega la lista nueva, con el settled_at del servidor (CA-2) y los totales.
+    await reload()
+    setRowSettling(debt.id, false)
+    if (generation !== noticeGeneration.current) return
+    const id = toast.custom(
+      (toastId) => (
+        <SettledNotice
+          person={debt.person}
+          onUndo={async () => {
+            try {
+              await reopenDebt(debt.id)
+            } catch (error) {
+              showUpdateError(error)
+              return
+            }
+            await reload()
+            toast.dismiss(toastId)
+            undoNotices.current.delete(toastId)
+          }}
+        />
+      ),
+      { duration: UNDO_MS, onAutoClose: (t) => undoNotices.current.delete(t.id) },
+    )
+    undoNotices.current.add(id)
+  }
 
   function selectFilter(next: DebtStatusFilter) {
+    dismissUndoNotices()
     setParams((prev) => {
       const p = new URLSearchParams(prev)
       p.set('status', next)
@@ -78,7 +161,7 @@ export function DebtsPage() {
           ) : (
             <GroupedCard data-testid="debts-list">
               {debts.map((debt) => (
-                <DebtItem key={debt.id} debt={debt} />
+                <DebtItem key={debt.id} debt={debt} settling={settling.has(debt.id)} onSettle={handleSettle} />
               ))}
             </GroupedCard>
           )}
