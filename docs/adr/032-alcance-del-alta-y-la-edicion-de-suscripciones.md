@@ -1,7 +1,7 @@
-# ADR-033 — Qué se puede cargar y qué se puede editar de una suscripción
+# ADR-032 — Qué se puede cargar y qué se puede editar de una suscripción
 
 **Estado:** propuesta · **Fecha:** 2026-10
-**Relacionada:** ADR-033 · `06-suscripciones.md` (R7, R8) · `04-data-model.md` (`subscriptions`, I12, I13) · C5
+**Relacionada:** ADR-030 · `06-suscripciones.md` (R7, R8) · `04-data-model.md` (`subscriptions`, I12, I13) · C5
 
 ## Contexto
 
@@ -61,7 +61,7 @@ período corriente)`, igual que al reanudar (R8): los meses entre el fin viejo y
 
 - Hace falta una migración: los `CHECK` de largo de nombre y descripción, y el índice único pasa de
   `(user_id, name)` a `(user_id, lower(name))`. La revisa `rls-migration-reviewer`.
-- Las validaciones viven en `create_subscription` y `update_subscription` (ADR-033); Zod en el cliente
+- Las validaciones viven en `create_subscription` y `update_subscription` (ADR-030); Zod en el cliente
   repite los mismos mensajes (C6).
 - `06-suscripciones.md`, "Casos de borde", suma: nombre de 60 y 61 caracteres, "Netflix" contra
   "netflix", mes de inicio en el borde de −24 y +12 meses, y extender una terminada.

@@ -18,11 +18,11 @@ Milestone V2 · Versión del documento: 2026-10-06
   (`docs/07-plan-de-testing.md` §2). Las filas de una lista repiten su `data-testid` y se distinguen por
   atributos `data-*`, como `transactions-item` en Movimientos.
 - **"Hoy"** es el día calendario de Argentina, en el servidor (ADR-021) y en el cliente
-  (`todayInArgentina()`, ADR-033), no la fecha local del dispositivo. Las fechas y horas que salen de un
+  (`todayInArgentina()`, ADR-031), no la fecha local del dispositivo. Las fechas y horas que salen de un
   `timestamptz` también se muestran en hora de Argentina. En los ejemplos, hoy es **2026-10-06** y el
   período corriente es octubre 2026.
 - **CA con fecha fija.** Un criterio que dice "con la puesta al día del 2026-08-15" fija el hoy. En pgTAP
-  se verifica llamando a la función interna `catch_up_subscriptions` con ese `p_today` (ADR-033). En la
+  se verifica llamando a la función interna `catch_up_subscriptions` con ese `p_today` (ADR-030). En la
   ejecución manual se traduce a fechas relativas: el mes del ejemplo pasa a ser el período corriente y
   los demás se corren igual ("desde mayo 2026, hoy 2026-08-15" = "desde 3 meses antes del corriente,
   hoy día 15"). Si el día del ejemplo no coincide con el de la ejecución, se elige el día de cobro
@@ -46,10 +46,10 @@ Milestone V2 · Versión del documento: 2026-10-06
 | ADR | Qué decide | Historias que dependen |
 |---|---|---|
 | [ADR-017](../../docs/adr/017-suscripciones-por-puesta-al-dia-idempotente.md) | Generación por puesta al día idempotente, al entrar | US-53, US-55, US-60 |
-| [ADR-033](../../docs/adr/029-operaciones-de-suscripcion-por-rpc.md) | Toda escritura sobre `subscriptions` es una RPC con el hoy del servidor, que pone al día esa suscripción; cada suscripción se genera aislada y una falla no frena a las demás ni a la operación | US-52, US-53, US-56 a US-59 |
-| [ADR-033](../../docs/adr/030-puesta-al-dia-no-bloquea-la-app.md) | Si la puesta al día falla o tarda más de 8 s, la app se muestra con una franja y "Reintentar"; corre al cargar y al guardar un tipo de cambio; "bloqueada" se deriva; el cliente usa el hoy argentino | US-53, US-62, US-75 |
-| [ADR-033](../../docs/adr/031-alcance-del-alta-y-la-edicion-de-suscripciones.md) | Rangos del alta (nombre de 60, inicio de −24 a +12 meses), qué campos se editan y cómo se extiende una terminada | US-52, US-59, US-75 |
-| [ADR-033](../../docs/adr/032-total-comprometido-en-suscripciones.md) | Qué suma el total comprometido y con qué tipo de cambio | US-63 |
+| [ADR-030](../../docs/adr/030-operaciones-de-suscripcion-por-rpc.md) | Toda escritura sobre `subscriptions` es una RPC con el hoy del servidor, que pone al día esa suscripción; cada suscripción se genera aislada y una falla no frena a las demás ni a la operación | US-52, US-53, US-56 a US-59 |
+| [ADR-031](../../docs/adr/031-puesta-al-dia-no-bloquea-la-app.md) | Si la puesta al día falla o tarda más de 8 s, la app se muestra con una franja y "Reintentar"; corre al cargar y al guardar un tipo de cambio; "bloqueada" se deriva; el cliente usa el hoy argentino | US-53, US-62, US-75 |
+| [ADR-032](../../docs/adr/032-alcance-del-alta-y-la-edicion-de-suscripciones.md) | Rangos del alta (nombre de 60, inicio de −24 a +12 meses), qué campos se editan y cómo se extiende una terminada | US-52, US-59, US-75 |
+| [ADR-033](../../docs/adr/033-total-comprometido-en-suscripciones.md) | Qué suma el total comprometido y con qué tipo de cambio | US-63 |
 
 ### Resumen
 
@@ -73,7 +73,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 
 ## Historias de usuario
 
-#### US-52: Dar de alta una suscripción
+#### US-52: Dar de alta una suscripción · [#210](https://github.com/Joaconz/Biyu/issues/210) · Pendiente
 
 - **Objetivo:** Como usuario, quiero dar de alta un gasto recurrente indicando nombre, monto, moneda,
   categoría, medio de pago y día de cobro, para no cargarlo a mano todos los meses.
@@ -89,7 +89,7 @@ Milestone V2 · Versión del documento: 2026-10-06
      `active` | `paused` | `cancelled`) es un enlace a `/subscriptions/:id` y muestra: nombre
      (`subscriptions-item-name`), monto con moneda (`subscriptions-item-amount`), "Se cobra el día 10"
      (`subscriptions-item-billing-day`), si corresponde la marca de US-62 y, si está terminada (`end_period`
-     anterior al período corriente, ADR-033), "Terminó en mayo 2026" (`subscriptions-item-ended`) en lugar
+     anterior al período corriente, ADR-032), "Terminó en mayo 2026" (`subscriptions-item-ended`) en lugar
      de "Se cobra el día…". Una terminada sigue en "Activas".
 
   | Estado | Qué se ve | `data-testid` |
@@ -185,9 +185,9 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-7: Un nombre igual a una suscripción activa o pausada ("Netflix" contra " netflix ") se rechaza;
     igual a una cancelada se acepta.
   - CA-8: Cada validación de CA-3 a CA-7, enviada directo a la RPC `create_subscription` sin pasar por la
-    UI, se rechaza con el mismo mensaje y no crea nada (C6, ADR-033).
+    UI, se rechaza con el mismo mensaje y no crea nada (C6, ADR-030).
   - CA-9: Un `insert` y un `delete` directos sobre `subscriptions` con la sesión del usuario se rechazan
-    con `permission denied` (42501) y no cambian nada (ADR-033).
+    con `permission denied` (42501) y no cambian nada (ADR-030).
   - CA-10: Durante el guardado el botón está deshabilitado; dos toques seguidos crean una sola
     suscripción.
   - CA-11: Si el guardado falla por red, los nueve campos conservan lo cargado y se muestra
@@ -202,20 +202,20 @@ Milestone V2 · Versión del documento: 2026-10-06
     "La categoría no está disponible" / "El medio de pago no está disponible".
   - CA-16: Si el intento anterior falló por red y el reintento choca con el nombre, se ve
     `subscription-form-error-list` con su texto y su enlace.
-- **Trazabilidad:** FR-15 · R1, R4, R5, R8 · I4, I12, I13 · C4, C6, C7 · ADR-017, ADR-033, ADR-033
+- **Trazabilidad:** FR-15 · R1, R4, R5, R8 · I4, I12, I13 · C4, C6, C7 · ADR-017, ADR-030, ADR-032
 - **Mock:** `entrega-2/mocks/suscripciones-lista.html`, `suscripciones-alta.html`, `suscripciones-detalle.html`
 
-#### US-53: Los meses vencidos se cargan solos al entrar
+#### US-53: Los meses vencidos se cargan solos al entrar · [#211](https://github.com/Joaconz/Biyu/issues/211) · Pendiente
 
 - **Objetivo:** Como usuario, quiero que los meses vencidos aparezcan cargados solos al entrar a la app,
   para que el dashboard esté completo sin que yo haga nada.
 - **Pantalla:** todas las rutas privadas dentro de `AppLayout` (`/register`, `/dashboard`,
   `/transactions`, `/subscriptions…`, `/settings`). No corre en `/setup`, `/login` ni `/signup`.
   - Mientras corre la puesta al día: "Poniendo al día tus suscripciones…" en lugar del contenido
-    (`app-catchup-loading`), como máximo 8 segundos (ADR-033).
+    (`app-catchup-loading`), como máximo 8 segundos (ADR-031).
   - Si creó transacciones: aviso "Se cargaron N gastos de suscripciones" (con N = 1: "Se cargó 1 gasto de
     suscripciones"), con `data-testid` `app-catchup-generated`. Si no creó ninguna, no hay aviso.
-  - También corre, sin bloquear la pantalla, después de guardar un tipo de cambio en Ajustes (ADR-033), con
+  - También corre, sin bloquear la pantalla, después de guardar un tipo de cambio en Ajustes (ADR-031), con
     el mismo aviso si crea algo.
   - Si falla o pasan los 8 segundos: la pantalla pedida se muestra igual, con una franja arriba del
     contenido (`app-catchup-error`, `role="alert"`): "No pudimos cargar tus suscripciones vencidas. Los
@@ -261,10 +261,10 @@ Milestone V2 · Versión del documento: 2026-10-06
     la ocurrencia del período corriente. `start_period` en el futuro: no se genera nada.
   - CA-14: `end_period` igual a `start_period`, ambos en el pasado: se genera exactamente una ocurrencia.
 - **Trazabilidad:** FR-16 (ajustado: sin anticipar meses futuros, `08-trazabilidad.md`) · R1, R2, R3, R7 ·
-  I11, I14, I16, I17 · C4, C5 · ADR-017, ADR-033
+  I11, I14, I16, I17 · C4, C5 · ADR-017, ADR-030, ADR-031
 - **Mock:** `entrega-2/mocks/suscripciones-puesta-al-dia.html`
 
-#### US-54: El día de cobro que no existe se cobra el último día del mes
+#### US-54: El día de cobro que no existe se cobra el último día del mes · [#212](https://github.com/Joaconz/Biyu/issues/212) · Pendiente
 
 - **Objetivo:** Como usuario, quiero que una suscripción cuyo día de cobro no existe en un mes se cobre
   igual el último día de ese mes, para que ningún mes se saltee.
@@ -286,7 +286,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 · R4 · I13 · ADR-017
 - **Mock:** `entrega-2/mocks/suscripciones-detalle.html`
 
-#### US-55: El mes corriente aparece recién el día del cobro
+#### US-55: El mes corriente aparece recién el día del cobro · [#213](https://github.com/Joaconz/Biyu/issues/213) · Pendiente
 
 - **Objetivo:** Como usuario, quiero que el gasto del mes corriente aparezca recién el día que se cobra,
   para que el mes en curso no muestre plata que todavía no se fue.
@@ -306,7 +306,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 (ajustado) · R5 · `02-behavior-spec.md` supuesto 9 · C1 · ADR-021
 - **Mock:** `entrega-2/mocks/suscripciones-detalle.html`
 
-#### US-56: Pausar una suscripción
+#### US-56: Pausar una suscripción · [#214](https://github.com/Joaconz/Biyu/issues/214) · Pendiente
 
 - **Objetivo:** Como usuario, quiero pausar una suscripción, para dejar de registrarla mientras no la
   estoy pagando.
@@ -323,7 +323,7 @@ Milestone V2 · Versión del documento: 2026-10-06
     "Pausando…" mientras guarda).
   - Al confirmar: el estado pasa a "Pausada desde 06/10/2026", "Pausar" se reemplaza por "Reanudar" y se
     muestra el aviso (`subscription-toast`) "Suscripción pausada". Si antes de pausar se generaron gastos
-    atrasados (`generated_before` > 0, ADR-033), el aviso es "Suscripción pausada. Antes se cargaron N
+    atrasados (`generated_before` > 0, ADR-030), el aviso es "Suscripción pausada. Antes se cargaron N
     gastos vencidos."
   - Error: el diálogo queda abierto con "No se pudo pausar: <motivo>" (`pause-subscription-dialog-error`)
     y los botones habilitados.
@@ -340,17 +340,17 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-7: Por API, `pause_subscription` sobre una pausada se rechaza con "La suscripción ya está pausada";
     sobre una cancelada, con "Una suscripción cancelada no se puede modificar" (las dos con 23514).
   - CA-8: Un `update` directo de `status` sobre `subscriptions` con la sesión del usuario se rechaza
-    (ADR-033).
+    (ADR-030).
   - CA-9: Par de autorización (C7): con la sesión de otro usuario, `pause_subscription` responde P0002
     "Suscripción no encontrada" y la suscripción no cambia; sin sesión, responde 42501.
   - CA-10: Pausar una bloqueada muestra `pause-subscription-dialog-blocked-warning`; al confirmar, se
     pausa igual y los meses bloqueados no se generan después de reanudar.
   - CA-11: El texto sobre "este mes" aparece con día de cobro 28 y hoy 6, sin ocurrencia del mes; no
     aparece con día de cobro 3 y hoy 6 (ya generada).
-- **Trazabilidad:** FR-17 · R3, R8 · I12, I15 · C6 · ADR-033
+- **Trazabilidad:** FR-17 · R3, R8 · I12, I15 · C6 · ADR-030
 - **Mock:** `entrega-2/mocks/suscripciones-dialogos.html`
 
-#### US-57: Reanudar sin cargar los meses pausados
+#### US-57: Reanudar sin cargar los meses pausados · [#215](https://github.com/Joaconz/Biyu/issues/215) · Pendiente
 
 - **Objetivo:** Como usuario, quiero que reanudar una suscripción pausada no me cargue de golpe los meses
   que estuve sin pagarla, para que el mes de la reanudación no quede inflado.
@@ -364,7 +364,7 @@ Milestone V2 · Versión del documento: 2026-10-06
     (`resume-subscription-dialog-confirm`; "Reanudando…" mientras guarda).
   - Al confirmar: el estado pasa a "Activa", "Reanudar" se reemplaza por "Pausar" y se muestra el aviso
     (`subscription-toast`) "Suscripción reanudada" o, si la puesta al día posterior creó el gasto del mes
-    (`generated_after` > 0, ADR-033), "Suscripción reanudada. Se cargó el gasto de octubre 2026."
+    (`generated_after` > 0, ADR-030), "Suscripción reanudada. Se cargó el gasto de octubre 2026."
   - Error: "No se pudo reanudar: <motivo>" (`resume-subscription-dialog-error`), con el diálogo abierto.
 - **Criterios de aceptación:**
   - CA-1: Al confirmar, `status = 'active'`, `paused_at = null` y
@@ -381,10 +381,10 @@ Milestone V2 · Versión del documento: 2026-10-06
     sobre una cancelada, con "Una suscripción cancelada no se puede modificar" (las dos con 23514).
   - CA-7: Par de autorización (C7): con la sesión de otro usuario, `resume_subscription` responde P0002
     "Suscripción no encontrada" y la suscripción no cambia; sin sesión, responde 42501.
-- **Trazabilidad:** FR-17 · R8 · I12, I15 · ADR-033
+- **Trazabilidad:** FR-17 · R8 · I12, I15 · ADR-030
 - **Mock:** `entrega-2/mocks/suscripciones-dialogos.html`
 
-#### US-58: Cancelar sin perder el historial
+#### US-58: Cancelar sin perder el historial · [#216](https://github.com/Joaconz/Biyu/issues/216) · Pendiente
 
 - **Objetivo:** Como usuario, quiero cancelar una suscripción sin perder el historial de lo que ya pagué,
   para que los meses cerrados no cambien.
@@ -408,7 +408,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-2: Con ocurrencias de mayo a agosto 2026, cancelada el 2026-09-02: las 4 transacciones siguen
     existiendo, sin `deleted_at`, y siguen sumando en el Resumen de sus meses.
   - CA-3: Ninguna puesta al día posterior genera transacciones para ella.
-  - CA-4: Los meses vencidos sin generar se generan antes de cancelar (ADR-033).
+  - CA-4: Los meses vencidos sin generar se generan antes de cancelar (ADR-030).
   - CA-5: N en el texto del diálogo es la cantidad de transacciones de la suscripción sin `deleted_at` más
     las ocurrencias vencidas que la cancelación va a generar antes (las no bloqueadas), es decir, la
     cantidad que queda después de confirmar.
@@ -422,10 +422,10 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-9: Par de autorización (C7): con la sesión de otro usuario, `cancel_subscription` responde P0002
     "Suscripción no encontrada" y la suscripción no cambia; sin sesión, responde 42501.
   - CA-10: Cancelar una bloqueada muestra `cancel-subscription-dialog-blocked-warning` y se cancela igual.
-- **Trazabilidad:** FR-17 · I15 · C5, C10 · ADR-033
+- **Trazabilidad:** FR-17 · I15 · C5, C10 · ADR-030
 - **Mock:** `entrega-2/mocks/suscripciones-dialogos.html`
 
-#### US-59: Editar el monto sin cambiar los meses registrados
+#### US-59: Editar el monto sin cambiar los meses registrados · [#217](https://github.com/Joaconz/Biyu/issues/217) · Pendiente
 
 - **Objetivo:** Como usuario, quiero cambiar el monto de una suscripción cuando aumenta, sin que se
   modifiquen los meses ya registrados.
@@ -435,7 +435,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   - Aviso fijo arriba del formulario: "Los cambios aplican desde el próximo cobro. Los gastos ya cargados
     no cambian."
   - Mismos campos, `data-testid`, rangos y mensajes que Nueva suscripción (US-52), con estas diferencias
-    (ADR-033):
+    (ADR-032):
 
   | Campo | En la edición |
   |---|---|
@@ -452,7 +452,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   - Botones: "Cancelar" (`subscription-form-cancel`) → Detalle sin guardar, y "Guardar cambios"
     (`subscription-form-submit`; "Guardando…" mientras guarda).
   - Al guardar: vuelve al Detalle con el aviso (`subscription-toast`) "Cambios guardados". Si antes se
-    generaron gastos atrasados (`generated_before` > 0, ADR-033), se agrega "Antes se cargaron N gastos
+    generaron gastos atrasados (`generated_before` > 0, ADR-030), se agrega "Antes se cargaron N gastos
     vencidos con los datos anteriores."; si después se generó el del mes (`generated_after` > 0), se agrega
     "Se cargó el gasto de octubre 2026 con los datos nuevos."
   - Estados: cargando (`subscription-form-loading`), error al cargar (`subscription-form-load-error`,
@@ -464,7 +464,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-1: $5.000,00 ARS con ocurrencias de mayo a agosto 2026; cambiar el monto a $7.000,00: las 4
     transacciones siguen siendo de $5.000,00 y la próxima ocurrencia generada es de $7.000,00 (R7).
   - CA-2: Si al editar había meses vencidos sin generar, se generan con el monto **anterior** antes de
-    aplicar el cambio (ADR-033). Se verifica por API, llamando a `update_subscription` sin correr antes la
+    aplicar el cambio (ADR-030). Se verifica por API, llamando a `update_subscription` sin correr antes la
     puesta al día.
   - CA-3: Cambiar el día de cobro, la categoría o el medio de pago no modifica ninguna transacción
     generada; la próxima ocurrencia usa el valor nuevo.
@@ -477,7 +477,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-8: Editar una cancelada se rechaza en la UI (mensaje de arriba) y por API ("Una suscripción
     cancelada no se puede modificar").
   - CA-9: Un `update` directo de `amount` sobre `subscriptions` con la sesión del usuario se rechaza con
-    42501 (ADR-033).
+    42501 (ADR-030).
   - CA-10: Con la categoría actual archivada, cambiar solo el monto se guarda; elegir por API una categoría
     archivada distinta de la actual se rechaza con "La categoría no está disponible".
   - CA-11: Una terminada (fin mayo 2026, hoy octubre 2026) se puede editar sin tocar el mes de fin (por
@@ -487,10 +487,10 @@ Milestone V2 · Versión del documento: 2026-10-06
     ocurrencia del mes corriente con fecha 3 y los datos nuevos, y el aviso lo informa.
   - CA-13: Par de autorización (C7): con la sesión de otro usuario, `update_subscription` responde P0002
     "Suscripción no encontrada" y nada cambia; sin sesión, responde 42501.
-- **Trazabilidad:** FR-17 · R7 · C5, C6 · ADR-033, ADR-033
+- **Trazabilidad:** FR-17 · R7 · C5, C6 · ADR-030, ADR-032
 - **Mock:** `entrega-2/mocks/suscripciones-edicion.html`
 
-#### US-60: Borrar un mes puntual sin que vuelva
+#### US-60: Borrar un mes puntual sin que vuelva · [#218](https://github.com/Joaconz/Biyu/issues/218) · Pendiente
 
 - **Objetivo:** Como usuario, quiero poder borrar una ocurrencia puntual (un mes que no me cobraron) sin
   que el sistema me la vuelva a crear.
@@ -514,7 +514,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-08 · R2 · I10, I11 · C10 · ADR-017
 - **Mock:** `entrega-2/mocks/suscripciones-movimientos.html`
 
-#### US-61: Ver qué movimientos vienen de una suscripción
+#### US-61: Ver qué movimientos vienen de una suscripción · [#219](https://github.com/Joaconz/Biyu/issues/219) · Pendiente
 
 - **Objetivo:** Como usuario, quiero ver qué transacciones vinieron de una suscripción y de cuál, para
   reconocerlas en el listado.
@@ -540,14 +540,14 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 · I11, I14 · ADR-017
 - **Mock:** `entrega-2/mocks/suscripciones-movimientos.html`, `suscripciones-detalle.html`
 
-#### US-62: Aviso de suscripción en USD sin tipo de cambio
+#### US-62: Aviso de suscripción en USD sin tipo de cambio · [#220](https://github.com/Joaconz/Biyu/issues/220) · Pendiente
 
 - **Objetivo:** Como usuario, quiero que una suscripción en USD sin tipo de cambio cargado me avise en vez
   de inventar un valor, para no ensuciar los totales.
 - **Definición:** una suscripción está **bloqueada** si está activa y tiene al menos un período vencido
   según R1, R4 y R5, dentro de `[generate_from_period, end_period]`, sin transacción generada y que no se
   puede generar: es USD y falta el `fx_rates` del usuario para ese período (R6), o su monto en pesos queda
-  fuera de rango (ADR-033, ADR-033). No se guarda: se calcula al leer.
+  fuera de rango (ADR-030, ADR-031). No se guarda: se calcula al leer.
 - **Pantallas:**
   - **Suscripciones**: en la fila, la marca "Falta tipo de cambio" (`subscriptions-item-blocked`).
   - **Detalle**: arriba de los datos, el aviso (`subscription-detail-blocked`, `role="alert"`): "Falta el
@@ -565,7 +565,7 @@ Milestone V2 · Versión del documento: 2026-10-06
     suscripción se muestra bloqueada.
   - CA-2: Ninguna transacción de suscripción en USD se genera con `fx_rate` null, 0 ni de otro período.
   - CA-3: Después de guardar el tipo de cambio de julio en Ajustes, sin recargar, la puesta al día corre
-    sola (ADR-033), genera julio con ese tipo de cambio, muestra "Se cargó 1 gasto de suscripciones", y al
+    sola (ADR-031), genera julio con ese tipo de cambio, muestra "Se cargó 1 gasto de suscripciones", y al
     volver a Suscripciones la marca y el aviso ya no están.
   - CA-4: Una suscripción en ARS nunca se muestra bloqueada.
   - CA-5: Una pausada o cancelada no se muestra bloqueada.
@@ -573,10 +573,10 @@ Milestone V2 · Versión del documento: 2026-10-06
     bloqueada.
   - CA-7: El botón lleva a Ajustes con el mes más viejo que falta en `?period`.
   - CA-8: Con tres meses bloqueados, el aviso los lista con comas y "y".
-- **Trazabilidad:** FR-15 · R6 · I5 · C5 · ADR-002, ADR-033
+- **Trazabilidad:** FR-15 · R6 · I5 · C5 · ADR-002, ADR-031
 - **Mock:** `entrega-2/mocks/suscripciones-lista.html`, `suscripciones-detalle.html`
 
-#### US-63: Total mensual comprometido en suscripciones
+#### US-63: Total mensual comprometido en suscripciones · [#221](https://github.com/Joaconz/Biyu/issues/221) · Pendiente
 
 - **Objetivo:** Como usuario, quiero ver el total mensual comprometido en suscripciones activas, para saber
   cuánto del mes ya está tomado antes de gastar nada.
@@ -615,7 +615,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 · `02-behavior-spec.md` supuesto 9 · C1, C2 · ADR-013, ADR-033
 - **Mock:** `entrega-2/mocks/suscripciones-lista.html`
 
-#### US-75: Vista previa del calendario antes de dar de alta
+#### US-75: Vista previa del calendario antes de dar de alta · [#222](https://github.com/Joaconz/Biyu/issues/222) · Pendiente
 
 - **Objetivo:** Como usuario, quiero ver qué meses va a cargar una suscripción y desde cuándo antes de
   darla de alta, para no llevarme la sorpresa de varios gastos cargados de golpe.
@@ -623,7 +623,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   (`subscription-form-preview`), entre el formulario y los botones. Se recalcula al cambiar cualquier
   campo, sin tocar la base: usa la misma función de dominio que la puesta al día
   (`computeDueOccurrences`, `src/domain/subscriptions.ts`) con el hoy argentino del cliente
-  (`todayInArgentina()`, ADR-033) y los tipos de cambio del usuario.
+  (`todayInArgentina()`, ADR-031) y los tipos de cambio del usuario.
   - Sin monto válido, día de cobro válido o mes de inicio válido: "Completá el monto, el día de cobro y el
     mes de inicio para ver el calendario." (`subscription-form-preview-empty`).
   - Resumen (`subscription-form-preview-summary`): "Al guardar se cargan 2 gastos de $5.000,00 (total
@@ -656,7 +656,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-9: A las 22:00 de Argentina del día anterior al de cobro (ya el día de cobro en UTC), el período
     corriente aparece en "Próximos cobros", no en "Se cargan al guardar", aunque el dispositivo esté en
     UTC.
-- **Trazabilidad:** FR-16 · roadmap §V2 "Cambios de interfaz" · R1, R4, R5, R6 · C1 · ADR-017, ADR-033
+- **Trazabilidad:** FR-16 · roadmap §V2 "Cambios de interfaz" · R1, R4, R5, R6 · C1 · ADR-017, ADR-031, ADR-032
 - **Mock:** `entrega-2/mocks/suscripciones-alta.html`
 
 ---
@@ -668,29 +668,29 @@ Milestone V2 · Versión del documento: 2026-10-06
 2. **No hay eliminar suscripción** en V2: solo cancelar (irreversible). Eliminar una **cuenta** borra
    sus suscripciones (ADR-026).
 3. **Implementación necesaria** (no es parte de estas historias, pero sus criterios la suponen):
-   - Migración: las RPC de ADR-033 y sus funciones internas (`catch_up_subscriptions`,
+   - Migración: las RPC de ADR-030 y sus funciones internas (`catch_up_subscriptions`,
      `insert_transaction_with_entries`); revocar los `insert`, `update` y `delete` que
      `supabase/migrations/20260925000100_table_grants.sql` concede hoy a `authenticated` sobre
      `subscriptions`; cambiar el índice `subscriptions_user_name_not_cancelled_uq` de `(user_id, name)` a
-     `(user_id, lower(name))` y agregar los `CHECK` de largo de ADR-033. Pasa por `rls-migration-reviewer`
+     `(user_id, lower(name))` y agregar los `CHECK` de largo de ADR-032. Pasa por `rls-migration-reviewer`
      y `supabase-postgres-best-practices`.
    - Código que todavía no existe: `todayInArgentina()` en `src/lib/clock.ts` (hoy solo hay `today()`), y
      `src/domain/subscriptions.ts` con `computeDueOccurrences` y `committedMonthlyTotal`.
 4. **Docs a actualizar al implementar** (no se tocan en esta entrega para no pisar a las otras sesiones):
    - `03-architecture-spec.md`: C7 (§ línea 100) pasa a listar `subscriptions` entre las tablas de solo
-     lectura; la línea 91 extiende el patrón RPC a las operaciones de suscripción (ADR-033); §4 (línea 217)
-     cambia "antes de renderizar el dashboard" por el comportamiento de ADR-033.
+     lectura; la línea 91 extiende el patrón RPC a las operaciones de suscripción (ADR-030); §4 (línea 217)
+     cambia "antes de renderizar el dashboard" por el comportamiento de ADR-031.
    - `04-data-model.md`: RLS de `subscriptions` de solo lectura, índice `lower(name)`, `CHECK` de largo, y
      la nota de `generate_from_period`, que hoy dice que solo reanudar lo mueve (pausar también, R8).
-   - `06-suscripciones.md`: el modelo de generación (ADR-033) y el párrafo de R7, que hoy cierra el hueco
-     con una regla de orden de la UI y pasa a cerrarse en la RPC (ADR-033); los casos de borde de ADR-033;
+   - `06-suscripciones.md`: el modelo de generación (ADR-030) y el párrafo de R7, que hoy cierra el hueco
+     con una regla de orden de la UI y pasa a cerrarse en la RPC (ADR-030); los casos de borde de ADR-032;
      y US-75 en la lista de historias.
    - `08-trazabilidad.md`: US-75 en las líneas 10, 183 y 204, y el mapeo FR → US, que hoy da FR-16 solo a
      US-53 y US-55 y FR-17 solo a US-56 a US-58. Mapeo completo: FR-15 → US-52, US-62 · FR-16 → US-53,
      US-54, US-55, US-61, US-63, US-75 · FR-17 → US-56, US-57, US-58, US-59 · FR-08 → US-60.
      `02-behavior-spec.md` línea 7 también dice "historias 52 a 63".
    - `01-domain-glossary.md`: "suscripción terminada" (`end_period` anterior al período corriente; no es
-     un estado, ADR-033) y "suscripción bloqueada" (derivada, ADR-033).
+     un estado, ADR-032) y "suscripción bloqueada" (derivada, ADR-031).
 5. US-75 no tiene FR propio en `pre-entrega.md`: sale del roadmap §V2 y se traza a FR-16 por ser la
    proyección de qué meses se cargan.
 6. **Edición de transacciones** es V3 (roadmap). Cuando llegue, una transacción con `subscription_id` no

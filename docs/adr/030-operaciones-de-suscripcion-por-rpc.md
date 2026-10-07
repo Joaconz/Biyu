@@ -1,7 +1,7 @@
-# ADR-033 — Las operaciones sobre una suscripción son RPC que la ponen al día
+# ADR-030 — Las operaciones sobre una suscripción son RPC que la ponen al día
 
 **Estado:** propuesta · **Fecha:** 2026-10
-**Relacionada:** ADR-017 · ADR-020 · ADR-021 · ADR-033 · `06-suscripciones.md` (R3, R7, R8) · C4, C6, C7
+**Relacionada:** ADR-017 · ADR-020 · ADR-021 · ADR-031 · ADR-032 · `06-suscripciones.md` (R3, R7, R8) · C4, C6, C7
 
 ## Contexto
 
@@ -29,8 +29,8 @@ conserva solo el permiso de lectura: `insert`, `update` y `delete` directos se r
 
 | RPC | Orden, dentro de una sola transacción | Devuelve |
 |---|---|---|
-| `create_subscription` | Valida (ADR-033, I12, I13, categoría y cuenta activas del usuario) → inserta con `generate_from_period = start_period` → pone al día | `{ subscription_id, generated }` |
-| `update_subscription` | Pone al día → aplica los cambios permitidos (ADR-033) → pone al día | `{ generated_before, generated_after }` |
+| `create_subscription` | Valida (ADR-032, I12, I13, categoría y cuenta activas del usuario) → inserta con `generate_from_period = start_period` → pone al día | `{ subscription_id, generated }` |
+| `update_subscription` | Pone al día → aplica los cambios permitidos (ADR-032) → pone al día | `{ generated_before, generated_after }` |
 | `pause_subscription` | Pone al día → aplica "Pausar" de `06-suscripciones.md` | `{ generated_before }` |
 | `resume_subscription` | Aplica "Reanudar" → pone al día | `{ generated_after }` |
 | `cancel_subscription` | Pone al día → aplica "Cancelar" | `{ generated_before }` |
