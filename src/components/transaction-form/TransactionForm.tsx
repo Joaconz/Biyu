@@ -13,6 +13,7 @@ import {
   type DraftInput,
 } from '@/domain/draft'
 import { formatArs, formatRate, formatUsd } from '@/domain/money'
+import { debtOfDraft, sharedDebtSavedMessage } from '@/domain/sharedDebt'
 import { formatPeriod, isSamePeriod, parsePeriod, toIsoDate, tryPeriodOf } from '@/domain/period'
 import { allowsInstallments, validateTransactionDraft, type DraftErrors } from '@/domain/validation'
 import { setStoredLastAccountId, type Account, type Category } from '@/lib/catalog'
@@ -29,6 +30,7 @@ import { CurrencySection } from './CurrencySection'
 import { DateSection } from './DateSection'
 import { DescriptionSection } from './DescriptionSection'
 import { InstallmentsField } from './InstallmentsField'
+import { SharedSection } from './SharedSection'
 import { TypeSection } from './TypeSection'
 import type { SectionProps, Touched } from './types'
 
@@ -40,6 +42,8 @@ const FIELD_NAMES: Partial<Record<keyof DraftErrors, string>> = {
   accountId: 'cuenta',
   installmentsCount: 'cuotas',
   occurredOn: 'fecha',
+  sharedPerson: 'con quién compartiste el gasto',
+  sharedAmount: 'cuánto te debe',
 }
 
 /** "monto", "monto y categoría", "monto, categoría y cuenta". */
@@ -152,7 +156,11 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
         testId: 'transaction-form-installments-reset',
       })
     }
-    setTouched((prev) => ({ ...prev, ...Object.fromEntries(Object.keys(patch).map((k) => [k, true])) }))
+    setTouched((prev) => ({
+      ...prev,
+      ...Object.fromEntries(next.clearedFields.map((k) => [k, false])),
+      ...Object.fromEntries(Object.keys(patch).map((k) => [k, true])),
+    }))
   }
 
   function goTo(target: RegisterStep) {
@@ -174,9 +182,11 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
     if (!canSave || saving) return
     setSaving(true)
     try {
-      await createTransaction(draft) // C4: una sola llamada RPC
+      await createTransaction(draft) // C4: una sola llamada RPC, con la deuda si es compartido (ADR-036)
       setStoredLastAccountId(draft.accountId)
+      const debt = debtOfDraft(draft)
       toast.success(draft.type === 'expense' ? 'Gasto guardado' : 'Ingreso guardado', {
+        description: debt ? sharedDebtSavedMessage(debt, draft.currency) : undefined,
         testId: 'transaction-form-saved',
       })
       onSaved?.()
@@ -314,6 +324,10 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
             {allowsInstallments(values) && <InstallmentsField {...section} />}
             <DateSection {...section} today={todayIso} />
             <DescriptionSection {...section} />
+            {/* Gasto compartido (US-34): solo un gasto se comparte. */}
+            {values.type === 'expense' && (
+              <SharedSection {...section} onTouch={(field) => setTouched((prev) => ({ ...prev, [field]: true }))} />
+            )}
           </>
         )}
       </fieldset>
