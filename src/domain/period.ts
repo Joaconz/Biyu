@@ -79,6 +79,23 @@ export function formatDisplayDate(isoDate: string): string {
   return `${day}/${month}/${year}`
 }
 
+const ARGENTINA_DATE = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/Argentina/Buenos_Aires',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/**
+ * Fecha calendario `YYYY-MM-DD` de un `timestamptz` en hora de Argentina (ADR-031 §7): "pausada
+ * desde", "cancelada el". No lee el reloj: convierte el instante que recibe.
+ */
+export function argentinaDateOf(instant: string): string {
+  const parts = ARGENTINA_DATE.formatToParts(new Date(instant))
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? ''
+  return `${part('year').padStart(4, '0')}-${part('month')}-${part('day')}`
+}
+
 /** Indica si el período a es estrictamente anterior al período b */
 export function isPeriodBefore(a: Period, b: Period): boolean {
   if (a.year !== b.year) return a.year < b.year

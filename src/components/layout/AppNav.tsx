@@ -1,4 +1,4 @@
-import { ChartNoAxesColumn, CirclePlus, HandCoins, ReceiptText, Settings, type LucideIcon } from 'lucide-react'
+import { ChartNoAxesColumn, CirclePlus, HandCoins, ReceiptText, Repeat, Settings, type LucideIcon } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router'
 import { cn } from '@/lib/utils'
 import { NAV_ITEMS_V1, navHref, navTestId, type Screen } from '@/lib/navigation'
@@ -9,6 +9,7 @@ const ICONS: Record<Screen, LucideIcon> = {
   dashboard: ChartNoAxesColumn,
   transactions: ReceiptText,
   debts: HandCoins,
+  subscriptions: Repeat,
   settings: Settings,
 }
 

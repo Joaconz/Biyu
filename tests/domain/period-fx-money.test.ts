@@ -4,6 +4,7 @@ import { convertToArs, formatArs, formatUsd, parseMoney, serializeMoney } from '
 import {
   addDays,
   addMonths,
+  argentinaDateOf,
   currentPeriod,
   formatDisplayDate,
   formatPeriod,
@@ -14,6 +15,13 @@ import {
   relativeDay,
   toDbDate,
 } from '@/domain/period'
+
+describe('argentinaDateOf (ADR-031 §7)', () => {
+  it('convierte un timestamptz a la fecha de Argentina', () => {
+    expect(argentinaDateOf('2026-10-07T02:59:59Z')).toBe('2026-10-06')
+    expect(argentinaDateOf('2026-10-07T03:00:00Z')).toBe('2026-10-07')
+  })
+})
 
 describe('period', () => {
   it.each(['2026-13', '2026-00', '26-01', '2026-1', '', 'abcd-ef', '2026-01-01'])('parsePeriod rechaza %j', (v) => {

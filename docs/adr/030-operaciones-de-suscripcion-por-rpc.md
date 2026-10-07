@@ -44,8 +44,13 @@ conserva solo el permiso de lectura: `insert`, `update` y `delete` directos se r
 - **Cada suscripción se procesa en su propio bloque** (`begin … exception`, un savepoint por
   suscripción). Si una ocurrencia no se puede insertar (por ejemplo, `amount_ars` fuera de
   `numeric(14,2)` o redondeado a 0,00), esa ocurrencia no se crea, se informa en `failed` y las demás
-  suscripciones y los demás períodos siguen. Una ocurrencia que choca con el índice único I11 (otra
-  puesta al día concurrente) cuenta como ya generada, no como falla.
+  suscripciones y los demás períodos siguen: esas fallas previstas (falta de tipo de cambio, monto en
+  pesos fuera de rango) se detectan antes del insert. Un error **inesperado** deshace toda esa
+  suscripción en esa corrida y se informa con `reason = 'unexpected_error'` y su `sqlstate`; las demás
+  suscripciones siguen. Un savepoint por ocurrencia serían ~1.250 subtransacciones en el peor caso de
+  US-53 CA-5. Una ocurrencia que choca con el índice único I11 (otra puesta al día concurrente) cuenta
+  como ya generada, no como falla. La puesta al día bloquea la fila de cada suscripción mientras la
+  procesa (`for no key update`), así una pausa o una edición concurrente no la ve vieja.
 - **Las operaciones nunca fallan por la puesta al día previa.** Pausar o cancelar una suscripción con
   una ocurrencia que no se puede generar se hace igual; la ocurrencia queda sin generar.
 - **Inserción.** `create_transaction` y la puesta al día comparten una función interna

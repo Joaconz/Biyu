@@ -46,6 +46,12 @@ genera el **evento**, y el evento genera el **impacto mensual**.
 **"Suscripción" nunca significa un plan de pago de la aplicación.** Biyu no cobra ni tiene
 planes (ver `00-project-brief.md`, §5).
 
+### Suscripción terminada
+Una suscripción cuyo `end_period` es **anterior al período corriente**. No es un estado: sigue
+con `status = 'active'`, se lista entre las activas con "Terminó en mayo 2026" y no genera nada
+más porque R1 corta en `end_period`. Una edición que le pone un fin nuevo o la deja sin fin la
+extiende sin rellenar los meses del medio (ADR-032).
+
 ### Ocurrencia (`Occurrence`)
 La transacción concreta que una suscripción genera para un período determinado. No es una
 entidad propia: es una fila de `transactions` con `subscription_id` y `subscription_period`
