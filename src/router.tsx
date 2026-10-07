@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
+import { DebtsPage } from '@/pages/DebtsPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { SetupPage } from '@/pages/SetupPage'
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
           { path: '/register', element: <RegisterPage /> },
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/transactions', element: <TransactionsPage /> },
+          { path: '/debts', element: <DebtsPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

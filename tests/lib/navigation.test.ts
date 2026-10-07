@@ -14,6 +14,7 @@ describe('navegación global (ADR-023)', () => {
   it('reconoce la pantalla por la ruta', () => {
     expect(screenFromPath('/dashboard')).toBe('dashboard')
     expect(screenFromPath('/settings')).toBe('settings')
+    expect(screenFromPath('/debts')).toBe('debts')
     expect(screenFromPath('/otra')).toBeNull()
   })
 
