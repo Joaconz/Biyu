@@ -118,6 +118,32 @@ export function DashboardPage() {
                   </span>
                 )}
               </div>
+              {/*
+                US-30: el neto es un dato secundario; el número grande sigue siendo el bruto (ADR-006). Solo
+                aparece si alguna deuda cuenta para el período (ADR-037 §6).
+              */}
+              {summary.hasReimbursements && (
+                <div data-testid="dashboard-net-reimbursements" className="flex flex-col items-start gap-1 text-footnote">
+                  <div className="flex w-full flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                    <span className="text-primary-foreground/75">Neto de reembolsos</span>
+                    <span data-testid="dashboard-net-reimbursements-amount" className="tabular text-callout font-semibold">
+                      {formatArs(summary.netOfReimbursements)}
+                    </span>
+                  </div>
+                  {summary.netOfReimbursements.isNegative() && (
+                    <p data-testid="dashboard-net-reimbursements-note" className="text-caption text-primary-foreground/75">
+                      Las deudas se descuentan enteras en el mes de la compra, aunque sea en cuotas.
+                    </p>
+                  )}
+                  <Link
+                    to="/debts"
+                    data-testid="dashboard-net-reimbursements-link"
+                    className="press -my-1.5 inline-flex min-h-9 items-center font-medium underline underline-offset-4"
+                  >
+                    Ver deudas
+                  </Link>
+                </div>
+              )}
               <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t border-primary-foreground/15 pt-4 text-footnote">
                 {/* US-16: parte del total que ya venía comprometida por cuotas de meses anteriores. */}
                 <span data-testid="dashboard-inherited-installments" className="text-primary-foreground/75">
