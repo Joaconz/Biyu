@@ -6,6 +6,8 @@ export type DebtDirection = 'owed_to_me' | 'i_owe'
 export type DebtStatus = 'pending' | 'settled'
 /** Filtro de la pantalla Deudas (US-38): vive en `?status=` (C11). */
 export type DebtStatusFilter = DebtStatus | 'all'
+/** Filtro por dirección (US-79): vive en `?direction=` y se combina con el de estado (C11). */
+export type DebtDirectionFilter = DebtDirection | 'all'
 
 /**
  * Una deuda como llega de la base. Los montos son string: PostgREST devuelve `numeric` así y no
@@ -43,6 +45,11 @@ export function parseDebtStatusFilter(value: string | null): DebtStatusFilter {
   return value === 'settled' || value === 'all' ? value : 'pending'
 }
 
+/** Sin parámetro o con uno desconocido, "Todas" (US-79 CA-1, CA-4). */
+export function parseDebtDirectionFilter(value: string | null): DebtDirectionFilter {
+  return value === 'owed_to_me' || value === 'i_owe' ? value : 'all'
+}
+
 /**
  * ADR-037 §4: una deuda vinculada a un gasto con baja lógica no aparece; al restaurar el gasto
  * vuelve con el estado que tenía. Es I10 extendida a lo que nace de una transacción.
@@ -53,10 +60,20 @@ export function isVisibleDebt(debt: DebtRecord): boolean {
 
 /**
  * Las deudas visibles del filtro, ordenadas (US-38): "Pendientes" y "Todas" por `incurred_on` y, a
- * igual fecha, por `created_at`; "Saldadas" por `settled_at`. Siempre la más reciente primero.
+ * igual fecha, por `created_at`; "Saldadas" por `settled_at`. Siempre la más reciente primero. La
+ * dirección (US-79) solo saca filas: el orden es el del estado.
  */
-export function debtsForFilter(debts: readonly DebtRecord[], filter: DebtStatusFilter): DebtRecord[] {
-  const shown = debts.filter((d) => isVisibleDebt(d) && (filter === 'all' || d.status === filter))
+export function debtsForFilter(
+  debts: readonly DebtRecord[],
+  filter: DebtStatusFilter,
+  direction: DebtDirectionFilter = 'all',
+): DebtRecord[] {
+  const shown = debts.filter(
+    (d) =>
+      isVisibleDebt(d) &&
+      (filter === 'all' || d.status === filter) &&
+      (direction === 'all' || d.direction === direction),
+  )
   const byLoaded = (a: DebtRecord, b: DebtRecord) => instantMs(b.createdAt) - instantMs(a.createdAt)
   if (filter === 'settled') {
     return shown.sort((a, b) => instantMs(b.settledAt) - instantMs(a.settledAt) || byLoaded(a, b))
@@ -186,8 +203,28 @@ export function isStaleDebtError(reason: string, action: 'settle' | 'reopen'): b
   return reason === already || reason === 'La deuda no existe'
 }
 
-/** Mensaje del estado vacío de cada filtro (US-38), y si ofrece "Cargar una deuda". */
-export function emptyDebtsMessage(filter: DebtStatusFilter): { message: string; offerNew: boolean } {
+const EMPTY_BY_DIRECTION: Record<DebtDirection, Record<DebtStatusFilter, string>> = {
+  owed_to_me: {
+    pending: 'Nadie te debe nada por ahora.',
+    settled: 'Todavía no te saldaron ninguna deuda.',
+    all: 'No cargaste deudas a tu favor.',
+  },
+  i_owe: {
+    pending: 'No debés nada por ahora.',
+    settled: 'Todavía no saldaste ninguna deuda tuya.',
+    all: 'No cargaste deudas que debas.',
+  },
+}
+
+/**
+ * Mensaje del estado vacío de cada combinación de filtros (US-38, US-79), y si ofrece "Cargar una
+ * deuda": solo con "Pendientes" o "Todas" en estado, cualquiera sea la dirección.
+ */
+export function emptyDebtsMessage(
+  filter: DebtStatusFilter,
+  direction: DebtDirectionFilter = 'all',
+): { message: string; offerNew: boolean } {
+  if (direction !== 'all') return { message: EMPTY_BY_DIRECTION[direction][filter], offerNew: filter !== 'settled' }
   switch (filter) {
     case 'pending':
       return { message: 'No tenés deudas pendientes.', offerNew: true }

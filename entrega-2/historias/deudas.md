@@ -15,7 +15,7 @@ RPC, saldar y revertir, deudas de un gasto borrado y totales).
 | Pantalla | Ruta | Nueva o modificada | Historias | Mock |
 |---|---|---|---|---|
 | Registrar, paso 3 "Revisá y guardá" | `/register` | Modificada | US-34, US-41 | `deudas-registrar-compartido.html` |
-| Deudas | `/debts` | Nueva | US-35, US-37 a US-40 | `deudas-listado.html` |
+| Deudas | `/debts` | Nueva | US-35, US-37 a US-40, US-79 | `deudas-listado.html` |
 | Nueva deuda | `/debts/new` | Nueva | US-36 | `deudas-nueva.html` |
 | Resumen | `/dashboard` | Modificada | US-30 | `deudas-resumen-neto.html` |
 | Movimientos y diálogo de borrado | `/transactions` | Modificada | US-35 | `deudas-movimientos.html` |
@@ -62,7 +62,7 @@ Valen para todas las historias de abajo; cada historia las cita en vez de repeti
 ## Orden de implementación sugerido
 
 US-34 y US-41 (misma RPC, ADR-036) → US-38 (pantalla Deudas) → US-35 → US-37 → US-39 y US-40 →
-US-36 → US-30.
+US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
 
 ---
 
@@ -602,12 +602,64 @@ US-36 → US-30.
 - **Trazabilidad:** FR-18 · I7 · C4 · C6 · ADR-036 · sad path "deuda mayor que el gasto" ·
   `docs/07-plan-de-testing.md` (valores límite de deuda)
 
+#### US-79: Filtrar las deudas por lo que me deben o lo que debo · [#238](https://github.com/Joaconz/Biyu/issues/238) · Pendiente
+
+- **Objetivo:** Como usuario, quiero ver por separado lo que me deben y lo que debo, para saber qué
+  tengo que cobrar y qué tengo que pagar sin mezclarlos.
+- **Pantalla y estructura:** **Deudas** (`/debts`, US-38). Agrega un segundo filtro, por dirección,
+  debajo del filtro por estado y antes de la lista. Nada más de la pantalla cambia: la tarjeta de
+  totales (US-37) sigue igual y no depende de ningún filtro.
+- **Filtro por dirección** (`debts-direction-filter`, `role="radiogroup"`, mismo aspecto que el de
+  estado):
+
+  | Opción (texto exacto) | `?direction=` | `data-testid` |
+  |---|---|---|
+  | "Todas" | `all` | `debts-direction-filter-all` |
+  | "Te deben" | `owed_to_me` | `debts-direction-filter-owed-to-me` |
+  | "Debés" | `i_owe` | `debts-direction-filter-i-owe` |
+
+- **Filtro y URL (C11):** el valor vive en `?direction=`, junto a `?status=` (US-38). Sin parámetro o
+  con un valor que no sea `all`, `owed_to_me` ni `i_owe`, se comporta como "Todas". Los dos filtros se
+  combinan (Y): `/debts?status=pending&direction=i_owe` lista las pendientes que debés. Cambiar uno
+  conserva el otro en la URL. Tocar una opción cambia la URL sin recargar y no vuelve a pedir datos.
+- **Orden:** el de US-38 según el filtro de estado; el de dirección solo saca filas.
+- **Estados:** los de US-38. Con "Todas" en dirección, los mensajes vacíos son los de US-38. Con otra
+  dirección, si no queda ninguna fila:
+
+  | Estado \ Dirección | "Te deben" | "Debés" |
+  |---|---|---|
+  | Pendientes | "Nadie te debe nada por ahora." | "No debés nada por ahora." |
+  | Saldadas | "Todavía no te saldaron ninguna deuda." | "Todavía no saldaste ninguna deuda tuya." |
+  | Todas | "No cargaste deudas a tu favor." | "No cargaste deudas que debas." |
+
+  Van en `debts-empty`. "Cargar una deuda" (`debts-empty-new`) aparece en los mismos estados que en
+  US-38 (Pendientes y Todas) y lleva a `/debts/new`.
+- **Criterios de aceptación:**
+  - CA-1: `/debts` sin parámetros muestra "Todas" seleccionado en dirección (`aria-checked="true"`) y
+    filas de las dos direcciones.
+  - CA-2: Tocar "Te deben" cambia la URL a `?direction=owed_to_me` (conservando `status` si estaba) y
+    muestra solo filas con "Te debe"; "Debés", a `?direction=i_owe`, solo filas con "Le debés".
+  - CA-3: Abrir o recargar `/debts?status=settled&direction=i_owe` muestra "Saldadas" y "Debés"
+    seleccionados y solo deudas saldadas que debés.
+  - CA-4: `/debts?direction=xyz` muestra "Todas" seleccionado y filas de las dos direcciones; la URL
+    queda como está hasta que se toca otra opción, que reemplaza el valor.
+  - CA-5: Con el filtro de dirección en "Debés", tocar "Saldadas" en el de estado lleva a
+    `?direction=i_owe&status=settled` (el orden de los parámetros no importa).
+  - CA-6: Cada combinación vacía muestra su mensaje exacto de la tabla; "Cargar una deuda" aparece
+    solo con Pendientes o Todas en estado.
+  - CA-7: Cambiar el filtro de dirección no cambia "Te deben", "Debés" ni el neto de la tarjeta de
+    totales (US-37).
+  - CA-8: Cambiar de opción no hace ningún pedido nuevo a la base (la lista ya está cargada).
+  - CA-9: Todos los elementos interactivos del filtro tienen su `data-testid`.
+- **Trazabilidad:** FR-18 · C11 · US-37 · US-38 · ADR-037
+
 ---
 
 ## Supuestos de este documento
 
 1. Las historias, sus objetivos y los escenarios BDD citados salen de `docs/02-behavior-spec.md`; no se
-   agregaron historias ni IDs nuevos. Los textos de pantalla, los `data-testid` y los mensajes son
+   agregaron historias ni IDs nuevos, salvo US-79 (filtro por dirección), que pidió el producto el
+   2026-10-07 y no tiene mock propio: reusa el control del filtro por estado. Los textos de pantalla, los `data-testid` y los mensajes son
    propuesta de esta especificación y se congelan en el issue de cada historia.
 2. FR-19 (`pre-entrega.md`) dice que lo pendiente "no se computa como gasto propio ... hasta que se
    marca como cobrado". Se sigue el ajuste ya registrado en `08-trazabilidad.md`, el supuesto 4 y
