@@ -67,7 +67,7 @@ dominio 100% independiente de la infraestructura.
 | Auth | Supabase Auth (email + contraseña) | Sin código de autenticación propio; hasheo y emisión de sesión resueltos por el proveedor |
 | Decimales | `decimal.js` en TypeScript (cliente y Edge Functions) | `numeric(14,2)` en Postgres es la fuente de verdad; `decimal.js` evita el error de punto flotante del lado de la app (ver ADR-013) |
 | UI | Tailwind CSS + shadcn/ui | Componentes accesibles sin construirlos desde cero |
-| Gráficos | Recharts | Barras por categoría, torta por categoría. Liviano |
+| Gráficos | SVG propio, sin librería (ADR-038) | Torta y barras por categoría, y evolución de 6 meses en el detalle. Sin dependencia nueva y sin `number` en los montos (C2) |
 | Pruebas | pgTAP (funciones SQL) · Deno Test / Vitest (Edge Functions) · Vitest + Testing Library (componentes) · Playwright (E2E, Chromium/WebKit/Firefox) · Lighthouse CI (rendimiento, accesibilidad, PWA) | Un nivel de prueba por cada lugar donde vive lógica |
 | CI | GitHub Actions | Corre la suite en cada push y en cada pull request |
 | Deploy | Vercel o Netlify (front) · Supabase (backend, base, auth) | Los tres con plan gratuito |

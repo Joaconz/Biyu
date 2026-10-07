@@ -42,7 +42,7 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 | FR-17 | V2 | US-56, US-57, US-58 | [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene |
 | FR-18 | V2 | US-34 a US-36, US-41 | [#18](https://github.com/Joaconz/Biyu/issues/18) | Se mantiene |
 | FR-19 | V2 | US-30 | [#18](https://github.com/Joaconz/Biyu/issues/18) | **Ajustado**: el número principal del dashboard es el bruto y el neto de reembolsos es un KPI secundario (`02-behavior-spec.md` supuesto 4) |
-| FR-20 | V1 | US-16, US-23 a US-25, US-27 a US-29, US-31 a US-33 | [#14](https://github.com/Joaconz/Biyu/issues/14) | **Ajustado por [#78](https://github.com/Joaconz/Biyu/issues/78)**: el desglose por categoría se muestra en barras, de acuerdo con US-27; se elimina el gráfico de torta. La evolución de los últimos meses queda fuera de FR-20 y se tratará en una historia específica posterior. |
+| FR-20 | V1, V2 | US-16, US-23 a US-25, US-27 a US-29, US-31 a US-33, US-72, US-73 | [#14](https://github.com/Joaconz/Biyu/issues/14), [#242](https://github.com/Joaconz/Biyu/issues/242), [#243](https://github.com/Joaconz/Biyu/issues/243) | **Ajustado por [#78](https://github.com/Joaconz/Biyu/issues/78)** en V1 (barras, sin torta ni evolución) y **reabierto por ADR-038** en V2: torta junto a las barras en el Resumen (US-72) y evolución de los últimos 6 meses en el detalle de la categoría (US-73). |
 | FR-21 | V1 | US-26 | [#14](https://github.com/Joaconz/Biyu/issues/14) | Se mantiene, sin anticipar suscripciones (ver FR-16) |
 | FR-22 | V2 | US-47 | [#19](https://github.com/Joaconz/Biyu/issues/19), [#201](https://github.com/Joaconz/Biyu/issues/201) | **Ajustado** (ADR-029): el rango es un mes o un año calendario, actual o pasado; solo transacciones activas, sin columna de estado |
 
@@ -159,7 +159,7 @@ P2 entra si alcanza el sprint.
 
 | Tarea | Issue | Prioridad |
 |---|---|---|
-| Decisión: gráficos del dashboard (FR-20) | [#78](https://github.com/Joaconz/Biyu/issues/78) | P2 |
+| Decisión: gráficos del dashboard (FR-20); reabierta en V2 por ADR-038 | [#78](https://github.com/Joaconz/Biyu/issues/78) | P2 |
 
 ### Baja lógica · [#15](https://github.com/Joaconz/Biyu/issues/15)
 
@@ -184,6 +184,7 @@ P2 entra si alcanza el sprint.
 | Deudas y gastos compartidos | [#18](https://github.com/Joaconz/Biyu/issues/18) | V2 | US-30, US-34 a US-41 · FR-18, FR-19 · I7, I9 |
 | Export CSV | [#19](https://github.com/Joaconz/Biyu/issues/19) | V2 | US-47 ([#201](https://github.com/Joaconz/Biyu/issues/201)) · FR-22 · C9 · ADR-029 |
 | Importar desde Excel | [#203](https://github.com/Joaconz/Biyu/issues/203) | V2 | US-74 ([#204](https://github.com/Joaconz/Biyu/issues/204)), US-76 ([#205](https://github.com/Joaconz/Biyu/issues/205)), US-77 ([#206](https://github.com/Joaconz/Biyu/issues/206)), US-78 ([#207](https://github.com/Joaconz/Biyu/issues/207)) · FR-06 · C4 · C6 · NFR-10 · ADR-035. Reemplaza a la idea #169 |
+| Dashboard por categoría | [#14](https://github.com/Joaconz/Biyu/issues/14) (épica de V1) | V2 | US-72 ([#242](https://github.com/Joaconz/Biyu/issues/242)), US-73 ([#243](https://github.com/Joaconz/Biyu/issues/243)) · FR-20 · C11 · ADR-038. Reemplaza a las ideas #170 y #171 |
 | Interfaz y no funcionales de V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | V2 | `roadmap.md` §V2 · NFR-01 a NFR-10 |
 | Calidad V2 | [#21](https://github.com/Joaconz/Biyu/issues/21) | V2 | Regresión de V1, confirmación de defectos, catálogo de V2 |
 | Automatización | [#22](https://github.com/Joaconz/Biyu/issues/22) | V3 | `roadmap.md` §V3 · NFR-19, NFR-20 |

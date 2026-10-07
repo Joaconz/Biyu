@@ -78,7 +78,7 @@ Organizados por módulo y con un identificador (FR-xx) para poder trazarlos cont
 
 ### Dashboard y navegación
 
-- **FR-20. Dashboard mensual:** muestra total gastado, total de ingresos, balance, monto de cuotas heredadas de compras anteriores, desglose por categoría en un gráfico de barras, desglose por cuenta y las últimas 10 transacciones. La evolución de los últimos meses queda fuera de este requerimiento y se tratará en una historia específica posterior.
+- **FR-20. Dashboard mensual:** muestra total gastado, total de ingresos, balance, monto de cuotas heredadas de compras anteriores, desglose por categoría en un gráfico de torta y una lista de barras con monto y porcentaje, desglose por cuenta y las últimas 10 transacciones. La evolución de los últimos 6 meses de cada categoría se ve en el detalle de la categoría (US-73, ADR-038).
 - **FR-21. Navegación entre meses:** el usuario puede navegar a cualquier mes, pasado o futuro; los meses futuros muestran las cuotas y suscripciones ya comprometidas aunque todavía no exista una transacción real.
 
 ### Exportación (opcional)

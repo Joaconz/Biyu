@@ -33,7 +33,7 @@ Seguimiento en `entrega-1/piloto-cuo-reescrito.md` (módulo piloto) y en el plan
 | Nivel | Qué |
 |---|---|
 | 1 | Deudas (US-30, US-34 a US-41) · Suscripciones (US-52 a US-63) · Export CSV (US-47) · navegación inferior (#172) · feedback de guardado con reintento · confirmación destructiva · vista previa del calendario de suscripción |
-| 2 | Gráfico de torta (#170) · detalle de categoría (#171) · NFR de rendimiento, accesibilidad y robustez |
+| 2 | Gráfico de torta (US-72, #242) · detalle de categoría (US-73, #243) · NFR de rendimiento, accesibilidad y robustez |
 | 3 | Importar gastos desde Excel (#169) |
 
 Si algo del nivel 2 o 3 no llega, sus casos quedan `BLOCKED` con la justificación. Fecha de la presentación: ~2026-10-16.
