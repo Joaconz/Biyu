@@ -3,8 +3,9 @@ import { GroupedCard } from '@/components/shared/GroupedList'
 import { BackHeader } from '@/components/subscriptions/BackHeader'
 import { buttonVariants } from '@/components/ui/button'
 import { formatPeriodLong } from '@/domain/period'
-import { statusText, subscriptionAmountText, type SubscriptionRecord } from '@/domain/subscriptions'
+import { nextChargeText, statusText, subscriptionAmountText, type SubscriptionRecord } from '@/domain/subscriptions'
 import { useSubscription } from '@/hooks/useSubscriptions'
+import { todayInArgentina } from '@/lib/clock'
 import { cn } from '@/lib/utils'
 
 /** Detalle de suscripción (US-52): estado y datos. Las acciones y los gastos cargados llegan con sus historias. */
@@ -73,29 +74,41 @@ export function SubscriptionDetailPage() {
         </div>
       )}
 
-      {subscription && <SubscriptionData subscription={subscription} />}
+      {subscription && state.status === 'ready' && (
+        <SubscriptionData subscription={subscription} generatedPeriods={state.generatedPeriods} />
+      )}
     </div>
   )
 }
 
-function SubscriptionData({ subscription }: { subscription: SubscriptionRecord }) {
-  const rows: Array<[string, string]> = [
+function SubscriptionData({
+  subscription,
+  generatedPeriods,
+}: {
+  subscription: SubscriptionRecord
+  generatedPeriods: ReadonlySet<string>
+}) {
+  const rows: Array<[string, string, string?]> = [
     ['Monto', subscriptionAmountText(subscription.amount, subscription.currency)],
     ['Categoría', subscription.categoryName],
     ['Medio de pago', subscription.accountName],
     ['Día de cobro', String(subscription.billingDay)],
     ['Desde', formatPeriodLong(subscription.startPeriod)],
     ['Hasta', subscription.endPeriod ? formatPeriodLong(subscription.endPeriod) : 'Sin fin'],
+    // US-54: la fecha real según R4, la misma que va a tener la transacción (CA-5).
+    ['Próximo cobro', nextChargeText(subscription, generatedPeriods, todayInArgentina()), 'subscription-detail-next-charge'],
   ]
   if (subscription.description) rows.push(['Descripción', subscription.description])
 
   return (
     <GroupedCard data-testid="subscription-detail-data">
       <dl>
-        {rows.map(([label, value]) => (
+        {rows.map(([label, value, testId]) => (
           <div key={label} className="flex items-baseline justify-between gap-4 border-hairline px-4 py-3 not-first:border-t">
             <dt className="shrink-0 text-callout text-muted-foreground">{label}</dt>
-            <dd className="min-w-0 text-right text-callout break-words text-foreground">{value}</dd>
+            <dd data-testid={testId} className="tabular min-w-0 text-right text-callout break-words text-foreground">
+              {value}
+            </dd>
           </div>
         ))}
       </dl>

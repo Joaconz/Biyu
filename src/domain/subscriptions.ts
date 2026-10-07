@@ -32,6 +32,8 @@ export interface SubscriptionRecord {
   billingDay: number
   startPeriod: Period
   endPeriod: Period | null
+  /** Piso de generación (R8): desde dónde puede haber ocurrencias. */
+  generateFromPeriod: Period
   status: SubscriptionStatus
   pausedAt: string | null
   cancelledAt: string | null
@@ -72,6 +74,41 @@ export function occurrenceDate(period: Period, billingDay: number): string {
 }
 
 const MIN_AMOUNT = new Decimal('0.01')
+
+/**
+ * "Próximo cobro" del detalle (US-54, US-55): la fecha real del próximo cargo según R4, la misma que
+ * va a tener la transacción. En el período corriente, mientras no llegue el día de cobro, es la de
+ * este mes (R5); desde ese día, o si ese mes ya tiene su transacción (R2, aunque esté borrada), la del
+ * mes siguiente. null ("—") si está pausada, cancelada o ya pasó su mes de fin. Un mes vencido que
+ * quedó sin generar (bloqueado, R6) no es "próximo": lo informa la puesta al día, no este campo.
+ */
+export function nextChargeDate(
+  subscription: Pick<SubscriptionRecord, 'status' | 'billingDay' | 'generateFromPeriod' | 'endPeriod'>,
+  alreadyGenerated: ReadonlySet<string>,
+  today: Date,
+): string | null {
+  if (subscription.status !== 'active') return null
+  const current = currentPeriod(today)
+  let period = isPeriodBefore(current, subscription.generateFromPeriod) ? subscription.generateFromPeriod : current
+  if (
+    isSamePeriod(period, current) &&
+    (alreadyGenerated.has(formatPeriod(current)) || toIsoDate(today) >= occurrenceDate(period, subscription.billingDay))
+  ) {
+    period = addMonths(period, 1)
+  }
+  if (subscription.endPeriod && isPeriodBefore(subscription.endPeriod, period)) return null
+  return occurrenceDate(period, subscription.billingDay)
+}
+
+/** "28/02/2027" o "—" (US-54). */
+export function nextChargeText(
+  subscription: Pick<SubscriptionRecord, 'status' | 'billingDay' | 'generateFromPeriod' | 'endPeriod'>,
+  alreadyGenerated: ReadonlySet<string>,
+  today: Date,
+): string {
+  const date = nextChargeDate(subscription, alreadyGenerated, today)
+  return date ? formatDisplayDate(date) : '—'
+}
 
 /**
  * Las ocurrencias vencidas que faltan generar. `alreadyGenerated` y `fxRatesByPeriod` van por

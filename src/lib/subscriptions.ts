@@ -1,5 +1,5 @@
 import { serializeMoney } from '@/domain/money'
-import { fromDbDate, toDbDate } from '@/domain/period'
+import { formatPeriod, fromDbDate, toDbDate } from '@/domain/period'
 import type { SubscriptionDraft, SubscriptionRecord } from '@/domain/subscriptions'
 import { supabase } from './supabase'
 
@@ -7,7 +7,7 @@ import { supabase } from './supabase'
 // filtra por user_id en las lecturas.
 
 const SUBSCRIPTION_COLUMNS = `
-  id, name, amount_text:amount::text, currency, billing_day, start_period, end_period, status,
+  id, name, amount_text:amount::text, currency, billing_day, start_period, end_period, generate_from_period, status,
   paused_at, cancelled_at, description,
   category:categories!subscriptions_category_fk (name),
   account:accounts!subscriptions_account_fk (name)
@@ -21,6 +21,7 @@ interface SubscriptionRow {
   billing_day: number
   start_period: string
   end_period: string | null
+  generate_from_period: string
   status: SubscriptionRecord['status']
   paused_at: string | null
   cancelled_at: string | null
@@ -41,6 +42,7 @@ function toRecord(row: SubscriptionRow): SubscriptionRecord {
     billingDay: row.billing_day,
     startPeriod: fromDbDate(row.start_period),
     endPeriod: row.end_period ? fromDbDate(row.end_period) : null,
+    generateFromPeriod: fromDbDate(row.generate_from_period),
     status: row.status,
     pausedAt: row.paused_at,
     cancelledAt: row.cancelled_at,
@@ -62,6 +64,20 @@ export async function fetchSubscription(id: string): Promise<SubscriptionRecord 
   if (error?.code === '22P02') return null
   if (error) throw error
   return data ? toRecord(data as unknown as SubscriptionRow) : null
+}
+
+/**
+ * Los períodos `YYYY-MM` que ya tienen transacción de esta suscripción, también los de una borrada:
+ * la puesta al día no los vuelve a generar (R2, I11), así que "Próximo cobro" tampoco los cuenta.
+ */
+export async function fetchGeneratedPeriods(subscriptionId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('subscription_period')
+    .eq('subscription_id', subscriptionId)
+  if (error?.code === '22P02') return new Set()
+  if (error) throw error
+  return new Set(data.flatMap((row) => (row.subscription_period ? [formatPeriod(fromDbDate(row.subscription_period))] : [])))
 }
 
 // C2: los montos viajan como string; los tipos generados dicen `number` para numeric.

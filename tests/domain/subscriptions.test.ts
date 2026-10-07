@@ -13,6 +13,9 @@ import {
   endedText,
   isEnded,
   limitCodePoints,
+  nextChargeDate,
+  nextChargeText,
+  occurrenceDate,
   savedNoticeText,
   startPeriodRange,
   statusText,
@@ -198,6 +201,7 @@ function record(patch: Partial<SubscriptionRecord>): SubscriptionRecord {
     billingDay: 10,
     startPeriod: { year: 2026, month: 5 },
     endPeriod: null,
+    generateFromPeriod: { year: 2026, month: 5 },
     status: 'active',
     pausedAt: null,
     cancelledAt: null,
@@ -337,5 +341,99 @@ describe('aviso de la puesta al día (US-53)', () => {
     expect(catchupGeneratedText(0)).toBeNull()
     expect(catchupGeneratedText(1)).toBe('Se cargó 1 gasto de suscripciones')
     expect(catchupGeneratedText(4)).toBe('Se cargaron 4 gastos de suscripciones')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// US-54: el día de cobro que no existe se cobra el último día del mes (R4).
+// ---------------------------------------------------------------------------
+
+describe('occurrenceDate y computeDueOccurrences con días que no existen (US-54)', () => {
+  it('CA-1: día 31 desde enero 2027 → 31/01, 28/02, 31/03 y 30/04', () => {
+    const s = state({ billingDay: 31, generateFromPeriod: { year: 2027, month: 1 } })
+    expect(due(s, new Date(2027, 3, 30))).toEqual(['2027-01-31', '2027-02-28', '2027-03-31', '2027-04-30'])
+  })
+
+  it('CA-2: día 29 → 29/02/2028 (bisiesto) y 28/02/2027', () => {
+    expect(occurrenceDate({ year: 2028, month: 2 }, 29)).toBe('2028-02-29')
+    expect(occurrenceDate({ year: 2027, month: 2 }, 29)).toBe('2027-02-28')
+  })
+
+  it('CA-3: día 30 → 29/02/2028 y 28/02/2027', () => {
+    expect(occurrenceDate({ year: 2028, month: 2 }, 30)).toBe('2028-02-29')
+    expect(occurrenceDate({ year: 2027, month: 2 }, 30)).toBe('2027-02-28')
+  })
+
+  it('CA-6: día 31 en febrero 2028 (bisiesto) → 29/02/2028', () => {
+    expect(occurrenceDate({ year: 2028, month: 2 }, 31)).toBe('2028-02-29')
+  })
+
+  it('CA-4: ningún recorte pasa al mes siguiente; día 1 sigue siendo el 1', () => {
+    const s = state({ billingDay: 31, generateFromPeriod: { year: 2027, month: 1 } })
+    for (const draft of computeDueOccurrences(s, NONE, NO_RATES, new Date(2028, 11, 31))) {
+      expect(draft.occurredOn.slice(0, 7)).toBe(formatPeriod(draft.period))
+    }
+    expect(occurrenceDate({ year: 2027, month: 2 }, 1)).toBe('2027-02-01')
+  })
+})
+
+describe('Próximo cobro en el detalle (US-54)', () => {
+  const sub = (patch: Partial<SubscriptionRecord>) => record({ billingDay: 31, generateFromPeriod: { year: 2027, month: 1 }, ...patch })
+
+  it('día 31: la fecha real de cada mes, como la transacción que se va a generar (CA-5)', () => {
+    expect(nextChargeText(sub({}), NONE, new Date(2027, 1, 10))).toBe('28/02/2027')
+    expect(nextChargeText(sub({}), NONE, new Date(2028, 1, 10))).toBe('29/02/2028')
+    expect(nextChargeText(sub({}), NONE, new Date(2027, 3, 1))).toBe('30/04/2027')
+    // Coincide con la ocurrencia que propone la puesta al día para ese mes.
+    const s = state({ billingDay: 31, generateFromPeriod: { year: 2027, month: 2 } })
+    expect(due(s, new Date(2027, 1, 28))).toEqual([nextChargeDate(sub({}), NONE, new Date(2027, 1, 10))])
+  })
+
+  it('CA-5 en todos los bordes: para cada día de 2027 y 2028, la puesta al día de ese próximo cobro cae justo ahí', () => {
+    for (const billingDay of [1, 28, 29, 30, 31]) {
+      const s = state({ billingDay, generateFromPeriod: { year: 2026, month: 12 } })
+      for (let day = new Date(2027, 0, 1); day.getFullYear() < 2029; day = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1)) {
+        const next = nextChargeDate(sub({ billingDay, generateFromPeriod: s.generateFromPeriod }), NONE, day)
+        expect(next).not.toBeNull()
+        const [y, m, d] = next!.split('-').map(Number)
+        const generated = new Set<string>()
+        for (let p = s.generateFromPeriod; p.year * 12 + p.month < y * 12 + m; p = { year: p.month === 12 ? p.year + 1 : p.year, month: (p.month % 12) + 1 }) {
+          generated.add(formatPeriod(p))
+        }
+        expect(due(s, new Date(y, m - 1, d), generated)).toEqual([next])
+      }
+    }
+  })
+
+  it('una que todavía no empezó: el primer cobro de su mes de inicio', () => {
+    expect(nextChargeText(sub({}), NONE, new Date(2026, 9, 6))).toBe('31/01/2027')
+  })
+
+  it('"—" si está pausada, cancelada o ya pasó su mes de fin', () => {
+    const today = new Date(2027, 1, 10)
+    expect(nextChargeText(sub({ status: 'paused', pausedAt: '2027-02-01T12:00:00Z' }), NONE, today)).toBe('—')
+    expect(nextChargeText(sub({ status: 'cancelled', cancelledAt: '2027-02-01T12:00:00Z' }), NONE, today)).toBe('—')
+    expect(nextChargeText(sub({ endPeriod: { year: 2027, month: 1 } }), NONE, today)).toBe('—')
+  })
+
+  it('R2: si el mes corriente ya tiene su transacción (aunque esté borrada), el próximo es el del mes siguiente', () => {
+    const s = sub({ billingDay: 20, generateFromPeriod: { year: 2026, month: 5 } })
+    expect(nextChargeText(s, NONE, new Date(2026, 9, 10))).toBe('20/10/2026')
+    expect(nextChargeText(s, new Set(['2026-10']), new Date(2026, 9, 10))).toBe('20/11/2026')
+  })
+
+  it('reanudada en el mismo mes (R8): el piso quedó en el siguiente y ese es el próximo cobro', () => {
+    const s = sub({ billingDay: 28, generateFromPeriod: { year: 2026, month: 11 } })
+    expect(nextChargeText(s, NONE, new Date(2026, 9, 6))).toBe('28/11/2026')
+  })
+
+  it('inicio futuro con un fin anterior al piso → "—"', () => {
+    const s = sub({ generateFromPeriod: { year: 2027, month: 3 }, endPeriod: { year: 2027, month: 2 } })
+    expect(nextChargeText(s, NONE, new Date(2026, 9, 6))).toBe('—')
+  })
+
+  it('el mes de fin todavía tiene su cobro; el siguiente ya no', () => {
+    expect(nextChargeText(sub({ endPeriod: { year: 2027, month: 2 } }), NONE, new Date(2027, 1, 10))).toBe('28/02/2027')
+    expect(nextChargeText(sub({ endPeriod: { year: 2027, month: 2 } }), NONE, new Date(2027, 1, 28))).toBe('—')
   })
 })
