@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
+import { Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
+import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
+import { isExportAvailable } from '@/domain/exportCsv'
 import { formatDayHeading } from '@/domain/period'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
@@ -22,7 +25,9 @@ export function TransactionsPage() {
   const view: TransactionsView = params.get('view') === 'deleted' ? 'deleted' : 'active'
   const transactionsState = useMonthlyTransactions(period, undefined, view)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
+  const [isExportOpen, setIsExportOpen] = useState(false)
   const now = today()
+  const isFuturePeriod = !isExportAvailable(period, now)
 
   function selectView(next: TransactionsView) {
     setParams((prev) => {
@@ -47,8 +52,30 @@ export function TransactionsPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
       <PageHeader title="Movimientos" testId="transactions-title" className="flex-wrap items-center">
-        <PeriodSwitcher screen="transactions" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            data-testid="transactions-export"
+            disabled={isFuturePeriod}
+            aria-disabled={isFuturePeriod}
+            onClick={() => setIsExportOpen(true)}
+            className="press flex h-9 items-center gap-1.5 rounded-full border border-input px-3 text-footnote font-semibold text-foreground hover:bg-accent disabled:cursor-not-allowed disabled:border-hairline disabled:text-muted-foreground"
+          >
+            <Download className="size-4" aria-hidden="true" />
+            Exportar
+          </button>
+          <PeriodSwitcher screen="transactions" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
+        </div>
       </PageHeader>
+
+      {isFuturePeriod && (
+        <p
+          data-testid="transactions-export-future"
+          className="mb-4 rounded-lg bg-warning-surface px-3 py-2 text-footnote text-warning"
+        >
+          Solo podés exportar el mes actual o meses anteriores.
+        </p>
+      )}
 
       {/* DEF-007 (FR-08): las eliminadas siguen en el historial, en su propia vista. */}
       <div role="group" aria-label="Qué movimientos ver" className="mb-5 inline-flex w-fit rounded-lg bg-secondary p-1">
@@ -123,6 +150,12 @@ export function TransactionsPage() {
         isOpen={txToDelete !== null}
         onClose={() => setTxToDelete(null)}
         onDeleted={() => transactionsState.refresh()}
+      />
+
+      <ExportTransactionsDialog
+        isOpen={isExportOpen}
+        period={period}
+        onClose={() => setIsExportOpen(false)}
       />
     </div>
   )
