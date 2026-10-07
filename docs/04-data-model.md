@@ -191,7 +191,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | id | uuid PK | |
 | user_id | uuid FK → users | |
 | transaction_id | uuid FK → transactions | **opcional** — null para deudas sueltas |
-| person | text | not null |
+| person | text | not null; recortada, de 1 a 60 caracteres (`debts_person_length`, ADR-037 §2) |
 | amount | numeric(14,2) | > 0 |
 | currency | enum | `ARS` \| `USD` |
 | fx_rate | numeric(14,4) | mismas reglas que en transactions |
@@ -199,7 +199,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | direction | enum | `owed_to_me` \| `i_owe` |
 | status | enum | `pending` \| `settled` |
 | settled_at | timestamptz | null si pending |
-| notes | text | |
+| notes | text | hasta 200 caracteres (`debts_notes_length`, ADR-037 §2) |
 | incurred_on | date | |
 | created_at | timestamptz | |
 
@@ -221,7 +221,7 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 | I7 | La suma de las deudas vinculadas a una transacción no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Trigger en la base (`security definer`: bloquea la transacción con `for update`, que authenticated no puede hacer por C4; DEF-016) |
 | I8 | Una transacción de tipo `expense` tiene categoría | Restricción de verificación |
 | I9 | `status = 'settled'` implica `settled_at` not null | Restricción de verificación |
-| I10 | Una transacción con `deleted_at` no aporta a ningún KPI | Filtro en todas las consultas de lectura |
+| I10 | Una transacción con `deleted_at` no aporta a ningún KPI, y tampoco su deuda vinculada (ADR-037 §4) | Filtro en todas las consultas de lectura |
 | I11 | Una suscripción tiene **como máximo una** transacción por período | Índice único parcial `(subscription_id, subscription_period)` |
 | I12 | `start_period ≤ generate_from_period`, y `start_period ≤ end_period` cuando `end_period` no es null. `generate_from_period` **nunca retrocede**: pausar y reanudar solo lo aumentan (R8) | Restricción de verificación + dominio |
 | I13 | `billing_day` está entre 1 y 31 | Restricción de verificación |
@@ -258,11 +258,11 @@ Cada tabla (`categories`, `accounts`, `fx_rates`, `subscriptions`, `transactions
 create policy "select_own_rows" on transactions
   for select using (user_id = auth.uid());
 -- análogas para insert/update/delete en las tablas de escritura directa (categories, accounts).
--- transactions y ledger_entries son de solo lectura para el cliente: se escriben únicamente vía
--- create_transaction (ADR-020). subscriptions también: se escribe por RPC (create_subscription y
--- las operaciones de ADR-030). debts no admite update
--- directo: su estado cambia con settle_debt y reopen_debt (ADR-037 §1, US-39); insert y delete
--- directos siguen hasta que create_debt (US-36) los reemplace.
+-- transactions, ledger_entries, subscriptions y debts son de solo lectura para el cliente:
+-- transactions y ledger_entries se escriben únicamente vía create_transaction (ADR-020);
+-- subscriptions, por RPC (create_subscription y las operaciones de ADR-030); debts, vía
+-- create_transaction (deuda vinculada, ADR-036), create_debt (deuda suelta, US-36) y
+-- settle_debt / reopen_debt (estado, US-39), ADR-037 §1.
 ```
 
 Reglas, sin excepciones:
@@ -339,7 +339,9 @@ parten de otra tabla — está indicado en cada una.
 5. **Cuotas heredadas** — imputaciones cuyo `installment_number > 1`.
 6. **Neto de reembolsos** — parte de `transactions`, no de `ledger_entries`. Total gastado
    del período menos las deudas `owed_to_me` **pendientes o saldadas** cuyo
-   `transaction_id` tiene `first_period` igual al período consultado. La deuda se imputa
+   `transaction_id` tiene `first_period` igual al período consultado y no tiene `deleted_at`
+   (ADR-037 §4: la deuda sigue la baja lógica de su gasto). Las deudas sueltas y las `i_owe` no
+   restan, y la fila del neto solo aparece si al menos una deuda cuenta (US-30). La deuda se imputa
    entera al mes de nacimiento de la compra, no prorrateada entre las cuotas — si se
    prorrateara, un gasto en 12 cuotas restaría una fracción de la deuda en cada uno de los
    doce meses, con su propio problema de redondeo. El compromiso de reembolso nace cuando

@@ -11,6 +11,7 @@ import {
   settledNoticeText,
   debtsForFilter,
   emptyDebtsMessage,
+  parseDebtDirectionFilter,
   parseDebtStatusFilter,
   type DebtRecord,
 } from '@/domain/debts'
@@ -222,4 +223,59 @@ describe('volver a pendiente (US-40)', () => {
     ['La deuda ya está saldada', false],
   ])('al reabrir, "%s" vuelve a pedir la lista: %s', (reason, stale) =>
     expect(isStaleDebtError(reason, 'reopen')).toBe(stale))
+})
+
+describe('filtro por dirección (US-79)', () => {
+  it.each([
+    [null, 'all'],
+    ['all', 'all'],
+    ['owed_to_me', 'owed_to_me'],
+    ['i_owe', 'i_owe'],
+    ['xyz', 'all'],
+    ['', 'all'],
+    ['I_OWE', 'all'],
+  ] as const)('?direction=%j se lee como %s (CA-1, CA-4)', (param, direction) =>
+    expect(parseDebtDirectionFilter(param)).toBe(direction))
+
+  const list = [
+    debt({ id: 'sofia', direction: 'owed_to_me', incurredOn: '2026-08-15' }),
+    debt({ id: 'ana', direction: 'i_owe', incurredOn: '2026-09-20' }),
+    debt({ id: 'pedro', direction: 'owed_to_me', status: 'settled', settledAt: '2026-09-10T12:00:00+00:00' }),
+    debt({ id: 'luis', direction: 'i_owe', status: 'settled', settledAt: '2026-09-12T12:00:00+00:00' }),
+    debt({ id: 'borrada', direction: 'i_owe', transactionId: 't', linkedTransactionDeleted: true }),
+  ]
+  const ids = (filter: 'pending' | 'settled' | 'all', direction: 'all' | 'owed_to_me' | 'i_owe') =>
+    debtsForFilter(list, filter, direction).map((d) => d.id)
+
+  it('"Todas" muestra las dos direcciones (CA-1)', () => expect(ids('pending', 'all')).toEqual(['ana', 'sofia']))
+
+  it('"Te deben" y "Debés" solo sacan filas; se combinan con el estado (CA-2, CA-3)', () => {
+    expect(ids('pending', 'owed_to_me')).toEqual(['sofia'])
+    expect(ids('pending', 'i_owe')).toEqual(['ana'])
+    expect(ids('settled', 'i_owe')).toEqual(['luis'])
+    expect(ids('settled', 'owed_to_me')).toEqual(['pedro'])
+  })
+
+  it('el orden es el del filtro de estado; la de un gasto eliminado tampoco aparece', () => {
+    expect(ids('all', 'i_owe')).toEqual(['ana', 'luis'])
+    expect(ids('settled', 'all')).toEqual(['luis', 'pedro'])
+  })
+
+  it.each([
+    ['pending', 'owed_to_me', 'Nadie te debe nada por ahora.', true],
+    ['pending', 'i_owe', 'No debés nada por ahora.', true],
+    ['settled', 'owed_to_me', 'Todavía no te saldaron ninguna deuda.', false],
+    ['settled', 'i_owe', 'Todavía no saldaste ninguna deuda tuya.', false],
+    ['all', 'owed_to_me', 'No cargaste deudas a tu favor.', true],
+    ['all', 'i_owe', 'No cargaste deudas que debas.', true],
+    ['pending', 'all', 'No tenés deudas pendientes.', true],
+    ['settled', 'all', 'Todavía no saldaste ninguna deuda.', false],
+    ['all', 'all', 'No cargaste ninguna deuda todavía.', true],
+  ] as const)('vacío con %s y %s: "%s", "Cargar una deuda": %s (CA-6)', (filter, direction, message, offerNew) =>
+    expect(emptyDebtsMessage(filter, direction)).toEqual({ message, offerNew }))
+
+  it('los totales no dependen del filtro de dirección (CA-7)', () => {
+    const totals = debtTotals(list)
+    expect([totals.owedToMe.toFixed(2), totals.iOwe.toFixed(2)]).toEqual(['60000.00', '60000.00'])
+  })
 })

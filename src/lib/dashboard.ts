@@ -1,5 +1,5 @@
 import { addMonths, toDbDate, type Period } from '@/domain/period'
-import type { ConsistencyTransaction, SummaryEntry } from '@/domain/summary'
+import type { ConsistencyTransaction, SummaryDebt, SummaryEntry } from '@/domain/summary'
 import { supabase } from './supabase'
 
 /**
@@ -91,6 +91,41 @@ export async function fetchMonthlyLedgerEntries(period: Period): Promise<Summary
       account: row.transaction.account,
     },
   }))
+}
+
+/**
+ * Deudas que pueden restar en el neto de reembolsos del período (US-30, consulta 6): a favor y
+ * vinculadas a un gasto vigente que nace en el período. El `!inner` deja afuera las sueltas; el
+ * dominio (computeMonthlySummary) vuelve a aplicar la regla completa. amount_ars viaja como texto,
+ * porque PostgREST manda numeric como número JSON (C2).
+ */
+export async function fetchMonthlyReimbursementDebts(period: Period): Promise<SummaryDebt[]> {
+  const { data, error } = await supabase
+    .from('debts')
+    .select(`
+      transaction_id,
+      direction,
+      amount_ars_text:amount_ars::text,
+      transaction:transactions!debts_transaction_fk!inner (first_period, deleted_at)
+    `)
+    .eq('direction', 'owed_to_me')
+    .eq('transaction.first_period', toDbDate(period))
+    .is('transaction.deleted_at', null)
+
+  if (error) throw error
+  return (data ?? []).map((row) => ({
+    transaction_id: row.transaction_id,
+    direction: row.direction,
+    amount_ars: requiredText(row.amount_ars_text),
+    transaction_first_period: row.transaction?.first_period ?? null,
+    transaction_deleted_at: row.transaction?.deleted_at ?? null,
+  }))
+}
+
+/** amount_ars es generada y nunca nula; si igual faltara, la carga falla en vez de sumar un vacío. */
+function requiredText(value: string | null): string {
+  if (value === null) throw new Error('Deuda sin amount_ars')
+  return value
 }
 
 /**

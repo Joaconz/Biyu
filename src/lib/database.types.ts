@@ -209,6 +209,9 @@ isOneToOne: false
 "catch_up_subscriptions":
 { Args: { "p_subscription_id"?: string,"p_today": string,"p_user_id": string }; Returns: Json
                            },
+"create_debt":
+{ Args: { "p_amount": number,"p_currency": Database["public"]['Enums']["currency_code"],"p_direction": Database["public"]['Enums']["debt_direction"],"p_fx_rate": number,"p_incurred_on": string,"p_notes"?: string,"p_person": string }; Returns: string
+                           },
 "create_subscription":
 { Args: { "p_account_id": string,"p_amount": number,"p_billing_day": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description"?: string,"p_end_period"?: string,"p_name": string,"p_start_period": string }; Returns: Json
                            },

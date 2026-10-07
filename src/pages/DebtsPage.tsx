@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { DebtItem } from '@/components/debts/DebtItem'
-import { DebtsFilter } from '@/components/debts/DebtsFilter'
+import { DebtsDirectionFilter, DebtsFilter } from '@/components/debts/DebtsFilter'
 import { DebtsTotals } from '@/components/debts/DebtsTotals'
 import { SettledNotice } from '@/components/debts/SettledNotice'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -14,8 +14,10 @@ import {
   debtsForFilter,
   emptyDebtsMessage,
   isStaleDebtError,
+  parseDebtDirectionFilter,
   parseDebtStatusFilter,
   reopenedNoticeText,
+  type DebtDirectionFilter,
   type DebtRecord,
   type DebtStatusFilter,
 } from '@/domain/debts'
@@ -27,8 +29,10 @@ const UNDO_MS = 5000
 /** Deudas (US-38): la lista con su filtro en la URL (C11). */
 export function DebtsPage() {
   const [params, setParams] = useSearchParams()
-  // Un valor desconocido se lee como "Pendientes" y la URL queda como está hasta que se elige otro (CA-4).
+  // Un valor desconocido se lee como "Pendientes" (estado) o "Todas" (dirección), y la URL queda como
+  // está hasta que se elige otro (US-38 CA-4, US-79 CA-4).
   const filter = parseDebtStatusFilter(params.get('status'))
+  const direction = parseDebtDirectionFilter(params.get('direction'))
   const debtsState = useDebts()
   const { reload } = debtsState
   // Las filas que esperan settle_debt o reopen_debt. El ref corta el doble toque antes de que React
@@ -114,17 +118,20 @@ export function DebtsPage() {
     toast.success(reopenedNoticeText(debt.person), { testId: 'debts-reopened' })
   }
 
-  function selectFilter(next: DebtStatusFilter) {
+  // Cada filtro escribe su parámetro y conserva el otro (US-79 CA-2, CA-5). No vuelve a pedir datos.
+  function setParam(name: 'status' | 'direction', value: string) {
     dismissUndoNotices()
     setParams((prev) => {
       const p = new URLSearchParams(prev)
-      p.set('status', next)
+      p.set(name, value)
       return p
     })
   }
+  const selectFilter = (next: DebtStatusFilter) => setParam('status', next)
+  const selectDirection = (next: DebtDirectionFilter) => setParam('direction', next)
 
-  const debts = debtsState.status === 'ready' ? debtsForFilter(debtsState.debts, filter) : []
-  const empty = emptyDebtsMessage(filter)
+  const debts = debtsState.status === 'ready' ? debtsForFilter(debtsState.debts, filter, direction) : []
+  const empty = emptyDebtsMessage(filter, direction)
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
@@ -138,6 +145,7 @@ export function DebtsPage() {
           estado con la lista, se recalculan cada vez que se vuelve a pedir (CA-5). */}
       {debtsState.status === 'ready' && <DebtsTotals totals={debtTotals(debtsState.debts)} />}
       <DebtsFilter value={filter} onChange={selectFilter} />
+      <DebtsDirectionFilter value={direction} onChange={selectDirection} />
 
       {debtsState.status === 'loading' && (
         <p data-testid="debts-loading" className="text-callout text-muted-foreground">

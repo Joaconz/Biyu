@@ -1,5 +1,26 @@
+import type { NewDebt } from '@/domain/debtDraft'
 import type { DebtRecord } from '@/domain/debts'
+import { serializeMoney, type Decimal } from '@/domain/money'
 import { supabase } from './supabase'
+
+// C2: los montos viajan como string; los tipos generados dicen `number` para numeric, por eso el
+// cast vive únicamente en este borde (como en transactions.ts).
+const asNumeric = (d: Decimal) => serializeMoney(d) as unknown as number
+
+/** Crea una deuda suelta con una sola llamada (US-36, ADR-037): nunca un insert a debts. Devuelve su id. */
+export async function createDebt(debt: NewDebt): Promise<string> {
+  const { data, error } = await supabase.rpc('create_debt', {
+    p_direction: debt.direction,
+    p_person: debt.person,
+    p_amount: asNumeric(debt.amount),
+    p_currency: debt.currency,
+    p_fx_rate: debt.fxRate ? asNumeric(debt.fxRate) : (null as unknown as number),
+    p_incurred_on: debt.incurredOn,
+    p_notes: debt.notes ?? undefined,
+  })
+  if (error) throw error
+  return data
+}
 
 /** Pasa la deuda a saldada (US-39); `settled_at` lo pone el servidor (ADR-037 §3, C1). */
 export async function settleDebt(id: string): Promise<void> {

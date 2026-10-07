@@ -1,6 +1,6 @@
 -- DEF-011 (#152): delete_account borra la cuenta con todo lo que cuelga de ella (ADR-026).
 begin;
-select plan(12);
+select plan(13);
 
 insert into auth.users (id, instance_id, aud, role, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','00000000-0000-0000-0000-000000000000','authenticated','authenticated','a@test.local'),
@@ -20,14 +20,13 @@ set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","r
 select public.create_transaction('expense', 3000, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',
   'a0000000-0000-0000-0000-000000000001', 3, '2026-08-15');
 select public.create_transaction('expense', 1000, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',
-  'a0000000-0000-0000-0000-000000000001', 1, '2026-08-16');
+  'a0000000-0000-0000-0000-000000000001', 1, '2026-08-16', p_shared_person => 'Sofía', p_shared_amount => 400);
 select public.delete_transaction(public.create_transaction('expense', 500, 'ARS', null,
   'c0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 1, '2026-08-17'));
 select public.create_transaction('expense', 200, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',
   'a0000000-0000-0000-0000-000000000002', 1, '2026-08-18');
-insert into debts (user_id, transaction_id, person, amount, currency, direction, incurred_on)
-  select 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', id, 'Sofía', 400, 'ARS', 'owed_to_me', '2026-08-16'
-  from transactions where amount = 1000;
+
+select is((select count(*) from debts), 1::bigint, 'antes de borrar, la cuenta tiene su deuda vinculada');
 
 -- Otro usuario no puede borrar la cuenta de A, ni A la de B.
 set local request.jwt.claims = '{"sub":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","role":"authenticated"}';

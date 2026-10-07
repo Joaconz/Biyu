@@ -30,11 +30,14 @@ export interface SummaryEntry {
   }
 }
 
+/** Una deuda para el neto de reembolsos (US-30), con lo que hace falta de su gasto de origen. */
 export interface SummaryDebt {
   transaction_id: string | null
   direction: 'owed_to_me' | 'i_owe'
   amount_ars: string
   transaction_first_period: string | null
+  /** Baja lógica del gasto de origen; null si está vigente o si la deuda es suelta. */
+  transaction_deleted_at: string | null
 }
 
 export interface CategoryExpenseSummary {
@@ -61,7 +64,10 @@ export interface MonthlySummary {
   income: Decimal
   balance: Decimal
   inheritedInstallments: Decimal // cuotas con installment_number > 1
+  /** Total gastado menos las deudas que cuentan para el neto (US-30); puede ser negativo. */
   netOfReimbursements: Decimal
+  /** Si alguna deuda cuenta para el neto del período: sin ninguna, la fila no se muestra (US-30 CA-7). */
+  hasReimbursements: boolean
   byCategory: Map<string | null, Decimal>
   byAccount: Map<string, Decimal>
   categoryExpenses: CategoryExpenseSummary[]
@@ -195,10 +201,9 @@ export function computeMonthlySummary(
     })
     .sort((a, b) => b.amount.comparedTo(a.amount))
 
-  // La deuda se imputa entera al mes de nacimiento de la compra (04-data-model, consulta 6).
-  const reimbursed = debts
-    .filter((d) => d.direction === 'owed_to_me' && d.transaction_first_period === key)
-    .reduce((acc, d) => acc.plus(parseMoney(d.amount_ars)), new Decimal(0))
+  // La deuda se imputa entera al mes de nacimiento de la compra (04-data-model, consulta 6, ADR-037 §6).
+  const counted = debts.filter((d) => countsForNet(d, key))
+  const reimbursed = counted.reduce((acc, d) => acc.plus(parseMoney(d.amount_ars)), new Decimal(0))
 
   return {
     expenses,
@@ -207,12 +212,27 @@ export function computeMonthlySummary(
     balance: income.minus(expenses),
     inheritedInstallments: inherited,
     netOfReimbursements: expenses.minus(reimbursed),
+    hasReimbursements: counted.length > 0,
     byCategory,
     byAccount,
     categoryExpenses,
     accountExpenses,
     hasData,
   }
+}
+
+/**
+ * Qué deuda resta en el neto de reembolsos del período (US-30, ADR-037 §6): a favor, pendiente o
+ * saldada, vinculada a un gasto sin baja lógica (§4) cuya compra nace en el período. Las sueltas y
+ * las `i_owe` no cuentan (ADR-006).
+ */
+function countsForNet(d: SummaryDebt, periodKey: string): boolean {
+  return (
+    d.direction === 'owed_to_me' &&
+    d.transaction_id !== null &&
+    d.transaction_deleted_at === null &&
+    d.transaction_first_period === periodKey
+  )
 }
 
 /**
