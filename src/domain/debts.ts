@@ -1,5 +1,5 @@
 import type { Currency } from './fx'
-import { formatArs, formatUsd, parseMoney } from './money'
+import { Decimal, formatArs, formatUsd, parseMoney } from './money'
 import { formatDisplayDate } from './period'
 
 export type DebtDirection = 'owed_to_me' | 'i_owe'
@@ -127,6 +127,35 @@ export function debtOriginText(origin: DebtOrigin | null): string {
   const total = origin.currency === 'USD' ? formatUsd(amount) : formatArs(amount)
   const what = origin.categoryName ? `${origin.categoryName}, ${total}` : total
   return `Gasto compartido: ${what} del ${formatDisplayDate(origin.occurredOn)}`
+}
+
+/**
+ * Totales de Deudas (US-37, ADR-037 §5): solo pendientes y visibles, en pesos con el `amount_ars`
+ * congelado de cada deuda (C5). No dependen del filtro de la lista.
+ */
+export interface DebtTotals {
+  owedToMe: Decimal
+  iOwe: Decimal
+  /** "Te deben" − "Debés". */
+  net: Decimal
+}
+
+export function debtTotals(debts: readonly DebtRecord[]): DebtTotals {
+  let owedToMe = new Decimal(0)
+  let iOwe = new Decimal(0)
+  for (const d of debts) {
+    if (d.status !== 'pending' || !isVisibleDebt(d)) continue
+    const ars = parseMoney(d.amountArs)
+    if (d.direction === 'owed_to_me') owedToMe = owedToMe.plus(ars)
+    else iOwe = iOwe.plus(ars)
+  }
+  return { owedToMe, iOwe, net: owedToMe.minus(iOwe) }
+}
+
+/** "A tu favor $95.000,00", "En contra $5.000,00" (sin signo) o "En cero" (US-37). */
+export function debtNetText(net: Decimal): string {
+  if (net.isZero()) return 'En cero'
+  return `${net.isPositive() ? 'A tu favor' : 'En contra'} ${formatArs(net.abs())}`
 }
 
 /** Mensaje del estado vacío de cada filtro (US-38), y si ofrece "Cargar una deuda". */

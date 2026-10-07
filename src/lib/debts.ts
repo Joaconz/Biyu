@@ -24,8 +24,7 @@ export async function fetchDebts(): Promise<DebtRecord[]> {
     person: row.person,
     direction: row.direction,
     amount: row.amount_text as string,
-    // amount_ars es generada y nunca nula (CHECK amount_ars > 0); los tipos la ven nullable.
-    amountArs: (row.amount_ars_text ?? '') as string,
+    amountArs: requiredAmountArs(row.amount_ars_text),
     currency: row.currency,
     incurredOn: row.incurred_on,
     notes: row.notes,
@@ -43,4 +42,14 @@ export async function fetchDebts(): Promise<DebtRecord[]> {
         }
       : null,
   }))
+}
+
+/**
+ * amount_ars es generada y nunca nula (sale de amount, que es not null); los tipos la ven nullable.
+ * Si igual faltara, la carga falla y se ve el error de la pantalla, en vez de que los totales
+ * (US-37) rompan el render al parsear un monto vacío.
+ */
+function requiredAmountArs(value: string | null): string {
+  if (value === null) throw new Error('Deuda sin amount_ars')
+  return value
 }

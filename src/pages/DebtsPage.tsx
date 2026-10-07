@@ -1,10 +1,11 @@
 import { Link, useSearchParams } from 'react-router'
 import { DebtItem } from '@/components/debts/DebtItem'
 import { DebtsFilter } from '@/components/debts/DebtsFilter'
+import { DebtsTotals } from '@/components/debts/DebtsTotals'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { buttonVariants } from '@/components/ui/button'
-import { debtsForFilter, emptyDebtsMessage, parseDebtStatusFilter, type DebtStatusFilter } from '@/domain/debts'
+import { debtTotals, debtsForFilter, emptyDebtsMessage, parseDebtStatusFilter, type DebtStatusFilter } from '@/domain/debts'
 import { useDebts } from '@/hooks/useDebts'
 
 /** Deudas (US-38): la lista con su filtro en la URL (C11). */
@@ -33,7 +34,9 @@ export function DebtsPage() {
         </Link>
       </PageHeader>
 
-      {/* Los totales de pendientes (US-37) van entre el encabezado y el filtro. */}
+      {/* Los totales (US-37) salen de todas las deudas, no de las del filtro (CA-4). Como comparten el
+          estado con la lista, se recalculan cada vez que se vuelve a pedir (CA-5). */}
+      {debtsState.status === 'ready' && <DebtsTotals totals={debtTotals(debtsState.debts)} />}
       <DebtsFilter value={filter} onChange={selectFilter} />
 
       {debtsState.status === 'loading' && (
