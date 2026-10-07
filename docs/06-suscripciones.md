@@ -21,11 +21,19 @@ al final.
 
 ## El modelo de generación
 
-Cada vez que el usuario entra a la app, antes de renderizar el dashboard, el cliente invoca
-la Edge Function `run-subscription-catchup` (ver `03-architecture-spec.md`) que ejecuta una
-**puesta al día**: mira todas las suscripciones activas del usuario y crea las transacciones
-de los períodos vencidos que todavía no existen. No hay cron, no hay worker, no hay estado a
-mantener entre corridas.
+Cada vez que el usuario entra a la app, el cliente invoca la Edge Function
+`run-subscription-catchup` (ver `03-architecture-spec.md`) que ejecuta una **puesta al día**:
+mira todas las suscripciones activas del usuario y crea las transacciones de los períodos
+vencidos que todavía no existen. No hay cron, no hay worker, no hay estado a mantener entre
+corridas. Si la puesta al día falla o tarda más de 8 segundos, la app se muestra igual con una
+franja de error y "Reintentar" (ADR-031).
+
+La persiste `catch_up_subscriptions(p_user_id, p_today, p_subscription_id)`, una función interna
+de Postgres (ADR-030). La llaman la RPC `run_subscription_catchup` (la de la Edge Function, con
+`auth.uid()` y el hoy del servidor) y cada operación sobre una suscripción, dentro de su misma
+transacción: alta, edición, pausa, reanudación y cancelación ponen al día antes o después del
+cambio. Cada suscripción se procesa en su propio bloque: lo que no se puede generar (sin tipo de
+cambio, monto en pesos fuera de rango) se informa en `failed` y el resto sigue.
 
 La corrección de esto depende de una sola propiedad: **la puesta al día tiene que ser
 idempotente**. Correrla cien veces seguidas tiene que dar el mismo resultado que correrla una
@@ -37,8 +45,8 @@ equivocara (I11).
 
 ```typescript
 interface OccurrenceDraft {
-  period: Period;             // día 1 del mes al que se imputa
-  occurredOn: Date;           // fecha real del cargo
+  period: Period;             // el mes al que se imputa
+  occurredOn: string;         // fecha real del cargo, YYYY-MM-DD
   amount: Decimal;
   currency: Currency;
   fxRate: Decimal | null;     // el de fx_rates de ESE período; null si ARS
@@ -46,11 +54,15 @@ interface OccurrenceDraft {
 
 function computeDueOccurrences(
   subscription: SubscriptionState,
-  alreadyGenerated: ReadonlySet<Period>,       // períodos que ya tienen transacción
-  fxRatesByPeriod: ReadonlyMap<Period, Decimal>,
+  alreadyGenerated: ReadonlySet<string>,       // 'YYYY-MM' de los períodos que ya tienen transacción
+  fxRatesByPeriod: ReadonlyMap<string, Decimal>, // por 'YYYY-MM'
   today: Date,
 ): OccurrenceDraft[] { /* ... */ }
 ```
+
+Los períodos van como `YYYY-MM` en el `Set` y el `Map`: un `Set<Period>` compararía objetos, no
+meses. Como en Postgres, tampoco se propone un período cuyo monto en pesos queda fuera de
+`numeric(14,2)` o redondea a $0,00.
 
 Esta es la función de dominio en `src/domain/subscriptions.ts`, usada para previsualizar. La
 que efectivamente persiste vive como función de Postgres, invocada desde la Edge Function

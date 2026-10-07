@@ -278,10 +278,12 @@ Reglas, sin excepciones:
    (`42501`) y no devuelve datos; un pedido con el JWT de otro usuario pidiendo un recurso
    ajeno devuelve cero filas — RLS no distingue "no existe"
    de "no es tuyo", y eso es intencional: no permite inferir existencia.
-4. **La `service_role key`, que se salta RLS por completo, nunca la usa el cliente.** Solo
-   las Edge Functions que corren en el servidor de Supabase (cierre de tarjeta, puesta al día
-   de suscripciones) y el arnés de tests la tienen disponible, y ambos la usan para escribir
-   en nombre del usuario correcto explícitamente, no para saltear el filtro por error (C8).
+4. **La `service_role key`, que se salta RLS por completo, nunca la usa el cliente ni una Edge
+   Function que atiende el pedido de un usuario.** `run-subscription-catchup` reenvía el JWT del
+   usuario y llama a la RPC `run_subscription_catchup`, que toma el usuario de `auth.uid()`
+   (ADR-030, ADR-031). Solo la tienen disponible el arnés de tests (ADR-015) y un proceso sin
+   sesión de usuario, si llegara a existir (por ejemplo, el cierre de tarjeta), y la usan para
+   escribir en nombre del usuario correcto explícitamente, no para saltear el filtro por error (C8).
 
 `ledger_entries` conserva el `user_id` denormalizado. No es solo para que la política no
 tenga que hacer un join por fila — aunque eso también importa para el plan de consulta —

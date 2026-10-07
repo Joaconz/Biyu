@@ -236,6 +236,9 @@ isOneToOne: false
 "restore_transaction":
 { Args: { "p_transaction_id": string }; Returns: undefined
                            },
+"run_subscription_catchup":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "settle_debt":
 { Args: { "p_debt_id": string }; Returns: undefined
                            },

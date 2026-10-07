@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { Decimal } from '@/domain/money'
+import { formatPeriod } from '@/domain/period'
 import {
   acceptBillingDayInput,
+  catchupGeneratedText,
+  computeDueOccurrences,
   codePointLength,
   emptySubscriptionForm,
   fieldOfSaveError,
@@ -16,6 +20,7 @@ import {
   validateSubscriptionForm,
   type SubscriptionFormValues,
   type SubscriptionRecord,
+  type SubscriptionState,
 } from '@/domain/subscriptions'
 
 // Hoy de los ejemplos de entrega-2/historias/suscripciones.md: 2026-10-06, período corriente octubre 2026.
@@ -242,5 +247,95 @@ describe('estado en el detalle (US-52)', () => {
   it('sin la fecha (no debería pasar, I15) igual dice el estado', () => {
     expect(statusText(record({ status: 'paused', pausedAt: null }))).toBe('Pausada')
     expect(statusText(record({ status: 'cancelled', cancelledAt: null }))).toBe('Cancelada')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Puesta al día (US-53): la misma regla que catch_up_subscriptions, con `today` fijo (C1).
+// ---------------------------------------------------------------------------
+
+function state(patch: Partial<SubscriptionState> = {}): SubscriptionState {
+  return {
+    status: 'active',
+    amount: new Decimal('5000'),
+    currency: 'ARS',
+    billingDay: 10,
+    generateFromPeriod: { year: 2026, month: 5 },
+    endPeriod: null,
+    ...patch,
+  }
+}
+
+const NONE = new Set<string>()
+const NO_RATES = new Map<string, Decimal>()
+const due = (s: SubscriptionState, today: Date, generated = NONE, rates = NO_RATES) =>
+  computeDueOccurrences(s, generated, rates, today).map((o) => o.occurredOn)
+
+describe('computeDueOccurrences (US-53)', () => {
+  it('CA-1: $5.000,00, día 10, desde mayo 2026, al 2026-08-15 → mayo a agosto, el día 10', () => {
+    const drafts = computeDueOccurrences(state(), NONE, NO_RATES, new Date(2026, 7, 15))
+    expect(drafts.map((d) => d.occurredOn)).toEqual(['2026-05-10', '2026-06-10', '2026-07-10', '2026-08-10'])
+    expect(drafts.map((d) => formatPeriod(d.period))).toEqual(['2026-05', '2026-06', '2026-07', '2026-08'])
+    expect(drafts.every((d) => d.amount.equals(5000) && d.currency === 'ARS' && d.fxRate === null)).toBe(true)
+  })
+
+  it('CA-2 / R2: lo ya generado no se vuelve a proponer, aunque se haya borrado', () => {
+    const generated = new Set(['2026-05', '2026-06', '2026-07', '2026-08'])
+    expect(due(state(), new Date(2026, 7, 15), generated)).toEqual([])
+    expect(due(state(), new Date(2026, 7, 15), new Set(['2026-06']))).toEqual(['2026-05-10', '2026-07-10', '2026-08-10'])
+  })
+
+  it('CA-7 / R3: pausada o cancelada no genera nada', () => {
+    expect(due(state({ status: 'paused' }), new Date(2026, 7, 15))).toEqual([])
+    expect(due(state({ status: 'cancelled' }), new Date(2026, 7, 15))).toEqual([])
+  })
+
+  it('CA-8: con fin mayo 2026, desde marzo, al 2026-09-01 → marzo, abril y mayo', () => {
+    const s = state({ amount: new Decimal('4000'), billingDay: 5, generateFromPeriod: { year: 2026, month: 3 }, endPeriod: { year: 2026, month: 5 } })
+    expect(due(s, new Date(2026, 8, 1))).toEqual(['2026-03-05', '2026-04-05', '2026-05-05'])
+  })
+
+  it('CA-9 / I17: nada antes de generate_from_period, después del corriente ni después del fin', () => {
+    const s = state({ generateFromPeriod: { year: 2026, month: 7 }, endPeriod: { year: 2026, month: 12 } })
+    const periods = computeDueOccurrences(s, NONE, NO_RATES, new Date(2026, 8, 20)).map((d) => formatPeriod(d.period))
+    expect(periods).toEqual(['2026-07', '2026-08', '2026-09'])
+  })
+
+  it('CA-12: un monto que en pesos se pasa de numeric(14,2) no se genera', () => {
+    const s = state({ currency: 'USD', amount: new Decimal('999999999999.99'), generateFromPeriod: { year: 2026, month: 9 } })
+    expect(due(s, new Date(2026, 8, 20), NONE, new Map([['2026-09', new Decimal('1250')]]))).toEqual([])
+  })
+
+  it('CA-12: un monto que en pesos redondea a $0,00 tampoco; los demás períodos se generan igual', () => {
+    const tiny = state({ currency: 'USD', amount: new Decimal('0.01'), billingDay: 1, generateFromPeriod: { year: 2026, month: 8 } })
+    const rates = new Map([['2026-08', new Decimal('0.4')], ['2026-09', new Decimal('1250')]])
+    expect(due(tiny, new Date(2026, 8, 20), NONE, rates)).toEqual(['2026-09-01'])
+    const huge = state({ currency: 'USD', amount: new Decimal('999999999.99'), billingDay: 1, generateFromPeriod: { year: 2026, month: 8 } })
+    const split = new Map([['2026-08', new Decimal('1000')], ['2026-09', new Decimal('1001')]])
+    expect(due(huge, new Date(2026, 8, 20), NONE, split)).toEqual(['2026-08-01'])
+  })
+
+  it('R6: en USD, el período sin tipo de cambio no se genera; los demás sí, con el de su mes', () => {
+    const s = state({ currency: 'USD', amount: new Decimal('10'), billingDay: 1, generateFromPeriod: { year: 2026, month: 6 } })
+    const drafts = computeDueOccurrences(s, NONE, new Map([['2026-06', new Decimal('1230')]]), new Date(2026, 6, 20))
+    expect(drafts.map((d) => [formatPeriod(d.period), d.fxRate?.toFixed(2)])).toEqual([['2026-06', '1230.00']])
+  })
+
+  it('CA-13: inicio en el período corriente con el cobro ya pasado → 1; inicio futuro → nada', () => {
+    expect(due(state({ generateFromPeriod: { year: 2026, month: 10 }, billingDay: 3 }), TODAY)).toEqual(['2026-10-03'])
+    expect(due(state({ generateFromPeriod: { year: 2026, month: 11 } }), TODAY)).toEqual([])
+  })
+
+  it('CA-14: fin igual al inicio, los dos en el pasado → exactamente una', () => {
+    const s = state({ generateFromPeriod: { year: 2026, month: 2 }, endPeriod: { year: 2026, month: 2 } })
+    expect(due(s, TODAY)).toEqual(['2026-02-10'])
+  })
+})
+
+describe('aviso de la puesta al día (US-53)', () => {
+  it('"Se cargaron N gastos de suscripciones", en singular con 1, y sin aviso con 0', () => {
+    expect(catchupGeneratedText(0)).toBeNull()
+    expect(catchupGeneratedText(1)).toBe('Se cargó 1 gasto de suscripciones')
+    expect(catchupGeneratedText(4)).toBe('Se cargaron 4 gastos de suscripciones')
   })
 })

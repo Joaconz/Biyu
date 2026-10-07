@@ -38,7 +38,9 @@ conserva solo el permiso de lectura: `insert`, `update` y `delete` directos se r
 - **"Hoy"** es el de ADR-021: `(now() at time zone 'America/Argentina/Buenos_Aires')::date`. Ninguna RPC
   pública recibe `today` ni `generate_from_period`.
 - **"Poner al día"** es una función interna, `catch_up_subscriptions(p_user_id, p_today,
-  p_subscription_id default null)`, la misma que llama la Edge Function `run-subscription-catchup`.
+  p_subscription_id default null)`. La Edge Function `run-subscription-catchup` llega a ella por la
+  RPC pública `run_subscription_catchup()` (sin parámetros, `execute` solo para `authenticated`),
+  que la llama con `auth.uid()` y el hoy del servidor (US-53).
   Recibe `p_today` para que pgTAP pueda fijar la fecha; **no tiene `execute` para `authenticated` ni
   `anon`**: las RPC públicas la llaman con el hoy del servidor.
 - **Cada suscripción se procesa en su propio bloque** (`begin … exception`, un savepoint por

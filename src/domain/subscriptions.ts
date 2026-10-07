@@ -2,16 +2,19 @@
 // entra por parámetro (C1) y es el hoy de Argentina (ADR-031 §7). Postgres repite cada validación
 // en create_subscription con los mismos mensajes (C6).
 import type { Currency } from './fx'
-import { Decimal, formatArs, formatUsdCode, tryParseMoney } from './money'
+import { convertToArs, Decimal, formatArs, formatUsdCode, tryParseMoney } from './money'
 import {
   addMonths,
   argentinaDateOf,
   currentPeriod,
+  daysInMonth,
   formatDisplayDate,
   formatPeriod,
   formatPeriodLong,
   isPeriodBefore,
+  isSamePeriod,
   parsePeriod,
+  toIsoDate,
   type Period,
 } from './period'
 import { MAX_AMOUNT } from './validation'
@@ -33,6 +36,87 @@ export interface SubscriptionRecord {
   pausedAt: string | null
   cancelledAt: string | null
   description: string | null
+}
+
+// ---------------------------------------------------------------------------
+// Puesta al día (ADR-017, docs/06-suscripciones.md R1–R7)
+// ---------------------------------------------------------------------------
+// La que persiste es catch_up_subscriptions, en Postgres (ADR-030); esta es la misma regla para que
+// la app calcule sin escribir (próximo cobro, vista previa, bloqueadas). Las dos tienen que dar las
+// mismas fechas (US-54 CA-5).
+
+/** Lo que la puesta al día necesita de una suscripción: sus valores actuales (R7). */
+export interface SubscriptionState {
+  status: SubscriptionStatus
+  amount: Decimal
+  currency: Currency
+  billingDay: number
+  generateFromPeriod: Period
+  endPeriod: Period | null
+}
+
+export interface OccurrenceDraft {
+  /** Período al que se imputa; también es `subscription_period`. */
+  period: Period
+  /** Fecha real del cargo, `YYYY-MM-DD` (R4). */
+  occurredOn: string
+  amount: Decimal
+  currency: Currency
+  /** El de `fx_rates` de ese período; null si es ARS (C5). */
+  fxRate: Decimal | null
+}
+
+/** R4: el día de cobro, recortado al último día del mes. Nunca se corre al mes siguiente. */
+export function occurrenceDate(period: Period, billingDay: number): string {
+  return `${formatPeriod(period)}-${String(Math.min(billingDay, daysInMonth(period))).padStart(2, '0')}`
+}
+
+const MIN_AMOUNT = new Decimal('0.01')
+
+/**
+ * Las ocurrencias vencidas que faltan generar. `alreadyGenerated` y `fxRatesByPeriod` van por
+ * `YYYY-MM`: un `Set<Period>` compararía objetos, no meses.
+ *   R1  de `generateFromPeriod` a min(período de `today`, `endPeriod`), inclusive.
+ *   R2  se saltea un período ya generado, aunque esa transacción se haya borrado.
+ *   R3  solo una suscripción activa genera.
+ *   R5  el período corriente, solo si `today` ya llegó al día de cobro.
+ *   R6  en USD, un período sin tipo de cambio no se genera (queda bloqueado).
+ * Como en Postgres, tampoco se genera un período cuyo monto en pesos queda fuera de numeric(14,2)
+ * o redondea a $0,00 (ADR-030).
+ */
+export function computeDueOccurrences(
+  subscription: SubscriptionState,
+  alreadyGenerated: ReadonlySet<string>,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal>,
+  today: Date,
+): OccurrenceDraft[] {
+  if (subscription.status !== 'active') return []
+  const current = currentPeriod(today)
+  const last = subscription.endPeriod && isPeriodBefore(subscription.endPeriod, current) ? subscription.endPeriod : current
+  const todayIso = toIsoDate(today)
+  const drafts: OccurrenceDraft[] = []
+  for (let period = subscription.generateFromPeriod; !isPeriodBefore(last, period); period = addMonths(period, 1)) {
+    const key = formatPeriod(period)
+    if (alreadyGenerated.has(key)) continue
+    const occurredOn = occurrenceDate(period, subscription.billingDay)
+    if (isSamePeriod(period, current) && todayIso < occurredOn) continue
+    const fxRate = subscription.currency === 'USD' ? (fxRatesByPeriod.get(key) ?? null) : null
+    if (subscription.currency === 'USD' && !fxRate) continue
+    const amountArs = convertToArs(subscription.amount, fxRate)
+    if (amountArs.lt(MIN_AMOUNT) || amountArs.gt(MAX_AMOUNT)) continue
+    drafts.push({ period, occurredOn, amount: subscription.amount, currency: subscription.currency, fxRate })
+  }
+  return drafts
+}
+
+/** ADR-031 §2: lo máximo que la carga espera a la puesta al día antes de mostrar la pantalla. */
+export const CATCHUP_TIMEOUT_MS = 8000
+
+/** Aviso de la puesta al día (US-53): null si no creó nada, porque entonces no hay aviso. */
+export function catchupGeneratedText(generated: number): string | null {
+  if (generated <= 0) return null
+  if (generated === 1) return 'Se cargó 1 gasto de suscripciones'
+  return `Se cargaron ${generated} gastos de suscripciones`
 }
 
 // ---------------------------------------------------------------------------

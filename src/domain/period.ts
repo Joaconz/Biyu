@@ -157,6 +157,11 @@ export function formatDayHeading(isoDate: string, today: Date): string {
   return `${WEEKDAY_NAMES[weekday]} ${day} de ${MONTH_NAMES[month - 1]}`
 }
 
+/** Cantidad de días del mes. Aritmética de calendario en UTC: no lee el reloj (C1). */
+export function daysInMonth({ year, month }: Period): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
+}
+
 /**
  * Días del período que ya pasaron, contando hoy: el mes entero si es pasado, 0 si es futuro.
  * Es el denominador de "días con registro" (US-32).
@@ -165,5 +170,5 @@ export function daysElapsedInPeriod(period: Period, today: Date): number {
   const current = currentPeriod(today)
   if (isPeriodBefore(current, period)) return 0
   if (isSamePeriod(current, period)) return today.getDate()
-  return new Date(Date.UTC(period.year, period.month, 0)).getUTCDate()
+  return daysInMonth(period)
 }

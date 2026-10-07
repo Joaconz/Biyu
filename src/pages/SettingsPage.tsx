@@ -48,6 +48,7 @@ import { validateFxRateInput } from '@/domain/fx'
 import { formatRate, parseMoney } from '@/domain/money'
 import { formatPeriod, formatPeriodLong, fromDbDate, parsePeriod } from '@/domain/period'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
+import { useCatchupInBackground } from '@/hooks/useSubscriptionCatchup'
 import { listReferenceRates, upsertReferenceRate, type ReferenceRate } from '@/lib/fxRates'
 
 export function SettingsPage() {
@@ -81,6 +82,7 @@ function FxRatesSection() {
   const [rates, setRates] = useState<ReferenceRate[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const runCatchup = useCatchupInBackground()
 
   useEffect(() => {
     listReferenceRates().then(setRates).catch((e: Error) => setError(e.message))
@@ -101,6 +103,8 @@ function FxRatesSection() {
     setSubmitting(true)
     try {
       await upsertReferenceRate(selectedPeriod, validation.rate)
+      // ADR-031 §1: el tipo de cambio nuevo puede destrabar meses de una suscripción en USD (US-53).
+      void runCatchup()
       const updated = await listReferenceRates()
       setRates(updated)
       const rateInput = formEl.elements.namedItem('ars_per_usd')
