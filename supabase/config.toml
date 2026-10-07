@@ -413,3 +413,7 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# US-53 (C8): el gateway exige un JWT válido; la función lo reenvía a la RPC run_subscription_catchup.
+[functions.run-subscription-catchup]
+verify_jwt = true

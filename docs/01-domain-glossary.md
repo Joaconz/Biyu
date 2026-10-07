@@ -60,8 +60,16 @@ suma en el dashboard sin código especial.
 
 ### Puesta al día (`catch-up`)
 El proceso que crea las ocurrencias de los períodos vencidos que todavía no existen. Corre al
-entrar el usuario a la app, no en un job programado. Su propiedad definitoria es la
-**idempotencia**: ejecutarla dos veces no crea nada nuevo (ver ADR-017 y `06-suscripciones.md`).
+entrar el usuario a la app, no en un job programado, y dentro de cada operación sobre una
+suscripción (ADR-030). Su propiedad definitoria es la **idempotencia**: ejecutarla dos veces no
+crea nada nuevo (ver ADR-017 y `06-suscripciones.md`). Si falla al entrar, la app se muestra igual
+y lo avisa (ADR-031).
+
+### Suscripción bloqueada
+Una suscripción activa con al menos un período vencido (R1, R4, R5) sin transacción y que no se
+puede generar: en USD sin tipo de cambio de ese período (R6), o con el monto en pesos fuera de
+rango. **No es un estado ni una columna**: se deriva al leer, con la misma función de dominio de la
+vista previa, y deja de estarlo en cuanto se carga el tipo de cambio que faltaba (ADR-031).
 
 ---
 

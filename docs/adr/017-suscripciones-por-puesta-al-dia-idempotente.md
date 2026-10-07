@@ -7,7 +7,8 @@
 > dependencia de FastAPI, antes de resolver cualquier endpoint. Con [ADR-019](019-vuelta-a-supabase.md)
 > no hay servidor de aplicación que la dispare automáticamente: corre como una **Edge
 > Function** (`run-subscription-catchup`), invocada explícitamente por el cliente apenas
-> resuelve la sesión, antes de renderizar el dashboard. El razonamiento de este ADR —por qué
+> resuelve la sesión, antes de renderizar el dashboard (matizado por [ADR-031](031-puesta-al-dia-no-bloquea-la-app.md):
+> la pantalla espera hasta 8 segundos y, si la puesta al día falla, se muestra igual y lo avisa). El razonamiento de este ADR —por qué
 > es al entrar y no por cron, y por qué la idempotencia depende de la función pura más el
 > índice único, no de la disciplina del código— no cambia. Ver `03-architecture-spec.md`,
 > Technical Decisions §4.

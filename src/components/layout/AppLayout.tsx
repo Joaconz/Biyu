@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/useMediaQuery'
+import { SubscriptionCatchupContext, useSubscriptionCatchup } from '@/hooks/useSubscriptionCatchup'
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset'
+import { useSession } from '@/lib/auth'
 import { screenFromPath } from '@/lib/navigation'
 import { fetchSetupStatus, setupFinishedThisSession } from '@/lib/setup'
 import { shouldRedirectToSetup } from '@/lib/setupGate'
 import { AppHeader } from './AppHeader'
 import { AppNav } from './AppNav'
+import { CatchupBanner, CatchupLoading } from './CatchupBanner'
 
 /**
  * Layout de las rutas privadas (ADR-023). Queda montado al cambiar de pestaña, así el cromo
@@ -23,6 +26,11 @@ export function AppLayout() {
   // US-68 (ADR-025): una consulta por sesión (este layout queda montado entre pestañas). Si
   // falla, se entra a la app: quedar atrapado en /setup no tiene salida (DEF-022).
   const [setupPending, setSetupPending] = useState<boolean | null>(null)
+  // US-53 (ADR-031): la puesta al día corre una vez por carga, con el setup completo. Si falla o
+  // tarda más de 8 s, la pantalla se muestra igual con la franja de error.
+  const { session } = useSession()
+  const catchup = useSubscriptionCatchup(session?.user.id ?? null, setupPending === false)
+  const catchupContext = useMemo(() => ({ runInBackground: catchup.runInBackground }), [catchup.runInBackground])
 
   useEffect(() => {
     let cancelled = false
@@ -57,7 +65,16 @@ export function AppLayout() {
       {!isDesktop && <AppHeader screen={screen} scrolled={scrolled} />}
       <AppNav screen={screen} showSettings={isDesktop} />
       <main className="px-5 pb-[calc(var(--app-nav-offset)+2.5rem)] sm:px-6 lg:px-10 lg:pt-10">
-        <Outlet />
+        {catchup.status === 'running' ? (
+          <CatchupLoading />
+        ) : (
+          <SubscriptionCatchupContext.Provider value={catchupContext}>
+            {(catchup.status === 'failed' || catchup.status === 'retrying') && (
+              <CatchupBanner retrying={catchup.status === 'retrying'} onRetry={catchup.retry} />
+            )}
+            <Outlet key={catchup.dataVersion} />
+          </SubscriptionCatchupContext.Provider>
+        )}
       </main>
       <ScrollRestoration />
     </div>

@@ -1,10 +1,4 @@
-import {
-  currentPeriod,
-  formatPeriod,
-  formatPeriodLong,
-  isPeriodBefore,
-  type Period,
-} from './period'
+import { currentPeriod, daysInMonth, formatPeriod, formatPeriodLong, isPeriodBefore, type Period } from './period'
 
 export type ExportScope = 'month' | 'year'
 
@@ -43,7 +37,7 @@ export function getExportDateRange(
   }
 
   const startDate = `${formatPeriod(period)}-01`
-  const lastDay = new Date(Date.UTC(period.year, period.month, 0)).getUTCDate()
+  const lastDay = daysInMonth(period)
   const endDate = `${formatPeriod(period)}-${String(lastDay).padStart(2, '0')}`
   return { startDate, endDate }
 }

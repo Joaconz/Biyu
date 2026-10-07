@@ -30,8 +30,12 @@ secundaria.
    cargar tus suscripciones vencidas. Los totales pueden estar incompletos." y "Reintentar". Reintentar
    es seguro porque la puesta al día es idempotente (I16). Si la Edge Function termina después de los 8
    segundos, lo que creó queda creado y aparece en la próxima lectura.
-5. **Respuesta de la Edge Function:** `200` con `{ generated, failed: [{ subscription_id, period, reason
-   }] }`. Una ocurrencia que ya existía (incluida la que ganó otra puesta al día concurrente) no es
+5. **Respuesta de la Edge Function:** `200` con `{ generated, failed: [{ subscription_id, period, reason,
+   sqlstate? }] }`, donde `period` es `YYYY-MM` (o `null` si un error inesperado ocurrió antes del
+   primer período) y `reason` es `missing_fx_rate`, `amount_ars_out_of_range` o `unexpected_error`
+   (este último con su `sqlstate`, ADR-030). Sin sesión válida responde `401`, con otro método que
+   `POST` `405`, y con un error de la base `500` con un mensaje genérico (el texto de Postgres va al
+   log). Una ocurrencia que ya existía (incluida la que ganó otra puesta al día concurrente) no es
    error. Un `failed` no vacío **no** muestra la franja: esas suscripciones se marcan en Suscripciones
    (punto 6).
 6. **Bloqueadas no se persisten.** Una suscripción está bloqueada si está activa y tiene al menos un
