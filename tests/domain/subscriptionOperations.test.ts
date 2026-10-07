@@ -84,6 +84,17 @@ describe('missingFxPeriods (US-56 CA-10, US-58 CA-10)', () => {
     expect(missingFxPeriods({ ...usd, status: 'paused' }, new Set(), new Map(), TODAY)).toEqual([])
   })
 
+  it('un mes bloqueado por monto en pesos fuera de rango no se lista como falta de tipo de cambio', () => {
+    const huge = { ...usd, amount: '999999999999.99', generateFromPeriod: { year: 2026, month: 6 } }
+    const periods = missingFxPeriods(huge, new Set(), new Map([['2026-06', new Decimal('1200')]]), TODAY)
+    expect(periods.map((p) => p.month)).toEqual([7, 8, 9])
+  })
+
+  it('con el mes de fin anterior al corriente solo lista hasta ese mes (R1)', () => {
+    const periods = missingFxPeriods({ ...usd, endPeriod: { year: 2026, month: 7 } }, new Set(), new Map(), TODAY)
+    expect(periods).toEqual([{ year: 2026, month: 6 }, { year: 2026, month: 7 }])
+  })
+
   it('USD sin los tipos de cambio leídos: no inventa meses bloqueados', () => {
     expect(missingFxPeriods(usd, new Set(), null, TODAY)).toEqual([])
   })

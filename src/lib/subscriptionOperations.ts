@@ -7,5 +7,7 @@ import { supabase } from './supabase'
 export async function pauseSubscription(subscriptionId: string): Promise<{ generatedBefore: number }> {
   const { data, error } = await supabase.rpc('pause_subscription', { p_subscription_id: subscriptionId })
   if (error) throw error
-  return { generatedBefore: (data as { generated_before: number }).generated_before }
+  // El conteo solo redacta el aviso: con una respuesta inesperada, la pausa (que ya se hizo) no puede figurar como fallida.
+  const generatedBefore = (data as { generated_before?: unknown } | null)?.generated_before
+  return { generatedBefore: Number.isInteger(generatedBefore) ? (generatedBefore as number) : 0 }
 }
