@@ -110,9 +110,32 @@ export function nextChargeText(
   return date ? formatDisplayDate(date) : '—'
 }
 
+/** Por qué un período vencido no se puede generar (mismos motivos que `failed` de la Edge Function, ADR-031 §5). */
+export type BlockReason = 'missing_fx_rate' | 'amount_ars_out_of_range'
+
+/** Un período vencido sin transacción: o se puede generar (`draft`) o está bloqueado (`blockedBy`). */
+export interface OccurrenceEvaluation {
+  period: Period
+  occurredOn: string
+  draft: OccurrenceDraft | null
+  blockedBy: BlockReason | null
+}
+
 /**
- * Las ocurrencias vencidas que faltan generar. `alreadyGenerated` y `fxRatesByPeriod` van por
- * `YYYY-MM`: un `Set<Period>` compararía objetos, no meses.
+ * R1 + R5: ¿ya venció el cobro de `period`? Los períodos pasados siempre; el corriente, desde el día de
+ * cobro (hoy incluido); los futuros nunca.
+ */
+function hasFallenDue(period: Period, billingDay: number, today: Date): boolean {
+  const current = currentPeriod(today)
+  if (isPeriodBefore(period, current)) return true
+  return isSamePeriod(period, current) && toIsoDate(today) >= occurrenceDate(period, billingDay)
+}
+
+/**
+ * Los períodos vencidos que faltan generar, cada uno con su fecha y o bien el borrador a generar, o
+ * bien el motivo por el que no se puede (R6 y ADR-030). Es la única implementación de la regla:
+ * `computeDueOccurrences`, la vista previa y las bloqueadas (ADR-031 §6) salen de acá. `alreadyGenerated`
+ * y `fxRatesByPeriod` van por `YYYY-MM`: un `Set<Period>` compararía objetos, no meses.
  *   R1  de `generateFromPeriod` a min(período de `today`, `endPeriod`), inclusive.
  *   R2  se saltea un período ya generado, aunque esa transacción se haya borrado.
  *   R3  solo una suscripción activa genera.
@@ -121,29 +144,48 @@ export function nextChargeText(
  * Como en Postgres, tampoco se genera un período cuyo monto en pesos queda fuera de numeric(14,2)
  * o redondea a $0,00 (ADR-030).
  */
+export function evaluateOccurrences(
+  subscription: SubscriptionState,
+  alreadyGenerated: ReadonlySet<string>,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal>,
+  today: Date,
+): OccurrenceEvaluation[] {
+  if (subscription.status !== 'active') return []
+  const current = currentPeriod(today)
+  const last = subscription.endPeriod && isPeriodBefore(subscription.endPeriod, current) ? subscription.endPeriod : current
+  const evaluations: OccurrenceEvaluation[] = []
+  for (let period = subscription.generateFromPeriod; !isPeriodBefore(last, period); period = addMonths(period, 1)) {
+    const key = formatPeriod(period)
+    if (alreadyGenerated.has(key) || !hasFallenDue(period, subscription.billingDay, today)) continue
+    const occurredOn = occurrenceDate(period, subscription.billingDay)
+    const fxRate = subscription.currency === 'USD' ? (fxRatesByPeriod.get(key) ?? null) : null
+    if (subscription.currency === 'USD' && !fxRate) {
+      evaluations.push({ period, occurredOn, draft: null, blockedBy: 'missing_fx_rate' })
+      continue
+    }
+    const amountArs = convertToArs(subscription.amount, fxRate)
+    if (amountArs.lt(MIN_AMOUNT) || amountArs.gt(MAX_AMOUNT)) {
+      evaluations.push({ period, occurredOn, draft: null, blockedBy: 'amount_ars_out_of_range' })
+      continue
+    }
+    evaluations.push({
+      period,
+      occurredOn,
+      draft: { period, occurredOn, amount: subscription.amount, currency: subscription.currency, fxRate },
+      blockedBy: null,
+    })
+  }
+  return evaluations
+}
+
+/** Las ocurrencias vencidas que se pueden generar ya: lo que persiste `catch_up_subscriptions`. */
 export function computeDueOccurrences(
   subscription: SubscriptionState,
   alreadyGenerated: ReadonlySet<string>,
   fxRatesByPeriod: ReadonlyMap<string, Decimal>,
   today: Date,
 ): OccurrenceDraft[] {
-  if (subscription.status !== 'active') return []
-  const current = currentPeriod(today)
-  const last = subscription.endPeriod && isPeriodBefore(subscription.endPeriod, current) ? subscription.endPeriod : current
-  const todayIso = toIsoDate(today)
-  const drafts: OccurrenceDraft[] = []
-  for (let period = subscription.generateFromPeriod; !isPeriodBefore(last, period); period = addMonths(period, 1)) {
-    const key = formatPeriod(period)
-    if (alreadyGenerated.has(key)) continue
-    const occurredOn = occurrenceDate(period, subscription.billingDay)
-    if (isSamePeriod(period, current) && todayIso < occurredOn) continue
-    const fxRate = subscription.currency === 'USD' ? (fxRatesByPeriod.get(key) ?? null) : null
-    if (subscription.currency === 'USD' && !fxRate) continue
-    const amountArs = convertToArs(subscription.amount, fxRate)
-    if (amountArs.lt(MIN_AMOUNT) || amountArs.gt(MAX_AMOUNT)) continue
-    drafts.push({ period, occurredOn, amount: subscription.amount, currency: subscription.currency, fxRate })
-  }
-  return drafts
+  return evaluateOccurrences(subscription, alreadyGenerated, fxRatesByPeriod, today).flatMap((e) => (e.draft ? [e.draft] : []))
 }
 
 /** ADR-031 §2: lo máximo que la carga espera a la puesta al día antes de mostrar la pantalla. */
@@ -295,6 +337,121 @@ export function validateSubscriptionForm(
       endPeriod: end,
       description: description || null,
     },
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Vista previa del calendario (US-75)
+// ---------------------------------------------------------------------------
+
+/** Cuántos cobros futuros muestra "Próximos cobros". */
+const UPCOMING_COUNT = 3
+
+/** Una fila de la vista previa: el mes, la fecha de cobro (R4) y, si no se va a cargar, por qué. */
+export interface PreviewRow {
+  /** `YYYY-MM`, para `data-period`. */
+  periodKey: string
+  /** "agosto 2026 · 10/08/2026" */
+  text: string
+  blockedBy: BlockReason | null
+  /** Por qué no se carga, ya redactado; null si se carga. */
+  blockedText: string | null
+}
+
+export type CalendarPreview =
+  | { kind: 'empty' }
+  /** USD sin los tipos de cambio del usuario (no se pudieron leer): no hay forma de decir qué se carga. */
+  | { kind: 'fx-unavailable' }
+  | { kind: 'ready'; summary: string; due: PreviewRow[]; upcoming: PreviewRow[]; noMoreText: string | null }
+
+export const PREVIEW_EMPTY_TEXT = 'Completá el monto, el día de cobro y el mes de inicio para ver el calendario.'
+export const PREVIEW_BLOCKED_FX_TEXT = 'Sin tipo de cambio: se carga cuando lo cargues'
+/**
+ * Texto de la fila bloqueada por monto en pesos fuera de rango (ADR-030). US-75 solo redacta el caso
+ * del tipo de cambio; este se alinea con la marca "No se pudo cargar" de US-62.
+ */
+export const PREVIEW_BLOCKED_RANGE_TEXT = 'No se pudo cargar: el monto en pesos queda fuera de rango'
+export const PREVIEW_FX_UNAVAILABLE_TEXT = 'No pudimos cargar tus tipos de cambio, así que no podemos mostrar el calendario en USD.'
+
+const BLOCKED_TEXT: Record<BlockReason, string> = {
+  missing_fx_rate: PREVIEW_BLOCKED_FX_TEXT,
+  amount_ars_out_of_range: PREVIEW_BLOCKED_RANGE_TEXT,
+}
+
+/** "Al guardar se cargan 2 gastos de $5.000,00 (total $10.000,00)." — el total en la moneda de la suscripción, sin convertir. */
+export function previewSummaryText(count: number, amount: Decimal, currency: Currency): string {
+  if (count <= 0) return 'Al guardar no se carga ningún gasto.'
+  const each = subscriptionAmountText(amount.toFixed(), currency)
+  if (count === 1) return `Al guardar se carga 1 gasto de ${each}.`
+  return `Al guardar se cargan ${count} gastos de ${each} (total ${subscriptionAmountText(amount.times(count).toFixed(), currency)}).`
+}
+
+export function noMoreChargesText(endPeriod: Period): string {
+  return `No hay más cobros: termina en ${formatPeriodLong(endPeriod)}.`
+}
+
+/**
+ * Los próximos cobros que todavía no vencieron (R5): desde el mes de inicio o, si ya empezó, desde el
+ * primero que no venció, hasta `count` o hasta el mes de fin. Con la misma `hasFallenDue` que la puesta al día.
+ */
+export function upcomingCharges(
+  subscription: Pick<SubscriptionState, 'billingDay' | 'generateFromPeriod' | 'endPeriod'>,
+  today: Date,
+  count: number = UPCOMING_COUNT,
+): Array<{ period: Period; occurredOn: string }> {
+  const charges: Array<{ period: Period; occurredOn: string }> = []
+  for (let period = subscription.generateFromPeriod; charges.length < count; period = addMonths(period, 1)) {
+    if (subscription.endPeriod && isPeriodBefore(subscription.endPeriod, period)) break
+    if (hasFallenDue(period, subscription.billingDay, today)) continue
+    charges.push({ period, occurredOn: occurrenceDate(period, subscription.billingDay) })
+  }
+  return charges
+}
+
+const toRow = (period: Period, occurredOn: string, blockedBy: BlockReason | null): PreviewRow => ({
+  periodKey: formatPeriod(period),
+  text: `${formatPeriodLong(period)} · ${formatDisplayDate(occurredOn)}`,
+  blockedBy,
+  blockedText: blockedBy ? BLOCKED_TEXT[blockedBy] : null,
+})
+
+/**
+ * Qué va a pasar al guardar (US-75): lo que cargaría `create_subscription` y los próximos cobros, sin
+ * tocar la base. Con monto, día de cobro, mes de inicio o mes de fin inválidos no hay calendario
+ * ('empty'). Reutiliza `evaluateOccurrences`, así que las filas son las que después crea el servidor
+ * (US-52 CA-2); `fxRatesByPeriod` son los tipos de cambio del usuario por `YYYY-MM`.
+ */
+export function buildCalendarPreview(
+  values: SubscriptionFormValues,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal> | null,
+  today: Date,
+): CalendarPreview {
+  const { errors } = validateSubscriptionForm(values, today)
+  if (errors.amount || errors.billingDay || errors.startPeriod || errors.endPeriod) return { kind: 'empty' }
+  const amount = tryParseMoney(values.amount)
+  const start = parsePeriod(values.startPeriod)
+  if (!amount || !start) return { kind: 'empty' }
+  const endPeriod = values.endPeriod ? parsePeriod(values.endPeriod) : null
+  // ARS no usa tipos de cambio; en USD, sin ellos cada fila saldría "bloqueada" por error.
+  if (values.currency === 'USD' && !fxRatesByPeriod) return { kind: 'fx-unavailable' }
+
+  const subscription: SubscriptionState = {
+    status: 'active',
+    amount,
+    currency: values.currency,
+    billingDay: Number(values.billingDay),
+    generateFromPeriod: start,
+    endPeriod,
+  }
+  const evaluations = evaluateOccurrences(subscription, new Set(), fxRatesByPeriod ?? new Map(), today)
+  const due = evaluations.map((e) => toRow(e.period, e.occurredOn, e.blockedBy))
+  const upcoming = upcomingCharges(subscription, today).map((c) => toRow(c.period, c.occurredOn, null))
+  return {
+    kind: 'ready',
+    summary: previewSummaryText(evaluations.filter((e) => e.draft).length, amount, values.currency),
+    due,
+    upcoming,
+    noMoreText: upcoming.length === 0 && endPeriod ? noMoreChargesText(endPeriod) : null,
   }
 }
 

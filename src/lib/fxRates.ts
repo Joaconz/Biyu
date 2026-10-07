@@ -1,5 +1,5 @@
-import { serializeMoney, type Decimal } from '@/domain/money'
-import { toDbDate, type Period } from '@/domain/period'
+import { parseMoney, serializeMoney, type Decimal } from '@/domain/money'
+import { formatPeriod, fromDbDate, toDbDate, type Period } from '@/domain/period'
 import { supabase } from './supabase'
 
 export interface ReferenceRate {
@@ -16,6 +16,21 @@ export async function listReferenceRates(limit = 12): Promise<ReferenceRate[]> {
     .limit(limit)
   if (error) throw error
   return data.map((r) => ({ period: r.period, arsPerUsd: String(r.ars_per_usd_text) }))
+}
+
+/**
+ * Todos los tipos de cambio del usuario, por `YYYY-MM`. La vista previa de una suscripción (US-75) y
+ * las bloqueadas (US-62) los necesitan de cualquier mes, no solo de los últimos 12.
+ */
+export async function fetchFxRatesByPeriod(): Promise<Map<string, Decimal>> {
+  const { data, error } = await supabase.from('fx_rates').select('period, ars_per_usd_text:ars_per_usd::text')
+  if (error) throw error
+  return new Map(
+    data.map((r) => {
+      if (typeof r.ars_per_usd_text !== 'string') throw new TypeError('PostgREST no devolvió el tipo de cambio como texto')
+      return [formatPeriod(fromDbDate(r.period)), parseMoney(r.ars_per_usd_text)]
+    }),
+  )
 }
 
 /** Devuelve el numeric como string, pedido con ::text (C2); null significa que ese período no tiene TC configurado. */

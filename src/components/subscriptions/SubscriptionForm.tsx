@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { FieldError } from '@/components/transaction-form/FieldError'
@@ -6,8 +6,10 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import type { Currency } from '@/domain/fx'
+import type { Decimal } from '@/domain/money'
 import {
   acceptBillingDayInput,
+  buildCalendarPreview,
   codePointLength,
   DUPLICATE_NAME_MESSAGE,
   emptySubscriptionForm,
@@ -25,6 +27,7 @@ import type { Account, Category } from '@/lib/catalog'
 import { isNetworkError, saveFailureReason } from '@/lib/errors'
 import { createSubscription } from '@/lib/subscriptions'
 import { cn } from '@/lib/utils'
+import { SubscriptionPreview } from '@/components/subscriptions/SubscriptionPreview'
 
 const CURRENCY_OPTIONS: { value: Currency; label: string; testId: string; ariaLabel: string }[] = [
   { value: 'ARS', label: 'ARS', testId: 'subscription-form-currency-ars', ariaLabel: 'Pesos' },
@@ -38,7 +41,18 @@ const SELECT_CLASS =
  * Alta de una suscripción (US-52). Los errores aparecen al tocar "Guardar suscripción" y desde ahí
  * en vivo. create_subscription repite cada validación (C6); lo que rechaza va debajo de su campo.
  */
-export function SubscriptionForm({ categories, accounts, today }: { categories: Category[]; accounts: Account[]; today: Date }) {
+export function SubscriptionForm({
+  categories,
+  accounts,
+  fxRates,
+  today,
+}: {
+  categories: Category[]
+  accounts: Account[]
+  /** Tipos de cambio del usuario por `YYYY-MM` para la vista previa (US-75); null si no se pudieron cargar. */
+  fxRates: ReadonlyMap<string, Decimal> | null
+  today: Date
+}) {
   const navigate = useNavigate()
   const [values, setValues] = useState<SubscriptionFormValues>(() => emptySubscriptionForm(today))
   const [attempted, setAttempted] = useState(false)
@@ -50,6 +64,9 @@ export function SubscriptionForm({ categories, accounts, today }: { categories: 
   // CA-16: el intento anterior falló por red y este choca con el nombre.
   const lastFailedByNetwork = useRef(false)
   const [maybeSaved, setMaybeSaved] = useState(false)
+
+  // Se recalcula al cambiar cualquier campo, sin tocar la base (US-75).
+  const preview = useMemo(() => buildCalendarPreview(values, fxRates, today), [values, fxRates, today])
 
   const errors: SubscriptionErrors = attempted
     ? { ...validateSubscriptionForm(values, today).errors, ...serverErrors }
@@ -276,6 +293,8 @@ export function SubscriptionForm({ categories, accounts, today }: { categories: 
           </p>
         </Field>
       </fieldset>
+
+      <SubscriptionPreview preview={preview} />
 
       {/* Fijo abajo, por encima de la barra de navegación, como la acción de Registrar. */}
       <div className="sticky bottom-(--app-nav-offset) z-20 -mx-5 mt-8 flex flex-col gap-2 border-t border-hairline bg-background px-5 pt-2.5 pb-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
