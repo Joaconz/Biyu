@@ -8,6 +8,10 @@ interface ConfirmDialogProps {
   children: ReactNode
   confirmLabel: string
   busyLabel: string
+  /** El botón de cerrar. "Volver" cuando "Cancelar" se confundiría con la acción (US-58). */
+  cancelLabel?: string
+  /** `destructive` salvo en acciones reversibles como pausar o reanudar (US-56, US-57). */
+  confirmVariant?: 'default' | 'destructive'
   /** `<pantalla>-<elemento>`: el diálogo es `testId`, y sus botones `testId-cancel` y `testId-confirm`. */
   testId: string
   onConfirm: () => Promise<void>
@@ -18,7 +22,18 @@ interface ConfirmDialogProps {
  * Confirmación de una acción destructiva, con el mismo aspecto que DeleteTransactionDialog.
  * Mientras `onConfirm` corre, no se puede cerrar ni volver a confirmar.
  */
-export function ConfirmDialog({ isOpen, title, children, confirmLabel, busyLabel, testId, onConfirm, onClose }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  isOpen,
+  title,
+  children,
+  confirmLabel,
+  busyLabel,
+  cancelLabel = 'Cancelar',
+  confirmVariant = 'destructive',
+  testId,
+  onConfirm,
+  onClose,
+}: ConfirmDialogProps) {
   const [busy, setBusy] = useState(false)
   const panel = useRef<HTMLDivElement>(null)
   const cancel = useRef<HTMLButtonElement>(null)
@@ -62,9 +77,9 @@ export function ConfirmDialog({ isOpen, title, children, confirmLabel, busyLabel
         <div className="space-y-2 text-sm text-muted-foreground">{children}</div>
         <div className="flex items-center justify-end gap-2 pt-2">
           <Button ref={cancel} type="button" variant="outline" size="sm" onClick={onClose} disabled={busy} data-testid={`${testId}-cancel`}>
-            Cancelar
+            {cancelLabel}
           </Button>
-          <Button type="button" variant="destructive" size="sm" onClick={handleConfirm} disabled={busy} data-testid={`${testId}-confirm`}>
+          <Button type="button" variant={confirmVariant} size="sm" onClick={handleConfirm} disabled={busy} data-testid={`${testId}-confirm`}>
             {busy ? busyLabel : confirmLabel}
           </Button>
         </div>

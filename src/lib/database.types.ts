@@ -227,6 +227,9 @@ isOneToOne: false
 "insert_transaction_with_entries":
 { Args: { "p_account_id": string,"p_amount": number,"p_category_id": string,"p_currency": Database["public"]['Enums']["currency_code"],"p_description": string,"p_fx_rate": number,"p_installments_count": number,"p_occurred_on": string,"p_subscription_id"?: string,"p_subscription_period"?: string,"p_type": Database["public"]['Enums']["transaction_type"],"p_user_id": string }; Returns: string
                            },
+"pause_subscription":
+{ Args: { "p_subscription_id": string }; Returns: Json
+                           },
 "period_label":
 { Args: { "p_period": string }; Returns: string
                            },

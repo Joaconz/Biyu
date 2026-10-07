@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
 import type { Decimal } from '@/domain/money'
 import { fetchActiveAccounts, fetchActiveCategories, type Account, type Category } from '@/lib/catalog'
@@ -11,13 +11,20 @@ export type Loadable<T> = { status: 'loading' } | { status: 'error' } | ({ statu
  * Carga algo una vez y lo vuelve a pedir con `retry` ("Reintentar"). El estado arranca en
  * "loading" cada vez, así la pantalla muestra su texto de carga (US-52 CA-14).
  */
-function useLoad<T>(load: () => Promise<T>, deps: readonly unknown[]): Loadable<T> & { retry: () => void } {
+function useLoad<T>(
+  load: () => Promise<T>,
+  deps: readonly unknown[],
+): Loadable<T> & { retry: () => void; refresh: () => void } {
   const [state, setState] = useState<Loadable<T>>({ status: 'loading' })
   const [version, setVersion] = useState(0)
+  // `refresh` vuelve a pedir los datos sin pasar por "Cargando…": la pantalla (y un diálogo abierto)
+  // no se desmonta después de pausar, reanudar o cancelar (US-56 a US-58).
+  const silent = useRef(false)
 
   useEffect(() => {
     let cancelled = false
-    setState({ status: 'loading' })
+    if (!silent.current) setState({ status: 'loading' })
+    silent.current = false
     load()
       .then((value) => {
         if (!cancelled) setState({ status: 'ready', ...value })
@@ -30,7 +37,14 @@ function useLoad<T>(load: () => Promise<T>, deps: readonly unknown[]): Loadable<
     }
   }, [version, ...deps])
 
-  return { ...state, retry: () => setVersion((v) => v + 1) }
+  return {
+    ...state,
+    retry: () => setVersion((v) => v + 1),
+    refresh: () => {
+      silent.current = true
+      setVersion((v) => v + 1)
+    },
+  }
 }
 
 export function useSubscriptions() {

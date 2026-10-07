@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { BackHeader } from '@/components/subscriptions/BackHeader'
+import { SubscriptionActions } from '@/components/subscriptions/SubscriptionActions'
 import { buttonVariants } from '@/components/ui/button'
 import { formatPeriodLong } from '@/domain/period'
 import { nextChargeText, statusText, subscriptionAmountText, type SubscriptionRecord } from '@/domain/subscriptions'
@@ -8,7 +9,7 @@ import { useSubscription } from '@/hooks/useSubscriptions'
 import { todayInArgentina } from '@/lib/clock'
 import { cn } from '@/lib/utils'
 
-/** Detalle de suscripción (US-52): estado y datos. Las acciones y los gastos cargados llegan con sus historias. */
+/** Detalle de suscripción (US-52): estado, datos y acciones. Los gastos cargados llegan con su historia. */
 export function SubscriptionDetailPage() {
   const { id = '' } = useParams()
   const state = useSubscription(id)
@@ -75,7 +76,10 @@ export function SubscriptionDetailPage() {
       )}
 
       {subscription && state.status === 'ready' && (
-        <SubscriptionData subscription={subscription} generatedPeriods={state.generatedPeriods} />
+        <>
+          <SubscriptionData subscription={subscription} generatedPeriods={state.generatedPeriods} />
+          <SubscriptionActions subscription={subscription} generatedPeriods={state.generatedPeriods} onChanged={state.refresh} />
+        </>
       )}
     </div>
   )
