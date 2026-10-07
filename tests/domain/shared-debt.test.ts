@@ -12,7 +12,7 @@ import {
 import { validateTransactionDraft } from '@/domain/validation'
 
 const TODAY = '2026-08-15'
-const ARS = { currency: 'ARS' as const, fxRate: null }
+const ARS = { amount: null, currency: 'ARS' as const, fxRate: null }
 
 describe('validateSharedDebt (US-34, copia UX de create_transaction)', () => {
   it('persona y monto válidos no tienen errores', () =>
@@ -36,11 +36,36 @@ describe('validateSharedDebt (US-34, copia UX de create_transaction)', () => {
     expect(validateSharedDebt({ person: 'Sofía', amount }, ARS)).toEqual({}))
 
   it('en US$, una deuda que en pesos redondea a $0,00 se rechaza', () => {
-    const usd = { currency: 'USD' as const, fxRate: parseMoney('0.4') }
+    const usd = { amount: null, currency: 'USD' as const, fxRate: parseMoney('0.4') }
     expect(validateSharedDebt({ person: 'Sofía', amount: '0,01' }, usd).sharedAmount).toBe(
       'En pesos daría menos de $0,01. Revisá el monto o el tipo de cambio',
     )
     expect(validateSharedDebt({ person: 'Sofía', amount: '0,01' }, { ...usd, fxRate: parseMoney('0.5') })).toEqual({})
+  })
+})
+
+describe('la deuda no puede superar el gasto (US-41)', () => {
+  const expense = { amount: parseMoney('10000'), currency: 'ARS' as const, fxRate: null }
+
+  it.each(['9999,99', '10000', '10.000,00'])('deuda %j hasta el gasto de $10.000,00 se acepta (CA-1, CA-2)', (amount) =>
+    expect(validateSharedDebt({ person: 'Sofía', amount }, expense)).toEqual({}))
+
+  it.each(['10000,01', '15000'])('deuda %j mayor al gasto se rechaza con el monto del gasto (CA-3, CA-4)', (amount) =>
+    expect(validateSharedDebt({ person: 'Sofía', amount }, expense).sharedAmount).toBe(
+      'No puede superar el monto del gasto ($10.000,00)',
+    ))
+
+  it('en US$ se compara en dólares y el mensaje usa US$ (CA-6)', () => {
+    const usd = { amount: parseMoney('100.01'), currency: 'USD' as const, fxRate: parseMoney('1250.5555') }
+    expect(validateSharedDebt({ person: 'Sofía', amount: '100,01' }, usd)).toEqual({})
+    expect(validateSharedDebt({ person: 'Sofía', amount: '100,02' }, usd).sharedAmount).toBe(
+      'No puede superar el monto del gasto (US$100,01)',
+    )
+  })
+
+  it('sin un monto de gasto válido no se compara: ese error es del paso 1', () => {
+    expect(validateSharedDebt({ person: 'Sofía', amount: '15000' }, { ...expense, amount: null })).toEqual({})
+    expect(validateSharedDebt({ person: 'Sofía', amount: '15000' }, { ...expense, amount: parseMoney('0') })).toEqual({})
   })
 })
 
@@ -119,6 +144,13 @@ describe('borrador con gasto compartido', () => {
     expect(change.clearedFields).toEqual(['sharedAmount'])
     const usd = change.values
     expect(usd).toMatchObject({ shared: true, sharedPerson: 'Sofía', sharedAmount: '' })
+  })
+  it('bajar el gasto por debajo de la deuda la deja en error y no la ajusta (US-41 CA-7)', () => {
+    const lowered = applyDraftChange(shared, { amount: '50000' }).values
+    expect(lowered.sharedAmount).toBe('60000')
+    expect(validateTransactionDraft(parseDraftInput(lowered), TODAY)).toEqual({
+      sharedAmount: 'No puede superar el monto del gasto ($50.000,00)',
+    })
   })
   it('después de guardar, el interruptor vuelve apagado (CA-9)', () => {
     expect(emptyDraftInput(TODAY)).toMatchObject({ shared: false, sharedPerson: '', sharedAmount: '' })

@@ -1,6 +1,6 @@
 -- US-34 (#224), ADR-036: create_transaction con gasto compartido crea la deuda vinculada en la misma
 -- llamada (C4). Cubre CA-3, CA-5, CA-6, CA-8 y la compatibilidad de un llamado sin los parámetros nuevos.
--- El límite I7 (deuda > gasto) es de US-41 y no se prueba acá.
+-- El límite I7 (deuda > gasto) es de US-41: shared_expense_debt_cap.test.sql.
 begin;
 select plan(32);
 

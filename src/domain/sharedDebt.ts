@@ -24,14 +24,18 @@ export interface SharedDebt {
   amount: Decimal
 }
 
+const formatIn = (currency: Currency, amount: Decimal) =>
+  currency === 'USD' ? formatUsd(amount) : formatArs(amount)
+
 /**
  * Copia UX de lo que valida create_transaction para la deuda vinculada (C6, ADR-036): la fuente de
  * verdad es Postgres. Recorta con String.prototype.trim, la misma clase de caracteres que la RPC.
- * El tope "no puede superar el gasto" es de US-41.
+ * El tope "no puede superar el gasto" (US-41) se compara en la moneda del gasto, que es la de la
+ * deuda (ADR-036); sin un monto de gasto válido no se chequea: ese error ya lo marca el paso 1.
  */
 export function validateSharedDebt(
   input: SharedDebtInput,
-  expense: { currency: Currency; fxRate: Decimal | null },
+  expense: { amount: Decimal | null; currency: Currency; fxRate: Decimal | null },
 ): SharedDebtErrors {
   const errors: SharedDebtErrors = {}
   if (input.person.trim() === '') errors.sharedPerson = 'Ingresá con quién compartiste el gasto'
@@ -46,6 +50,8 @@ export function validateSharedDebt(
     errors.sharedAmount = 'El monto debe ser mayor a cero' // I4
   } else if (amount.decimalPlaces() > 2) {
     errors.sharedAmount = 'El monto admite hasta 2 decimales'
+  } else if (expense.amount && expense.amount.isFinite() && expense.amount.gt(0) && amount.gt(expense.amount)) {
+    errors.sharedAmount = `No puede superar el monto del gasto (${formatIn(expense.currency, expense.amount)})` // I7
   } else if (expense.currency === 'USD' && expense.fxRate && expense.fxRate.gt(0)) {
     // amount_ars de la deuda es numeric(14,2) con CHECK > 0 (DEF-013).
     if (convertToArs(amount, expense.fxRate).lte(0)) {
@@ -69,9 +75,6 @@ export function toSharedDebt(input: SharedDebtInput): SharedDebt | null {
 export function debtOfDraft(draft: { type: 'expense' | 'income'; shared?: SharedDebtInput | null }): SharedDebt | null {
   return draft.type === 'expense' && draft.shared ? toSharedDebt(draft.shared) : null
 }
-
-const formatIn = (currency: Currency, amount: Decimal) =>
-  currency === 'USD' ? formatUsd(amount) : formatArs(amount)
 
 /** "Sofía te va a deber $60.000,00 · Tu parte: $60.000,00", en la moneda del gasto. */
 export function sharedDebtSummary(debt: SharedDebt, expenseAmount: Decimal, currency: Currency): string {
