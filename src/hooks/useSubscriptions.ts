@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
 import { fetchActiveAccounts, fetchActiveCategories, type Account, type Category } from '@/lib/catalog'
-import { fetchSubscription, fetchSubscriptions } from '@/lib/subscriptions'
+import { fetchGeneratedPeriods, fetchSubscription, fetchSubscriptions } from '@/lib/subscriptions'
 
 export type Loadable<T> = { status: 'loading' } | { status: 'error' } | ({ status: 'ready' } & T)
 
@@ -36,7 +36,14 @@ export function useSubscriptions() {
 }
 
 export function useSubscription(id: string) {
-  return useLoad(async () => ({ subscription: await fetchSubscription(id) }), [id])
+  return useLoad(async () => {
+    // Sin los períodos generados solo se pierde el caso R2 de "Próximo cobro": no tira abajo el detalle.
+    const [subscription, generatedPeriods] = await Promise.all([
+      fetchSubscription(id),
+      fetchGeneratedPeriods(id).catch(() => new Set<string>()),
+    ])
+    return { subscription, generatedPeriods }
+  }, [id])
 }
 
 /** Categorías y cuentas activas para el alta: solo esas se ofrecen (create_subscription rechaza las archivadas). */
