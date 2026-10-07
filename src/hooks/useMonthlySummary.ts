@@ -8,6 +8,7 @@ import {
 import {
   fetchMonthlyConsistencyTransactions,
   fetchMonthlyLedgerEntries,
+  fetchMonthlyReimbursementDebts,
 } from '@/lib/dashboard'
 
 export type MonthlySummaryState =
@@ -17,7 +18,8 @@ export type MonthlySummaryState =
 
 /**
  * Carga el resumen mensual para un período determinado.
- * Vuelve a cargar si cambia el período.
+ * Vuelve a cargar si cambia el período. Las deudas del neto de reembolsos (US-30) vienen en la
+ * misma carga: si falla cualquier parte, se ve el error y ningún número a medias.
  */
 export function useMonthlySummary(period: Period): MonthlySummaryState & { refresh: () => void } {
   const [state, setState] = useState<MonthlySummaryState>({ status: 'loading' })
@@ -30,10 +32,11 @@ export function useMonthlySummary(period: Period): MonthlySummaryState & { refre
     Promise.all([
       fetchMonthlyLedgerEntries(period),
       fetchMonthlyConsistencyTransactions(period),
+      fetchMonthlyReimbursementDebts(period),
     ])
-      .then(([entries, transactions]) => {
+      .then(([entries, transactions, debts]) => {
         if (!cancelled) {
-          const summary = computeMonthlySummary(entries, [], period)
+          const summary = computeMonthlySummary(entries, debts, period)
           const daysWithTransactions = countDaysWithTransactions(transactions, period)
           setState({ status: 'ready', summary, daysWithTransactions })
         }

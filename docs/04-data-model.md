@@ -213,7 +213,7 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 | I7 | La suma de las deudas vinculadas a una transacción no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Trigger en la base (`security definer`: bloquea la transacción con `for update`, que authenticated no puede hacer por C4; DEF-016) |
 | I8 | Una transacción de tipo `expense` tiene categoría | Restricción de verificación |
 | I9 | `status = 'settled'` implica `settled_at` not null | Restricción de verificación |
-| I10 | Una transacción con `deleted_at` no aporta a ningún KPI | Filtro en todas las consultas de lectura |
+| I10 | Una transacción con `deleted_at` no aporta a ningún KPI, y tampoco su deuda vinculada (ADR-037 §4) | Filtro en todas las consultas de lectura |
 | I11 | Una suscripción tiene **como máximo una** transacción por período | Índice único parcial `(subscription_id, subscription_period)` |
 | I12 | `start_period ≤ generate_from_period`, y `start_period ≤ end_period` cuando `end_period` no es null. `generate_from_period` **nunca retrocede**: pausar y reanudar solo lo aumentan (R8) | Restricción de verificación + dominio |
 | I13 | `billing_day` está entre 1 y 31 | Restricción de verificación |
@@ -330,7 +330,9 @@ parten de otra tabla — está indicado en cada una.
 5. **Cuotas heredadas** — imputaciones cuyo `installment_number > 1`.
 6. **Neto de reembolsos** — parte de `transactions`, no de `ledger_entries`. Total gastado
    del período menos las deudas `owed_to_me` **pendientes o saldadas** cuyo
-   `transaction_id` tiene `first_period` igual al período consultado. La deuda se imputa
+   `transaction_id` tiene `first_period` igual al período consultado y no tiene `deleted_at`
+   (ADR-037 §4: la deuda sigue la baja lógica de su gasto). Las deudas sueltas y las `i_owe` no
+   restan, y la fila del neto solo aparece si al menos una deuda cuenta (US-30). La deuda se imputa
    entera al mes de nacimiento de la compra, no prorrateada entre las cuotas — si se
    prorrateara, un gasto en 12 cuotas restaría una fracción de la deuda en cada uno de los
    doce meses, con su propio problema de redondeo. El compromiso de reembolso nace cuando

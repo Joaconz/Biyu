@@ -3,6 +3,7 @@ import {
   computeMonthlySummary,
   countDaysWithTransactions,
   hasMonthlyData,
+  type SummaryDebt,
   type SummaryEntry,
 } from '@/domain/summary'
 import { generateLedgerEntries } from '@/domain/installments'
@@ -69,14 +70,45 @@ describe('computeMonthlySummary', () => {
     const s = computeMonthlySummary([entry({ installment_number: 2, amount_ars: '500', tx: { type: 'income' } })], [], P)
     expect(s.inheritedInstallments.toFixed(2)).toBe('0.00')
   })
-  it('neto de reembolsos: bruto 120000 con deuda de 60000 → 60000', () => {
-    const s = computeMonthlySummary(
-      [entry({ amount_ars: '120000' })],
-      [{ transaction_id: 't', direction: 'owed_to_me', amount_ars: '60000', transaction_first_period: '2026-09-01' }],
-      P,
-    )
-    expect(s.expenses.toFixed(2)).toBe('120000.00')
-    expect(s.netOfReimbursements.toFixed(2)).toBe('60000.00')
+  describe('neto de reembolsos (US-30, ADR-037 §6)', () => {
+    const debt = (over: Partial<SummaryDebt> = {}): SummaryDebt => ({
+      transaction_id: 't',
+      direction: 'owed_to_me',
+      amount_ars: '60000.00',
+      transaction_first_period: '2026-09-01',
+      transaction_deleted_at: null,
+      ...over,
+    })
+    const net = (debts: SummaryDebt[], entries = [entry({ amount_ars: '120000' })]) => {
+      const s = computeMonthlySummary(entries, debts, P)
+      return [s.expenses.toFixed(2), s.netOfReimbursements.toFixed(2), s.hasReimbursements]
+    }
+
+    it('CA-1: bruto 120000 con deuda vinculada pendiente de 60000 → neto 60000', () =>
+      expect(net([debt()])).toEqual(['120000.00', '60000.00', true]))
+
+    it('varias deudas del período se suman (CA-2: el estado no entra; el loader no filtra por él)', () =>
+      expect(net([debt(), debt({ transaction_id: 't2', amount_ars: '1000.00' })])).toEqual(['120000.00', '59000.00', true]))
+
+    it('CA-3: compra en 12 cuotas: en el mes de la compra el neto es negativo; en el siguiente no hay fila', () => {
+      const cuota = [entry({ amount_ars: '10000.00' })]
+      expect(net([debt()], cuota)).toEqual(['10000.00', '-50000.00', true])
+      expect(net([debt({ transaction_first_period: '2026-08-01' })], cuota)).toEqual(['10000.00', '10000.00', false])
+    })
+
+    it('CA-4: las sueltas y las i_owe no cuentan ni hacen aparecer la fila', () =>
+      expect(net([debt({ transaction_id: null, transaction_first_period: null }), debt({ direction: 'i_owe' })]))
+        .toEqual(['120000.00', '120000.00', false]))
+
+    it('CA-5: la de un gasto con baja lógica no resta (ADR-037 §4)', () =>
+      expect(net([debt({ transaction_deleted_at: '2026-09-20T12:00:00+00:00' })])).toEqual(['120000.00', '120000.00', false]))
+
+    it('CA-6: resta el amount_ars congelado de la deuda, no un TC de hoy (C5)', () =>
+      expect(net([debt({ amount_ars: '50000.00' })], [entry({ amount: '100.00', amount_ars: '125000.00', tx: { currency: 'USD' } })]))
+        .toEqual(['125000.00', '75000.00', true]))
+
+    it('CA-7 / CA-10: sin deudas que cuenten no hay fila y el bruto no cambia', () =>
+      expect(net([])).toEqual(['120000.00', '120000.00', false]))
   })
   it('US-25: total gastado suma imputaciones del período y excluye borradas (I10)', () => {
     const s = computeMonthlySummary(
