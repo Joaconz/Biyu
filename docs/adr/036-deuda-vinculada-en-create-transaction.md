@@ -1,6 +1,6 @@
 # ADR-036 — La deuda de un gasto compartido se crea dentro de `create_transaction`
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** aceptada · **Fecha:** 2026-10
 **Relacionada:** ADR-001, ADR-002, ADR-013, ADR-020, ADR-021, ADR-035, ADR-037
 
 ## Contexto

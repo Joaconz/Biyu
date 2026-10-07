@@ -1,6 +1,6 @@
 # ADR-037 — Las deudas se escriben solo por RPC y siguen la baja lógica de su gasto
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** aceptada · **Fecha:** 2026-10
 **Relacionada:** ADR-006, ADR-020, ADR-021, ADR-026, ADR-036
 
 ## Contexto
