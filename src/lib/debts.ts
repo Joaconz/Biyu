@@ -1,6 +1,18 @@
 import type { DebtRecord } from '@/domain/debts'
 import { supabase } from './supabase'
 
+/** Pasa la deuda a saldada (US-39); `settled_at` lo pone el servidor (ADR-037 §3, C1). */
+export async function settleDebt(id: string): Promise<void> {
+  const { error } = await supabase.rpc('settle_debt', { p_debt_id: id })
+  if (error) throw error
+}
+
+/** La vuelve a pendiente: "Deshacer" de US-39 y "Volver a pendiente" de US-40. */
+export async function reopenDebt(id: string): Promise<void> {
+  const { error } = await supabase.rpc('reopen_debt', { p_debt_id: id })
+  if (error) throw error
+}
+
 /**
  * Las deudas del usuario (RLS, C7), con la baja lógica del gasto de origen para que el dominio
  * oculte las de gastos eliminados (ADR-037 §4). Se traen todas: el filtro y el orden de la
