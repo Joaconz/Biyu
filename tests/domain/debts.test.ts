@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
   argentinaDateOf,
+  debtNetText,
   debtOriginText,
   debtRowText,
+  debtTotals,
   debtsForFilter,
   emptyDebtsMessage,
   parseDebtStatusFilter,
   type DebtRecord,
 } from '@/domain/debts'
+import { Decimal } from '@/domain/money'
 
 const debt = (over: Partial<DebtRecord>): DebtRecord => ({
   id: 'd',
@@ -138,4 +141,49 @@ describe('estado vacío de cada filtro (US-38 CA-7)', () => {
     ['settled', 'Todavía no saldaste ninguna deuda.', false],
     ['all', 'No cargaste ninguna deuda todavía.', true],
   ] as const)('%s', (filter, message, offerNew) => expect(emptyDebtsMessage(filter)).toEqual({ message, offerNew }))
+})
+
+describe('totales de Deudas (US-37, ADR-037 §5)', () => {
+  const sofia = debt({ id: 'sofia', amount: '60000.00', amountArs: '60000.00' })
+  const juan = debt({ id: 'juan', person: 'Juan', currency: 'USD', amount: '40.00', amountArs: '50000.00' })
+  const ana = debt({ id: 'ana', person: 'Ana', direction: 'i_owe', amount: '15000.00', amountArs: '15000.00' })
+  const pedro = debt({
+    id: 'pedro', person: 'Pedro', amount: '8000.00', amountArs: '8000.00',
+    status: 'settled', settledAt: '2026-09-10T12:00:00+00:00',
+  })
+  const text = (debts: DebtRecord[]) => {
+    const t = debtTotals(debts)
+    return [t.owedToMe.toFixed(2), t.iOwe.toFixed(2), debtNetText(t.net)]
+  }
+
+  it('CA-1: suma las pendientes en pesos con el amount_ars de cada una; la saldada no suma', () =>
+    expect(text([sofia, juan, ana, pedro])).toEqual(['110000.00', '15000.00', 'A tu favor $95.000,00']))
+
+  it('CA-2: neto negativo, sin signo', () =>
+    expect(text([ana, debt({ amount: '10000.00', amountArs: '10000.00' })])).toEqual(['10000.00', '15000.00', 'En contra $5.000,00']))
+
+  it('CA-3: iguales o sin pendientes, "En cero"; sin pendientes, los dos en cero', () => {
+    expect(text([ana, debt({ amount: '15000.00', amountArs: '15000.00' })])[2]).toBe('En cero')
+    expect(text([])).toEqual(['0.00', '0.00', 'En cero'])
+    expect(text([pedro])).toEqual(['0.00', '0.00', 'En cero'])
+  })
+
+  it('CA-6: usa el amount_ars congelado de la deuda, no un TC de referencia (C5)', () =>
+    expect(debtTotals([juan]).owedToMe.toFixed(2)).toBe('50000.00'))
+
+  it('CA-7: la deuda de un gasto eliminado no suma; la de un gasto activo, sí', () =>
+    expect(text([
+      debt({ id: 'activo', transactionId: 't1' }),
+      debt({ id: 'borrado', transactionId: 't2', direction: 'i_owe', linkedTransactionDeleted: true }),
+    ])).toEqual(['60000.00', '0.00', 'A tu favor $60.000,00']))
+
+  it('suma sin pasar por number: centavos que en float darían 0,30000000000000004', () =>
+    expect(debtTotals([debt({ amountArs: '0.10' }), debt({ amountArs: '0.20' })]).owedToMe.toFixed()).toBe('0.3'))
+
+  it.each([
+    ['0', 'En cero'],
+    ['0.01', 'A tu favor $0,01'],
+    ['-0.01', 'En contra $0,01'],
+    ['-1234567.89', 'En contra $1.234.567,89'],
+  ])('neto %s → %s', (net, expected) => expect(debtNetText(new Decimal(net))).toBe(expected))
 })
