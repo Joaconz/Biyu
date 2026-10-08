@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import type { BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
-import { useSubscriptionFxRates } from '@/hooks/useSubscriptionFxRates'
 import { todayInArgentina } from '@/lib/clock'
 import { PauseSubscriptionDialog } from './PauseSubscriptionDialog'
 import { ResumeSubscriptionDialog } from './ResumeSubscriptionDialog'
@@ -13,16 +13,16 @@ import { ResumeSubscriptionDialog } from './ResumeSubscriptionDialog'
 export function SubscriptionActions({
   subscription,
   generatedPeriods,
+  blocked,
   onChanged,
 }: {
   subscription: SubscriptionRecord
   generatedPeriods: ReadonlySet<string>
+  blocked: readonly BlockedOccurrence[]
   onChanged: () => void
 }) {
   const [pausing, setPausing] = useState(false)
   const [resuming, setResuming] = useState(false)
-  // Solo se piden al abrir "Pausar": son para el aviso de meses sin tipo de cambio de ese diálogo.
-  const fxRates = useSubscriptionFxRates(pausing && subscription.currency === 'USD' && subscription.status === 'active')
 
   if (subscription.status === 'cancelled') return null
 
@@ -44,7 +44,7 @@ export function SubscriptionActions({
       <PauseSubscriptionDialog
         subscription={subscription}
         generatedPeriods={generatedPeriods}
-        fxRates={fxRates}
+        blocked={blocked}
         today={todayInArgentina()}
         isOpen={pausing}
         onClose={() => setPausing(false)}

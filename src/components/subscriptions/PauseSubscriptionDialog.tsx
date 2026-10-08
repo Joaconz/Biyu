@@ -1,7 +1,7 @@
 import { SubscriptionOperationDialog } from '@/components/subscriptions/SubscriptionOperationDialog'
-import type { Decimal } from '@/domain/money'
+import type { BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
-import { blockedMonthsWarning, missingFxPeriods, pauseSkipsCurrentMonthDay, pausedNoticeText } from '@/domain/subscriptionOperations'
+import { blockedMonthsWarning, pauseSkipsCurrentMonthDay, pausedNoticeText } from '@/domain/subscriptionOperations'
 import { pauseSubscription } from '@/lib/subscriptionOperations'
 
 /**
@@ -11,7 +11,7 @@ import { pauseSubscription } from '@/lib/subscriptionOperations'
 export function PauseSubscriptionDialog({
   subscription,
   generatedPeriods,
-  fxRates,
+  blocked,
   today,
   isOpen,
   onClose,
@@ -19,7 +19,8 @@ export function PauseSubscriptionDialog({
 }: {
   subscription: SubscriptionRecord
   generatedPeriods: ReadonlySet<string>
-  fxRates: ReadonlyMap<string, Decimal> | null
+  /** Los meses que no se pudieron cargar (US-62): el diálogo avisa que pausar no los rescata. */
+  blocked: readonly BlockedOccurrence[]
   today: Date
   isOpen: boolean
   onClose: () => void
@@ -27,7 +28,7 @@ export function PauseSubscriptionDialog({
   onPaused: () => void
 }) {
   const skippedDay = pauseSkipsCurrentMonthDay(subscription, generatedPeriods, today)
-  const blockedWarning = blockedMonthsWarning(missingFxPeriods(subscription, generatedPeriods, fxRates, today), 'pausás')
+  const blockedWarning = blockedMonthsWarning(blocked, 'pausás')
 
   async function run() {
     const { generatedBefore } = await pauseSubscription(subscription.id)
