@@ -40,7 +40,11 @@ export function isCurrentNavTarget(destination: Screen, pathname: string): boole
   return pathname === SCREEN_PATHS[destination]
 }
 
+/** Pantallas sin pestaña propia que cuelgan de otra: Importar desde Excel es otra forma de registrar (US-74). */
+const CHILD_SCREENS: Record<string, Screen> = { '/import': 'register' }
+
 export function screenFromPath(pathname: string): Screen | null {
+  if (CHILD_SCREENS[pathname]) return CHILD_SCREENS[pathname]
   const entry = Object.entries(SCREEN_PATHS).find(([, path]) => pathname === path || pathname.startsWith(`${path}/`))
   return entry ? (entry[0] as Screen) : null
 }

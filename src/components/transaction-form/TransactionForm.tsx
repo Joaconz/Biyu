@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Check, ChevronLeft } from 'lucide-react'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { toast } from 'sonner'
@@ -83,6 +83,8 @@ interface TransactionFormProps {
   onSaved?: () => void
   /** US-70: el aviso de movimientos pendientes solo está en Registrar, no en el setup. */
   showPendingDrafts?: boolean
+  /** US-74: "Importar desde Excel", en la fila del progreso para que se vea en los tres pasos. */
+  headerAction?: ReactNode
 }
 
 const STEP_TITLES: Record<RegisterStep, string> = {
@@ -103,6 +105,7 @@ export function TransactionForm({
   defaultAccountId,
   onSaved,
   showPendingDrafts = false,
+  headerAction,
 }: TransactionFormProps) {
   const userId = useSession().session?.user.id ?? null
   const [values, setValues] = useState<DraftInput>(() =>
@@ -379,6 +382,8 @@ export function TransactionForm({
         <span aria-hidden="true" className="tabular w-11 shrink-0 text-right text-footnote font-medium text-muted-foreground">
           {stepIndex + 1}/{steps.length}
         </span>
+        {/* Salir a mitad de un guardado perdería el aviso de US-70: mientras guarda, no se puede tocar. */}
+        {headerAction && <span inert={saving}>{headerAction}</span>}
       </div>
 
       {/*
