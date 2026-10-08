@@ -12,7 +12,8 @@
 --
 -- Si la puesta al día previa no puede generar una ocurrencia (R6: sin tipo de cambio; monto en pesos fuera
 -- de rango), la cancelación se hace igual y ese mes queda sin generar para siempre (ADR-030). Una pausada
--- se cancela sin generar nada: R3 la excluye de la puesta al día.
+-- se cancela sin generar nada (R3 la excluye de la puesta al día) y conserva su paused_at: solo se fijan
+-- status y cancelled_at, y el CHECK de I15 exige paused_at únicamente mientras status = 'paused'.
 --
 -- Errores: 42501 sin sesión; P0002 "Suscripción no encontrada" si no existe o es de otro usuario (no
 -- distingue una de otra, igual que RLS); 23514 "Una suscripción cancelada no se puede modificar".
