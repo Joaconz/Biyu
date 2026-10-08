@@ -1,73 +1,77 @@
-import { useMemo, useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SegmentedControl } from '@/components/ui/segmented-control'
-import type { Currency } from '@/domain/fx'
-import type { Decimal } from '@/domain/money'
+import { EmptyCatalog, Field, SELECT_CLASS } from '@/components/subscriptions/subscriptionFormParts'
+import { formatPeriodLong } from '@/domain/period'
+import {
+  ARCHIVED_HINT_TEXT,
+  editFormValues,
+  editNextChargeText,
+  editOptions,
+  editSavedNoticeText,
+  EDIT_NOTICE_TEXT,
+  endedExtensionHint,
+  validateSubscriptionEdit,
+} from '@/domain/subscriptionEdit'
 import {
   acceptBillingDayInput,
-  buildCalendarPreview,
   codePointLength,
-  DUPLICATE_NAME_MESSAGE,
-  emptySubscriptionForm,
   fieldOfSaveError,
   limitCodePoints,
   MAX_DESCRIPTION_LENGTH,
   MAX_NAME_LENGTH,
-  savedNoticeText,
-  validateSubscriptionForm,
   type SubscriptionErrors,
   type SubscriptionField,
   type SubscriptionFormValues,
+  type SubscriptionRecord,
 } from '@/domain/subscriptions'
 import type { Account, Category } from '@/lib/catalog'
 import { isNetworkError, saveFailureReason } from '@/lib/errors'
-import { createSubscription } from '@/lib/subscriptions'
+import { updateSubscription } from '@/lib/subscriptions'
 import { cn } from '@/lib/utils'
-import { SubscriptionPreview } from '@/components/subscriptions/SubscriptionPreview'
-import { EmptyCatalog, Field, SELECT_CLASS } from '@/components/subscriptions/subscriptionFormParts'
-
-const CURRENCY_OPTIONS: { value: Currency; label: string; testId: string; ariaLabel: string }[] = [
-  { value: 'ARS', label: 'ARS', testId: 'subscription-form-currency-ars', ariaLabel: 'Pesos' },
-  { value: 'USD', label: 'USD', testId: 'subscription-form-currency-usd', ariaLabel: 'Dólares' },
-]
 
 /**
- * Alta de una suscripción (US-52). Los errores aparecen al tocar "Guardar suscripción" y desde ahí
- * en vivo. create_subscription repite cada validación (C6); lo que rechaza va debajo de su campo.
+ * Editar una suscripción (US-59, ADR-032). Mismos campos, `data-testid` y mensajes que el alta, salvo la
+ * moneda y el mes de inicio, que se muestran como texto y no se pueden cambiar. En vez de la vista previa
+ * del calendario muestra el "Próximo cobro" con los valores del formulario. update_subscription repite cada
+ * validación (C6): lo que rechaza va debajo de su campo.
  */
-export function SubscriptionForm({
+export function EditSubscriptionForm({
+  subscription,
+  generatedPeriods,
   categories,
   accounts,
-  fxRates,
   today,
 }: {
+  subscription: SubscriptionRecord
+  generatedPeriods: ReadonlySet<string>
+  /** Las activas; la actual se agrega sola, con "(archivada)", si ya no lo está. */
   categories: Category[]
   accounts: Account[]
-  /** Tipos de cambio del usuario por `YYYY-MM` para la vista previa (US-75); null si no se pudieron cargar. */
-  fxRates: ReadonlyMap<string, Decimal> | null
   today: Date
 }) {
   const navigate = useNavigate()
-  const [values, setValues] = useState<SubscriptionFormValues>(() => emptySubscriptionForm(today))
+  const [values, setValues] = useState<SubscriptionFormValues>(() => editFormValues(subscription))
   const [attempted, setAttempted] = useState(false)
   const [saving, setSaving] = useState(false)
-  // El ref corta el doble toque antes de que React pinte el botón deshabilitado (CA-10).
+  // El ref corta el doble toque antes de que React pinte el botón deshabilitado.
   const savingRef = useRef(false)
   const [serverErrors, setServerErrors] = useState<SubscriptionErrors>({})
   const [saveError, setSaveError] = useState<string | null>(null)
-  // CA-16: el intento anterior falló por red y este choca con el nombre.
-  const lastFailedByNetwork = useRef(false)
-  const [maybeSaved, setMaybeSaved] = useState(false)
 
-  // Se recalcula al cambiar cualquier campo, sin tocar la base (US-75).
-  const preview = useMemo(() => buildCalendarPreview(values, fxRates, today), [values, fxRates, today])
+  const categoryOptions = editOptions(categories, { id: subscription.categoryId, name: subscription.categoryName })
+  const accountOptions = editOptions(accounts, { id: subscription.accountId, name: subscription.accountName })
+  const categoryArchived = categoryOptions.find((o) => o.id === values.categoryId)?.archived ?? false
+  const accountArchived = accountOptions.find((o) => o.id === values.accountId)?.archived ?? false
 
   const errors: SubscriptionErrors = attempted
-    ? { ...validateSubscriptionForm(values, today).errors, ...serverErrors }
+    ? { ...validateSubscriptionEdit(values, subscription, today).errors, ...serverErrors }
     : {}
+  const nextCharge = editNextChargeText(values, subscription, generatedPeriods, today)
+  const endedHint = endedExtensionHint(subscription, today)
+  const detailPath = `/subscriptions/${subscription.id}`
 
   function change(patch: Partial<SubscriptionFormValues>) {
     setValues((prev) => ({ ...prev, ...patch }))
@@ -78,7 +82,6 @@ export function SubscriptionForm({
         touched.forEach((field) => delete next[field])
         return next
       })
-      if (touched.includes('name')) setMaybeSaved(false)
     }
   }
 
@@ -88,58 +91,42 @@ export function SubscriptionForm({
     setAttempted(true)
     setServerErrors({})
     setSaveError(null)
-    setMaybeSaved(false)
-    const { draft } = validateSubscriptionForm(values, today)
+    const { draft } = validateSubscriptionEdit(values, subscription, today)
     if (!draft) return
 
     savingRef.current = true
     setSaving(true)
     try {
-      const { subscriptionId, generated } = await createSubscription(draft)
-      navigate(`/subscriptions/${subscriptionId}`)
-      toast.success(savedNoticeText(generated), { testId: 'subscription-toast' })
+      const { generatedBefore, generatedAfter } = await updateSubscription(subscription.id, draft)
+      navigate(detailPath)
+      toast.success(editSavedNoticeText(generatedBefore, generatedAfter, today), { testId: 'subscription-toast' })
       return
     } catch (error) {
       const message = isNetworkError(error) ? '' : ((error as { message?: string }).message ?? '')
       const field = message ? fieldOfSaveError(message) : null
-      if (field) {
-        setServerErrors({ [field]: message })
-        setMaybeSaved(message === DUPLICATE_NAME_MESSAGE && lastFailedByNetwork.current)
-      } else {
-        setSaveError(`No se pudo guardar: ${saveFailureReason(error)}`)
-      }
-      lastFailedByNetwork.current = isNetworkError(error)
+      if (field) setServerErrors({ [field]: message })
+      else setSaveError(`No se pudo guardar: ${saveFailureReason(error)}`)
     } finally {
       savingRef.current = false
       setSaving(false)
     }
   }
 
-  const descriptionLength = codePointLength(values.description)
-
   return (
     <form data-testid="subscription-form" onSubmit={onSubmit} noValidate className="flex flex-col">
+      <p
+        data-testid="subscription-form-notice"
+        className="mb-5 rounded-lg bg-secondary px-3 py-2.5 text-callout text-muted-foreground"
+      >
+        {EDIT_NOTICE_TEXT}
+      </p>
+
       <fieldset disabled={saving} className="flex flex-col gap-5">
-        <Field
-          id="name"
-          label="Nombre"
-          error={errors.name}
-          footer={
-            maybeSaved && (
-              <p data-testid="subscription-form-error-list" className="text-footnote text-muted-foreground">
-                Puede que se haya guardado en el intento anterior.{' '}
-                <Link to="/subscriptions" data-testid="subscription-form-error-list-link" className="font-medium text-primary underline-offset-4 hover:underline">
-                  Ver suscripciones
-                </Link>
-              </p>
-            )
-          }
-        >
+        <Field id="name" label="Nombre" error={errors.name}>
           <Input
             id="subscription-form-name"
             data-testid="subscription-form-name"
             autoComplete="off"
-            placeholder="Netflix"
             value={values.name}
             onChange={(e) => change({ name: limitCodePoints(e.target.value, MAX_NAME_LENGTH) })}
             aria-invalid={!!errors.name || undefined}
@@ -161,21 +148,24 @@ export function SubscriptionForm({
             />
           </Field>
           <div className="grid gap-2">
-            <span id="subscription-form-currency-label" className="text-footnote font-medium text-muted-foreground">
-              Moneda
-            </span>
-            <SegmentedControl
-              testId="subscription-form-currency"
-              aria-labelledby="subscription-form-currency-label"
-              value={values.currency}
-              options={CURRENCY_OPTIONS}
-              onValueChange={(currency) => change({ currency })}
-            />
+            <span className="text-footnote font-medium text-muted-foreground">Moneda</span>
+            <p
+              data-testid="subscription-form-currency-readonly"
+              className="flex h-11 items-center rounded-lg bg-secondary px-3 text-base text-muted-foreground"
+            >
+              {subscription.currency}
+            </p>
           </div>
         </div>
 
-        <Field id="category" label="Categoría" error={errors.categoryId}>
-          {categories.length === 0 ? (
+        <Field
+          id="category"
+          label="Categoría"
+          error={errors.categoryId}
+          help={categoryArchived ? ARCHIVED_HINT_TEXT : undefined}
+          helpTestId="subscription-form-category-archived-hint"
+        >
+          {categoryOptions.length === 0 ? (
             <EmptyCatalog testId="subscription-form-category-empty" message="No tenés categorías activas." />
           ) : (
             <select
@@ -186,20 +176,23 @@ export function SubscriptionForm({
               onChange={(e) => change({ categoryId: e.target.value })}
               aria-invalid={!!errors.categoryId || undefined}
             >
-              <option value="" disabled>
-                Elegí…
-              </option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
+              {categoryOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
                 </option>
               ))}
             </select>
           )}
         </Field>
 
-        <Field id="account" label="Medio de pago" error={errors.accountId}>
-          {accounts.length === 0 ? (
+        <Field
+          id="account"
+          label="Medio de pago"
+          error={errors.accountId}
+          help={accountArchived ? ARCHIVED_HINT_TEXT : undefined}
+          helpTestId="subscription-form-account-archived-hint"
+        >
+          {accountOptions.length === 0 ? (
             <EmptyCatalog testId="subscription-form-account-empty" message="No tenés medios de pago activos." />
           ) : (
             <select
@@ -210,12 +203,9 @@ export function SubscriptionForm({
               onChange={(e) => change({ accountId: e.target.value })}
               aria-invalid={!!errors.accountId || undefined}
             >
-              <option value="" disabled>
-                Elegí…
-              </option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
+              {accountOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -242,17 +232,22 @@ export function SubscriptionForm({
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2 sm:gap-3">
-          <Field id="start-period" label="Mes de inicio" error={errors.startPeriod}>
-            <Input
-              id="subscription-form-start-period"
-              data-testid="subscription-form-start-period"
-              type="month"
-              value={values.startPeriod}
-              onChange={(e) => change({ startPeriod: e.target.value })}
-              aria-invalid={!!errors.startPeriod || undefined}
-            />
-          </Field>
-          <Field id="end-period" label="Mes de fin (opcional)" error={errors.endPeriod}>
+          <div className="grid content-start gap-2">
+            <span className="text-footnote font-medium text-muted-foreground">Mes de inicio</span>
+            <p
+              data-testid="subscription-form-start-period-readonly"
+              className="flex h-11 items-center rounded-lg bg-secondary px-3 text-base text-muted-foreground"
+            >
+              {formatPeriodLong(subscription.startPeriod)}
+            </p>
+          </div>
+          <Field
+            id="end-period"
+            label="Mes de fin (opcional)"
+            error={errors.endPeriod}
+            help={endedHint ?? undefined}
+            helpTestId="subscription-form-end-period-hint"
+          >
             <div className="flex gap-2">
               <Input
                 id="subscription-form-end-period"
@@ -286,14 +281,22 @@ export function SubscriptionForm({
             aria-invalid={!!errors.description || undefined}
           />
           <p className="tabular text-right text-footnote text-muted-foreground">
-            {descriptionLength}/{MAX_DESCRIPTION_LENGTH}
+            {codePointLength(values.description)}/{MAX_DESCRIPTION_LENGTH}
           </p>
         </Field>
       </fieldset>
 
-      <SubscriptionPreview preview={preview} />
+      {nextCharge && (
+        <p
+          aria-live="polite"
+          data-testid="subscription-form-next-charge"
+          className="mt-6 rounded-lg bg-secondary px-3 py-2.5 text-callout text-foreground"
+        >
+          {nextCharge}
+        </p>
+      )}
 
-      {/* Fijo abajo, por encima de la barra de navegación, como la acción de Registrar. */}
+      {/* Fijo abajo, por encima de la barra de navegación, como en el alta. */}
       <div className="sticky bottom-(--app-nav-offset) z-20 -mx-5 mt-8 flex flex-col gap-2 border-t border-hairline bg-background px-5 pt-2.5 pb-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
         {saveError && (
           <p role="alert" data-testid="subscription-form-error" className="text-footnote text-destructive">
@@ -301,15 +304,11 @@ export function SubscriptionForm({
           </p>
         )}
         <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-2">
-          <Link
-            to="/subscriptions"
-            data-testid="subscription-form-cancel"
-            className={buttonVariants({ variant: 'outline', size: 'lg' })}
-          >
+          <Link to={detailPath} data-testid="subscription-form-cancel" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
             Cancelar
           </Link>
           <Button type="submit" size="lg" disabled={saving} data-testid="subscription-form-submit">
-            {saving ? 'Guardando…' : 'Guardar suscripción'}
+            {saving ? 'Guardando…' : 'Guardar cambios'}
           </Button>
         </div>
       </div>

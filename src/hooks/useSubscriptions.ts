@@ -113,3 +113,20 @@ export function useSubscriptionCatalog() {
     return { categories, accounts, fxRates } as { categories: Category[]; accounts: Account[]; fxRates: Map<string, Decimal> | null }
   }, [])
 }
+
+/**
+ * Lo que necesita la edición (US-59): la suscripción, sus períodos ya generados (para el "Próximo cobro") y las
+ * categorías y cuentas activas. Los generados son un detalle: sin ellos solo se pierde el caso de una
+ * ocurrencia borrada (R2) en esa línea.
+ */
+export function useSubscriptionEdit(id: string) {
+  return useLoad(async () => {
+    const [subscription, generated, categories, accounts] = await Promise.all([
+      fetchSubscription(id),
+      fetchGeneratedPeriods(id).catch(() => null),
+      fetchActiveCategories(),
+      fetchActiveAccounts(),
+    ])
+    return { subscription, generatedPeriods: generated ?? new Set<string>(), categories, accounts }
+  }, [id])
+}

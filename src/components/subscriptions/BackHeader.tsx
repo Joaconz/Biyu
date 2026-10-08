@@ -8,12 +8,15 @@ export function BackHeader({
   backTestId,
   title,
   titleTestId,
+  backLabel = 'Volver a Suscripciones',
   children,
 }: {
   to: string
   backTestId: string
   title?: ReactNode
   titleTestId?: string
+  /** Texto accesible del botón atrás. */
+  backLabel?: string
   children?: ReactNode
 }) {
   return (
@@ -21,7 +24,7 @@ export function BackHeader({
       <Link
         to={to}
         data-testid={backTestId}
-        aria-label="Volver a Suscripciones"
+        aria-label={backLabel}
         className="press -ml-3 flex size-11 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-accent"
       >
         <ChevronLeft aria-hidden="true" className="size-6" strokeWidth={1.8} />
