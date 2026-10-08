@@ -6,14 +6,24 @@ import { ImportSteps } from '@/components/import/ImportSteps'
 import { ReviewStep } from '@/components/import/ReviewStep'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { fileErrorMessage, type ImportSheet } from '@/domain/importFile'
-import { downloadTemplate, readImportFile } from '@/lib/importFile'
+import type { ImportReview } from '@/domain/importRows'
+import { CatalogError, downloadTemplate, ReaderLoadError, reviewImportFile } from '@/lib/importFile'
+import { isNetworkError } from '@/lib/errors'
 
 type ImportState =
   | { step: 1; error: string | null }
-  | { step: 2; fileName: string; sheet: ImportSheet }
+  | { step: 2; fileName: string; sheet: ImportSheet; review: ImportReview }
+
+function importFailureMessage(error: unknown): string {
+  if (error instanceof ReaderLoadError || (error instanceof CatalogError && isNetworkError(error.cause))) {
+    return 'No pudimos revisar el archivo: revisá tu conexión y probá de nuevo.'
+  }
+  if (error instanceof CatalogError) return 'No se pudieron cargar tus categorías y cuentas. Probá de nuevo.'
+  return 'No pudimos revisar el archivo. Probá de nuevo.'
+}
 
 /**
- * Importar desde Excel (US-74, entrega-2/historias/importar-excel.md). El paso vive en el estado, no en
+ * Importar desde Excel (US-74, US-76; entrega-2/historias/importar-excel.md). El paso vive en el estado, no en
  * la URL: recargar vuelve al paso 1 sin archivo, porque el archivo se lee en el navegador y no se
  * guarda en ningún lado (§1, C14).
  */
@@ -26,15 +36,15 @@ export function ImportPage() {
     // El error del archivo anterior no queda a la vista mientras se lee el nuevo.
     setState({ step: 1, error: null })
     try {
-      const result = await readImportFile(file)
+      const result = await reviewImportFile(file)
       setState(
         result.ok
-          ? { step: 2, fileName: file.name, sheet: result.sheet }
+          ? { step: 2, fileName: file.name, sheet: result.sheet, review: result.review }
           : { step: 1, error: fileErrorMessage(result.error) },
       )
-    } catch {
-      // Solo llega acá si no bajó el lector de .xlsx (sin conexión o un deploy nuevo): no es A3.
-      toast.error('No se pudo cargar el lector de Excel. Revisá la conexión y probá de nuevo.')
+    } catch (error) {
+      // No es un error del archivo (A1–A7), así que no va en import-file-error.
+      toast.error(importFailureMessage(error))
     } finally {
       setReading(false)
     }
@@ -66,6 +76,7 @@ export function ImportPage() {
         <ReviewStep
           fileName={state.fileName}
           sheet={state.sheet}
+          review={state.review}
           onChangeFile={() => setState({ step: 1, error: null })}
         />
       )}

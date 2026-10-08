@@ -91,8 +91,14 @@ export function validateTransactionDraft(draft: TransactionDraft, today: string)
 }
 
 // Misma regla que create_transaction: la cuota base (truncada) tiene que ser al menos 0,01, en
-// la moneda de la transacción y en ARS por separado (C3, ADR-013).
-function hasEmptyInstallment({ amount, currency, fxRate, installmentsCount }: TransactionDraft): boolean {
+// la moneda de la transacción y en ARS por separado (C3, ADR-013). La importación la reusa para F17
+// y F18 (US-76).
+export function hasEmptyInstallment({
+  amount,
+  currency,
+  fxRate,
+  installmentsCount,
+}: Pick<TransactionDraft, 'amount' | 'currency' | 'fxRate' | 'installmentsCount'>): boolean {
   if (!amount) return false
   const totals = currency === 'USD' && fxRate ? [amount, convertToArs(amount, fxRate)] : [amount]
   return totals.some((total) => prorate(total, installmentsCount)[0].lte(0))

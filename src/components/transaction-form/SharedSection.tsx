@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import { MAX_PERSON_LENGTH, sharedDebtPreview } from '@/domain/sharedDebt'
 import { cn } from '@/lib/utils'
 import { FieldError } from './FieldError'
@@ -25,26 +26,12 @@ export function SharedSection({ values, errors, touched, onChange, onTouch }: Se
         <span id="transaction-form-shared-label" className="text-callout font-semibold">
           Gasto compartido
         </span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={values.shared}
-          aria-labelledby="transaction-form-shared-label"
-          data-testid="transaction-form-shared-toggle"
-          onClick={() => onChange({ shared: !values.shared })}
-          className={cn(
-            'press relative ml-auto h-[31px] w-[51px] shrink-0 rounded-full border transition-colors duration-(--dur-fade)',
-            values.shared ? 'border-primary bg-primary' : 'border-input bg-secondary',
-          )}
-        >
-          <span
-            aria-hidden="true"
-            className={cn(
-              'absolute top-[2px] size-[25px] rounded-full border bg-card transition-[left] duration-(--dur-fade)',
-              values.shared ? 'left-[22px] border-primary' : 'left-[2px] border-input',
-            )}
-          />
-        </button>
+        <Switch
+          checked={values.shared}
+          onCheckedChange={(shared) => onChange({ shared })}
+          testId="transaction-form-shared-toggle"
+          labelledBy="transaction-form-shared-label"
+        />
       </div>
 
       {values.shared && (
