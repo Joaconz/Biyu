@@ -19,7 +19,8 @@ interface ConfirmDialogProps {
 }
 
 /**
- * Confirmación de una acción destructiva, con el mismo aspecto que DeleteTransactionDialog.
+ * Confirmación de una acción, con el mismo aspecto que DeleteTransactionDialog. Por defecto la acción es
+ * destructiva (botón bordó); pasá `confirmVariant="default"` para una reversible, como pausar o reanudar.
  * Mientras `onConfirm` corre, no se puede cerrar ni volver a confirmar.
  */
 export function ConfirmDialog({

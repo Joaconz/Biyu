@@ -81,7 +81,12 @@ export function SubscriptionDetailPage() {
         <>
           <BlockedNotice blocked={state.blocked} />
           <SubscriptionData subscription={subscription} generatedPeriods={state.generatedPeriods} />
-          <SubscriptionActions subscription={subscription} generatedPeriods={state.generatedPeriods} onChanged={state.refresh} />
+          <SubscriptionActions
+            subscription={subscription}
+            generatedPeriods={state.generatedPeriods}
+            blocked={state.blocked}
+            onChanged={state.refresh}
+          />
         </>
       )}
     </div>

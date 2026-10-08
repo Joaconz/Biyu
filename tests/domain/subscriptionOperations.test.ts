@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { Decimal } from '@/domain/money'
 import {
   blockedMonthsWarning,
-  missingFxPeriods,
   pauseSkipsCurrentMonthDay,
   pausedNoticeText,
   periodListText,
+  resumedNoticeText,
+  resumeOutcomeText,
 } from '@/domain/subscriptionOperations'
 
 // Hoy de los ejemplos de entrega-2/historias/suscripciones.md: 2026-10-06, período corriente octubre 2026.
@@ -50,56 +51,6 @@ describe('pauseSkipsCurrentMonthDay (US-56 CA-11)', () => {
   })
 })
 
-describe('missingFxPeriods (US-56 CA-10, US-58 CA-10)', () => {
-  const usd = {
-    status: 'active' as const,
-    amount: '10.00',
-    currency: 'USD' as const,
-    billingDay: 10,
-    generateFromPeriod: { year: 2026, month: 6 },
-    endPeriod: null,
-  }
-  const rates = new Map([['2026-06', new Decimal('1200')]])
-
-  it('lista los meses vencidos sin tipo de cambio, del más viejo al más nuevo', () => {
-    const periods = missingFxPeriods(usd, new Set(['2026-06']), new Map(), TODAY)
-    expect(periods.map((p) => `${p.year}-${p.month}`)).toEqual(['2026-7', '2026-8', '2026-9'])
-  })
-
-  it('un mes con tipo de cambio o ya generado no cuenta', () => {
-    const periods = missingFxPeriods(usd, new Set(), rates, TODAY)
-    expect(periods[0]).toEqual({ year: 2026, month: 7 })
-  })
-
-  it('el mes corriente antes del día de cobro no está bloqueado (R5)', () => {
-    const periods = missingFxPeriods({ ...usd, billingDay: 20, generateFromPeriod: OCT }, new Set(), new Map(), TODAY)
-    expect(periods).toEqual([])
-  })
-
-  it('una suscripción en ARS nunca está bloqueada por tipo de cambio', () => {
-    expect(missingFxPeriods({ ...usd, currency: 'ARS' }, new Set(), new Map(), TODAY)).toEqual([])
-  })
-
-  it('una pausada no está bloqueada (R3)', () => {
-    expect(missingFxPeriods({ ...usd, status: 'paused' }, new Set(), new Map(), TODAY)).toEqual([])
-  })
-
-  it('un mes bloqueado por monto en pesos fuera de rango no se lista como falta de tipo de cambio', () => {
-    const huge = { ...usd, amount: '999999999999.99', generateFromPeriod: { year: 2026, month: 6 } }
-    const periods = missingFxPeriods(huge, new Set(), new Map([['2026-06', new Decimal('1200')]]), TODAY)
-    expect(periods.map((p) => p.month)).toEqual([7, 8, 9])
-  })
-
-  it('con el mes de fin anterior al corriente solo lista hasta ese mes (R1)', () => {
-    const periods = missingFxPeriods({ ...usd, endPeriod: { year: 2026, month: 7 } }, new Set(), new Map(), TODAY)
-    expect(periods).toEqual([{ year: 2026, month: 6 }, { year: 2026, month: 7 }])
-  })
-
-  it('USD sin los tipos de cambio leídos: no inventa meses bloqueados', () => {
-    expect(missingFxPeriods(usd, new Set(), null, TODAY)).toEqual([])
-  })
-})
-
 describe('textos de las operaciones', () => {
   it('lista de meses con comas y "y" antes del último', () => {
     expect(periodListText([])).toBe('')
@@ -111,22 +62,99 @@ describe('textos de las operaciones', () => {
   })
 
   it('aviso de meses bloqueados al pausar y al cancelar, en singular y plural', () => {
-    const july = [{ year: 2026, month: 7 }]
+    const fx = (month: number) => ({ period: { year: 2026, month }, reason: 'missing_fx_rate' as const })
+    const july = [fx(7)]
     expect(blockedMonthsWarning(july, 'pausás')).toBe(
       'Julio 2026 no se cargó por falta de tipo de cambio. Si la pausás, ese mes no se va a cargar.',
     )
     expect(blockedMonthsWarning(july, 'cancelás')).toBe(
       'Julio 2026 no se cargó por falta de tipo de cambio. Si la cancelás, ese mes no se va a cargar.',
     )
-    expect(blockedMonthsWarning([...july, { year: 2026, month: 8 }], 'pausás')).toBe(
+    expect(blockedMonthsWarning([...july, fx(8)], 'pausás')).toBe(
       'Julio 2026 y agosto 2026 no se cargaron por falta de tipo de cambio. Si la pausás, esos meses no se van a cargar.',
     )
     expect(blockedMonthsWarning([], 'pausás')).toBeNull()
+    // Un mes bloqueado por monto en pesos fuera de rango no es "falta de tipo de cambio": no entra en el aviso.
+    const range = { period: { year: 2026, month: 9 }, reason: 'amount_ars_out_of_range' as const }
+    expect(blockedMonthsWarning([range], 'pausás')).toBeNull()
+    expect(blockedMonthsWarning([...july, range], 'pausás')).toBe(
+      'Julio 2026 no se cargó por falta de tipo de cambio. Si la pausás, ese mes no se va a cargar.',
+    )
   })
 
   it('aviso de pausa: con y sin gastos atrasados', () => {
     expect(pausedNoticeText(0)).toBe('Suscripción pausada')
     expect(pausedNoticeText(1)).toBe('Suscripción pausada. Antes se cargó 1 gasto vencido.')
     expect(pausedNoticeText(3)).toBe('Suscripción pausada. Antes se cargaron 3 gastos vencidos.')
+  })
+})
+
+describe('resumeOutcomeText (US-57)', () => {
+  const sub = (patch: Partial<Parameters<typeof resumeOutcomeText>[0]> = {}) => ({
+    billingDay: 10,
+    startPeriod: { year: 2026, month: 5 },
+    generateFromPeriod: { year: 2026, month: 8 }, // pausada hace meses: el piso quedó antes del corriente
+    endPeriod: null,
+    ...patch,
+  })
+
+  it('pausada este mismo mes, el piso quedó en noviembre: octubre no se carga aunque ya haya vencido (R8)', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 1, generateFromPeriod: { year: 2026, month: 11 } }), new Set(), TODAY)).toBe(
+      'Próximo cobro: 01/11/2026.',
+    )
+  })
+
+  it('el período corriente ya venció y no tiene transacción: dice que se carga al reanudar', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 1 }), new Set(['2026-07']), TODAY)).toBe(
+      'Al reanudar se carga octubre 2026 (01/10/2026).',
+    )
+  })
+
+  it('el día de cobro es hoy: ya venció, también se carga', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 6 }), new Set(), TODAY)).toBe('Al reanudar se carga octubre 2026 (06/10/2026).')
+  })
+
+  it('el cobro del mes corriente todavía no llegó: próximo cobro de este mes (R5)', () => {
+    expect(resumeOutcomeText(sub(), new Set(), TODAY)).toBe('Próximo cobro: 10/10/2026.')
+  })
+
+  it('el mes corriente ya tiene transacción (aunque esté borrada): próximo cobro del mes siguiente', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 1 }), new Set(['2026-10']), TODAY)).toBe('Próximo cobro: 01/11/2026.')
+  })
+
+  it('ignora el piso viejo: usa el corriente aunque la pausa haya dejado uno menor (R8)', () => {
+    expect(resumeOutcomeText(sub({ generateFromPeriod: { year: 2026, month: 8 } }), new Set(), TODAY)).toBe(
+      'Próximo cobro: 10/10/2026.',
+    )
+  })
+
+  it('start_period futuro: el piso es start_period y el próximo cobro es de ese mes (CA-3)', () => {
+    const future = { year: 2027, month: 1 }
+    expect(resumeOutcomeText(sub({ startPeriod: future, generateFromPeriod: future }), new Set(), TODAY)).toBe(
+      'Próximo cobro: 10/01/2027.',
+    )
+  })
+
+  it('el mes de fin ya pasó: no hay más cobros', () => {
+    expect(resumeOutcomeText(sub({ endPeriod: { year: 2026, month: 5 } }), new Set(), TODAY)).toBe(
+      'No hay más cobros: terminó en mayo 2026.',
+    )
+  })
+
+  it('el mes de fin es el corriente y ya se cobró: no hay más cobros, pero todavía no "terminó"', () => {
+    expect(resumeOutcomeText(sub({ endPeriod: OCT, billingDay: 1 }), new Set(['2026-10']), TODAY)).toBe(
+      'No hay más cobros: termina en octubre 2026.',
+    )
+  })
+
+  it('día de cobro 31 en un mes de 30 días: la fecha es la recortada (R4)', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 31 }), new Set(), new Date(2026, 8, 6))).toBe('Próximo cobro: 30/09/2026.')
+  })
+})
+
+describe('resumedNoticeText (US-57)', () => {
+  it('sin gasto nuevo y con el gasto del mes corriente', () => {
+    expect(resumedNoticeText(0, TODAY)).toBe('Suscripción reanudada')
+    expect(resumedNoticeText(1, TODAY)).toBe('Suscripción reanudada. Se cargó el gasto de octubre 2026.')
   })
 })
