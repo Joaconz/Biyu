@@ -3,7 +3,9 @@ import { join } from 'node:path'
 import writeXlsxFile from 'write-excel-file/universal'
 import { describe, expect, it } from 'vitest'
 import { readImportSheet, type SheetCell } from '@/domain/importFile'
+import { readSummaryText, reviewRows, toImportText } from '@/domain/importRows'
 import { buildTemplate, readFirstSheet } from '@/lib/xlsx'
+import { SEEDED_CATALOG } from '../domain/importFixtures'
 
 const EXAMPLE = join(import.meta.dirname, '../../entrega-2/mocks/importar-excel-ejemplo.xlsx')
 
@@ -83,5 +85,29 @@ describe('celdas de fecha', () => {
     expect(withTime).toEqual({ kind: 'date', date: '2026-09-05' })
     expect(outOfRange).toEqual({ kind: 'text', text: '########' })
     expect(plain).toEqual({ kind: 'number', text: '46000' })
+  })
+})
+
+describe('revisión del archivo de ejemplo (§6, US-76 · CA-1, CA-8, CA-9)', () => {
+  it('11 filas, 7 listas y 4 con error, con los mensajes y la suma de la spec', async () => {
+    const read = readImportSheet(await readFirstSheet(exampleFile()))
+    if (!read.ok) throw new Error('el ejemplo debería leerse')
+    const review = reviewRows(read.sheet.rows, SEEDED_CATALOG, '2026-10-08')
+    expect(readSummaryText(review)).toBe('11 filas leídas · 7 listas para importar · 4 con error')
+    expect(toImportText(review)).toBe(
+      'Vas a importar 7 movimientos: $324.915,50 en gastos y $850.000,00 en ingresos (en pesos).',
+    )
+    expect(review.rows.filter((r) => r.status === 'error').map((r) => [r.rowNumber, r.status === 'error' && r.errors])).toEqual([
+      [7, ['El monto debe ser mayor a cero']],
+      [8, ['Falta el tipo de cambio']],
+      [9, ['No existe la categoría «Mascotas» o está archivada']],
+      [10, ['Solo los gastos con tarjeta de crédito admiten cuotas']],
+    ])
+    expect(review.rows.find((r) => r.rowNumber === 4)).toMatchObject({ card: { amount: 'US$12,50', fxRate: 'TC 1.450,00' } })
+    expect(review.rows.find((r) => r.rowNumber === 11)).toMatchObject({
+      status: 'ready',
+      card: { date: '22/09/2026', amount: '$9.990,50' },
+    })
+    expect(review.rows.some((r) => r.rowNumber === 12)).toBe(false)
   })
 })
