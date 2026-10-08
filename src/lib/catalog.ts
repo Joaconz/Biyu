@@ -51,26 +51,35 @@ export function setStoredLastAccountId(accountId: string | null): void {
 
 /**
  * Trae el ID de la última cuenta usada por el usuario autenticado (US-07).
- * Consulta transactions ordenadas por created_at desc excluyendo borradas (C10).
- * Si no hay transacciones o falla la consulta, recurre al valor en localStorage si existe.
+ * Consulta transactions ordenadas por created_at desc excluyendo borradas (C10). Solo cuentan las
+ * guardadas desde Registrar, que son las únicas con request_id (US-70): una importación (US-77 ·
+ * CA-5) o una ocurrencia de suscripción no cambian la cuenta precargada.
+ * Sin ninguna con request_id (todo lo guardado es anterior a US-70), recurre a localStorage y, si
+ * está vacío, a la última transacción de cualquier origen, como antes de US-77.
  */
 export async function fetchLastUsedAccountId(): Promise<string | null> {
   try {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('account_id')
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (!error && data?.account_id) {
-      setStoredLastAccountId(data.account_id)
-      return data.account_id
+    const fromRegister = await lastAccountId(true)
+    if (fromRegister) {
+      setStoredLastAccountId(fromRegister)
+      return fromRegister
     }
+    const stored = getStoredLastAccountId()
+    if (stored) return stored
+    const any = await lastAccountId(false)
+    if (any) setStoredLastAccountId(any)
+    return any
   } catch {
     // Fallback silencioso al cache local si falla la red
+    return getStoredLastAccountId()
   }
-  return getStoredLastAccountId()
+}
+
+async function lastAccountId(onlyFromRegister: boolean): Promise<string | null> {
+  let query = supabase.from('transactions').select('account_id').is('deleted_at', null)
+  if (onlyFromRegister) query = query.not('request_id', 'is', null)
+  const { data, error } = await query.order('created_at', { ascending: false }).limit(1).maybeSingle()
+  if (error) throw error
+  return data?.account_id ?? null
 }
 

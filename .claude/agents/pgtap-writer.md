@@ -16,7 +16,7 @@ sigue al spec y reportás la discrepancia. No adaptes el test para que pase.
 ## Qué escribir
 
 1. **Grupo obligatorio de autorización (C7)**, por cada tabla (`transactions`, `ledger_entries`,
-   `debts`, `subscriptions`, `categories`, `accounts`, `fx_rates`):
+   `debts`, `subscriptions`, `categories`, `accounts`, `fx_rates`, `imports`):
    - Con la sesión de otro usuario (`request.jwt.claims` con otro `sub`, `set local role authenticated`)
      consultar filas ajenas → 0 filas; intentar `insert` con `user_id` ajeno → rechazado o ignorado;
      `update`/`delete` de filas ajenas → 0 filas afectadas.
