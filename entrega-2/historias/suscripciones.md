@@ -63,8 +63,8 @@ Milestone V2 · Versión del documento: 2026-10-06
 | US-57 | Reanudar sin relleno | Detalle, diálogo "Reanudar" |
 | US-58 | Cancelar sin perder el historial | Detalle, diálogo "Cancelar" |
 | US-59 | Editar el monto y otros datos sin tocar el pasado | Editar suscripción (nueva) |
-| US-60 | Borrar un mes puntual sin que vuelva | Movimientos (diálogo de borrado), Detalle |
-| US-61 | Reconocer qué movimientos vienen de una suscripción | Movimientos, Resumen, Detalle |
+| US-60 | Borrar un mes puntual sin que vuelva | Movimientos (diálogo de borrado), Detalle ("Gastos cargados") |
+| US-61 | Reconocer qué movimientos vienen de una suscripción | Movimientos, Resumen |
 | US-62 | Avisar cuando falta el tipo de cambio de una suscripción en USD | Suscripciones, Detalle |
 | US-63 | Ver el total mensual comprometido | Suscripciones |
 | US-75 | Ver el calendario antes de guardar | Nueva suscripción |
@@ -73,7 +73,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 
 ## Historias de usuario
 
-#### US-52: Dar de alta una suscripción · [#210](https://github.com/Joaconz/Biyu/issues/210) · Pendiente
+#### US-52: Dar de alta una suscripción · [#210](https://github.com/Joaconz/Biyu/issues/210) · Implementada
 
 - **Objetivo:** Como usuario, quiero dar de alta un gasto recurrente indicando nombre, monto, moneda,
   categoría, medio de pago y día de cobro, para no cargarlo a mano todos los meses.
@@ -158,7 +158,7 @@ Milestone V2 · Versión del documento: 2026-10-06
      tiene).
   3. Acciones, según el estado: "Editar" (`subscription-detail-edit`, US-59), "Pausar" o "Reanudar"
      (US-56, US-57) y "Cancelar suscripción" (US-58). Una cancelada no muestra ninguna.
-  4. "Gastos cargados" (US-61).
+  4. "Gastos cargados" (US-60).
 
   | Estado | Qué se ve | `data-testid` |
   |---|---|---|
@@ -205,7 +205,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-15 · R1, R4, R5, R8 · I4, I12, I13 · C4, C6, C7 · ADR-017, ADR-030, ADR-032
 - **Mock:** `entrega-2/mocks/suscripciones-lista.html`, `suscripciones-alta.html`, `suscripciones-detalle.html`
 
-#### US-53: Los meses vencidos se cargan solos al entrar · [#211](https://github.com/Joaconz/Biyu/issues/211) · Pendiente
+#### US-53: Los meses vencidos se cargan solos al entrar · [#211](https://github.com/Joaconz/Biyu/issues/211) · Implementada
 
 - **Objetivo:** Como usuario, quiero que los meses vencidos aparezcan cargados solos al entrar a la app,
   para que el dashboard esté completo sin que yo haga nada.
@@ -264,7 +264,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   I11, I14, I16, I17 · C4, C5 · ADR-017, ADR-030, ADR-031
 - **Mock:** `entrega-2/mocks/suscripciones-puesta-al-dia.html`
 
-#### US-54: El día de cobro que no existe se cobra el último día del mes · [#212](https://github.com/Joaconz/Biyu/issues/212) · Pendiente
+#### US-54: El día de cobro que no existe se cobra el último día del mes · [#212](https://github.com/Joaconz/Biyu/issues/212) · Implementada
 
 - **Objetivo:** Como usuario, quiero que una suscripción cuyo día de cobro no existe en un mes se cobre
   igual el último día de ese mes, para que ningún mes se saltee.
@@ -286,7 +286,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 · R4 · I13 · ADR-017
 - **Mock:** `entrega-2/mocks/suscripciones-detalle.html`
 
-#### US-55: El mes corriente aparece recién el día del cobro · [#213](https://github.com/Joaconz/Biyu/issues/213) · Pendiente
+#### US-55: El mes corriente aparece recién el día del cobro · [#213](https://github.com/Joaconz/Biyu/issues/213) · Implementada
 
 - **Objetivo:** Como usuario, quiero que el gasto del mes corriente aparezca recién el día que se cobra,
   para que el mes en curso no muestre plata que todavía no se fue.
@@ -306,7 +306,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 (ajustado) · R5 · `02-behavior-spec.md` supuesto 9 · C1 · ADR-021
 - **Mock:** `entrega-2/mocks/suscripciones-detalle.html`
 
-#### US-56: Pausar una suscripción · [#214](https://github.com/Joaconz/Biyu/issues/214) · Pendiente
+#### US-56: Pausar una suscripción · [#214](https://github.com/Joaconz/Biyu/issues/214) · Implementada
 
 - **Objetivo:** Como usuario, quiero pausar una suscripción, para dejar de registrarla mientras no la
   estoy pagando.
@@ -350,7 +350,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-17 · R3, R8 · I12, I15 · C6 · ADR-030
 - **Mock:** `entrega-2/mocks/suscripciones-dialogos.html`
 
-#### US-57: Reanudar sin cargar los meses pausados · [#215](https://github.com/Joaconz/Biyu/issues/215) · Pendiente
+#### US-57: Reanudar sin cargar los meses pausados · [#215](https://github.com/Joaconz/Biyu/issues/215) · Implementada
 
 - **Objetivo:** Como usuario, quiero que reanudar una suscripción pausada no me cargue de golpe los meses
   que estuve sin pagarla, para que el mes de la reanudación no quede inflado.
@@ -384,7 +384,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-17 · R8 · I12, I15 · ADR-030
 - **Mock:** `entrega-2/mocks/suscripciones-dialogos.html`
 
-#### US-58: Cancelar sin perder el historial · [#216](https://github.com/Joaconz/Biyu/issues/216) · Pendiente
+#### US-58: Cancelar sin perder el historial · [#216](https://github.com/Joaconz/Biyu/issues/216) · Implementada
 
 - **Objetivo:** Como usuario, quiero cancelar una suscripción sin perder el historial de lo que ya pagué,
   para que los meses cerrados no cambien.
@@ -425,7 +425,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-17 · I15 · C5, C10 · ADR-030
 - **Mock:** `entrega-2/mocks/suscripciones-dialogos.html`
 
-#### US-59: Editar el monto sin cambiar los meses registrados · [#217](https://github.com/Joaconz/Biyu/issues/217) · Pendiente
+#### US-59: Editar el monto sin cambiar los meses registrados · [#217](https://github.com/Joaconz/Biyu/issues/217) · Implementada
 
 - **Objetivo:** Como usuario, quiero cambiar el monto de una suscripción cuando aumenta, sin que se
   modifiquen los meses ya registrados.
@@ -490,7 +490,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-17 · R7 · C5, C6 · ADR-030, ADR-032
 - **Mock:** `entrega-2/mocks/suscripciones-edicion.html`
 
-#### US-60: Borrar un mes puntual sin que vuelva · [#218](https://github.com/Joaconz/Biyu/issues/218) · Pendiente
+#### US-60: Borrar un mes puntual sin que vuelva · [#218](https://github.com/Joaconz/Biyu/issues/218) · Implementada
 
 - **Objetivo:** Como usuario, quiero poder borrar una ocurrencia puntual (un mes que no me cobraron) sin
   que el sistema me la vuelva a crear.
@@ -499,7 +499,8 @@ Milestone V2 · Versión del documento: 2026-10-06
     (`delete-transaction-dialog`). Si la transacción vino de una suscripción, el diálogo suma una línea
     (`delete-transaction-subscription-note`): "Este gasto lo cargó la suscripción Netflix. Si lo eliminás,
     no se vuelve a cargar para octubre 2026."
-  - **Detalle**, "Gastos cargados" (US-61): la fila del mes borrado sigue apareciendo, con la marca
+  - **Detalle**, "Gastos cargados" (se describe en US-61, pero se implementa con esta historia: CA-4 y CA-5
+    la necesitan; ver "Supuestos y pendientes" §7): la fila del mes borrado sigue apareciendo, con la marca
     "Eliminado" (`subscription-detail-occurrence-deleted`).
 - **Criterios de aceptación:**
   - CA-1: Con la ocurrencia de junio 2026 generada, eliminarla (borrado lógico, `deleted_at`) y volver a
@@ -514,7 +515,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-08 · R2 · I10, I11 · C10 · ADR-017
 - **Mock:** `entrega-2/mocks/suscripciones-movimientos.html`
 
-#### US-61: Ver qué movimientos vienen de una suscripción · [#219](https://github.com/Joaconz/Biyu/issues/219) · Pendiente
+#### US-61: Ver qué movimientos vienen de una suscripción · [#219](https://github.com/Joaconz/Biyu/issues/219) · Implementada
 
 - **Objetivo:** Como usuario, quiero ver qué transacciones vinieron de una suscripción y de cuál, para
   reconocerlas en el listado.
@@ -540,7 +541,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 · I11, I14 · ADR-017
 - **Mock:** `entrega-2/mocks/suscripciones-movimientos.html`, `suscripciones-detalle.html`
 
-#### US-62: Aviso de suscripción en USD sin tipo de cambio · [#220](https://github.com/Joaconz/Biyu/issues/220) · Pendiente
+#### US-62: Aviso de suscripción en USD sin tipo de cambio · [#220](https://github.com/Joaconz/Biyu/issues/220) · Implementada
 
 - **Objetivo:** Como usuario, quiero que una suscripción en USD sin tipo de cambio cargado me avise en vez
   de inventar un valor, para no ensuciar los totales.
@@ -576,7 +577,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-15 · R6 · I5 · C5 · ADR-002, ADR-031
 - **Mock:** `entrega-2/mocks/suscripciones-lista.html`, `suscripciones-detalle.html`
 
-#### US-63: Total mensual comprometido en suscripciones · [#221](https://github.com/Joaconz/Biyu/issues/221) · Pendiente
+#### US-63: Total mensual comprometido en suscripciones · [#221](https://github.com/Joaconz/Biyu/issues/221) · Implementada
 
 - **Objetivo:** Como usuario, quiero ver el total mensual comprometido en suscripciones activas, para saber
   cuánto del mes ya está tomado antes de gastar nada.
@@ -615,7 +616,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 - **Trazabilidad:** FR-16 · `02-behavior-spec.md` supuesto 9 · C1, C2 · ADR-013, ADR-033
 - **Mock:** `entrega-2/mocks/suscripciones-lista.html`
 
-#### US-75: Vista previa del calendario antes de dar de alta · [#222](https://github.com/Joaconz/Biyu/issues/222) · Pendiente
+#### US-75: Vista previa del calendario antes de dar de alta · [#222](https://github.com/Joaconz/Biyu/issues/222) · Implementada
 
 - **Objetivo:** Como usuario, quiero ver qué meses va a cargar una suscripción y desde cuándo antes de
   darla de alta, para no llevarme la sorpresa de varios gastos cargados de golpe.
@@ -696,3 +697,7 @@ Milestone V2 · Versión del documento: 2026-10-06
 6. **Edición de transacciones** es V3 (roadmap). Cuando llegue, una transacción con `subscription_id` no
    puede cambiar su fecha a otro mes ni su moneda, porque rompería US-54 CA-4 y R6; queda anotado para
    esa historia.
+7. **"Gastos cargados" se implementó con US-60, no con US-61.** US-60 CA-4 y CA-5 muestran la marca
+   "Eliminado" en esa sección, así que no se podían cumplir sin ella ([#265](https://github.com/Joaconz/Biyu/pull/265)).
+   La especificación de la sección sigue en US-61 y su CA-5 se verifica igual. US-61
+   ([#266](https://github.com/Joaconz/Biyu/pull/266)) agregó solo la marca de Movimientos y el Resumen.

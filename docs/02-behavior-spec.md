@@ -4,7 +4,8 @@ _Qué tiene que hacer el sistema, desde la perspectiva del usuario. El "cómo" e
 
 Alcance de este spec: **registro de transacciones + dashboard mensual + deudas**. La
 importación de resúmenes de tarjeta queda fuera (ver ADR-005). Las **suscripciones** (gastos
-recurrentes mensuales) tienen su propio documento: `06-suscripciones.md`, historias 52 a 63.
+recurrentes mensuales) tienen su propio documento: `06-suscripciones.md`, historias 52 a 63, más US-75 (vista previa del calendario) en
+`entrega-2/historias/suscripciones.md`.
 
 > **Nota de versiones.** Este documento se escribió cuando el proyecto tenía un roadmap
 > propio de seis slices. El corte vigente es el de la materia — V1 / V2 / V3 en
@@ -122,7 +123,7 @@ cuántas son; modifica FR-05 de `pre-entrega.md`, que solo ofrecía archivar si 
 50. Como usuario nuevo, quiero crear mi cuenta con email y contraseña en `/signup`, para empezar a usar la app sin que nadie me la habilite a mano.
 51. Como usuario nuevo, quiero entrar directo después de registrarme, sin un paso intermedio de confirmación por email, para no perder el momento en que decidí usar la app.
 
-_Las historias 52 a 63 están en `06-suscripciones.md`. Las dos siguientes cubren FR-03 y FR-08 de
+_Las historias 52 a 63 están en `06-suscripciones.md`, y US-75 en `entrega-2/historias/suscripciones.md`. Las dos siguientes cubren FR-03 y FR-08 de
 la pre-entrega, que no tenían historia (ver `08-trazabilidad.md`)._
 
 64. Como usuario, quiero cerrar sesión desde la app, para que nadie más use mi cuenta en un dispositivo compartido.
