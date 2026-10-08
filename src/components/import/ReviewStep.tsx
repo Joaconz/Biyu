@@ -11,6 +11,7 @@ export function ReviewStep({
   fileName,
   sheet,
   review,
+  importing = false,
   onChangeFile,
   onSubmit,
 }: {
@@ -18,8 +19,9 @@ export function ReviewStep({
   sheet: ImportSheet
   review: ImportReview
   onChangeFile: () => void
-  /** Lo conecta US-77; sin él, el botón queda deshabilitado en vez de no hacer nada. */
-  onSubmit?: () => void
+  /** Mientras la llamada está en curso: "Importando…" y los dos botones deshabilitados (§1). */
+  importing?: boolean
+  onSubmit: () => void
 }) {
   // El filtro vive en el estado y no en la URL (C11), como todo el paso: el archivo no se persiste y
   // recargar vuelve al paso 1 (§1).
@@ -72,8 +74,8 @@ export function ReviewStep({
 
       <div className="flex flex-col gap-3 sm:flex-row-reverse sm:items-start">
         <div className="flex flex-col gap-1.5">
-          <Button type="button" size="lg" disabled={review.ready === 0 || !onSubmit} onClick={onSubmit} data-testid="import-submit">
-            {submitLabel(review.ready)}
+          <Button type="button" size="lg" disabled={review.ready === 0 || importing} onClick={onSubmit} data-testid="import-submit">
+            {importing ? 'Importando…' : submitLabel(review.ready)}
           </Button>
           {review.ready === 0 && (
             <p data-testid="import-submit-hint" className="text-footnote text-muted-foreground">
@@ -81,7 +83,7 @@ export function ReviewStep({
             </p>
           )}
         </div>
-        <Button type="button" variant="outline" size="lg" onClick={onChangeFile} data-testid="import-change-file">
+        <Button type="button" variant="outline" size="lg" onClick={onChangeFile} disabled={importing} data-testid="import-change-file">
           Elegir otro archivo
         </Button>
       </div>

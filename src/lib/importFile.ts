@@ -6,10 +6,15 @@ import {
   type ImportSheet,
   type ReadSheetResult,
 } from '@/domain/importFile'
+import type { ImportPayloadRow, ImportResponse } from '@/domain/importResult'
 import { reviewRows, type ImportCatalog, type ImportReview } from '@/domain/importRows'
 import { toIsoDate } from '@/domain/period'
 import { fetchActiveAccounts, fetchActiveCategories } from './catalog'
 import { todayInArgentina } from './clock'
+import type { Json } from './database.types'
+import { supabase } from './supabase'
+import { abortAfter } from './timeout'
+import type { SaveError } from './transactions'
 
 // La librería de .xlsx se carga recién acá, al elegir un archivo o bajar la plantilla (ADR-042).
 const loadXlsx = () => import('./xlsx')
@@ -78,4 +83,24 @@ export async function downloadTemplate(): Promise<void> {
   link.remove()
   // Safari cancela la descarga si la URL se revoca en el mismo tick del click.
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/** Tiempo de espera del cliente para toda la importación (§1 "Mientras importa"). */
+export const IMPORT_TIMEOUT_MS = 30_000
+
+/**
+ * Una sola llamada para todo el lote (ADR-035, C4). `importId` identifica la importación: repetirlo
+ * devuelve el resultado guardado en lugar de importar otra vez.
+ */
+export async function importTransactions(importId: string, rows: ImportPayloadRow[]): Promise<ImportResponse> {
+  const timeout = abortAfter(IMPORT_TIMEOUT_MS)
+  try {
+    const { data, error, status } = await supabase
+      .rpc('import_transactions', { p_import_id: importId, p_rows: rows as unknown as Json })
+      .abortSignal(timeout.signal)
+    if (error) throw { code: error.code ?? '', message: error.message, status } satisfies SaveError
+    return data as unknown as ImportResponse
+  } finally {
+    timeout.clear()
+  }
 }

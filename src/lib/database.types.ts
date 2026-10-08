@@ -184,6 +184,33 @@ export type Database = {
         }
         Relationships: []
       }
+      imports: {
+        Row: {
+          created_at: string
+          id: string
+          imported_rows: number | null
+          result: Json | null
+          sent_rows: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          imported_rows?: number | null
+          result?: Json | null
+          sent_rows: number
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imported_rows?: number | null
+          result?: Json | null
+          sent_rows?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       ledger_entries: {
         Row: {
           amount: number
@@ -478,6 +505,10 @@ export type Database = {
       delete_transaction: {
         Args: { p_transaction_id: string }
         Returns: undefined
+      }
+      import_transactions: {
+        Args: { p_import_id: string; p_rows: Json }
+        Returns: Json
       }
       insert_transaction_with_entries: {
         Args: {

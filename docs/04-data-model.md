@@ -1,6 +1,6 @@
 # Modelo de datos
 
-_Ocho tablas. El corazón del modelo es la separación entre `transactions` (el evento) y `ledger_entries` (su impacto mensual)._
+_Nueve tablas. El corazón del modelo es la separación entre `transactions` (el evento) y `ledger_entries` (su impacto mensual)._
 
 ---
 
@@ -18,7 +18,8 @@ users
     ├──< transactions ──< ledger_entries
     │         │
     │         └──< debts   (debts.transaction_id opcional)
-    └──< debts
+    ├──< debts
+    └──< imports   (registro de cada importación desde Excel, ADR-035)
 ```
 
 > **Nota de stack.** Este documento pasó de Supabase a una API propia (ADR-016) y volvió a
@@ -250,6 +251,26 @@ puede absorber un resto.
 
 ---
 
+## `imports`
+
+Una importación desde Excel (US-77, [ADR-035](adr/035-importacion-por-lote-con-una-rpc.md)). La
+escribe solo la RPC `import_transactions`; el cliente la lee bajo RLS. Su `id` hace idempotente el
+reintento (NFR-10, US-78): repetir la llamada con el mismo id devuelve `result` sin importar otra vez.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | lo genera el cliente, uno por archivo confirmado; no tiene default |
+| user_id | uuid FK → users | `default auth.uid()`; índice `imports_user_id_idx` |
+| sent_rows | int | filas mandadas, de 1 a 500 (`imports_sent_rows_range`) |
+| imported_rows | int | filas creadas, entre 0 y `sent_rows`; null mientras la importación corre |
+| result | jsonb | la respuesta de la RPC: `import_id`, `sent_rows`, `imported_rows` y una entrada por fila con `transaction_id` o `error_code` y `error_message` |
+| created_at | timestamptz | |
+
+No guarda montos: cada fila importada es una transacción normal, sin marca de "importado" (§5 de
+`entrega-2/historias/importar-excel.md`).
+
+---
+
 ## Row Level Security
 
 _Reemplaza a la sección "Aislamiento por usuario" de la versión con API propia. Ver
@@ -260,17 +281,18 @@ aplicación intermedia que filtre por dueño: **Row Level Security es la autoriz
 no una red de contención adicional.
 
 Cada tabla (`categories`, `accounts`, `fx_rates`, `subscriptions`, `transactions`,
-`ledger_entries`, `debts`) tiene una política, como mínimo:
+`ledger_entries`, `debts`, `imports`) tiene una política, como mínimo:
 
 ```sql
 create policy "select_own_rows" on transactions
   for select using (user_id = auth.uid());
 -- análogas para insert/update/delete en las tablas de escritura directa (categories, accounts).
--- transactions, ledger_entries, subscriptions y debts son de solo lectura para el cliente:
+-- transactions, ledger_entries, subscriptions, debts e imports son de solo lectura para el cliente:
 -- transactions y ledger_entries se escriben únicamente vía create_transaction (ADR-020);
 -- subscriptions, por RPC (create_subscription y las operaciones de ADR-030); debts, vía
 -- create_transaction (deuda vinculada, ADR-036), create_debt (deuda suelta, US-36) y
--- settle_debt / reopen_debt (estado, US-39), ADR-037 §1.
+-- settle_debt / reopen_debt (estado, US-39), ADR-037 §1; imports, solo vía import_transactions
+-- (ADR-035).
 ```
 
 Reglas, sin excepciones:
