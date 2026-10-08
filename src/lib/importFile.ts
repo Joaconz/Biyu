@@ -104,3 +104,11 @@ export async function importTransactions(importId: string, rows: ImportPayloadRo
     timeout.clear()
   }
 }
+
+/**
+ * Sesión vencida durante la importación (§7): se cierra solo en este dispositivo, así /login no
+ * redirige de vuelta con el token viejo, y se entra de nuevo desde ahí.
+ */
+export async function endExpiredSession(): Promise<void> {
+  await supabase.auth.signOut({ scope: 'local' }).catch(() => {})
+}
