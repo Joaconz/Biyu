@@ -7,6 +7,7 @@ import { fetchFxRatesByPeriod } from '@/lib/fxRates'
 import {
   fetchGeneratedPeriods,
   fetchGeneratedPeriodsBySubscription,
+  fetchLiveTransactionCount,
   fetchSubscription,
   fetchSubscriptions,
 } from '@/lib/subscriptions'
@@ -75,15 +76,25 @@ export function useSubscriptions() {
 export function useSubscription(id: string) {
   return useLoad(async () => {
     // Sin los períodos generados solo se pierde el caso R2 de "Próximo cobro": no tira abajo el detalle.
-    const [subscription, generated, fxRates] = await Promise.all([
+    const [subscription, generated, fxRates, transactionCount] = await Promise.all([
       fetchSubscription(id),
       fetchGeneratedPeriods(id).catch(() => null),
       fetchFxRatesByPeriod().catch(() => null),
+      // Solo lo usa el diálogo de cancelar (US-58): sin el conteo el texto no dice cuántos gastos se mantienen.
+      fetchLiveTransactionCount(id).catch(() => null),
     ])
     // El aviso de bloqueada (US-62) necesita los períodos generados; sin los tipos de cambio solo se juzga una ARS.
     const blocked =
       subscription && generated ? blockedOccurrences(subscription, generated, fxRates, todayInArgentina()) : []
-    return { subscription, generatedPeriods: generated ?? new Set<string>(), blocked }
+    // El N del diálogo de cancelar suma las vigentes y los meses vencidos sin generar: sin los períodos
+    // generados esos meses se contarían dos veces, así que sin ellos no se promete un número (US-58 CA-5).
+    return {
+      subscription,
+      generatedPeriods: generated ?? new Set<string>(),
+      blocked,
+      fxRates,
+      transactionCount: generated !== null ? transactionCount : null,
+    }
   }, [id])
 }
 
@@ -101,4 +112,21 @@ export function useSubscriptionCatalog() {
     ])
     return { categories, accounts, fxRates } as { categories: Category[]; accounts: Account[]; fxRates: Map<string, Decimal> | null }
   }, [])
+}
+
+/**
+ * Lo que necesita la edición (US-59): la suscripción, sus períodos ya generados (para el "Próximo cobro") y las
+ * categorías y cuentas activas. Los generados son un detalle: sin ellos solo se pierde el caso de una
+ * ocurrencia borrada (R2) en esa línea.
+ */
+export function useSubscriptionEdit(id: string) {
+  return useLoad(async () => {
+    const [subscription, generated, categories, accounts] = await Promise.all([
+      fetchSubscription(id),
+      fetchGeneratedPeriods(id).catch(() => null),
+      fetchActiveCategories(),
+      fetchActiveAccounts(),
+    ])
+    return { subscription, generatedPeriods: generated ?? new Set<string>(), categories, accounts }
+  }, [id])
 }

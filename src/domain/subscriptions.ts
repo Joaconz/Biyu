@@ -27,7 +27,9 @@ export interface SubscriptionRecord {
   name: string
   amount: string
   currency: Currency
+  categoryId: string
   categoryName: string
+  accountId: string
   accountName: string
   billingDay: number
   startPeriod: Period

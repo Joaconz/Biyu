@@ -85,6 +85,8 @@ export function SubscriptionDetailPage() {
             subscription={subscription}
             generatedPeriods={state.generatedPeriods}
             blocked={state.blocked}
+            fxRates={state.fxRates}
+            transactionCount={state.transactionCount}
             onChanged={state.refresh}
           />
         </>

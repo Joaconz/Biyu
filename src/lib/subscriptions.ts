@@ -1,5 +1,6 @@
 import { serializeMoney } from '@/domain/money'
 import { formatPeriod, fromDbDate, toDbDate } from '@/domain/period'
+import type { SubscriptionEditDraft } from '@/domain/subscriptionEdit'
 import type { SubscriptionDraft, SubscriptionRecord } from '@/domain/subscriptions'
 import { supabase } from './supabase'
 
@@ -7,7 +8,7 @@ import { supabase } from './supabase'
 // filtra por user_id en las lecturas.
 
 const SUBSCRIPTION_COLUMNS = `
-  id, name, amount_text:amount::text, currency, billing_day, start_period, end_period, generate_from_period, status,
+  id, name, amount_text:amount::text, currency, category_id, account_id, billing_day, start_period, end_period, generate_from_period, status,
   paused_at, cancelled_at, description,
   category:categories!subscriptions_category_fk (name),
   account:accounts!subscriptions_account_fk (name)
@@ -18,6 +19,8 @@ interface SubscriptionRow {
   name: string
   amount_text: unknown
   currency: SubscriptionRecord['currency']
+  category_id: string
+  account_id: string
   billing_day: number
   start_period: string
   end_period: string | null
@@ -37,7 +40,9 @@ function toRecord(row: SubscriptionRow): SubscriptionRecord {
     name: row.name,
     amount: row.amount_text as string,
     currency: row.currency,
+    categoryId: row.category_id,
     categoryName: row.category?.name ?? '',
+    accountId: row.account_id,
     accountName: row.account?.name ?? '',
     billingDay: row.billing_day,
     startPeriod: fromDbDate(row.start_period),
@@ -78,6 +83,21 @@ export async function fetchGeneratedPeriods(subscriptionId: string): Promise<Set
   if (error?.code === '22P02') return new Set()
   if (error) throw error
   return new Set(data.flatMap((row) => (row.subscription_period ? [formatPeriod(fromDbDate(row.subscription_period))] : [])))
+}
+
+/**
+ * Cuántas transacciones de la suscripción siguen vigentes (sin `deleted_at`, C10). El diálogo de cancelar
+ * (US-58 CA-5) dice cuántas se mantienen.
+ */
+export async function fetchLiveTransactionCount(subscriptionId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from('transactions')
+    .select('id', { count: 'exact', head: true })
+    .eq('subscription_id', subscriptionId)
+    .is('deleted_at', null)
+  if (error) throw error
+  if (count === null) throw new TypeError('PostgREST no devolvió el conteo de transacciones')
+  return count
 }
 
 /** PostgREST corta cada respuesta en 1000 filas (`max_rows`): hay que pedir de a páginas. */
@@ -129,4 +149,30 @@ export async function createSubscription(draft: SubscriptionDraft): Promise<{ su
   if (error) throw error
   const result = data as { subscription_id: string; generated: number }
   return { subscriptionId: result.subscription_id, generated: result.generated }
+}
+
+/**
+ * Edición (US-59): una sola RPC que valida, pone al día con los datos anteriores, aplica el cambio y vuelve a
+ * poner al día con los nuevos (ADR-030). Manda el estado completo de los campos editables; la moneda y el mes
+ * de inicio no se envían (ADR-032). Los conteos solo redactan el aviso, y el cambio ya se hizo.
+ */
+export async function updateSubscription(
+  subscriptionId: string,
+  draft: SubscriptionEditDraft,
+): Promise<{ generatedBefore: number; generatedAfter: number }> {
+  const { data, error } = await supabase.rpc('update_subscription', {
+    p_subscription_id: subscriptionId,
+    p_name: draft.name,
+    p_amount: asNumeric(serializeMoney(draft.amount)),
+    p_category_id: draft.categoryId,
+    p_account_id: draft.accountId,
+    p_billing_day: draft.billingDay,
+    // null es "Sin fin": viaja explícito, no se omite (los tipos generados lo dan por string).
+    p_end_period: (draft.endPeriod ? toDbDate(draft.endPeriod) : null) as unknown as string,
+    p_description: draft.description as unknown as string,
+  })
+  if (error) throw error
+  const result = (data ?? {}) as { generated_before?: unknown; generated_after?: unknown }
+  const count = (value: unknown) => (Number.isInteger(value) ? (value as number) : 0)
+  return { generatedBefore: count(result.generated_before), generatedAfter: count(result.generated_after) }
 }
