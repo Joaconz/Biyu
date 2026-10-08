@@ -20,3 +20,12 @@ export async function resumeSubscription(subscriptionId: string): Promise<{ gene
   const generatedAfter = (data as { generated_after?: unknown } | null)?.generated_after
   return { generatedAfter: Number.isInteger(generatedAfter) ? (generatedAfter as number) : 0 }
 }
+
+/** US-58: devuelve cuántos gastos vencidos se cargaron antes de cancelar (`generated_before`). */
+export async function cancelSubscription(subscriptionId: string): Promise<{ generatedBefore: number }> {
+  const { data, error } = await supabase.rpc('cancel_subscription', { p_subscription_id: subscriptionId })
+  if (error) throw error
+  // Como al pausar: el conteo solo redacta el aviso, y la cancelación ya se hizo.
+  const generatedBefore = (data as { generated_before?: unknown } | null)?.generated_before
+  return { generatedBefore: Number.isInteger(generatedBefore) ? (generatedBefore as number) : 0 }
+}

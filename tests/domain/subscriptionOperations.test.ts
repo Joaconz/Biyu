@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { Decimal } from '@/domain/money'
 import {
   blockedMonthsWarning,
+  cancelledNoticeText,
+  cancelWarningText,
+  expensesKeptOnCancel,
   pauseSkipsCurrentMonthDay,
   pausedNoticeText,
   periodListText,
@@ -156,5 +159,96 @@ describe('resumedNoticeText (US-57)', () => {
   it('sin gasto nuevo y con el gasto del mes corriente', () => {
     expect(resumedNoticeText(0, TODAY)).toBe('Suscripción reanudada')
     expect(resumedNoticeText(1, TODAY)).toBe('Suscripción reanudada. Se cargó el gasto de octubre 2026.')
+  })
+})
+
+describe('cancelWarningText (US-58)', () => {
+  const tail = 'No se puede deshacer: para volver a registrarla, creá una suscripción nueva.'
+
+  it('con varios gastos, con uno solo y con ninguno', () => {
+    expect(cancelWarningText(4)).toBe(`No se van a cargar más gastos. Los 4 gastos ya cargados se mantienen. ${tail}`)
+    expect(cancelWarningText(1)).toBe(`No se van a cargar más gastos. El gasto ya cargado se mantiene. ${tail}`)
+    expect(cancelWarningText(0)).toBe(`No se van a cargar más gastos. Todavía no se cargó ningún gasto. ${tail}`)
+  })
+
+  it('sin poder contar: no promete un número', () => {
+    expect(cancelWarningText(null)).toBe(`No se van a cargar más gastos. Los gastos ya cargados se mantienen. ${tail}`)
+  })
+})
+
+describe('cancelledNoticeText (US-58)', () => {
+  it('con y sin gastos atrasados que se cargaron antes de cancelar', () => {
+    expect(cancelledNoticeText(0)).toBe('Suscripción cancelada')
+    expect(cancelledNoticeText(1)).toBe('Suscripción cancelada. Antes se cargó 1 gasto vencido.')
+    expect(cancelledNoticeText(2)).toBe('Suscripción cancelada. Antes se cargaron 2 gastos vencidos.')
+  })
+})
+
+describe('expensesKeptOnCancel (US-58 CA-5)', () => {
+  const ars = {
+    status: 'active' as const,
+    amount: '5000.00',
+    currency: 'ARS' as const,
+    billingDay: 10,
+    generateFromPeriod: { year: 2026, month: 5 },
+    endPeriod: null,
+  }
+
+  it('suma las vigentes y los meses vencidos que se generan antes de cancelar', () => {
+    // Mayo a septiembre vencidos (octubre vence el 10, hoy es 6); mayo y junio ya generados.
+    expect(expensesKeptOnCancel(2, ars, new Set(['2026-05', '2026-06']), null, TODAY)).toBe(2 + 3)
+  })
+
+  it('sin meses vencidos queda el conteo de vigentes', () => {
+    expect(expensesKeptOnCancel(4, ars, new Set(['2026-05', '2026-06', '2026-07', '2026-08', '2026-09']), null, TODAY)).toBe(4)
+  })
+
+  it('una pausada no genera nada antes de cancelar (R3)', () => {
+    expect(expensesKeptOnCancel(2, { ...ars, status: 'paused' }, new Set(['2026-05', '2026-06']), null, TODAY)).toBe(2)
+  })
+
+  it('los meses bloqueados por falta de tipo de cambio no cuentan (R6)', () => {
+    const usd = { ...ars, currency: 'USD' as const, amount: '10.00' }
+    const rates = new Map([
+      ['2026-07', new Decimal('1200')],
+      ['2026-09', new Decimal('1250')],
+    ])
+    // Vencidos: mayo a septiembre. Solo julio y septiembre tienen tipo de cambio.
+    expect(expensesKeptOnCancel(0, usd, new Set(), rates, TODAY)).toBe(2)
+  })
+
+  it('USD sin los tipos de cambio leídos: no se sabe cuántos genera, no hay número', () => {
+    expect(expensesKeptOnCancel(3, { ...ars, currency: 'USD' }, new Set(), null, TODAY)).toBeNull()
+  })
+
+  it('USD sin los tipos de cambio leídos pero sin meses vencidos por generar: el número es exacto', () => {
+    const upToDate = new Set(['2026-05', '2026-06', '2026-07', '2026-08', '2026-09'])
+    expect(expensesKeptOnCancel(5, { ...ars, currency: 'USD' }, upToDate, null, TODAY)).toBe(5)
+  })
+
+  it('ARS no necesita tipos de cambio', () => {
+    expect(expensesKeptOnCancel(0, { ...ars, generateFromPeriod: { year: 2026, month: 9 } }, new Set(), null, TODAY)).toBe(1)
+  })
+
+  it('el mes de fin anterior al corriente corta los vencidos (R1)', () => {
+    expect(expensesKeptOnCancel(1, { ...ars, endPeriod: { year: 2026, month: 6 } }, new Set(['2026-05']), null, TODAY)).toBe(2)
+  })
+
+  it('el día de cobro es hoy: el mes corriente ya vence y se genera (R5)', () => {
+    const base = { ...ars, billingDay: 6, generateFromPeriod: OCT }
+    expect(expensesKeptOnCancel(0, base, new Set(), null, TODAY)).toBe(1)
+    expect(expensesKeptOnCancel(0, { ...base, billingDay: 7 }, new Set(), null, TODAY)).toBe(0)
+  })
+
+  it('un mes con monto en pesos fuera de rango no se genera y no cuenta', () => {
+    const huge = { ...ars, currency: 'USD' as const, amount: '999999999999.99', generateFromPeriod: { year: 2026, month: 9 } }
+    expect(expensesKeptOnCancel(0, huge, new Set(), new Map([['2026-09', new Decimal('1200')]]), TODAY)).toBe(0)
+  })
+
+  it('una borrada cuenta como generada para la puesta al día pero no como vigente (R2, C10)', () => {
+    // Septiembre tiene transacción borrada: está en generatedPeriods pero no en las 2 vigentes.
+    expect(expensesKeptOnCancel(2, { ...ars, generateFromPeriod: { year: 2026, month: 8 } }, new Set(['2026-09']), null, TODAY)).toBe(
+      2 + 1,
+    )
   })
 })
