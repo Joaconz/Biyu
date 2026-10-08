@@ -1,17 +1,26 @@
 import { Link, useParams } from 'react-router'
-import { GroupedCard } from '@/components/shared/GroupedList'
+import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { BackHeader } from '@/components/subscriptions/BackHeader'
 import { SubscriptionActions } from '@/components/subscriptions/SubscriptionActions'
 import { SubscriptionBlockedNotice } from '@/components/subscriptions/SubscriptionBlockedNotice'
 import { buttonVariants } from '@/components/ui/button'
-import { formatPeriodLong } from '@/domain/period'
+import { formatDisplayDate, formatPeriod, formatPeriodLong } from '@/domain/period'
 import { blockedNotice, type BlockedOccurrence } from '@/domain/subscriptionBlocked'
-import { nextChargeText, statusText, subscriptionAmountText, type SubscriptionRecord } from '@/domain/subscriptions'
+import {
+  nextChargeDate,
+  nextChargeText,
+  occurrencesEmptyText,
+  sortOccurrences,
+  statusText,
+  subscriptionAmountText,
+  type SubscriptionOccurrence,
+  type SubscriptionRecord,
+} from '@/domain/subscriptions'
 import { useSubscription } from '@/hooks/useSubscriptions'
 import { todayInArgentina } from '@/lib/clock'
 import { cn } from '@/lib/utils'
 
-/** Detalle de suscripción (US-52): estado, datos y acciones. Los gastos cargados llegan con su historia. */
+/** Detalle de suscripción (US-52): estado, datos, acciones y los gastos cargados (US-60). */
 export function SubscriptionDetailPage() {
   const { id = '' } = useParams()
   const state = useSubscription(id)
@@ -89,6 +98,12 @@ export function SubscriptionDetailPage() {
             transactionCount={state.transactionCount}
             onChanged={state.refresh}
           />
+          {state.occurrences && (
+            <Occurrences
+              occurrences={state.occurrences}
+              nextCharge={nextChargeDate(subscription, state.generatedPeriods, todayInArgentina())}
+            />
+          )}
         </>
       )}
     </div>
@@ -132,5 +147,50 @@ function SubscriptionData({
         ))}
       </dl>
     </GroupedCard>
+  )
+}
+
+/** "Gastos cargados": una fila por transacción de la suscripción, borradas incluidas con su marca (US-60 CA-5). */
+function Occurrences({ occurrences, nextCharge }: { occurrences: SubscriptionOccurrence[]; nextCharge: string | null }) {
+  return (
+    <GroupedSection title="Gastos cargados" data-testid="subscription-detail-occurrences" className="mt-6">
+      {occurrences.length === 0 ? (
+        <p data-testid="subscription-detail-occurrences-empty" className="px-1 text-callout text-muted-foreground">
+          {occurrencesEmptyText(nextCharge)}
+        </p>
+      ) : (
+        <GroupedCard>
+          {sortOccurrences(occurrences).map((occurrence) => (
+            <div
+              key={formatPeriod(occurrence.period)}
+              data-testid="subscription-detail-occurrence"
+              data-period={formatPeriod(occurrence.period)}
+              data-deleted={String(occurrence.deleted)}
+              className="flex items-center justify-between gap-4 px-4 py-3"
+            >
+              <div className="flex min-w-0 flex-col">
+                <span className={cn('text-callout', occurrence.deleted ? 'text-muted-foreground line-through' : 'text-foreground')}>
+                  {formatPeriodLong(occurrence.period)}
+                </span>
+                <span className="tabular text-footnote text-muted-foreground">{formatDisplayDate(occurrence.occurredOn)}</span>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {occurrence.deleted && (
+                  <span
+                    data-testid="subscription-detail-occurrence-deleted"
+                    className="rounded-md bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
+                  >
+                    Eliminado
+                  </span>
+                )}
+                <span className={cn('tabular text-callout', occurrence.deleted ? 'text-muted-foreground line-through' : 'text-foreground')}>
+                  {subscriptionAmountText(occurrence.amount, occurrence.currency)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </GroupedCard>
+      )}
+    </GroupedSection>
   )
 }

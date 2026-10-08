@@ -176,6 +176,8 @@ export interface DashboardTransaction {
   deleted_at: string | null // DEF-007: solo en el filtro "Eliminados" de /transactions
   /** Deuda vinculada de un gasto compartido (US-35, ADR-036): una por gasto, o null. */
   shared_debt: { person: string; amount: string } | null
+  /** Suscripción que generó la transacción (US-60), por subscription_id y no por el nombre; o null. */
+  subscription: { id: string; name: string; period: string } | null
   // Imputación del período listado (US-17): qué cuota es y cuánto impacta en el mes.
   installment_number: number
   entry_amount: string // en la moneda de la transacción
@@ -217,7 +219,9 @@ export async function fetchMonthlyTransactions(
         deleted_at,
         category:categories!transactions_category_fk (id, name, color, archived_at),
         account:accounts!transactions_account_fk (id, name, type),
-        debts:debts!debts_transaction_fk (person, amount_text:amount::text)
+        debts:debts!debts_transaction_fk (person, amount_text:amount::text),
+        subscription_period,
+        subscription:subscriptions!transactions_subscription_fk (id, name)
       )
     `)
     .eq('period', dbPeriod)
@@ -257,6 +261,8 @@ export async function fetchMonthlyTransactions(
         category: { id: string; name: string; color: string | null; archived_at: string | null } | null
         account: { id: string; name: string; type: string } | null
         debts: { person: string; amount_text: string }[] | null
+        subscription_period: string | null
+        subscription: { id: string; name: string } | null
       }
     }>
   ).map(({ transaction: tx, ...entry }) => ({
@@ -274,6 +280,10 @@ export async function fetchMonthlyTransactions(
     deleted_at: tx.deleted_at,
     // La deuda viene en la misma consulta: el diálogo de borrado nunca se abre sin saber si hay una.
     shared_debt: tx.debts?.[0] ? { person: tx.debts[0].person, amount: tx.debts[0].amount_text } : null,
+    subscription:
+      tx.subscription && tx.subscription_period
+        ? { id: tx.subscription.id, name: tx.subscription.name, period: tx.subscription_period }
+        : null,
     installment_number: entry.installment_number,
     entry_amount: entry.amount_text,
     entry_amount_ars: entry.amount_ars_text,

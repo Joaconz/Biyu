@@ -1,7 +1,7 @@
 import { serializeMoney } from '@/domain/money'
 import { formatPeriod, fromDbDate, toDbDate } from '@/domain/period'
 import type { SubscriptionEditDraft } from '@/domain/subscriptionEdit'
-import type { SubscriptionDraft, SubscriptionRecord } from '@/domain/subscriptions'
+import type { SubscriptionDraft, SubscriptionOccurrence, SubscriptionRecord } from '@/domain/subscriptions'
 import { supabase } from './supabase'
 
 // subscriptions es de solo lectura para el cliente: toda escritura es una RPC (ADR-030). RLS (C7)
@@ -98,6 +98,34 @@ export async function fetchLiveTransactionCount(subscriptionId: string): Promise
   if (error) throw error
   if (count === null) throw new TypeError('PostgREST no devolvió el conteo de transacciones')
   return count
+}
+
+/**
+ * Las transacciones de la suscripción, borradas incluidas, para "Gastos cargados" (US-60). Sale de
+ * `subscription_id`, nunca del nombre. El monto viaja como texto (C2).
+ */
+export async function fetchSubscriptionOccurrences(subscriptionId: string): Promise<SubscriptionOccurrence[]> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('subscription_period, occurred_on, amount_text:amount::text, currency, deleted_at')
+    .eq('subscription_id', subscriptionId)
+  if (error?.code === '22P02') return []
+  if (error) throw error
+  return (
+    data as unknown as Array<{
+      subscription_period: string
+      occurred_on: string
+      amount_text: string
+      currency: SubscriptionOccurrence['currency']
+      deleted_at: string | null
+    }>
+  ).map((row) => ({
+    period: fromDbDate(row.subscription_period),
+    occurredOn: row.occurred_on,
+    amount: row.amount_text,
+    currency: row.currency,
+    deleted: row.deleted_at !== null,
+  }))
 }
 
 /** PostgREST corta cada respuesta en 1000 filas (`max_rows`): hay que pedir de a páginas. */

@@ -613,3 +613,31 @@ export function statusText(subscription: Pick<SubscriptionRecord, 'status' | 'pa
       return 'Activa'
   }
 }
+
+/**
+ * US-60: la línea que el diálogo de borrado suma cuando la transacción la cargó una suscripción. El
+ * borrado es lógico y la puesta al día no vuelve a generar ese mes (R2, I11).
+ */
+export function subscriptionDeletionNote(name: string, period: Period): string {
+  return `Este gasto lo cargó la suscripción ${name}. Si lo eliminás, no se vuelve a cargar para ${formatPeriodLong(period)}.`
+}
+
+/** Una transacción generada por la suscripción, vigente o borrada (US-60, "Gastos cargados"). */
+export interface SubscriptionOccurrence {
+  period: Period
+  occurredOn: string
+  amount: string
+  currency: Currency
+  deleted: boolean
+}
+
+/** "Gastos cargados": del período más reciente al más viejo, borradas incluidas. */
+export function sortOccurrences(occurrences: readonly SubscriptionOccurrence[]): SubscriptionOccurrence[] {
+  return [...occurrences].sort((a, b) => formatPeriod(b.period).localeCompare(formatPeriod(a.period)))
+}
+
+/** El vacío de "Gastos cargados", con la fecha del primer cobro si hay uno (`nextChargeDate`). */
+export function occurrencesEmptyText(nextCharge: string | null): string {
+  const base = 'Todavía no se cargó ningún gasto.'
+  return nextCharge ? `${base} El primero se carga el ${formatDisplayDate(nextCharge)}.` : base
+}
