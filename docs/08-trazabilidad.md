@@ -7,7 +7,7 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 ## Cómo se lee
 
 - **Fuente de cada columna.** FR y NFR: `pre-entrega.md` §3 y §4. Historias: `02-behavior-spec.md`
-  (1 a 51 y 64 a 68) y `06-suscripciones.md` (52 a 63). Invariantes I*: `04-data-model.md`.
+  (1 a 51 y 64 a 68) y `06-suscripciones.md` (52 a 63), más US-75 en `entrega-2/historias/suscripciones.md`. Invariantes I*: `04-data-model.md`.
   Constraints C*: `03-architecture-spec.md`. Issues: [tablero Biyu](https://github.com/users/Joaconz/projects/3).
 - **Precedencia.** La pre-entrega es la foto entregada el 2026-09-02 y no se reescribe. Donde
   difiere de la spec, manda la spec (`02-behavior-spec.md`, `06-suscripciones.md`,
@@ -29,7 +29,7 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 | FR-05 | V1 | US-42, US-44, US-45, US-68 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene. US-68 reúne el alta y el archivado (US-42, US-44, US-45) en la configuración inicial; la cuenta que elige ahí es la precarga de US-07 |
 | FR-06 | V1 | US-01 a US-11 | [#11](https://github.com/Joaconz/Biyu/issues/11) | Se mantiene |
 | FR-07 | V3 | — | [#23](https://github.com/Joaconz/Biyu/issues/23) | **Ajustado**: la pre-entrega lo ponía en V2; `roadmap.md` lo mueve a V3 como la mejora que genera más regresión (ADR-009) |
-| FR-08 | V1 | US-18, US-65 | [#15](https://github.com/Joaconz/Biyu/issues/15), [#12](https://github.com/Joaconz/Biyu/issues/12) | Se mantiene. US-65 se agregó porque la baja de una transacción suelta no tenía historia |
+| FR-08 | V1 · V2 | US-18, US-65, US-60 | [#15](https://github.com/Joaconz/Biyu/issues/15), [#12](https://github.com/Joaconz/Biyu/issues/12), [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene. US-65 se agregó porque la baja de una transacción suelta no tenía historia; US-60 (V2) la extiende a un mes generado por una suscripción |
 | FR-09 | V1 | US-12, US-13, US-14 | [#12](https://github.com/Joaconz/Biyu/issues/12) | **Ajustado**: de 1 a 12 cuotas, no de 2 a 24 (`roadmap.md` §V1; valores límite 0, 1, 2, 12, 13 en `07-plan-de-testing.md` §3). El tope vive en `transactions_installments_max` y en `create_transaction` ([#70](https://github.com/Joaconz/Biyu/issues/70), ADR-020) |
 | FR-10 | V1 | US-15 | [#12](https://github.com/Joaconz/Biyu/issues/12) | Confirmado: la última cuota absorbe el resto (C3, ADR-013) |
 | FR-11 | V1 | US-15 | [#12](https://github.com/Joaconz/Biyu/issues/12) | Se mantiene. Se garantiza en `create_transaction` y se verifica con la vista de integridad (I1, I1'): no se puede expresar como check de tabla |
@@ -37,9 +37,9 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 | FR-12.1 | V1 | US-20, US-21 | [#13](https://github.com/Joaconz/Biyu/issues/13) | Absorbido por FR-12: la carga manual es el camino normal, no el de respaldo |
 | FR-13 | — | — | — | **Fuera de alcance**: el ciclo de cierre de la tarjeta se ignora (`02-behavior-spec.md` supuesto 2; `roadmap.md` §V3+) |
 | FR-14 | — | — | — | **Fuera de alcance**, por la misma razón que FR-13 |
-| FR-15 | V2 | US-52 | [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene, solo mensual |
-| FR-16 | V2 | US-53, US-55 | [#17](https://github.com/Joaconz/Biyu/issues/17) | **Ajustado**: los períodos futuros **no** anticipan suscripciones (`02-behavior-spec.md` supuesto 9; `06-suscripciones.md` R1 y R5) |
-| FR-17 | V2 | US-56, US-57, US-58 | [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene |
+| FR-15 | V2 | US-52, US-62 | [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene, solo mensual. US-62 avisa cuando falta el tipo de cambio |
+| FR-16 | V2 | US-53, US-54, US-55, US-61, US-63, US-75 | [#17](https://github.com/Joaconz/Biyu/issues/17) | **Ajustado**: los períodos futuros **no** anticipan suscripciones (`02-behavior-spec.md` supuesto 9; `06-suscripciones.md` R1 y R5). US-75 no tiene FR propio: sale del roadmap §V2 y se traza a FR-16 por proyectar qué meses se cargan |
+| FR-17 | V2 | US-56, US-57, US-58, US-59 | [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene |
 | FR-18 | V2 | US-34 a US-36, US-41 | [#18](https://github.com/Joaconz/Biyu/issues/18) | Se mantiene |
 | FR-19 | V2 | US-30 | [#18](https://github.com/Joaconz/Biyu/issues/18) | **Ajustado**: el número principal del dashboard es el bruto y el neto de reembolsos es un KPI secundario (`02-behavior-spec.md` supuesto 4) |
 | FR-20 | V1, V2 | US-16, US-23 a US-25, US-27 a US-29, US-31 a US-33, US-72, US-73 | [#14](https://github.com/Joaconz/Biyu/issues/14), [#242](https://github.com/Joaconz/Biyu/issues/242), [#243](https://github.com/Joaconz/Biyu/issues/243) | **Ajustado por [#78](https://github.com/Joaconz/Biyu/issues/78)** en V1 (barras, sin torta ni evolución) y **reabierto por ADR-038** en V2: torta junto a las barras en el Resumen (US-72) y evolución de los últimos 6 meses en el detalle de la categoría (US-73). |
@@ -180,7 +180,7 @@ P2 entra si alcanza el sprint.
 
 | Épica | Issue | Milestone | Contenido |
 |---|---|---|---|
-| Suscripciones | [#17](https://github.com/Joaconz/Biyu/issues/17) | V2 | US-52 a US-63 · FR-15 a FR-17 · I11 a I17 · R1 a R8 |
+| Suscripciones | [#17](https://github.com/Joaconz/Biyu/issues/17) | V2 | US-52 a US-63 ([#210](https://github.com/Joaconz/Biyu/issues/210) a [#221](https://github.com/Joaconz/Biyu/issues/221)), US-75 ([#222](https://github.com/Joaconz/Biyu/issues/222)) · FR-08, FR-15 a FR-17 · I11 a I17 · R1 a R8 · ADR-017, ADR-030 a ADR-033 |
 | Deudas y gastos compartidos | [#18](https://github.com/Joaconz/Biyu/issues/18) | V2 | US-30, US-34 a US-41, US-79 · FR-18, FR-19 · I7, I9 |
 | Export CSV | [#19](https://github.com/Joaconz/Biyu/issues/19) | V2 | US-47 ([#201](https://github.com/Joaconz/Biyu/issues/201)) · FR-22 · C9 · ADR-029 |
 | Importar desde Excel | [#203](https://github.com/Joaconz/Biyu/issues/203) | V2 | US-74 ([#204](https://github.com/Joaconz/Biyu/issues/204)), US-76 ([#205](https://github.com/Joaconz/Biyu/issues/205)), US-77 ([#206](https://github.com/Joaconz/Biyu/issues/206)), US-78 ([#207](https://github.com/Joaconz/Biyu/issues/207)) · FR-06 · C4 · C6 · NFR-10 · ADR-035. Reemplaza a la idea #169 |
@@ -203,4 +203,5 @@ P2 entra si alcanza el sprint.
 - US-68 ([#159](https://github.com/Joaconz/Biyu/issues/159)) sin casos y con decisiones
   abiertas antes de implementar: dónde se guarda que el setup se hizo, su ruta frente a US-01 y a los
   casos CP-ACC-003 y CP-ACC-008 (qué se ve justo después del signup), y la siembra de US-43 que a veces queda incompleta al crear la cuenta.
-- Historias 34 a 41 (deudas) y 52 a 63 (suscripciones) sin issue propio hasta el sprint de V2.
+- Historias 34 a 41 (deudas) sin issue propio hasta el sprint de V2. Las de suscripciones (52 a 63 y 75)
+  ya tienen issue (#210 a #222) y están implementadas; sus casos `CP-SUS-nnn` se diseñan aparte.
