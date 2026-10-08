@@ -1,4 +1,5 @@
-import { ArrowDownLeft, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowDownLeft, Repeat, RotateCcw, Trash2 } from 'lucide-react'
+import { Link } from 'react-router'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { formatInstallmentLabel } from '@/domain/installments'
 import { formatArs, formatUsd, parseMoney } from '@/domain/money'
@@ -83,6 +84,18 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
             >
               {sharedExpenseLabel(transaction.shared_debt.person)}
             </span>
+          )}
+          {/* US-61: sale de subscription_id, con el nombre actual de la suscripción (CA-3), sea cual sea su estado. */}
+          {transaction.subscription && (
+            <Link
+              to={`/subscriptions/${transaction.subscription.id}`}
+              data-testid={`${baseTestId}-subscription`}
+              aria-label={`Suscripción ${transaction.subscription.name}`}
+              className="inline-flex max-w-full items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-caption font-medium break-words text-primary hover:bg-primary/15"
+            >
+              <Repeat aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.8} />
+              {transaction.subscription.name}
+            </Link>
           )}
         </div>
         <span className="truncate text-footnote text-muted-foreground">
