@@ -133,7 +133,7 @@ export function DeleteTransactionDialog({
             {debtWarning}
             {subscriptionNote}
             <p className="text-xs text-muted-foreground">
-              Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.
+              Si te equivocaste, la podés restaurar desde Resumen → Ver todos, en Eliminados.
             </p>
           </div>
         ) : (
@@ -141,7 +141,7 @@ export function DeleteTransactionDialog({
             <p>¿Estás seguro de que querés eliminar esta transacción?</p>
             {debtWarning}
             {subscriptionNote}
-            <p className="text-xs">Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.</p>
+            <p className="text-xs">Si te equivocaste, la podés restaurar desde Resumen → Ver todos, en Eliminados.</p>
           </div>
         )}
 

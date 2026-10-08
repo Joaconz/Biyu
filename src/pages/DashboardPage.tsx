@@ -82,6 +82,14 @@ export function DashboardPage() {
             <CirclePlus aria-hidden="true" strokeWidth={1.8} />
             Registrar un gasto
           </Link>
+          {/* US-69 · CA-8: Movimientos ya no está en la barra; sin esto un mes vacío no llega a Eliminados (FR-08). */}
+          <Link
+            to={`/transactions?period=${formatPeriod(period)}`}
+            data-testid="dashboard-empty-view-transactions"
+            className="press mt-3 inline-flex min-h-11 items-center rounded-md px-2 text-callout font-medium text-primary hover:underline"
+          >
+            Ver movimientos
+          </Link>
         </div>
       )}
 

@@ -17,14 +17,28 @@ export interface NavItem {
 }
 
 /**
- * Destinos de la barra en V1. En V2 pasa a Registrar · Resumen · Deudas · Suscripciones, y
- * Movimientos queda como "Ver todos" dentro del Resumen (roadmap §V2, ADR-023).
+ * Destinos de la barra en V2 (US-69, ADR-023). Movimientos sale de la barra y cuelga del Resumen
+ * ("Ver todos"); Ajustes va aparte (engranaje en el celular, pie de la barra lateral).
  */
-export const NAV_ITEMS_V1: readonly NavItem[] = [
+export const NAV_ITEMS: readonly NavItem[] = [
   { screen: 'register', label: 'Registrar' },
   { screen: 'dashboard', label: 'Resumen' },
-  { screen: 'transactions', label: 'Movimientos' },
+  { screen: 'debts', label: 'Deudas' },
+  { screen: 'subscriptions', label: 'Suscripciones' },
 ]
+
+/** Qué ítem marca la barra en cada pantalla (US-69 · CA-3): Movimientos cuelga del Resumen. */
+export function activeNavScreen(screen: Screen | null): Screen | null {
+  return screen === 'transactions' ? 'dashboard' : screen
+}
+
+/**
+ * Tocar el ítem de la ruta exacta en la que ya se está no hace nada (US-69): no recarga, no vuelve
+ * al paso 1 del registro ni cambia el `?period`. Desde una subruta o desde Movimientos sí navega.
+ */
+export function isCurrentNavTarget(destination: Screen, pathname: string): boolean {
+  return pathname === SCREEN_PATHS[destination]
+}
 
 export function screenFromPath(pathname: string): Screen | null {
   const entry = Object.entries(SCREEN_PATHS).find(([, path]) => pathname === path || pathname.startsWith(`${path}/`))

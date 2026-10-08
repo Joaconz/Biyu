@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -9,7 +9,7 @@ import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransac
 import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { isExportAvailable } from '@/domain/exportCsv'
-import { formatDayHeading } from '@/domain/period'
+import { formatDayHeading, formatPeriod } from '@/domain/period'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { today } from '@/lib/clock'
@@ -51,7 +51,21 @@ export function TransactionsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
-      <PageHeader title="Movimientos" testId="transactions-title" className="flex-wrap items-center">
+      <PageHeader
+        title="Movimientos"
+        testId="transactions-title"
+        className="flex-wrap items-center"
+        leading={
+          // US-69 · CA-7: Movimientos cuelga del Resumen; se vuelve al mismo mes (C11).
+          <Link
+            to={`/dashboard?period=${formatPeriod(period)}`}
+            data-testid="transactions-back"
+            className="press -ml-1 inline-flex min-h-11 items-center rounded-md px-1 text-callout font-medium text-primary hover:underline"
+          >
+            ‹ Resumen
+          </Link>
+        }
+      >
         <div className="flex items-center gap-2">
           <button
             type="button"
