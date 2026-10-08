@@ -21,7 +21,8 @@ export function SubscriptionActions({
 }) {
   const [pausing, setPausing] = useState(false)
   const [resuming, setResuming] = useState(false)
-  const fxRates = useSubscriptionFxRates(subscription.currency === 'USD' && subscription.status === 'active')
+  // Solo se piden al abrir "Pausar": son para el aviso de meses sin tipo de cambio de ese diálogo.
+  const fxRates = useSubscriptionFxRates(pausing && subscription.currency === 'USD' && subscription.status === 'active')
 
   if (subscription.status === 'cancelled') return null
 

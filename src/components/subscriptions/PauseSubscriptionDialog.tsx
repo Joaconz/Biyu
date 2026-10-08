@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { SubscriptionOperationDialog } from '@/components/subscriptions/SubscriptionOperationDialog'
 import type { Decimal } from '@/domain/money'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
 import { blockedMonthsWarning, missingFxPeriods, pauseSkipsCurrentMonthDay, pausedNoticeText } from '@/domain/subscriptionOperations'
-import { saveFailureReason } from '@/lib/errors'
 import { pauseSubscription } from '@/lib/subscriptionOperations'
 
 /**
@@ -29,35 +26,25 @@ export function PauseSubscriptionDialog({
   /** Después de pausar: la pantalla vuelve a leer la suscripción. */
   onPaused: () => void
 }) {
-  const [error, setError] = useState<string | null>(null)
-  useEffect(() => {
-    if (!isOpen) setError(null)
-  }, [isOpen])
-
   const skippedDay = pauseSkipsCurrentMonthDay(subscription, generatedPeriods, today)
   const blockedWarning = blockedMonthsWarning(missingFxPeriods(subscription, generatedPeriods, fxRates, today), 'pausás')
 
-  async function onConfirm() {
-    setError(null)
-    try {
-      const { generatedBefore } = await pauseSubscription(subscription.id)
-      toast.success(pausedNoticeText(generatedBefore), { testId: 'subscription-toast' })
-      onPaused()
-      onClose()
-    } catch (err) {
-      setError(`No se pudo pausar: ${saveFailureReason(err)}`)
-    }
+  async function run() {
+    const { generatedBefore } = await pauseSubscription(subscription.id)
+    return pausedNoticeText(generatedBefore)
   }
 
   return (
-    <ConfirmDialog
+    <SubscriptionOperationDialog
       isOpen={isOpen}
       title={`¿Pausar ${subscription.name}?`}
       confirmLabel="Pausar"
       busyLabel="Pausando…"
       confirmVariant="default"
       testId="pause-subscription-dialog"
-      onConfirm={onConfirm}
+      failurePrefix="No se pudo pausar"
+      run={run}
+      onDone={onPaused}
       onClose={onClose}
     >
       <p>
@@ -69,11 +56,6 @@ export function PauseSubscriptionDialog({
           {blockedWarning}
         </p>
       )}
-      {error && (
-        <p role="alert" data-testid="pause-subscription-dialog-error" className="text-destructive">
-          {error}
-        </p>
-      )}
-    </ConfirmDialog>
+    </SubscriptionOperationDialog>
   )
 }
