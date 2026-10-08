@@ -1,3 +1,5 @@
+import type { SaveFailure } from '@/domain/saveFailure'
+
 /** El índice único parcial (`user_id, name where archived_at is null`) es la fuente de verdad;
  * esto solo traduce su violación a un mensaje que el formulario pueda mostrar (C6). */
 export function isUniqueViolation(error: unknown): boolean {
@@ -24,4 +26,11 @@ export function saveErrorMessage(error: unknown): string {
   const { code, message } = (typeof error === 'object' && error !== null ? error : {}) as { code?: string; message?: string }
   if (code === '22003') return 'El monto es demasiado grande para guardarlo'
   return message || 'Probá de nuevo en un momento'
+}
+
+/** Texto del aviso "No se pudo guardar" de Registrar según el tipo de fallo (US-70, ADR-034). */
+export function saveFailureText(failure: SaveFailure, error: unknown): string {
+  if (failure.kind === 'network') return 'Revisá tu conexión y tocá Reintentar. Lo que cargaste sigue acá.'
+  if (failure.sessionExpired) return 'Tu sesión venció. Volvé a entrar.'
+  return saveErrorMessage(error)
 }

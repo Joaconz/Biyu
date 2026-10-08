@@ -13,15 +13,37 @@ import {
   type DraftInput,
 } from '@/domain/draft'
 import { formatArs, formatRate, formatUsd } from '@/domain/money'
-import { debtOfDraft, sharedDebtSavedMessage } from '@/domain/sharedDebt'
+import {
+  alreadySavedToast,
+  lastRequestId,
+  recordNetworkFailure,
+  recoveryOutcome,
+  removePendingDraft,
+  restorableValues,
+  type PendingDraft,
+} from '@/domain/pendingDrafts'
+import {
+  afterDraftChange,
+  failAttempt,
+  newSaveAttempt,
+  recoveredAttempt,
+  requestIdFor,
+  savedDraftDescription,
+  startAttempt,
+  submitLabel as submitLabelFor,
+  type SaveAttempt,
+} from '@/domain/saveAttempt'
+import { classifySaveError } from '@/domain/saveFailure'
 import { formatPeriod, isSamePeriod, parsePeriod, toIsoDate, tryPeriodOf } from '@/domain/period'
 import { allowsInstallments, validateTransactionDraft, type DraftErrors } from '@/domain/validation'
 import { setStoredLastAccountId, type Account, type Category } from '@/lib/catalog'
 import { today } from '@/lib/clock'
-import { saveErrorMessage } from '@/lib/errors'
+import { useSession } from '@/lib/auth'
+import { saveFailureText } from '@/lib/errors'
 import { getReferenceRate } from '@/lib/fxRates'
 import { isStepComplete, STEP_FIELDS, stepsFor, type RegisterStep } from '@/lib/registerSteps'
-import { createTransaction } from '@/lib/transactions'
+import { loadPendingDrafts, updatePendingDrafts } from '@/lib/pendingDrafts'
+import { createTransaction, findTransactionsByRequestIds } from '@/lib/transactions'
 import { cn } from '@/lib/utils'
 import { AccountSection } from './AccountSection'
 import { AmountSection } from './AmountSection'
@@ -30,6 +52,8 @@ import { CurrencySection } from './CurrencySection'
 import { DateSection } from './DateSection'
 import { DescriptionSection } from './DescriptionSection'
 import { InstallmentsField } from './InstallmentsField'
+import { PendingDraftsNotice, type PendingRowStatus } from './PendingDraftsNotice'
+import { SaveErrorAlert } from './SaveErrorAlert'
 import { SharedSection } from './SharedSection'
 import { TypeSection } from './TypeSection'
 import type { SectionProps, Touched } from './types'
@@ -57,6 +81,8 @@ interface TransactionFormProps {
   defaultAccountId?: string | null
   /** US-68: el setup inicial necesita saber cuándo se guardó el primer gasto para cerrarse. */
   onSaved?: () => void
+  /** US-70: el aviso de movimientos pendientes solo está en Registrar, no en el setup. */
+  showPendingDrafts?: boolean
 }
 
 const STEP_TITLES: Record<RegisterStep, string> = {
@@ -71,7 +97,14 @@ const STEP_TITLES: Record<RegisterStep, string> = {
  * que valida y guarda. La cuenta y la fecha llegan precargadas, así que el caso común son tres
  * toques de avance (NFR-07). El borrador es uno solo: volver a un paso no pierde nada.
  */
-export function TransactionForm({ categories, accounts, defaultAccountId, onSaved }: TransactionFormProps) {
+export function TransactionForm({
+  categories,
+  accounts,
+  defaultAccountId,
+  onSaved,
+  showPendingDrafts = false,
+}: TransactionFormProps) {
+  const userId = useSession().session?.user.id ?? null
   const [values, setValues] = useState<DraftInput>(() =>
     emptyDraftInput(toIsoDate(today()), resolvePreloadedAccount(defaultAccountId, accounts)),
   )
@@ -80,6 +113,18 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
   const [direction, setDirection] = useState<'forward' | 'back'>('forward')
   const advanceTimer = useRef<number | undefined>(undefined)
   const [saving, setSaving] = useState(false)
+  // CA-28: un segundo toque antes de que se vuelva a pintar el botón tampoco envía otro pedido.
+  const savingRef = useRef(false)
+  // US-70 (ADR-034): la clave de idempotencia del borrador y el aviso de error.
+  const [attempt, setAttempt] = useState<SaveAttempt>(() => newSaveAttempt(crypto.randomUUID()))
+  const [failureText, setFailureText] = useState('')
+  // Los pendientes se leen solo al abrir Registrar: el fallo de esta misma visita no se avisa acá.
+  const [pendingDrafts, setPendingDrafts] = useState<PendingDraft[]>(() =>
+    showPendingDrafts && userId ? loadPendingDrafts(userId) : [],
+  )
+  const [pendingStatus, setPendingStatus] = useState<Partial<Record<string, PendingRowStatus>>>({})
+  // Un borrador recuperado trae su tipo de cambio (C5): el efecto del TC de referencia no lo pisa.
+  const restoredValues = useRef<DraftInput | null>(null)
   const [justSaved, setJustSaved] = useState(false)
   const savedTimer = useRef<number | undefined>(undefined)
   const [referenceRateStatus, setReferenceRateStatus] = useState<
@@ -123,7 +168,10 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
     // Al cambiar de mes, no se conserva accidentalmente el TC sugerido del período anterior.
     setValues((prev) => {
       const previousPeriod = tryPeriodOf(prev.occurredOn)
-      return prev.currency === 'USD' && previousPeriod && isSamePeriod(previousPeriod, request.period)
+      return prev !== restoredValues.current &&
+        prev.currency === 'USD' &&
+        previousPeriod &&
+        isSamePeriod(previousPeriod, request.period)
         ? { ...prev, fxRate: '' }
         : prev
     })
@@ -150,6 +198,7 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
   function change(patch: Partial<DraftInput>) {
     const next = applyDraftChange(values, patch)
     setValues(next.values)
+    setAttempt((prev) => afterDraftChange(prev, next.values))
     if (next.installmentsReset) {
       toast.info('Las cuotas volvieron a 1', {
         description: 'Solo los gastos con tarjeta de crédito se pagan en cuotas.',
@@ -175,21 +224,35 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
     if (!isLastStep && isStepComplete(step, errors)) goTo(steps[stepIndex + 1])
   }
 
+  const names = (v: DraftInput) => ({
+    categoryName: v.type === 'expense' ? (categories.find((c) => c.id === v.categoryId)?.name ?? null) : null,
+    accountName: accounts.find((a) => a.id === v.accountId)?.name ?? null,
+  })
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     // Enter en el monto avanza de paso; solo el último paso guarda.
     if (!isLastStep) return advance()
-    if (!canSave || saving) return
+    if (!canSave || savingRef.current) return
+    savingRef.current = true
     setSaving(true)
+    const sent = values
+    const draftId = attempt.draftId
+    // ADR-034: misma clave mientras sea el reintento del mismo borrador; si no, una nueva.
+    const requestId = requestIdFor(attempt, sent, crypto.randomUUID())
+    setAttempt((prev) => startAttempt(prev, requestId, sent))
     try {
-      await createTransaction(draft) // C4: una sola llamada RPC, con la deuda si es compartido (ADR-036)
+      await createTransaction(draft, requestId) // C4: una sola llamada RPC, con la deuda si es compartido (ADR-036)
       setStoredLastAccountId(draft.accountId)
-      const debt = debtOfDraft(draft)
-      toast.success(draft.type === 'expense' ? 'Gasto guardado' : 'Ingreso guardado', {
-        description: debt ? sharedDebtSavedMessage(debt, draft.currency) : undefined,
+      // Guardado con cualquiera de sus claves: su pendiente, si tenía, deja de serlo.
+      if (userId) updatePendingDrafts(userId, (list) => removePendingDraft(list, draftId))
+      setPendingDrafts((list) => removePendingDraft(list, draftId))
+      toast.success(sent.type === 'expense' ? 'Gasto guardado' : 'Ingreso guardado', {
+        description: savedDraftDescription(sent, names(sent)),
         testId: 'transaction-form-saved',
       })
       onSaved?.()
+      setAttempt(newSaveAttempt(crypto.randomUUID()))
       setValues(draftInputAfterSave(values, toIsoDate(today()), accounts))
       setTouched({})
       // Confirmación en el mismo botón (feedback de completado) y vuelta al primer paso para el próximo.
@@ -201,13 +264,60 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
         setStepIndex(0)
       }, 900)
     } catch (error) {
-      toast.error('No se pudo guardar', {
-        description: saveErrorMessage(error),
-        testId: 'transaction-form-save-error',
-      })
+      const failure = classifySaveError(error)
+      setAttempt((prev) => failAttempt(prev, failure))
+      setFailureText(saveFailureText(failure, error))
+      // Solo un error de red deja el borrador pendiente en el dispositivo; un rechazo fallaría igual.
+      if (failure.kind === 'network' && userId) {
+        updatePendingDrafts(userId, (list) =>
+          recordNetworkFailure(list, { id: draftId, values: sent, requestId, ...names(sent) }),
+        )
+      }
     } finally {
+      savingRef.current = false
       setSaving(false)
     }
+  }
+
+  function discardPending(pending: PendingDraft) {
+    if (userId) updatePendingDrafts(userId, (list) => removePendingDraft(list, pending.id))
+    setPendingDrafts((list) => removePendingDraft(list, pending.id))
+  }
+
+  /**
+   * "Recuperar" (ADR-034): primero verifica por la API si alguna de sus claves ya se guardó; solo si
+   * no, carga el borrador en el formulario con su fecha y su tipo de cambio, y la última clave.
+   */
+  async function restorePending(pending: PendingDraft) {
+    setPendingStatus((prev) => ({ ...prev, [pending.id]: 'verifying' }))
+    let found: { deletedAt: string | null }[]
+    try {
+      found = await findTransactionsByRequestIds(pending.requestIds)
+    } catch {
+      setPendingStatus((prev) => ({ ...prev, [pending.id]: 'verify-failed' }))
+      return
+    }
+    setPendingStatus((prev) => ({ ...prev, [pending.id]: undefined }))
+    const outcome = recoveryOutcome(found)
+    if (outcome !== 'not-saved') {
+      discardPending(pending)
+      const { title, description } = alreadySavedToast(outcome, savedDraftDescription(pending.values, pending))
+      toast.success(title, { description, testId: 'register-pending-draft-already-saved' })
+      return
+    }
+    const restored = restorableValues(pending.values, {
+      categoryIds: new Set(categories.map((c) => c.id)),
+      accountIds: new Set(accounts.map((a) => a.id)),
+    })
+    restoredValues.current = restored
+    window.clearTimeout(advanceTimer.current)
+    window.clearTimeout(savedTimer.current)
+    setJustSaved(false)
+    setValues(restored)
+    setTouched({})
+    setAttempt(recoveredAttempt(pending.id, lastRequestId(pending), pending.values))
+    setDirection('forward')
+    setStepIndex(stepsFor(restored.type).length - 1)
   }
 
   const section: SectionProps = { values, errors, touched, onChange: change }
@@ -221,13 +331,14 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
   )
 
   const category = categories.find((c) => c.id === values.categoryId)
-  const submitLabel = saving ? 'Guardando…' : values.type === 'income' ? 'Guardar ingreso' : 'Guardar gasto'
+  const submitLabel = submitLabelFor(attempt, values, saving)
   const hintId = 'transaction-form-submit-hint'
   const showHint = !canAdvance && pending.length > 0
 
   return (
     <form
       data-testid="transaction-form"
+      aria-busy={saving}
       onSubmit={onSubmit}
       noValidate
       className="mx-auto flex min-h-[calc(100dvh-var(--app-header-h)-env(safe-area-inset-top)-var(--app-nav-offset)-3.5rem)] w-full max-w-xl flex-col lg:min-h-[calc(100dvh-5rem)]"
@@ -286,6 +397,14 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
 
         {step === 'amount' && (
           <>
+            {showPendingDrafts && pendingDrafts.length > 0 && (
+              <PendingDraftsNotice
+                drafts={pendingDrafts}
+                status={pendingStatus}
+                onRestore={restorePending}
+                onDiscard={discardPending}
+              />
+            )}
             <TypeSection {...section} />
             {/* El monto, centrado en el espacio libre: es lo único que hay que hacer en este paso. */}
             <div className="flex flex-1 flex-col justify-center gap-6">
@@ -340,6 +459,9 @@ export function TransactionForm({ categories, accounts, defaultAccountId, onSave
       {/* En la categoría, elegir ya avanza: el botón solo aparece al volver con una ya elegida. */}
       {!(step === 'category' && !values.categoryId) && (
         <div className="sticky z-20 -mx-5 mt-8 flex flex-col gap-2 border-t border-hairline bg-background px-5 pt-2.5 pb-3 [bottom:calc(var(--app-nav-offset)+var(--kb-inset))] sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
+          {isLastStep && attempt.failure && (
+            <SaveErrorAlert kind={attempt.failure.kind} message={failureText} />
+          )}
           {showHint && (
             <p id={hintId} data-testid={hintId} className="text-center text-footnote text-muted-foreground">
               Completá {joinSpanish(pending)} para {isLastStep ? 'guardar' : 'seguir'}

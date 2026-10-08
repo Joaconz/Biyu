@@ -155,7 +155,7 @@ El objetivo es la menor cantidad de seams posible, ubicados lo más alto que se 
 | Seam | Qué prueba | Herramienta | Volumen |
 |---|---|---|---|
 | **Dominio puro** (TypeScript) | Prorrateo, redondeo, conversión, KPIs — la versión de previsualización en el cliente | Vitest, casos parametrizados | El grueso |
-| **Base de datos** | Invariantes (I1-I17), atomicidad de las funciones RPC, políticas RLS | pgTAP contra Supabase local | Uno por invariante, más el grupo obligatorio de autorización |
+| **Base de datos** | Invariantes (I1-I18), atomicidad de las funciones RPC, políticas RLS | pgTAP contra Supabase local | Uno por invariante, más el grupo obligatorio de autorización |
 | **Edge Functions** | Cierre de tarjeta, puesta al día de suscripciones: idempotencia, casos de borde de fecha | Deno Test / Vitest | Pocos, elegidos |
 | **Componentes** | Comportamiento visible de la UI condicional | Vitest + Testing Library | Un puñado |
 | **Flujo completo** | Humo del deploy; en V3 el subconjunto automatizado, en los tres motores de navegador | Playwright (Chromium, WebKit, Firefox) | Uno en V1, se amplía en V3 |

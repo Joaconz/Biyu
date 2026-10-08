@@ -38,7 +38,7 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 | Vocabulario (Transaction, LedgerEntry, Period…) | `docs/01-domain-glossary.md` |
 | Qué debe hacer el sistema (FR, reglas R*) | `docs/02-behavior-spec.md` |
 | Constraints C1–C15 y estructura del repo | `docs/03-architecture-spec.md` |
-| Schema e invariantes I1–I17 | `docs/04-data-model.md` |
+| Schema e invariantes I1–I18 | `docs/04-data-model.md` |
 | Higiene del repo público | `docs/05-repo-publico.md` |
 | Testing: técnicas, defectos, propiedad cruzada | `docs/07-plan-de-testing.md` |
 | Pasos comunes de los casos (`PR-nn`): usuario de prueba, cuenta, token y llamadas a la API | `docs/12-procedimientos-de-prueba.md` |

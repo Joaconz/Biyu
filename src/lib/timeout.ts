@@ -17,3 +17,13 @@ export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
     )
   })
 }
+
+/**
+ * Una señal que aborta el pedido a los `ms` (US-70): a diferencia de withTimeout, el pedido se cancela
+ * de verdad. `clear` se llama al terminar para no dejar el timer vivo.
+ */
+export function abortAfter(ms: number): { signal: AbortSignal; clear: () => void } {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), ms)
+  return { signal: controller.signal, clear: () => clearTimeout(timer) }
+}

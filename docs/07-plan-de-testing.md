@@ -124,7 +124,7 @@ Un caso vive en la planilla del catálogo (plantilla de la cátedra, una hoja po
 | ID | `CP-<módulo>-<nnn>` — ej. `CP-CUO-007` |
 | Título | Una frase que dice qué se verifica y con qué dato: "12 cuotas de $100,00 dan 12 imputaciones" |
 | Historia de usuario y criterio | `US-nn · CA-k`: la historia **y el criterio de aceptación** que el caso verifica (`02-behavior-spec.md` o `06-suscripciones.md`). Más FR / R* |
-| Invariante cubierta | I1 … I17, si aplica |
+| Invariante cubierta | I1 … I18, si aplica |
 | Técnica | Cuál de las de §3 |
 | Tipo | Positivo · Negativo · Límite |
 | Canal | `UI` o `API`. Un caso es de un solo canal; el par del otro canal se enlaza en "Caso par" |

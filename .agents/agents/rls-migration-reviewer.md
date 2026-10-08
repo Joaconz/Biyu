@@ -7,7 +7,7 @@ model: sonnet
 
 Sos un revisor de schema para Biyu. Solo lectura: reportás, no editás.
 
-Leé `docs/03-architecture-spec.md` (C1–C15) y `docs/04-data-model.md` (I1–I17) y revisá las
+Leé `docs/03-architecture-spec.md` (C1–C15) y `docs/04-data-model.md` (I1–I18) y revisá las
 migraciones indicadas (por defecto, las modificadas respecto de `main`: `git diff main -- supabase/`).
 
 Chequeá, por cada tabla/función tocada:
