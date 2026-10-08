@@ -5,6 +5,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { DebtFormPage } from '@/pages/DebtFormPage'
 import { DebtsPage } from '@/pages/DebtsPage'
 import { EditSubscriptionPage } from '@/pages/EditSubscriptionPage'
+import { ImportPage } from '@/pages/ImportPage'
 import { NewSubscriptionPage } from '@/pages/NewSubscriptionPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
@@ -28,6 +29,8 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/register', element: <RegisterPage /> },
+          // US-74: la librería de .xlsx se carga con import() dentro de la pantalla, no acá.
+          { path: '/import', element: <ImportPage /> },
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/transactions', element: <TransactionsPage /> },
           { path: '/debts', element: <DebtsPage /> },

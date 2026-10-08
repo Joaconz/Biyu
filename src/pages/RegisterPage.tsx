@@ -1,3 +1,5 @@
+import { FileSpreadsheet } from 'lucide-react'
+import { Link } from 'react-router'
 import { TransactionForm } from '@/components/transaction-form/TransactionForm'
 import { useCatalog } from '@/hooks/useCatalog'
 
@@ -29,6 +31,17 @@ export function RegisterPage() {
           accounts={catalog.accounts}
           defaultAccountId={catalog.defaultAccountId}
           showPendingDrafts
+          headerAction={
+            // US-74: importar es otra forma de registrar; no toma el foco, que sigue en el monto (US-02).
+            <Link
+              to="/import"
+              data-testid="register-import"
+              className="press inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-input px-3 text-footnote font-semibold text-foreground hover:bg-accent"
+            >
+              <FileSpreadsheet aria-hidden="true" className="size-4" />
+              Importar desde Excel
+            </Link>
+          }
         />
       )}
     </div>

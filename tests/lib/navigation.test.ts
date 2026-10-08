@@ -18,6 +18,7 @@ describe('navegación global (ADR-023)', () => {
     expect(screenFromPath('/debts')).toBe('debts')
     expect(screenFromPath('/debts/nueva')).toBe('debts')
     expect(screenFromPath('/subscriptions/abc')).toBe('subscriptions')
+    expect(screenFromPath('/import')).toBe('register')
     expect(screenFromPath('/otra')).toBeNull()
   })
 
