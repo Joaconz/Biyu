@@ -197,6 +197,8 @@ export async function fetchMonthlyTransactions(
   period: Period,
   limit?: number,
   view: TransactionsView = 'active',
+  /** Solo los gastos de esta categoría (detalle de categoría, US-73). */
+  expensesOfCategory?: string,
 ): Promise<DashboardTransaction[]> {
   const dbPeriod = toDbDate(period)
   let query = supabase
@@ -227,6 +229,9 @@ export async function fetchMonthlyTransactions(
     .eq('period', dbPeriod)
   // I10: los KPIs y el listado normal nunca ven las eliminadas; el filtro "Eliminados" ve solo esas (DEF-007).
   query = view === 'deleted' ? query.not('transaction.deleted_at', 'is', null) : query.is('transaction.deleted_at', null)
+  if (expensesOfCategory) {
+    query = query.eq('transaction.category_id', expensesOfCategory).eq('transaction.type', 'expense')
+  }
   query = query
     // Orden por columnas de la transacción embebida: PostgREST exige que estén en el select.
     .order('transaction(occurred_on)', { ascending: false })

@@ -116,6 +116,11 @@ export function formatPeriodLong({ year, month }: Period): string {
   return `${MONTH_NAMES[month - 1]} ${year}`
 }
 
+/** "sep": el mes abreviado, debajo de las barras de la evolución de una categoría (US-73). */
+export function formatMonthShort({ month }: Period): string {
+  return MONTH_SHORT[month - 1]
+}
+
 /** "sep 2026", para rangos como la vista previa de cuotas. */
 export function formatPeriodShort({ year, month }: Period): string {
   return `${MONTH_SHORT[month - 1]} ${year}`
