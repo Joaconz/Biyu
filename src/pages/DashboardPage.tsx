@@ -210,7 +210,7 @@ export function DashboardPage() {
             </div>
 
             <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-7 lg:col-span-2 lg:grid-cols-[repeat(2,minmax(0,1fr))] lg:gap-5">
-              <CategoryExpenseBars categories={summary.categoryExpenses} />
+              <CategoryExpenseBars categories={summary.categoryExpenses} totalExpenses={summary.expenses} period={period} />
               <AccountExpenseBreakdown accounts={summary.accountExpenses} />
             </div>
           </div>
