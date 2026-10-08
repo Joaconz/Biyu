@@ -8,7 +8,9 @@ cita desde los casos como `US-34 · CA-k`. Fuentes: `docs/02-behavior-spec.md` (
 ADR-006. Las decisiones que no salían obvias de la spec están en
 [ADR-036](../../docs/adr/036-deuda-vinculada-en-create-transaction.md) (la deuda vinculada dentro de
 `create_transaction`) y [ADR-037](../../docs/adr/037-deudas-se-escriben-por-rpc.md) (escritura por
-RPC, saldar y revertir, deudas de un gasto borrado y totales).
+RPC, saldar y revertir, deudas de un gasto borrado y totales). US-82 y US-83 suman
+[ADR-040](../../docs/adr/040-gasto-compartido-con-varias-personas.md) (varias personas) y
+[ADR-041](../../docs/adr/041-deudas-sueltas-en-el-balance.md) (deudas sueltas en el balance).
 
 **Mocks** (`entrega-2/mocks/`, ADR-023, montos ficticios):
 
@@ -62,7 +64,8 @@ Valen para todas las historias de abajo; cada historia las cita en vez de repeti
 ## Orden de implementación sugerido
 
 US-34 y US-41 (misma RPC, ADR-036) → US-38 (pantalla Deudas) → US-35 → US-37 → US-39 y US-40 →
-US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
+US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37) → US-82 (varias personas, sobre
+US-34 y US-41) → US-83 (balance, sobre US-36, US-39 y US-40).
 
 ---
 
@@ -194,8 +197,10 @@ US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
     `ledger_entries` ni `debts`: solo `p_shared_person`; solo `p_shared_amount`; `p_type = 'income'`
     con deuda; persona `"   "`; persona `"\t"`; persona de 61 caracteres; `"p_shared_amount": 0`;
     `-1`; `1.001` (literal JSON); `"NaN"`; gasto de US$100 a TC `0.4` con `"p_shared_amount": 0.01`.
-    Con el rol `anon`, el mismo pedido válido responde `42501`.
-  - CA-9: Después de guardar: aviso "Gasto guardado" con "Sofía te debe $60.000,00", el formulario
+    Con el rol `anon`, el mismo pedido válido responde `42501`. **Modificado por US-82 (ADR-040):** la
+    persona y el monto se mandan como arreglos de un elemento (`p_shared_persons`,
+    `p_shared_amounts`); los mensajes no cambian.
+  - CA-9 (**con varias personas, el aviso lo define US-82**): Después de guardar: aviso "Gasto guardado" con "Sofía te debe $60.000,00", el formulario
     vuelve al paso 1 con el interruptor apagado y los dos campos vacíos, y la cuenta usada queda
     preseleccionada (US-07, US-10).
   - CA-10: Si con el interruptor encendido se vuelve al paso 1 y se cambia el tipo a **Ingreso**, al
@@ -232,7 +237,8 @@ US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
 
   El monto del gasto va en su moneda (`US$100,00` si es en dólares) y es el total de la compra, no
   la cuota. Una categoría archivada se muestra con su nombre igual. Ninguno de estos textos es
-  interactivo.
+  interactivo. **Modificado por US-82 (ADR-040):** con dos o más personas, la etiqueta
+  de Movimientos y de Últimos movimientos y el aviso del diálogo de borrado cambian como dice US-82.
 - **Estados:** los de cada pantalla; esta historia no agrega cargas propias. La deuda vinculada
   (persona y monto) viene en la misma consulta que la fila de la transacción (embed de `debts`): si
   esa consulta falla se ve el error de la pantalla, y el diálogo de borrado nunca se abre sin saber
@@ -365,7 +371,7 @@ US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
     en "Guardar deuda" producen una sola llamada y una sola fila.
   - CA-11: "Cancelar" vuelve a `/debts` y no crea nada.
   - CA-12: Una deuda suelta no cambia ningún número del Resumen (total, ingresos, balance ni neto,
-    US-30).
+    US-30). **Modificado por US-83 (ADR-041):** sí cambia el balance; el resto sigue igual.
   - CA-13: Si el servidor rechaza el guardado, aparece "No se pudo guardar la deuda" con el motivo y
     los campos conservan lo cargado.
   - CA-14: Todos los campos, botones y errores por campo tienen su `data-testid`.
@@ -444,7 +450,9 @@ US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
   `pending`, `settled` ni `all`, se comporta como "Pendientes". Tocar una opción cambia la URL sin
   recargar y la lista se filtra.
 - **Orden:** "Pendientes" y "Todas": fecha (`incurred_on`) más reciente primero; a igual fecha, la
-  cargada más recientemente (`created_at`) primero. "Saldadas": `settled_at` más reciente primero.
+  cargada más recientemente (`created_at`) primero. "Saldadas": `settled_at` más reciente primero. **Modificado por US-82 (ADR-040 §5):** a igual fecha y `created_at` (las deudas de un mismo
+  gasto compartido), por persona en orden alfabético sin distinguir mayúsculas ni tildes, y después
+  por `id`.
 - **Qué se lista:** las deudas del usuario (RLS, C7) que son sueltas o están vinculadas a un gasto sin
   baja lógica (ADR-037 §4).
 - **Estados:**
@@ -590,7 +598,8 @@ US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
     la transacción ni la deuda.
   - CA-5: Directo contra la RPC, `p_amount = 10000` con `p_shared_amount = 10000.01` se rechaza con
     "I7: la deuda no puede superar el monto del gasto" y no deja filas nuevas en `transactions`,
-    `ledger_entries` ni `debts` (escenario BDD "la deuda no puede superar el gasto").
+    `ledger_entries` ni `debts` (escenario BDD "la deuda no puede superar el gasto"). **Modificado por
+    US-82 (ADR-040):** el pedido manda `"p_shared_amounts": [10000.01]`.
   - CA-6: Gasto de US$100,01 a TC 1250,5555: deuda `100,01` se guarda y su `amount_ars` es igual al
     del gasto (`125068.06`); `100,02` muestra "No puede superar el monto del gasto (US$100,01)".
   - CA-7: Con la deuda ya cargada, volver al paso 1 y bajar el monto del gasto por debajo de la deuda
@@ -653,13 +662,234 @@ US-36 → US-30 → US-79 (filtro por dirección, sobre US-38 y US-37).
   - CA-9: Todos los elementos interactivos del filtro tienen su `data-testid`.
 - **Trazabilidad:** FR-18 · C11 · US-37 · US-38 · ADR-037
 
+#### US-82: Compartir un gasto con varias personas · [#270](https://github.com/Joaconz/Biyu/issues/270) · Pendiente
+
+- **Objetivo:** Como usuario, quiero repartir un gasto entre varias personas, cada una con lo que me
+  debe, para no tener que cargar una deuda suelta por cada una.
+- **Decisión:** [ADR-040](../../docs/adr/040-gasto-compartido-con-varias-personas.md), que modifica
+  ADR-036. Sin mock propio: reusa los campos de US-34 (`deudas-registrar-compartido.html`).
+- **Pantalla y estructura:** **Registrar**, paso 3, sección "Gasto compartido" (US-34). Con el
+  interruptor encendido, la sección muestra una **lista de personas**:
+  - Cada fila (`transaction-form-shared-row`, con `data-index="1"`, `"2"`…) tiene "¿Con quién?" y
+    "¿Cuánto te debe?" con los mismos campos, reglas, mensajes y `data-testid` de US-34, y sus errores
+    debajo. Como las filas de Movimientos, cada `data-testid` se repite en cada fila y se distingue por
+    el `data-index` de la fila.
+  - A la derecha de cada fila, el botón "Quitar" (ícono, `aria-label="Quitar a <persona>"`, o "Quitar
+    persona <i>" si el nombre está vacío). Con una sola fila no se muestra: para no compartir, se apaga
+    el interruptor.
+  - Quitar una fila conserva los valores de las demás y renumera `data-index` de 1 en adelante.
+  - Al encender el interruptor hay una fila vacía. Al apagarlo y volver a encenderlo, vuelve a haber
+    una sola fila vacía.
+- **Elementos nuevos**, debajo de la lista:
+
+  | Elemento | Tipo | Texto exacto | Qué hace | `data-testid` |
+  |---|---|---|---|---|
+  | Agregar | botón secundario | "Agregar persona" | Agrega una fila vacía al final y lleva el foco a su "¿Con quién?". Deshabilitado con 10 filas | `transaction-form-shared-add` |
+  | Tope | texto | "Podés compartir un gasto con hasta 10 personas" | Solo con 10 filas | `transaction-form-shared-limit` |
+  | Dividir | botón secundario | "Dividir en partes iguales" | Completa el monto de cada fila con la parte de cada uno (regla de abajo) y pisa lo que hubiera escrito | `transaction-form-shared-split` |
+  | Quitar | botón (ícono) | — | Ver arriba | `transaction-form-shared-remove` |
+  | Error de la suma | texto (`role="alert"`) | Ver tabla de errores | Con dos o más filas | `transaction-form-shared-total-error` |
+
+- **"Dividir en partes iguales"** (ADR-040 §4):
+  - Con n filas, el gasto se divide en n + 1 partes: las personas y vos. A cada persona le toca el
+    monto del gasto ÷ (n + 1), truncado a 2 decimales, y tu parte absorbe el resto. En la moneda del
+    gasto. La función vive en `src/domain/` (C1).
+  - El monto se escribe en el campo con coma decimal, sin separador de miles y sin ",00" si es entero:
+    `33333,33`, `30000`, `0,5`.
+  - Está habilitado siempre que el interruptor esté encendido, aunque haya personas vacías. Solo
+    completa los montos.
+  - Si la parte da menos de 0,01, completa `0` y cada fila muestra "El monto debe ser mayor a cero".
+  - Si en US$ la parte da menos de $0,01 en pesos, cada fila muestra el error de US-34 para ese caso.
+- **Errores nuevos (cliente, exactos):**
+
+  | Condición | Mensaje | Dónde |
+  |---|---|---|
+  | Persona igual a la de una fila anterior, después del recorte y sin distinguir mayúsculas | "Ya agregaste a <persona de la fila anterior>" | Error de persona de la fila repetida |
+  | Dos o más filas, ninguna con error y la suma mayor al gasto | "Entre todos no pueden deber más que el gasto (<monto del gasto>)" | `transaction-form-shared-total-error` |
+  | Gasto en US$, dos o más filas sin error, suma en dólares que no supera el gasto, pero la suma de cada monto × TC redondeado a 2 decimales supera el gasto en pesos (ADR-040 §2, punto 8) | "En pesos, la suma supera el gasto por redondeo. Bajá un centavo alguna deuda." | `transaction-form-shared-total-error` |
+
+  - El tope de US-41 sigue valiendo **por fila**, con cualquier cantidad de filas: un monto mayor al
+    gasto muestra en su fila "No puede superar el monto del gasto (…)", y mientras haya un error en
+    alguna fila no se evalúa la suma.
+  - "Guardar gasto" se deshabilita con cualquier error de cualquier fila (convenciones).
+- **Resumen** (`transaction-form-shared-summary`, cuando todas las filas son válidas y no hay error de
+  la suma). Con una persona,
+  el texto de US-34. Con dos o más: "Te van a deber <suma> entre <n> personas · Tu parte: <gasto −
+  suma>". Ejemplo: "Te van a deber $80.000,00 entre 2 personas · Tu parte: $40.000,00".
+- **Varias personas en un texto** (ADR-040 §5): los nombres van en orden alfabético, sin distinguir
+  mayúsculas ni tildes, separados por coma y con "y" antes del último.
+  - Aviso de éxito ("Gasto guardado"): con una persona, el texto de US-34; con dos o más, "<nombres> te
+    deben <suma>". Ejemplo: "Juan y Sofía te deben $80.000,00".
+  - Etiqueta de Movimientos y de Últimos movimientos (US-35): "Compartido con Juan y Sofía" con dos
+    personas, y "Compartido con <primer nombre> y <n − 1> más" con tres o más ("Compartido con Ana y
+    2 más").
+  - Diálogo de borrado (US-35): con dos o más personas, "También dejan de contar las deudas con
+    <nombres> por <suma> en total." Ejemplo: "También dejan de contar las deudas con Ana, Juan y Sofía
+    por $90.000,00 en total."
+- **Mensajes del servidor** (`create_transaction`, ADR-040 §2): además de los de US-34 y US-41, "Un
+  gasto compartido necesita una persona y un monto por cada deuda", "Un gasto compartido necesita al
+  menos una persona", "Un gasto se comparte con hasta 10 personas", "Cada persona puede aparecer una
+  sola vez" e "I7: la suma de las deudas no puede superar el monto del gasto". En la UI aparecen como
+  descripción del aviso "No se pudo guardar".
+- **Estados:** los de US-34.
+- **Criterios de aceptación:**
+  - CA-1: Al encender "Gasto compartido" hay una fila vacía, sin "Quitar". "Agregar persona" agrega la
+    fila 2 vacía con el foco en su "¿Con quién?", y "Quitar" aparece en las dos.
+  - CA-2: Gasto de $120.000,00 ARS en 1 cuota con "Sofía" `40000` y "Juan" `40000`: se crean una
+    transacción y dos deudas `owed_to_me`, `pending`, de `40000.00`, con `transaction_id` igual al de
+    esa transacción. Se hace una sola llamada a `create_transaction` y ninguna a `/rest/v1/debts`
+    (C4). El aviso dice "Juan y Sofía te deben $80.000,00".
+  - CA-3: Con 2 filas y un gasto de $100.000,00, "Dividir en partes iguales" completa `33333,33` en las
+    dos y el resumen dice "Te van a deber $66.666,66 entre 2 personas · Tu parte: $33.333,34". Con 3
+    filas y $120.000,00, completa `30000` en las tres y "Tu parte: $30.000,00". Con un gasto de
+    US$100,00 y 2 filas, completa `33,33`. Si las filas tenían montos escritos, los reemplaza.
+  - CA-4 (valores límite de la suma): con un gasto de $120.000,00 y 2 filas, `60000` + `60000` se guarda
+    ("Tu parte: $0,00"); `60000` + `60000,01` muestra "Entre todos no pueden deber más que el gasto
+    ($120.000,00)", deshabilita "Guardar gasto" y no emite ninguna escritura.
+  - CA-5: Con 10 filas, "Agregar persona" está deshabilitado y se ve "Podés compartir un gasto con hasta
+    10 personas". Guardar con 10 filas válidas crea 10 deudas.
+  - CA-6: "Sofía" en la fila 1 y "  sofía " en la fila 2 muestran en la fila 2 "Ya agregaste a Sofía" y
+    deshabilitan "Guardar gasto".
+  - CA-7: Con 3 filas cargadas, quitar la 2 deja las filas 1 y 3 con sus valores, ahora con
+    `data-index` 1 y 2.
+  - CA-8: Una fila con la persona vacía deshabilita "Guardar gasto" aunque las demás estén bien.
+  - CA-9: Apagar el interruptor con 3 filas cargadas y guardar crea el gasto sin deudas. Al volver a
+    encenderlo hay una sola fila vacía.
+  - CA-10: Un gasto compartido con Ana, Juan y Sofía muestra "Compartido con Ana y 2 más" en cada
+    cuota de Movimientos y en Últimos movimientos. Uno con Juan y Sofía muestra "Compartido con Juan y
+    Sofía".
+  - CA-11: Al tocar la papelera del gasto compartido con Ana, Juan y Sofía por $30.000,00 cada uno, el
+    diálogo dice "También dejan de contar las deudas con Ana, Juan y Sofía por $90.000,00 en total."
+  - CA-12: En `/debts?status=all` hay una fila por persona, cada una con su línea de origen (US-35),
+    en el orden Ana, Juan, Sofía: las tres tienen la misma fecha y el mismo `created_at`, y se
+    desempatan por persona (ADR-040 §5; **modifica el orden de US-38**). "Te deben" (US-37) y el neto
+    del Resumen (US-30) suman las tres.
+  - CA-13: Eliminar ese gasto saca las tres deudas de Deudas y de los totales; restaurarlo las devuelve
+    con su estado (US-35 · CA-5 y CA-6).
+  - CA-14 (C6, directo contra la RPC): cada uno de estos pedidos se rechaza con HTTP 400,
+    `code = '23514'` y el mensaje exacto indicado, y no crea filas en `transactions`,
+    `ledger_entries` ni `debts`:
+    - solo `p_shared_persons` → "Un gasto compartido necesita una persona y un monto por cada deuda";
+    - 2 personas y 1 monto → el mismo mensaje;
+    - `[]` en los dos → "Un gasto compartido necesita al menos una persona";
+    - 11 personas → "Un gasto se comparte con hasta 10 personas";
+    - "Sofía" y "SOFÍA" → "Cada persona puede aparecer una sola vez";
+    - gasto de `120000` con montos `60000` y `60000.01` (literal JSON) → "I7: la suma de las deudas no
+      puede superar el monto del gasto";
+    - gasto de US$3,00 a TC `1000.005` con tres deudas de `1` → "I7: en pesos, la suma de las deudas
+      supera el gasto por redondeo";
+    - segunda persona `"   "` → "Ingresá con quién compartiste el gasto", sin crear ni el gasto ni la
+      primera deuda (C4);
+    - `p_type = 'income'` con deudas → "Un ingreso no se puede compartir";
+    - `p_type = 'income'` con 11 personas → "Un ingreso no se puede compartir" (primer error del orden
+      de ADR-040 §2).
+
+    Con el rol `anon`, un pedido válido responde `42501`.
+  - CA-15: Con una sola persona, US-34 y US-41 se cumplen igual: mismos textos, mensajes y
+    `data-testid`. Cambia solo la forma del pedido directo: se manda `"p_shared_persons": ["Sofía"],
+    "p_shared_amounts": [60000]` en lugar de `p_shared_person` y `p_shared_amount`. Esto modifica
+    US-34 · CA-8 y US-41 · CA-5.
+  - CA-16: Con 2 filas cargadas, volver al paso 1 y cambiar la moneda vacía los montos de las dos
+    filas y conserva las personas (como US-34 · CA-12).
+  - CA-17: Con 2 filas cargadas, pasar a Ingreso y volver a Gasto deja el interruptor apagado.
+    Encenderlo muestra una sola fila vacía (como US-34 · CA-10).
+  - CA-18: Con "Sofía" `40000` y "Juan" `40000` sobre un gasto de $120.000,00, volver al paso 1 y bajar
+    el gasto a $70.000,00 muestra, de vuelta en el paso 3, "Entre todos no pueden deber más que el
+    gasto ($70.000,00)". Con $30.000,00, muestra en cada fila "No puede superar el monto del gasto
+    ($30.000,00)" y no muestra el error de la suma. Las deudas no se ajustan solas (como US-41 · CA-7).
+  - CA-19: Con 2 filas, "Sofía" `150000` sobre un gasto de $120.000,00 muestra en esa fila "No puede
+    superar el monto del gasto ($120.000,00)", y `transaction-form-shared-total-error` no está.
+  - CA-20: Con un gasto de $0,02 y 2 filas, "Dividir en partes iguales" completa `0` en las dos y cada
+    una muestra "El monto debe ser mayor a cero".
+  - CA-21: Si US-70 ya está implementada, el movimiento pendiente de un gasto con varias personas
+    guarda todas las filas, y "Reintentar" crea el gasto y todas sus deudas una sola vez (ADR-034,
+    ADR-040 §6).
+  - CA-22: Todos los elementos nuevos tienen su `data-testid`.
+- **Trazabilidad:** FR-18 · I7 · C3 · C4 · C6 · ADR-036 · ADR-040 · US-34 · US-35 · US-37 · US-41 ·
+  US-30
+
+#### US-83: Las deudas sueltas mueven el balance del mes · [#271](https://github.com/Joaconz/Biyu/issues/271) · Pendiente
+
+- **Objetivo:** Como usuario, quiero que lo que presto o me prestan sin un gasto de por medio cambie el
+  balance del mes, para que el balance muestre la plata que de verdad salió y entró.
+- **Decisión:** [ADR-041](../../docs/adr/041-deudas-sueltas-en-el-balance.md), que modifica ADR-037 §6
+  y US-36 · CA-12. Sin mock propio: agrega una línea a la tarjeta "Balance".
+- **Pantalla y estructura:** **Resumen** (`/dashboard?period=AAAA-MM`), tarjeta **"Balance"**
+  (`dashboard-balance`, US-29):
+  - Cambia el número (`dashboard-total-balance`) y, con él, su etiqueta "Superávit", "Déficit" o "En
+    cero" (`dashboard-balance-badge`).
+  - Debajo del número se agrega una línea, cuando el período tiene al menos un evento de una deuda
+    suelta: "Incluye deudas sueltas: <movimiento>" (`dashboard-balance-loose-debts`). El movimiento va
+    con signo menos si es negativo y sin signo si es positivo o cero: "-$20.000,00", "$50.000,00",
+    "$0,00".
+  - Nada más de la pantalla cambia.
+- **Regla** (ADR-041 §2): balance = ingresos − gastos + movimiento de deudas sueltas del período. Cada
+  evento suma su `amount_ars` (congelado, C5) en el período del día en que pasó, en hora de
+  Argentina:
+
+  | Evento | Día | "Me deben" | "Debo" |
+  |---|---|---|---|
+  | Alta (US-36) | `incurred_on` | − monto | + monto |
+  | Saldada (US-39) | `settled_at` | + monto | − monto |
+
+  - Reabrir (US-40) borra el evento "saldada".
+  - Las deudas vinculadas a un gasto (US-34) no generan eventos.
+  - El cálculo vive en `src/domain/` o en una consulta SQL, no en el componente (C1).
+- **Mes solo con deudas sueltas:** si el período no tiene datos según US-33 (ninguna imputación de
+  una transacción activa) pero sí eventos, el Resumen no muestra el estado vacío (`dashboard-empty`).
+  Muestra Gastado $0,00, Ingresos $0,00 y el balance con la línea, y las secciones de categorías,
+  cuentas y últimos movimientos con sus estados vacíos. Sin imputaciones ni eventos, sigue el estado
+  vacío de US-33.
+- **Estados:** los eventos se leen en la misma carga que el resto del Resumen. Si falla, se ve
+  `dashboard-error` y ningún número a medias.
+- **Criterios de aceptación.** H es el mes de hoy en Argentina cuando se ejecuta el caso y H−1 el mes
+  anterior. "Una fecha de H" es cualquier día de H hasta hoy. Saldar (US-39) siempre ocurre hoy, en H.
+  Cada criterio arranca con un usuario sin movimientos.
+  - CA-1: Con un ingreso de $100.000,00 y una deuda suelta "Me deben" a Juan por $20.000,00, los dos
+    con fecha de H, el Resumen de H muestra Ingresos $100.000,00, Gastado $0,00, Balance $80.000,00 con
+    "Superávit" e "Incluye deudas sueltas: -$20.000,00".
+  - CA-2: Con un ingreso de $100.000,00 y una deuda suelta "Debo" a Marta por $50.000,00, los dos con
+    fecha de H, el balance es $150.000,00 y la línea dice "Incluye deudas sueltas: $50.000,00".
+  - CA-3: Saldar la deuda de CA-1 deja el balance de H en $100.000,00 y la línea en "Incluye deudas
+    sueltas: $0,00".
+  - CA-4: Una deuda suelta "Me deben" de $20.000,00 con fecha de H−1, saldada hoy, resta $20.000,00 en
+    el balance de H−1 y suma $20.000,00 en el de H.
+  - CA-5: Reabrir (US-40) la deuda de CA-4 saca el evento de H: sin otros eventos, la línea desaparece
+    y el balance de H vuelve a ser ingresos − gastos. H−1 no cambia.
+  - CA-6: Una deuda suelta "Debo" de $50.000,00 con fecha de H−1, saldada hoy, suma $50.000,00 en H−1 y
+    resta $50.000,00 en H.
+  - CA-7: Una deuda suelta "Me deben" de US$40,00 a TC 1250 con fecha de H−1 resta $50.000,00 en H−1.
+    Si se cambia el tipo de cambio de referencia de H a 1500 (US-20) y después se salda, suma
+    $50.000,00 en H, no $60.000,00 (C5).
+  - CA-8: Un gasto compartido (US-34) de $120.000,00 con una deuda de $60.000,00, con fecha de H, deja el
+    balance de H en ingresos − gastos y no muestra la línea, ni antes ni después de saldar la deuda.
+  - CA-9: Un mes sin transacciones con solo la deuda de CA-1 (sin el ingreso) muestra el Resumen, no
+    `dashboard-empty`: Gastado $0,00, Ingresos $0,00, Balance -$20.000,00 con "Déficit" y la línea.
+  - CA-10: En ningún caso anterior la deuda suelta cambia Gastado (`dashboard-total-expenses`),
+    Ingresos (`dashboard-total-income`), el neto de reembolsos (US-30) ni el desglose por categoría y
+    por cuenta. Los totales de Deudas siguen la regla de US-37, sin cambios.
+  - CA-11: Abrir directamente `/dashboard?period=<H−1>` muestra el balance de H−1 con sus eventos
+    (C11).
+  - CA-12: En la prueba de dominio del cálculo, con hoy = 15/11/2026, una deuda saldada el 31/10/2026
+    a las 22:30 de Argentina (01/11/2026 01:30 UTC) cuenta en octubre 2026 (ADR-021).
+  - CA-13: Si falla la lectura de las deudas, se ve `dashboard-error` y no se muestra ningún número.
+  - CA-14: `dashboard-balance-loose-debts` está en el DOM solo cuando el período tiene eventos.
+- **Modifica:** US-29 · CA-1 (el balance es ingresos − gastos + movimiento de deudas sueltas), US-33 ·
+  CA-1 (un mes con eventos y sin transacciones no muestra el estado vacío; CP-DAS-010 sigue valiendo
+  para un mes sin nada) y US-36 · CA-12 (una deuda suelta sí cambia el balance). US-30 · CA-4 sigue
+  igual.
+- **Trazabilidad:** FR-18 · FR-20 · US-29 · US-36 · US-39 · US-40 · C1 · C5 · C7 · C11 · ADR-006 ·
+  ADR-021 · ADR-037 · ADR-041
+
 ---
 
 ## Supuestos de este documento
 
 1. Las historias, sus objetivos y los escenarios BDD citados salen de `docs/02-behavior-spec.md`; no se
    agregaron historias ni IDs nuevos, salvo US-79 (filtro por dirección), que pidió el producto el
-   2026-10-07 y no tiene mock propio: reusa el control del filtro por estado. Los textos de pantalla, los `data-testid` y los mensajes son
+   2026-10-07 y no tiene mock propio: reusa el control del filtro por estado, y US-82 y US-83,
+   que salieron de los pendientes de producto del 2026-10-08 ([#270](https://github.com/Joaconz/Biyu/issues/270) y
+   [#271](https://github.com/Joaconz/Biyu/issues/271)). Los textos de pantalla, los `data-testid` y los mensajes son
    propuesta de esta especificación y se congelan en el issue de cada historia.
 2. FR-19 (`pre-entrega.md`) dice que lo pendiente "no se computa como gasto propio ... hasta que se
    marca como cobrado". Se sigue el ajuste ya registrado en `08-trazabilidad.md`, el supuesto 4 y

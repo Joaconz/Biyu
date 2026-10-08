@@ -1,6 +1,6 @@
 # ADR-037 — Las deudas se escriben solo por RPC y siguen la baja lógica de su gasto
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** propuesta · **Fecha:** 2026-10 · Modificada por [ADR-041](041-deudas-sueltas-en-el-balance.md) (punto 6: las deudas sueltas mueven el balance)
 **Relacionada:** ADR-006, ADR-020, ADR-021, ADR-026, ADR-036
 
 ## Contexto
