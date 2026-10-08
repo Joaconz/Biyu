@@ -121,8 +121,9 @@ export function computeMonthlySummary(
       continue
     }
     expenses = expenses.plus(amount)
-    if (e.transaction.currency === 'USD') {
-      expensesUsd = expensesUsd.plus(parseMoney(e.amount ?? e.amount_ars))
+    // Sin el monto en su moneda no se suma: amount_ars son pesos y no dólares.
+    if (e.transaction.currency === 'USD' && e.amount !== undefined) {
+      expensesUsd = expensesUsd.plus(parseMoney(e.amount))
     }
     if (e.installment_number > 1) inherited = inherited.plus(amount)
     add(byCategory, e.transaction.category_id, amount)

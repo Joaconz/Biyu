@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthForm } from '@/pages/AuthForm'
+import { CategoryDetailPage } from '@/pages/CategoryDetailPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { DebtFormPage } from '@/pages/DebtFormPage'
 import { DebtsPage } from '@/pages/DebtsPage'
@@ -32,6 +33,8 @@ export const router = createBrowserRouter([
           // US-74: la librería de .xlsx se carga con import() dentro de la pantalla, no acá.
           { path: '/import', element: <ImportPage /> },
           { path: '/dashboard', element: <DashboardPage /> },
+          // US-73 (ADR-038): bajo /dashboard, así la barra sigue marcando Resumen.
+          { path: '/dashboard/categories/:categoryId', element: <CategoryDetailPage /> },
           { path: '/transactions', element: <TransactionsPage /> },
           { path: '/debts', element: <DebtsPage /> },
           { path: '/debts/new', element: <DebtFormPage /> },
