@@ -1,6 +1,6 @@
 # ADR-036 — La deuda de un gasto compartido se crea dentro de `create_transaction`
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** propuesta · **Fecha:** 2026-10 · Modificada por [ADR-040](040-gasto-compartido-con-varias-personas.md) (puntos 1, 2, 5 y 6: varias personas)
 **Relacionada:** ADR-001, ADR-002, ADR-013, ADR-020, ADR-021, ADR-035, ADR-037
 
 ## Contexto
@@ -44,7 +44,7 @@ cliente y qué deriva el servidor, y cómo se valida I7 antes de escribir.
      gasto'`. Igual al gasto se acepta (valor límite del plan de testing, §técnicas).
    Todas con `errcode = 'check_violation'`. Como la validación corre antes del primer `insert`, un
    rechazo no deja filas; si algo fallara después, la función entera se revierte (C4).
-6. **Una deuda por gasto.** El formulario tiene una sola persona. Repartir un gasto entre varias
+6. **Una deuda por gasto.** *(Reemplazado por ADR-040: hasta 10 personas, US-82.)* El formulario tiene una sola persona. Repartir un gasto entre varias
    personas queda fuera de V2 (ninguna historia lo pide); el trigger de I7 ya admite más de una
    deuda vinculada si algún día hace falta.
 

@@ -1,4 +1,4 @@
-# Proyecto Biyu – Entrega 2 · Importar gastos desde Excel: US-74, US-76, US-77 y US-78 (V2)
+# Proyecto Biyu – Entrega 2 · Importar gastos desde Excel: US-74, US-76, US-77, US-78, US-80 y US-81 (V2)
 
 **Testing de Aplicaciones · Proyecto Integrador** · Versión del documento: 2026-10-06 · Alcance de
 V2, nivel 3 (`entrega-2/README.md`). Mismo formato que `entrega-1/01-historias-de-usuario.md`; estas
@@ -17,10 +17,10 @@ con sus imputaciones.
 
 ## Las historias
 
-La importación se parte en cuatro historias que se implementan en este orden, porque cada una usa lo
+La importación se parte en seis historias que se implementan en este orden, porque cada una usa lo
 que dejó la anterior. Las reglas de detalle (pantallas, formato del archivo, mensajes, errores) son
 una sola especificación, en las secciones 1 a 9 y 12 de más abajo; cada criterio remite a ella. Las
-cuatro cuelgan de la épica [#203](https://github.com/Joaconz/Biyu/issues/203), que reemplaza a la idea del backlog [#169](https://github.com/Joaconz/Biyu/issues/169).
+seis cuelgan de la épica [#203](https://github.com/Joaconz/Biyu/issues/203), que reemplaza a la idea del backlog [#169](https://github.com/Joaconz/Biyu/issues/169).
 
 | Historia | Qué entrega | Depende de |
 |---|---|---|
@@ -28,6 +28,8 @@ cuatro cuelgan de la épica [#203](https://github.com/Joaconz/Biyu/issues/203), 
 | US-76 · Revisar las filas antes de importar | Leer cada fila, marcar los errores con su mensaje y resumir lo que se va a importar, sin escribir nada | US-74 |
 | US-77 · Importar las filas válidas y ver el resultado | Crear las filas válidas con `create_transaction`, tolerar rechazos y resumir al terminar | US-76 |
 | US-78 · Reintentar una importación sin duplicar | Responder a errores de red y de la base, reintentar sin duplicar y no perder el estado al salir | US-77 |
+| US-80 · Importar una compra en cuotas ya empezada | Columna "Cuotas pendientes": solo se imputan las cuotas que faltan, desde el mes de hoy (ADR-039) | US-77 |
+| US-81 · Guía para armar el archivo de importación | Botón que abre un diálogo con la guía; cerrada por defecto y opcional | US-74, US-80 |
 
 #### US-74: Subir un archivo de Excel · [#204](https://github.com/Joaconz/Biyu/issues/204) · Pendiente
 
@@ -40,7 +42,9 @@ cuatro cuelgan de la épica [#203](https://github.com/Joaconz/Biyu/issues/203), 
     lleva a `/import` en el paso 1. Sin sesión, `/import` redirige a `/login?next=/import`.
   - CA-2: "Descargar plantilla" baja `biyu-plantilla-importacion.xlsx` cuya primera hoja tiene en la fila
     1, de A a I, exactamente: Fecha, Tipo, Monto, Moneda, Tipo de cambio, Categoría, Cuenta, Cuotas,
-    Nota, y ninguna fila más con datos. Subir esa plantilla sin cambios muestra el mensaje A6.
+    Nota, y ninguna fila más con datos. Subir esa plantilla sin cambios muestra el mensaje A6. **Modificado
+    por US-80 (ADR-039):** la plantilla pasa a tener 10 columnas, de A a J, con "Cuotas pendientes"
+    después de "Cuotas".
   - CA-3: Cada regla A1 a A7 de la sección 3 muestra su mensaje exacto, la pantalla queda en el paso 1 y
     no se crea ninguna transacción.
   - CA-4: Un archivo de exactamente 500 filas con datos pasa al paso 2; uno de 501 muestra A7 con
@@ -156,6 +160,220 @@ cuatro cuelgan de la épica [#203](https://github.com/Joaconz/Biyu/issues/203), 
 - **Trazabilidad:** sección 11 · NFR-10 · ADR-035
 - **Casos de prueba:** a diseñar
 
+#### US-80: Importar una compra en cuotas ya empezada · [#268](https://github.com/Joaconz/Biyu/issues/268) · Pendiente
+
+- **Objetivo:** Como usuario que empieza a usar Biyu con compras en cuotas a medio pagar, quiero
+  importarlas indicando cuántas cuotas me faltan, para ver en cada mes solo lo que todavía tengo que
+  pagar.
+- **Depende de:** US-77 (la RPC `import_transactions`). Decisión de modelo:
+  [ADR-039](../../docs/adr/039-compra-en-cuotas-empezada.md).
+- **Notación de los ejemplos.** H es el mes de hoy en Argentina (ADR-021) cuando se ejecuta el caso;
+  H−4 es cuatro meses antes, H+1 el mes siguiente. "Una fecha de H−4" es cualquier día de ese mes (una fecha de H, cualquier día hasta hoy). Los
+  criterios no dependen del día de hoy, salvo los marcados como prueba de dominio, que fijan "hoy".
+- **Pantallas y campos:** plantilla y pasos 2 y 3 de **Importar desde Excel**. Agrega una columna
+  opcional a la sección 2, con las mismas reglas de encabezado que las demás (sin distinguir
+  mayúsculas ni tildes, en cualquier orden; repetida da A5):
+
+  | Encabezado | Celda obligatoria | Qué va | Formatos aceptados |
+  |---|---|---|---|
+  | Cuotas pendientes | No. Vacía = la compra se imputa desde el mes de su fecha, como hasta ahora | Cuántas cuotas faltan pagar, contando la del mes de hoy | Entero, celda numérica o texto |
+
+  - Sin la columna, todas las filas se tratan como vacías en "Cuotas pendientes".
+  - La columna cuenta para decidir si una fila está vacía (sección 2): una fila con solo "Cuotas
+    pendientes" no se saltea y da los errores de las celdas obligatorias.
+- **Qué se crea** (ADR-039). Con N = Cuotas, P = Cuotas pendientes y K = N − P (cuotas ya pagadas):
+  - El calendario de N cuotas se calcula sobre el **Monto** de la fila, que es el total de la compra,
+    con la regla de siempre: cuota base truncada a 2 decimales y la última absorbe el resto (C3).
+  - Se guardan solo las últimas P cuotas, numeradas de K + 1 a N, una por mes **desde el mes de
+    hoy**. Vale también con P = N (K = 0): ninguna pagada, pero las N cuotas se imputan desde el mes
+    de hoy y no desde el mes de la fecha.
+  - El monto del movimiento es lo que falta pagar: la suma de esas P cuotas.
+  - En USD, el equivalente en pesos del movimiento es lo que falta pagar × tipo de cambio, redondeado
+    half-up a 2 decimales (ADR-013). Ese equivalente se reparte entre las P cuotas con la regla de
+    siempre: base truncada y la última absorbe el resto (I1').
+  - La fecha del movimiento sigue siendo la Fecha de la fila, es decir, la de la compra.
+  - Cada fila de `p_rows` de `import_transactions` (ADR-035) lleva la clave `installments_paid` (K)
+    solo si la celda "Cuotas pendientes" tiene valor. Si la clave falta o es `null`, la fila es una
+    compra normal. Pasa a `create_transaction` como `p_installments_paid`, y la base revalida K (C6).
+- **Reglas nuevas de la sección 4**, después de F18, con mensajes exactos:
+
+  | # | Columna | Regla | Mensaje exacto |
+  |---|---|---|---|
+  | F19 | Cuotas pendientes | No vacía, y Cuotas vacía o igual a 1 | "Las cuotas pendientes solo van en una compra en cuotas" |
+  | F20 | Cuotas pendientes | No es un entero entre 1 y Cuotas | "Las cuotas pendientes van de 1 a <N>" |
+  | F21 | Cuotas pendientes | K > (año de hoy × 12 + mes de hoy) − (año de la Fecha × 12 + mes de la Fecha) | "Con esa fecha todavía no puede haber <K> cuotas pagadas" ("1 cuota pagada" si K = 1) |
+
+  Dependencias (como la tabla de la sección 4):
+  - F19 se evalúa solo si Cuotas no tuvo error.
+  - F20 y F21 se evalúan solo si Tipo, Cuenta y Cuotas no tuvieron error y la fila no tiene F15.
+  - F21 necesita además que Fecha no tenga error.
+  - A lo sumo un mensaje en la columna: el primero de F19, F20 y F21.
+- **Paso 2.** La tarjeta de una fila con Cuotas pendientes cambia "<k> cuotas" por "Faltan <P> de <N>
+  cuotas (<lo que falta pagar>)", con el monto en la moneda de la fila y el formato de la sección 1.
+  Ejemplos: "Faltan 3 de 6 cuotas ($60.000,00)" y "Faltan 2 de 3 cuotas (US$66,67)". Con P = 1 dice
+  "Falta 1 de <N> cuotas (…)". Va en `import-row-<n>-pending`. "Vas a importar…" suma, de esa fila,
+  el equivalente en pesos de lo que falta pagar, no el Monto escrito.
+- **Paso 3.**
+  - El monto importado suma lo mismo que el paso 2.
+  - **Modifica la sección 1:** "Ver en Movimientos" lleva al mes más reciente entre el mes de la fecha
+    de cada fila creada y, si alguna es una compra empezada, el mes de hoy, que es donde empiezan sus
+    cuotas.
+- **Plantilla y "Instrucciones".**
+  - "Descargar plantilla" baja la hoja 1 con los encabezados de A a J: Fecha, Tipo, Monto, Moneda, Tipo
+    de cambio, Categoría, Cuenta, Cuotas, Cuotas pendientes, Nota.
+  - La hoja "Instrucciones" agrega la fila de "Cuotas pendientes" con el contenido de la tabla de
+    arriba (encabezado, si es obligatoria, qué va y formatos).
+  - **Modifica US-74 · CA-2.**
+- **Criterios de aceptación.** Usuario sembrado: las categorías y cuentas de US-43 sin cambios.
+  - CA-1: La plantilla descargada tiene en la fila 1, de A a J, exactamente: Fecha, Tipo, Monto, Moneda,
+    Tipo de cambio, Categoría, Cuenta, Cuotas, Cuotas pendientes, Nota. La hoja "Instrucciones" tiene la
+    fila de "Cuotas pendientes" con el texto de la tabla de esta historia.
+  - CA-2: Una fila con una fecha de H−4 · Gasto · 120000 · ARS · Otros · Tarjeta de crédito · Cuotas 6 ·
+    Cuotas pendientes 3 · "Heladera" queda "Lista" con "Faltan 3 de 6 cuotas ($60.000,00)". Al
+    importarla se crea una transacción con:
+    - `amount = 60000.00`, `installments_count = 6` e `installments_paid = 3`;
+    - `occurred_on` = la fecha de la fila y `first_period` = el día 1 de H;
+    - 3 imputaciones de $20.000,00, números 4, 5 y 6, en H, H+1 y H+2.
+  - CA-3: En Movimientos, esa compra aparece en H como "4/6", en H+1 como "5/6" y en H+2 como "6/6". No
+    aparece de H−4 a H−1 ni en H+3. "Ver en Movimientos" del paso 3 lleva a `?period=` de H.
+  - CA-4 (resto): una fecha de H−1 · 100000 · ARS · 3 cuotas · pendientes 2 crea la cuota 2/3 de
+    $33.333,33 en H y la 3/3 de $33.333,34 en H+1. El monto del movimiento es $66.666,67.
+  - CA-5 (P = N): una fecha de H−1 · 120000 · 6 cuotas · pendientes 6 crea las 6 cuotas de $20.000,00,
+    de 1/6 en H a 6/6 en H+5. El monto es $120.000,00 y la transacción queda con
+    `installments_paid = 0` y `first_period` = H.
+  - CA-6: Con Cuotas pendientes vacía, o con un archivo sin esa columna, la fila se importa igual que en
+    US-77: una fecha de H−1 · 240000 · 6 cuotas imputa de H−1 a H+4.
+  - CA-7 (F19): Cuotas vacía con pendientes 1, y Cuotas 1 con pendientes 1, muestran "Las cuotas
+    pendientes solo van en una compra en cuotas".
+  - CA-8 (F20): Con Cuotas 6, las pendientes `0`, `-1`, `7`, `2,5` y `dos` muestran "Las cuotas
+    pendientes van de 1 a 6". `1` y `6` son válidas.
+  - CA-9 (F21, valores límite): Con Cuotas 6 y pendientes 3 (K = 3):
+    - una fecha de H−3 queda "Lista";
+    - una fecha de H−2 muestra "Con esa fecha todavía no puede haber 3 cuotas pagadas";
+    - una fecha de H con Cuotas 6 y pendientes 5 muestra "Con esa fecha todavía no puede haber 1 cuota
+      pagada".
+  - CA-10 (dependencias): Cuenta "Efectivo" con Cuotas 3 y pendientes 2 muestra solo "Solo los gastos
+    con tarjeta de crédito admiten cuotas". Cuotas `13` con pendientes 2 muestra solo "Las cuotas van de
+    1 a 12".
+  - CA-11 (USD, sin resto): una fecha de H−2 · US$300 · TC 1000 · 3 cuotas · pendientes 1 muestra
+    "Falta 1 de 3 cuotas (US$100,00)". Crea una sola imputación, la 3/3, de US$100,00 y $100.000,00 en
+    H. La transacción queda con `amount = 100.00` y `amount_ars = 100000.00`.
+  - CA-12 (USD, con resto): una fecha de H−1 · US$100 · TC 1000 · 3 cuotas · pendientes 2 muestra
+    "Faltan 2 de 3 cuotas (US$66,67)". Crea la 2/3 de US$33,33 y la 3/3 de US$33,34. Las dos imputaciones
+    son de $33.335,00 en pesos y suman el `amount_ars` del movimiento, $66.670,00 (I1, I1'). "Vas a
+    importar…" suma $66.670,00 por esta fila.
+  - CA-13: Un archivo con solo la fila de CA-2 muestra en el paso 2 "Vas a importar 1 movimiento:
+    $60.000,00 en gastos y $0,00 en ingresos (en pesos)." En el paso 3 dice "$60.000,00 en gastos y
+    $0,00 en ingresos (en pesos)."
+  - CA-14: En el Resumen de H, la compra de CA-2 aporta $20.000,00 a "Cuotas de meses anteriores"
+    (`dashboard-inherited-installments-amount`), porque su cuota de H es la 4/6.
+  - CA-15: El diálogo de borrado (US-65) de una compra empezada muestra los meses y montos de sus
+    imputaciones guardadas, no un calendario recalculado desde la fecha. El mismo mes de la
+    importación no lista meses cerrados. En la prueba de dominio de ese aviso, con hoy un día de H+1,
+    la compra de CA-2 lista solo H, con la cuota 4/6 de $20.000,00.
+  - CA-16 (C6, directo contra la API): estos pedidos a `create_transaction` con
+    `p_installments_count = 6` responden HTTP 400 y no crean filas:
+    - `p_installments_paid` `6` y `-1` → `code = '23514'`, "Las cuotas ya pagadas tienen que ser menos
+      que el total de cuotas";
+    - con `p_installments_count = 1` y `p_installments_paid = 0` → `23514`, "Las cuotas ya pagadas solo
+      van en una compra en cuotas";
+    - fecha de hoy con `p_installments_paid = 1` → `23514`, "Con esa fecha todavía no puede haber
+      tantas cuotas pagadas";
+    - `p_installments_paid` con deudas (`p_shared_…`) → `23514`, "Una compra empezada no se puede
+      compartir";
+    - `p_installments_paid = 1.5` → `code = '22P02'` (PostgREST rechaza el tipo).
+
+    `p_installments_paid` `null` o ausente crea una compra normal. Por `import_transactions`, una fila
+    con `"installments_paid": 6` y 6 cuotas vuelve con `status: "rejected"` y las demás se importan.
+    Con el rol `anon`, `42501`.
+  - CA-17: `import-row-<n>-pending` está en la tarjeta de toda fila "Lista" con Cuotas pendientes.
+- **Trazabilidad:** sección 4 · C3 · C4 · C6 · I1 · I1' · I2 (modificada por ADR-039) · I3 · I6 ·
+  ADR-013 · ADR-021 · ADR-035 · ADR-039 · US-65 · US-74 · US-77
+- **Casos de prueba:** a diseñar
+
+#### US-81: Guía para armar el archivo de importación · [#269](https://github.com/Joaconz/Biyu/issues/269) · Pendiente
+
+- **Objetivo:** Como usuario que nunca importó un Excel, quiero abrir una guía corta de cómo armar el
+  archivo, para no adivinar el formato. Quien ya sabe tiene que poder ignorarla.
+- **Depende de:** US-74 (pantalla Importar desde Excel) y US-80 (la guía nombra "Cuotas pendientes").
+  Se implementa después de US-80.
+- **Pantalla y estructura:** **Importar desde Excel** (`/import`), pasos 1 y 2. Debajo del indicador de
+  pasos, el botón secundario **"¿Cómo armo el archivo?"**. No está en el paso 3. Mientras dice
+  "Importando…", está deshabilitado.
+- **Diálogo "Cómo armar el archivo"** (`role="dialog"`, `aria-modal="true"`). Contenido exacto, de
+  arriba hacia abajo:
+  - Título: "Cómo armar el archivo".
+  - Texto: "Podés usar tu propia planilla o empezar desde la plantilla. Lo que importa es la primera fila
+    y que haya un movimiento por fila."
+  - Lista numerada de seis pasos:
+    1. "En la primera fila van los encabezados. Fecha, Tipo, Monto, Moneda y Cuenta son obligatorios;
+       Tipo de cambio, Categoría, Cuotas, Cuotas pendientes y Nota son opcionales."
+    2. "Escribí la fecha como DD/MM/AAAA o usá una celda de fecha de Excel. No puede ser posterior a
+       hoy."
+    3. "En Tipo poné Gasto o Ingreso, y en Moneda, ARS o USD. Si es USD, completá el tipo de cambio de
+       esa compra."
+    4. "La categoría y la cuenta tienen que existir en Biyu con el mismo nombre. Las mayúsculas no
+       importan; las tildes sí. Un gasto necesita categoría."
+    5. "Para una compra en cuotas con tarjeta de crédito, poné la cantidad en Cuotas. Si ya pagaste
+       algunas, poné en Cuotas pendientes cuántas te faltan, contando la de este mes."
+    6. "Antes de importar vas a ver qué filas tienen errores y por qué. Las que están bien se importan
+       aunque otras fallen."
+  - Tabla "Ejemplo", con los encabezados de la plantilla (US-80 · CA-1) y dos filas:
+
+    | Fecha | Tipo | Monto | Moneda | Tipo de cambio | Categoría | Cuenta | Cuotas | Cuotas pendientes | Nota |
+    |---|---|---|---|---|---|---|---|---|---|
+    | 01/09/2026 | Gasto | 45800 | ARS | | Comida y supermercado | Tarjeta de débito | | | Compra del mes |
+    | 10/06/2026 | Gasto | 120000 | ARS | | Otros | Tarjeta de crédito | 6 | 3 | Heladera |
+
+  - Pie: "Hasta 500 filas y 1 MB. Solo se lee la primera hoja."
+  - Botones: "Descargar plantilla" (baja el mismo archivo que el botón del paso 1) y "Entendido"
+    (cierra). Arriba a la derecha, un botón de cerrar con `aria-label="Cerrar guía"`.
+- **Comportamiento:**
+  - **Cerrada por defecto.** Entrar a `/import` nunca la abre sola, tampoco la primera vez, y no se
+    recuerda si se abrió antes.
+  - **Se puede saltear.** No hace falta abrirla para elegir un archivo ni para importar. Nada se
+    deshabilita ni avisa por no haberla abierto.
+  - Abrirla y cerrarla no cambia el paso, el archivo elegido, el filtro ni la URL, y no escribe nada.
+  - Sigue la regla de diálogos de DEF-024; acá el foco inicial va al botón de cerrar. Al abrir, el foco
+    va al botón de cerrar; Tab y Shift+Tab no salen del diálogo; Escape lo cierra; tocar fuera del diálogo
+    lo cierra; al cerrarse por cualquier vía, el foco vuelve a "¿Cómo armo el archivo?".
+  - En el celular (390 px de ancho) ocupa el ancho de la pantalla menos 16 px por lado y su contenido
+    scrollea por dentro. La tabla de ejemplo scrollea horizontal dentro de su caja: la página no tiene
+    scroll horizontal.
+- **`data-testid`:**
+
+  | Elemento | `data-testid` |
+  |---|---|
+  | Botón "¿Cómo armo el archivo?" | `import-guide-open` |
+  | Diálogo | `import-guide-dialog` |
+  | Lista de pasos | `import-guide-steps` |
+  | Tabla de ejemplo | `import-guide-example` |
+  | Botón "Descargar plantilla" del diálogo | `import-guide-template-download` |
+  | Botón "Entendido" | `import-guide-done` |
+  | Botón de cerrar | `import-guide-close` |
+
+- **Criterios de aceptación:**
+  - CA-1: Al entrar a `/import`, `import-guide-dialog` no está en el DOM y se ve "¿Cómo armo el
+    archivo?" en el paso 1. Recargar o volver a entrar no lo abre.
+  - CA-2: Tocar "¿Cómo armo el archivo?" abre el diálogo con el título, el texto, los seis pasos, la
+    tabla de ejemplo y el pie, todos exactos.
+  - CA-3: "Entendido", el botón de cerrar, Escape y un toque fuera del diálogo lo cierran. En los
+    cuatro casos el foco vuelve a "¿Cómo armo el archivo?".
+  - CA-4: Al abrir, el foco está en el botón de cerrar. Con Tab y Shift+Tab repetidos, el foco nunca
+    sale del diálogo.
+  - CA-5: "Descargar plantilla" del diálogo baja `biyu-plantilla-importacion.xlsx` con las mismas hojas
+    y el mismo contenido de celdas que el del paso 1 (US-80 · CA-1).
+  - CA-6: Elegir un archivo e importar sin haber abierto nunca la guía funciona igual que en US-77.
+  - CA-7: En el paso 2 con un archivo elegido, abrir y cerrar la guía deja el mismo archivo, el mismo
+    resumen y el mismo estado del filtro "Ver solo filas con error". La URL no cambia.
+  - CA-8: En el paso 3 no está `import-guide-open`. Mientras dice "Importando…", está deshabilitado.
+  - CA-9: A 390 × 844, el diálogo entra en la pantalla con 16 px de margen por lado,
+    `document.documentElement.scrollWidth` no supera el ancho de la ventana, y la tabla de ejemplo se
+    puede recorrer con scroll horizontal dentro de su caja.
+  - CA-10: Todos los elementos de la tabla de `data-testid` lo tienen.
+- **Trazabilidad:** US-74 · US-80 · ADR-023 · DEF-024
+- **Casos de prueba:** a diseñar
+
 ## Especificación compartida
 
 Las secciones 1 a 9 y 12 valen para las cuatro historias.
@@ -237,7 +455,8 @@ en cualquier orden. Cualquier otro encabezado se ignora y se lista en el paso 2.
 
 - **Encabezados obligatorios** (sin ellos, el archivo se rechaza con A4): Fecha, Tipo, Monto, Moneda,
   Cuenta.
-- **Encabezados opcionales**: Tipo de cambio, Categoría, Cuotas, Nota. Si la columna no está, se trata
+- **Encabezados opcionales**: Tipo de cambio, Categoría, Cuotas, Nota (y Cuotas pendientes desde
+  US-80). Si la columna no está, se trata
   como vacía en todas las filas: un archivo solo en ARS no necesita "Tipo de cambio", pero sin
   "Categoría" todo gasto da F14a.
 
@@ -355,7 +574,8 @@ sobre Monto, se muestra F16 (primera en la tabla dentro de la columna).
    `create_transaction` valida la cuenta antes que la categoría: si las dos están archivadas, la fila
    muestra solo el mensaje de la cuenta.
 4. **Lo importado es un movimiento como cualquier otro.** Sale en Movimientos y en el Resumen, imputa
-   sus cuotas desde el mes de su fecha (I2, I3), se puede eliminar de a uno (US-65) y no tiene marca
+   sus cuotas desde el mes de su fecha (I2, I3; **modificado por US-80:** una compra empezada imputa
+   desde el mes de hoy), se puede eliminar de a uno (US-65) y no tiene marca
    de "importado". No cambia la cuenta precargada de Registrar (US-07).
 5. **No se detectan duplicados** contra movimientos existentes: importar dos veces el mismo archivo
    crea todo dos veces. Por eso el aviso del paso 2.
@@ -512,3 +732,10 @@ Prefijo `import-` (`docs/07-plan-de-testing.md` §2). `<n>` es el número de fil
 4. Esta entrega edita `docs/08-trazabilidad.md` (fila de la épica) y no toca `docs/02-behavior-spec.md`,
    `docs/roadmap.md` ni `docs/03-architecture-spec.md`. Al aceptarse hay que sumar las historias a los
    dos primeros y extender C4 y C7 en el tercero con la RPC de ADR-035.
+5. US-80 y US-81 se agregaron el 2026-10-08 desde los pendientes de producto
+   ([#268](https://github.com/Joaconz/Biyu/issues/268) y [#269](https://github.com/Joaconz/Biyu/issues/269)).
+   Las secciones 1 a 12 describen la importación hasta US-78. Lo que agregan US-80 (columna "Cuotas
+   pendientes", reglas F19 a F21, plantilla de 10 columnas) y US-81 (la guía) está en cada historia y
+   vale desde que se implementa. La idea original pedía además una columna "Es cuota" y hasta 24 cuotas:
+   no se agregan, porque "Es cuota" se deduce de Cuotas > 1 y el máximo de 12 es el de la base
+   (`transactions_installments_max`, US-12).
