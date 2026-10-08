@@ -80,6 +80,21 @@ export async function fetchGeneratedPeriods(subscriptionId: string): Promise<Set
   return new Set(data.flatMap((row) => (row.subscription_period ? [formatPeriod(fromDbDate(row.subscription_period))] : [])))
 }
 
+/**
+ * Cuántas transacciones de la suscripción siguen vigentes (sin `deleted_at`, C10). El diálogo de cancelar
+ * (US-58 CA-5) dice cuántas se mantienen.
+ */
+export async function fetchLiveTransactionCount(subscriptionId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from('transactions')
+    .select('id', { count: 'exact', head: true })
+    .eq('subscription_id', subscriptionId)
+    .is('deleted_at', null)
+  if (error?.code === '22P02') return 0
+  if (error) throw error
+  return count ?? 0
+}
+
 /** PostgREST corta cada respuesta en 1000 filas (`max_rows`): hay que pedir de a páginas. */
 const PAGE_SIZE = 1000
 

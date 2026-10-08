@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import type { Decimal } from '@/domain/money'
 import type { BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
 import { todayInArgentina } from '@/lib/clock'
+import { CancelSubscriptionDialog } from './CancelSubscriptionDialog'
 import { PauseSubscriptionDialog } from './PauseSubscriptionDialog'
 import { ResumeSubscriptionDialog } from './ResumeSubscriptionDialog'
 
@@ -14,15 +16,21 @@ export function SubscriptionActions({
   subscription,
   generatedPeriods,
   blocked,
+  fxRates,
+  transactionCount,
   onChanged,
 }: {
   subscription: SubscriptionRecord
   generatedPeriods: ReadonlySet<string>
   blocked: readonly BlockedOccurrence[]
+  fxRates: ReadonlyMap<string, Decimal> | null
+  /** Transacciones vigentes de la suscripción (US-58); null si no se pudieron contar. */
+  transactionCount: number | null
   onChanged: () => void
 }) {
   const [pausing, setPausing] = useState(false)
   const [resuming, setResuming] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
 
   if (subscription.status === 'cancelled') return null
 
@@ -39,6 +47,9 @@ export function SubscriptionActions({
             Reanudar
           </Button>
         )}
+        <Button type="button" variant="destructive" size="sm" data-testid="subscription-detail-cancel" onClick={() => setCancelling(true)}>
+          Cancelar suscripción
+        </Button>
       </div>
 
       <PauseSubscriptionDialog
@@ -58,6 +69,18 @@ export function SubscriptionActions({
         isOpen={resuming}
         onClose={() => setResuming(false)}
         onResumed={onChanged}
+      />
+
+      <CancelSubscriptionDialog
+        subscription={subscription}
+        generatedPeriods={generatedPeriods}
+        blocked={blocked}
+        fxRates={fxRates}
+        transactionCount={transactionCount}
+        today={todayInArgentina()}
+        isOpen={cancelling}
+        onClose={() => setCancelling(false)}
+        onCancelled={onChanged}
       />
     </>
   )

@@ -11,8 +11,9 @@ import {
   toIsoDate,
   type Period,
 } from './period'
+import { parseMoney, type Decimal } from './money'
 import type { BlockedOccurrence } from './subscriptionBlocked'
-import { nextChargeDate, noMoreChargesText, occurrenceDate, type SubscriptionRecord } from './subscriptions'
+import { computeDueOccurrences, nextChargeDate, noMoreChargesText, occurrenceDate, type SubscriptionRecord } from './subscriptions'
 
 type Schedule = Pick<SubscriptionRecord, 'billingDay' | 'generateFromPeriod' | 'endPeriod'>
 
@@ -114,4 +115,55 @@ export function resumedNoticeText(generatedAfter: number, today: Date): string {
   return generatedAfter > 0
     ? `Suscripción reanudada. Se cargó el gasto de ${formatPeriodLong(currentPeriod(today))}.`
     : 'Suscripción reanudada'
+}
+
+/**
+ * US-58 CA-5: el N del diálogo de cancelar es lo que queda después de confirmar: las transacciones
+ * vigentes de la suscripción (sin `deleted_at`) más los meses vencidos que la cancelación genera antes,
+ * que son los no bloqueados (R6). Sin los tipos de cambio leídos no se puede saber cuántos genera una
+ * suscripción en USD y se cuentan solo las vigentes.
+ */
+export function expensesKeptOnCancel(
+  liveTransactions: number,
+  subscription: Pick<SubscriptionRecord, 'status' | 'amount' | 'currency' | 'billingDay' | 'generateFromPeriod' | 'endPeriod'>,
+  alreadyGenerated: ReadonlySet<string>,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal> | null,
+  today: Date,
+): number {
+  if (subscription.currency === 'USD' && !fxRatesByPeriod) return liveTransactions
+  const due = computeDueOccurrences(
+    {
+      status: subscription.status,
+      amount: parseMoney(subscription.amount),
+      currency: subscription.currency,
+      billingDay: subscription.billingDay,
+      generateFromPeriod: subscription.generateFromPeriod,
+      endPeriod: subscription.endPeriod,
+    },
+    alreadyGenerated,
+    fxRatesByPeriod ?? new Map(),
+    today,
+  )
+  return liveTransactions + due.length
+}
+
+/**
+ * Texto del diálogo de cancelar (US-58). `kept` es el N de `expensesKeptOnCancel`; null si no se pudo
+ * contar, y entonces la oración no promete un número.
+ */
+export function cancelWarningText(kept: number | null): string {
+  const keptSentence =
+    kept === null
+      ? 'Los gastos ya cargados se mantienen.'
+      : kept === 0
+        ? 'Todavía no se cargó ningún gasto.'
+        : kept === 1
+          ? 'El gasto ya cargado se mantiene.'
+          : `Los ${kept} gastos ya cargados se mantienen.`
+  return `No se van a cargar más gastos. ${keptSentence} No se puede deshacer: para volver a registrarla, creá una suscripción nueva.`
+}
+
+/** Aviso al cancelar (US-58). Con gastos atrasados que se generaron antes de cancelar, los cuenta. */
+export function cancelledNoticeText(generatedBefore: number): string {
+  return generatedBefore > 0 ? `Suscripción cancelada. ${beforeText(generatedBefore)}` : 'Suscripción cancelada'
 }

@@ -206,6 +206,9 @@ isOneToOne: false
             "argentina_today":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"cancel_subscription":
+{ Args: { "p_subscription_id": string }; Returns: Json
+                           },
 "catch_up_subscriptions":
 { Args: { "p_subscription_id"?: string,"p_today": string,"p_user_id": string }; Returns: Json
                            },

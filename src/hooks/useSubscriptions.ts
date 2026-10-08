@@ -7,6 +7,7 @@ import { fetchFxRatesByPeriod } from '@/lib/fxRates'
 import {
   fetchGeneratedPeriods,
   fetchGeneratedPeriodsBySubscription,
+  fetchLiveTransactionCount,
   fetchSubscription,
   fetchSubscriptions,
 } from '@/lib/subscriptions'
@@ -75,15 +76,17 @@ export function useSubscriptions() {
 export function useSubscription(id: string) {
   return useLoad(async () => {
     // Sin los períodos generados solo se pierde el caso R2 de "Próximo cobro": no tira abajo el detalle.
-    const [subscription, generated, fxRates] = await Promise.all([
+    const [subscription, generated, fxRates, transactionCount] = await Promise.all([
       fetchSubscription(id),
       fetchGeneratedPeriods(id).catch(() => null),
       fetchFxRatesByPeriod().catch(() => null),
+      // Solo lo usa el diálogo de cancelar (US-58): sin el conteo el texto no dice cuántos gastos se mantienen.
+      fetchLiveTransactionCount(id).catch(() => null),
     ])
     // El aviso de bloqueada (US-62) necesita los períodos generados; sin los tipos de cambio solo se juzga una ARS.
     const blocked =
       subscription && generated ? blockedOccurrences(subscription, generated, fxRates, todayInArgentina()) : []
-    return { subscription, generatedPeriods: generated ?? new Set<string>(), blocked }
+    return { subscription, generatedPeriods: generated ?? new Set<string>(), blocked, fxRates, transactionCount }
   }, [id])
 }
 
