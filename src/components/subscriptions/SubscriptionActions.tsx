@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Link } from 'react-router'
+import { Button, buttonVariants } from '@/components/ui/button'
 import type { Decimal } from '@/domain/money'
 import type { BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
@@ -37,6 +38,14 @@ export function SubscriptionActions({
   return (
     <>
       <div data-testid="subscription-detail-actions" className="mt-4 flex flex-wrap gap-2">
+        {/* Editar: una activa o pausada (US-59); la cancelada no muestra ninguna acción. */}
+        <Link
+          to={`/subscriptions/${subscription.id}/edit`}
+          data-testid="subscription-detail-edit"
+          className={buttonVariants({ variant: 'outline', size: 'sm' })}
+        >
+          Editar
+        </Link>
         {subscription.status === 'active' && (
           <Button type="button" variant="outline" size="sm" data-testid="subscription-detail-pause" onClick={() => setPausing(true)}>
             Pausar

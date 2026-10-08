@@ -4,6 +4,7 @@ import { AuthForm } from '@/pages/AuthForm'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { DebtFormPage } from '@/pages/DebtFormPage'
 import { DebtsPage } from '@/pages/DebtsPage'
+import { EditSubscriptionPage } from '@/pages/EditSubscriptionPage'
 import { NewSubscriptionPage } from '@/pages/NewSubscriptionPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
           { path: '/subscriptions', element: <SubscriptionsPage /> },
           { path: '/subscriptions/new', element: <NewSubscriptionPage /> },
           { path: '/subscriptions/:id', element: <SubscriptionDetailPage /> },
+          { path: '/subscriptions/:id/edit', element: <EditSubscriptionPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

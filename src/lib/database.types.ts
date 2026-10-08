@@ -254,6 +254,9 @@ isOneToOne: false
 "trim_js":
 { Args: { "p_text": string }; Returns: string
                            },
+"update_subscription":
+{ Args: { "p_account_id": string,"p_amount": number,"p_billing_day": number,"p_category_id": string,"p_currency"?: Database["public"]['Enums']["currency_code"],"p_description": string,"p_end_period": string,"p_name": string,"p_start_period"?: string,"p_subscription_id": string }; Returns: Json
+                           },
 "upsert_fx_rate":
 { Args: { "p_ars_per_usd": number,"p_period": string }; Returns: string
                            }
