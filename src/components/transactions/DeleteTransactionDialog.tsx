@@ -5,7 +5,8 @@ import { useModalFocus } from '@/hooks/useModalFocus'
 import { getTransactionDeletionImpact, type DeletionImpactSummary } from '@/domain/deletion'
 import { formatArs, parseMoney } from '@/domain/money'
 import { deletionDebtWarning } from '@/domain/sharedDebt'
-import { formatPeriod } from '@/domain/period'
+import { formatPeriod, fromDbDate } from '@/domain/period'
+import { subscriptionDeletionNote } from '@/domain/subscriptions'
 import { today } from '@/lib/clock'
 import type { DashboardTransaction } from '@/lib/dashboard'
 import { deleteTransaction } from '@/lib/transactions'
@@ -59,6 +60,13 @@ export function DeleteTransactionDialog({
         { person: transaction.shared_debt.person, amount: parseMoney(transaction.shared_debt.amount) },
         transaction.currency,
       )}
+    </p>
+  )
+
+  // US-60 CA-3: solo si la transacción tiene subscription_id.
+  const subscriptionNote = transaction.subscription && (
+    <p data-testid="delete-transaction-subscription-note" className="text-xs font-medium text-foreground">
+      {subscriptionDeletionNote(transaction.subscription.name, fromDbDate(transaction.subscription.period))}
     </p>
   )
 
@@ -123,6 +131,7 @@ export function DeleteTransactionDialog({
               </div>
             </div>
             {debtWarning}
+            {subscriptionNote}
             <p className="text-xs text-muted-foreground">
               Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.
             </p>
@@ -131,6 +140,7 @@ export function DeleteTransactionDialog({
           <div className="space-y-2 text-sm text-muted-foreground">
             <p>¿Estás seguro de que querés eliminar esta transacción?</p>
             {debtWarning}
+            {subscriptionNote}
             <p className="text-xs">Si te equivocaste, la podés restaurar desde Movimientos, en Eliminados.</p>
           </div>
         )}
