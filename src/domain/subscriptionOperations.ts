@@ -2,8 +2,17 @@
 // reloj; `today` entra por parámetro (C1). Lo que decide Postgres (el piso de R8, la puesta al día) no se
 // repite acá: esto solo redacta lo que el diálogo le anticipa al usuario y el aviso que le confirma.
 import { parseMoney, type Decimal } from './money'
-import { currentPeriod, formatPeriod, formatPeriodLong, isPeriodBefore, toIsoDate, type Period } from './period'
-import { evaluateOccurrences, occurrenceDate, type SubscriptionRecord } from './subscriptions'
+import {
+  currentPeriod,
+  formatDisplayDate,
+  formatPeriod,
+  formatPeriodLong,
+  isPeriodBefore,
+  isSamePeriod,
+  toIsoDate,
+  type Period,
+} from './period'
+import { evaluateOccurrences, nextChargeDate, noMoreChargesText, occurrenceDate, type SubscriptionRecord } from './subscriptions'
 
 type Schedule = Pick<SubscriptionRecord, 'billingDay' | 'generateFromPeriod' | 'endPeriod'>
 
@@ -86,4 +95,49 @@ function beforeText(generatedBefore: number): string {
 /** Aviso al pausar (US-56). Con gastos atrasados que se generaron antes de pausar, los cuenta. */
 export function pausedNoticeText(generatedBefore: number): string {
   return generatedBefore > 0 ? `Suscripción pausada. ${beforeText(generatedBefore)}` : 'Suscripción pausada'
+}
+
+/**
+ * US-57: lo que el diálogo de "Reanudar" anticipa después de "No se cargan los meses en los que estuvo
+ * pausada.", según R4, R5 y el piso nuevo de R8 (`max(generate_from_period, start_period, período
+ * corriente)`). Tres casos: el período corriente ya venció y no tiene transacción ("Al reanudar se carga
+ * octubre 2026 (01/10/2026)."), el próximo cobro ("Próximo cobro: 10/10/2026.") o ya no hay más cobros.
+ * El "Próximo cobro" es el `occurred_on` de la primera ocurrencia que se genera después (CA-5).
+ */
+export function resumeOutcomeText(
+  subscription: Pick<SubscriptionRecord, 'billingDay' | 'startPeriod' | 'generateFromPeriod' | 'endPeriod'>,
+  alreadyGenerated: ReadonlySet<string>,
+  today: Date,
+): string {
+  const current = currentPeriod(today)
+  let floor = subscription.generateFromPeriod
+  if (isPeriodBefore(floor, subscription.startPeriod)) floor = subscription.startPeriod
+  if (isPeriodBefore(floor, current)) floor = current
+
+  const { endPeriod } = subscription
+  const noMoreCharges = endPeriod
+    ? isPeriodBefore(endPeriod, current)
+      ? `No hay más cobros: terminó en ${formatPeriodLong(endPeriod)}.`
+      : noMoreChargesText(endPeriod)
+    : null
+  if (endPeriod && isPeriodBefore(endPeriod, floor)) return noMoreCharges as string
+
+  const occurredOn = occurrenceDate(current, subscription.billingDay)
+  if (isSamePeriod(floor, current) && !alreadyGenerated.has(formatPeriod(current)) && toIsoDate(today) >= occurredOn) {
+    return `Al reanudar se carga ${formatPeriodLong(current)} (${formatDisplayDate(occurredOn)}).`
+  }
+
+  const next = nextChargeDate(
+    { status: 'active', billingDay: subscription.billingDay, generateFromPeriod: floor, endPeriod },
+    alreadyGenerated,
+    today,
+  )
+  return next ? `Próximo cobro: ${formatDisplayDate(next)}.` : (noMoreCharges ?? '')
+}
+
+/** Aviso al reanudar (US-57): con `generated_after` > 0 se cargó el gasto del período corriente (R5). */
+export function resumedNoticeText(generatedAfter: number, today: Date): string {
+  return generatedAfter > 0
+    ? `Suscripción reanudada. Se cargó el gasto de ${formatPeriodLong(currentPeriod(today))}.`
+    : 'Suscripción reanudada'
 }

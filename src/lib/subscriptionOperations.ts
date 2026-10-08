@@ -11,3 +11,12 @@ export async function pauseSubscription(subscriptionId: string): Promise<{ gener
   const generatedBefore = (data as { generated_before?: unknown } | null)?.generated_before
   return { generatedBefore: Number.isInteger(generatedBefore) ? (generatedBefore as number) : 0 }
 }
+
+/** US-57: devuelve cuántos gastos se cargaron al reanudar (`generated_after`). */
+export async function resumeSubscription(subscriptionId: string): Promise<{ generatedAfter: number }> {
+  const { data, error } = await supabase.rpc('resume_subscription', { p_subscription_id: subscriptionId })
+  if (error) throw error
+  // Como al pausar: el conteo solo redacta el aviso, y la reanudación ya se hizo.
+  const generatedAfter = (data as { generated_after?: unknown } | null)?.generated_after
+  return { generatedAfter: Number.isInteger(generatedAfter) ? (generatedAfter as number) : 0 }
+}

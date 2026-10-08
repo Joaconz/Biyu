@@ -6,6 +6,8 @@ import {
   pauseSkipsCurrentMonthDay,
   pausedNoticeText,
   periodListText,
+  resumedNoticeText,
+  resumeOutcomeText,
 } from '@/domain/subscriptionOperations'
 
 // Hoy de los ejemplos de entrega-2/historias/suscripciones.md: 2026-10-06, período corriente octubre 2026.
@@ -128,5 +130,75 @@ describe('textos de las operaciones', () => {
     expect(pausedNoticeText(0)).toBe('Suscripción pausada')
     expect(pausedNoticeText(1)).toBe('Suscripción pausada. Antes se cargó 1 gasto vencido.')
     expect(pausedNoticeText(3)).toBe('Suscripción pausada. Antes se cargaron 3 gastos vencidos.')
+  })
+})
+
+describe('resumeOutcomeText (US-57)', () => {
+  const sub = (patch: Partial<Parameters<typeof resumeOutcomeText>[0]> = {}) => ({
+    billingDay: 10,
+    startPeriod: { year: 2026, month: 5 },
+    generateFromPeriod: { year: 2026, month: 8 }, // pausada hace meses: el piso quedó antes del corriente
+    endPeriod: null,
+    ...patch,
+  })
+
+  it('pausada este mismo mes, el piso quedó en noviembre: octubre no se carga aunque ya haya vencido (R8)', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 1, generateFromPeriod: { year: 2026, month: 11 } }), new Set(), TODAY)).toBe(
+      'Próximo cobro: 01/11/2026.',
+    )
+  })
+
+  it('el período corriente ya venció y no tiene transacción: dice que se carga al reanudar', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 1 }), new Set(['2026-07']), TODAY)).toBe(
+      'Al reanudar se carga octubre 2026 (01/10/2026).',
+    )
+  })
+
+  it('el día de cobro es hoy: ya venció, también se carga', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 6 }), new Set(), TODAY)).toBe('Al reanudar se carga octubre 2026 (06/10/2026).')
+  })
+
+  it('el cobro del mes corriente todavía no llegó: próximo cobro de este mes (R5)', () => {
+    expect(resumeOutcomeText(sub(), new Set(), TODAY)).toBe('Próximo cobro: 10/10/2026.')
+  })
+
+  it('el mes corriente ya tiene transacción (aunque esté borrada): próximo cobro del mes siguiente', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 1 }), new Set(['2026-10']), TODAY)).toBe('Próximo cobro: 01/11/2026.')
+  })
+
+  it('ignora el piso viejo: usa el corriente aunque la pausa haya dejado uno menor (R8)', () => {
+    expect(resumeOutcomeText(sub({ generateFromPeriod: { year: 2026, month: 8 } }), new Set(), TODAY)).toBe(
+      'Próximo cobro: 10/10/2026.',
+    )
+  })
+
+  it('start_period futuro: el piso es start_period y el próximo cobro es de ese mes (CA-3)', () => {
+    const future = { year: 2027, month: 1 }
+    expect(resumeOutcomeText(sub({ startPeriod: future, generateFromPeriod: future }), new Set(), TODAY)).toBe(
+      'Próximo cobro: 10/01/2027.',
+    )
+  })
+
+  it('el mes de fin ya pasó: no hay más cobros', () => {
+    expect(resumeOutcomeText(sub({ endPeriod: { year: 2026, month: 5 } }), new Set(), TODAY)).toBe(
+      'No hay más cobros: terminó en mayo 2026.',
+    )
+  })
+
+  it('el mes de fin es el corriente y ya se cobró: no hay más cobros, pero todavía no "terminó"', () => {
+    expect(resumeOutcomeText(sub({ endPeriod: OCT, billingDay: 1 }), new Set(['2026-10']), TODAY)).toBe(
+      'No hay más cobros: termina en octubre 2026.',
+    )
+  })
+
+  it('día de cobro 31 en un mes de 30 días: la fecha es la recortada (R4)', () => {
+    expect(resumeOutcomeText(sub({ billingDay: 31 }), new Set(), new Date(2026, 8, 6))).toBe('Próximo cobro: 30/09/2026.')
+  })
+})
+
+describe('resumedNoticeText (US-57)', () => {
+  it('sin gasto nuevo y con el gasto del mes corriente', () => {
+    expect(resumedNoticeText(0, TODAY)).toBe('Suscripción reanudada')
+    expect(resumedNoticeText(1, TODAY)).toBe('Suscripción reanudada. Se cargó el gasto de octubre 2026.')
   })
 })
