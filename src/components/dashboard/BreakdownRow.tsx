@@ -1,9 +1,13 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
+import { ChevronRight } from 'lucide-react'
+import { Link } from 'react-router'
 import { formatPercentage } from '@/domain/summary'
 
 /**
  * Fila de un desglose: ícono, nombre y monto arriba; la barra de proporción debajo, alineada con
  * el nombre. La barra es un `progressbar` para que el lector de pantalla lea el porcentaje.
+ * Con `link`, la fila es un `<li>` con un enlace adentro que lleva el testid (US-72): su nombre
+ * accesible es `link.label` y el monto y el porcentaje quedan como descripción.
  */
 export function BreakdownRow({
   testId,
@@ -16,6 +20,7 @@ export function BreakdownRow({
   percentageTestId,
   barColor,
   ariaLabel,
+  link,
 }: {
   testId: string
   icon: ReactNode
@@ -27,9 +32,12 @@ export function BreakdownRow({
   percentageTestId: string
   barColor: string
   ariaLabel: string
+  /** `describedBy`: ids de más para la descripción del enlace, como la marca "archivada". */
+  link?: { to: string; label: string; describedBy?: string }
 }) {
-  return (
-    <div data-testid={testId} role="listitem" className="flex items-center gap-3 py-3 pr-4 pl-3.5">
+  const valuesId = useId()
+  const content = (
+    <>
       {icon}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         {/* DEF-021: si el monto no deja al menos 7rem para el nombre, baja a su propia línea en vez
@@ -40,15 +48,16 @@ export function BreakdownRow({
             {sublabel}
           </div>
           <div className="ml-auto flex shrink-0 items-baseline gap-2 whitespace-nowrap">
-            <span data-testid={amountTestId} className="tabular text-callout font-semibold text-foreground">
+            <span id={`${valuesId}-amount`} data-testid={amountTestId} className="tabular text-callout font-semibold text-foreground">
               {amount}
             </span>
-            <span data-testid={percentageTestId} className="tabular min-w-12 text-right text-footnote text-muted-foreground">
+            <span id={`${valuesId}-percentage`} data-testid={percentageTestId} className="tabular min-w-12 text-right text-footnote text-muted-foreground">
               {formatPercentage(percentage)}
             </span>
           </div>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+        {/* Dentro del enlace, el porcentaje ya está en su descripción: la barra queda decorativa. */}
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary" aria-hidden={link ? true : undefined}>
           <div
             role="progressbar"
             aria-valuenow={percentage}
@@ -60,6 +69,30 @@ export function BreakdownRow({
           />
         </div>
       </div>
+    </>
+  )
+
+  if (link) {
+    return (
+      <li>
+        <Link
+          to={link.to}
+          data-testid={testId}
+          aria-label={link.label}
+          // Ids sueltos y no el contenedor: así el lector separa "$60.000,00" de "40,0 %".
+          aria-describedby={[link.describedBy, `${valuesId}-amount`, `${valuesId}-percentage`].filter(Boolean).join(' ')}
+          className="press flex min-h-14 items-center gap-3 py-3 pr-3 pl-3.5 outline-offset-[-2px] hover:bg-accent/60"
+        >
+          {content}
+          <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-input" strokeWidth={1.8} />
+        </Link>
+      </li>
+    )
+  }
+
+  return (
+    <div data-testid={testId} role="listitem" className="flex items-center gap-3 py-3 pr-4 pl-3.5">
+      {content}
     </div>
   )
 }

@@ -159,37 +159,23 @@ export function computeMonthlySummary(
     }
   }
 
-  // Ordenadas de mayor a menor para identificar dónde se concentra el gasto (US-27)
+  // Ordenadas de mayor a menor para identificar dónde se concentra el gasto (US-27), con el
+  // desempate de US-72 para que la torta y la lista tengan siempre el mismo orden.
   const categoryExpenses: CategoryExpenseSummary[] = Array.from(categoryMap.entries())
-    .map(([id, info]) => {
-      const percentage = expenses.isZero()
-        ? 0
-        : info.amount
-            .dividedBy(expenses)
-            .times(100)
-            .toDecimalPlaces(1, Decimal.ROUND_HALF_UP)
-            .toNumber()
-      return {
-        id,
-        name: info.name,
-        color: info.color,
-        isArchived: info.isArchived,
-        amount: info.amount,
-        percentage,
-      }
-    })
-    .sort((a, b) => b.amount.comparedTo(a.amount))
+    .map(([id, info]) => ({
+      id,
+      name: info.name,
+      color: info.color,
+      isArchived: info.isArchived,
+      amount: info.amount,
+      percentage: percentageOf(info.amount, expenses).toNumber(),
+    }))
+    .sort(compareCategoryExpenses)
 
   // Ordenadas de mayor a menor para identificar el gasto por cuenta (US-28)
   const accountExpenses: AccountExpenseSummary[] = Array.from(accountMap.entries())
     .map(([id, info]) => {
-      const percentage = expenses.isZero()
-        ? 0
-        : info.amount
-            .dividedBy(expenses)
-            .times(100)
-            .toDecimalPlaces(1, Decimal.ROUND_HALF_UP)
-            .toNumber()
+      const percentage = percentageOf(info.amount, expenses).toNumber()
       return {
         id,
         name: info.name,
@@ -219,6 +205,34 @@ export function computeMonthlySummary(
     accountExpenses,
     hasData,
   }
+}
+
+/**
+ * Porcentaje de un monto sobre el total gastado del período: 1 decimal con ROUND_HALF_UP (31,25 →
+ * 31,3). Con total en cero da 0. No se ajusta para que la suma dé 100 (reglas comunes de US-72/73).
+ */
+export function percentageOf(amount: Decimal, total: Decimal): Decimal {
+  if (total.isZero()) return new Decimal(0)
+  return amount.dividedBy(total).times(100).toDecimalPlaces(1, Decimal.ROUND_HALF_UP)
+}
+
+// Orden alfabético español sin distinguir mayúsculas (sí los acentos).
+const CATEGORY_NAME_COLLATOR = new Intl.Collator('es', { sensitivity: 'accent' })
+
+/**
+ * Orden de las categorías del Resumen (US-27, US-72): monto de mayor a menor; a igual monto, nombre
+ * alfabético; a igual nombre, la activa primero y entre archivadas la de id menor.
+ */
+export function compareCategoryExpenses(
+  a: Pick<CategoryExpenseSummary, 'id' | 'name' | 'isArchived' | 'amount'>,
+  b: Pick<CategoryExpenseSummary, 'id' | 'name' | 'isArchived' | 'amount'>,
+): number {
+  return (
+    b.amount.comparedTo(a.amount) ||
+    CATEGORY_NAME_COLLATOR.compare(a.name, b.name) ||
+    Number(a.isArchived) - Number(b.isArchived) ||
+    (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+  )
 }
 
 /**
@@ -270,6 +284,6 @@ export function countDaysWithTransactions(
 }
 
 /** Porcentaje del desglose con coma decimal y siempre un decimal (es-AR): "54,4 %", "10,0 %". */
-export function formatPercentage(value: number): string {
+export function formatPercentage(value: number | Decimal): string {
   return `${value.toFixed(1).replace('.', ',')} %`
 }
