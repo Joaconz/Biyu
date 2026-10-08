@@ -180,6 +180,38 @@ describe('editNextChargeText (US-59)', () => {
     expect(text(ended, { endPeriod: '' }, new Set(['2026-05']))).toBe('Próximo cobro: 10/10/2026 por $5.000,00')
   })
 
+  it('terminada y extendida a un mes de fin nuevo: también salta el hueco (R8)', () => {
+    const ended = record({ endPeriod: { year: 2026, month: 5 }, generateFromPeriod: { year: 2026, month: 6 } })
+    expect(text(ended, { endPeriod: '2027-03' }, new Set(['2026-05']))).toBe('Próximo cobro: 10/10/2026 por $5.000,00')
+  })
+
+  it('con el piso ya en el futuro (pausada y reanudada antes del inicio) no lo baja al corriente', () => {
+    const future = record({ startPeriod: { year: 2027, month: 1 }, generateFromPeriod: { year: 2027, month: 1 } })
+    expect(text(future, {}, new Set())).toBe('Próximo cobro: 10/01/2027 por $5.000,00')
+  })
+
+  it('si el día viejo ya había vencido sin generar, esa ocurrencia sale con los datos anteriores y el cambio rige desde el mes siguiente', () => {
+    // Día de cobro 5 (vencido el 5, hoy es 6) y el mes sin generar; se pasa a 28: octubre se carga con el día y el monto viejos.
+    expect(text(record({ billingDay: 5 }), { billingDay: '28', amount: '7000,00' })).toBe('Próximo cobro: 28/11/2026 por $7.000,00')
+  })
+
+  it('el día viejo todavía no venció y el nuevo sí: el mes corriente se carga al guardar con los datos nuevos (CA-12)', () => {
+    expect(text(record({ billingDay: 28 }), { billingDay: '3', amount: '7000,00' })).toBe(
+      'Al guardar se carga octubre 2026 (03/10/2026) por $7.000,00',
+    )
+  })
+
+  it('el mes corriente ya tiene transacción: el cambio de día rige desde el mes siguiente', () => {
+    expect(text(record({ billingDay: 5 }), { billingDay: '28' }, new Set([...generated, '2026-10']))).toBe(
+      'Próximo cobro: 28/11/2026 por $5.000,00',
+    )
+  })
+
+  it('con el mes de fin en el corriente y el día viejo vencido, se carga hoy y no quedan más cobros', () => {
+    const lastMonth = record({ billingDay: 5, endPeriod: { year: 2026, month: 10 } })
+    expect(text(lastMonth, { billingDay: '28' })).toBe('No hay más cobros: termina en octubre 2026.')
+  })
+
   it('con el monto o el día de cobro todavía inválidos no hay línea', () => {
     expect(text(record(), { amount: '' })).toBeNull()
     expect(text(record(), { billingDay: '40' })).toBeNull()

@@ -70,6 +70,7 @@ export function EditSubscriptionPage() {
 
       {subscription && subscription.status !== 'cancelled' && state.status === 'ready' && (
         <EditSubscriptionForm
+          key={subscription.id}
           subscription={subscription}
           generatedPeriods={state.generatedPeriods}
           categories={state.categories}

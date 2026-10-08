@@ -156,7 +156,19 @@ export function editNextChargeText(
   const extends_ = isEnded(original, today) && !sameEnd(draft.endPeriod, original.endPeriod)
   const floor = extends_ && isPeriodBefore(original.generateFromPeriod, current) ? current : original.generateFromPeriod
 
-  const outlook = chargeOutlook({ billingDay: draft.billingDay, endPeriod: draft.endPeriod }, floor, alreadyGenerated, today)
+  // update_subscription pone al día primero con los datos ANTERIORES: si el período corriente ya había vencido
+  // con el día de cobro viejo y no tenía transacción, se genera ahí y el cambio recién afecta al mes siguiente.
+  // Es la misma regla que "se carga ahora" (`chargeOutlook`), con el piso guardado y el día de antes.
+  const dueWithOldDay =
+    chargeOutlook(original, original.generateFromPeriod, alreadyGenerated, today).kind === 'now'
+  const generatedAfterCatchUp = dueWithOldDay ? new Set([...alreadyGenerated, formatPeriod(current)]) : alreadyGenerated
+
+  const outlook = chargeOutlook(
+    { billingDay: draft.billingDay, endPeriod: draft.endPeriod },
+    floor,
+    generatedAfterCatchUp,
+    today,
+  )
   const money = subscriptionAmountText(draft.amount.toFixed(), original.currency)
   switch (outlook.kind) {
     case 'now':
