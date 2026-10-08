@@ -102,13 +102,20 @@ curl -s -i -X POST "<SUPABASE_URL>/rest/v1/rpc/create_transaction" \
   -d '{
     "p_type": "expense", "p_amount": "1200.00", "p_currency": "ARS", "p_fx_rate": null,
     "p_category_id": "<uuid de categoría>", "p_account_id": "<uuid de cuenta>",
-    "p_installments_count": 1, "p_occurred_on": "2026-10-01", "p_description": null
+    "p_installments_count": 1, "p_occurred_on": "2026-10-01", "p_description": null,
+    "p_request_id": null
   }'
 ```
 
 - **Éxito:** HTTP 200 y el cuerpo es el `uuid` de la transacción creada.
 - **Rechazo de Postgres:** HTTP 4xx con `code` y `message` en el JSON. Cada caso declara el `code` y el texto esperados
   (por ejemplo `23514` / `check_violation`).
+- **`p_request_id`** (uuid, opcional, US-70, ADR-034): la clave de idempotencia. Con `null` o sin el
+  parámetro, cada llamada crea una transacción (como en V1). Con un uuid, la primera llamada la crea y
+  cualquier otra del mismo usuario con esa clave devuelve el **mismo** `uuid` sin crear nada, aunque cambie el
+  contenido o la transacción esté eliminada. La de otro usuario no choca (C7). Para una clave nueva, generá un
+  uuid (`uuidgen` en macOS o Linux); la del movimiento pendiente se lee en DevTools → Application → Local
+  Storage, entrada `biyu:pending-drafts:<user_id>`, campo `requestIds` (la última es la de la fila).
 - Los montos se mandan como string decimal, nunca como número (C2). En las lecturas, PostgREST devuelve
   `numeric` como número JSON: para comparar el valor exacto, pedilo con `::text` (`select=amount_text:amount::text`).
 
@@ -173,7 +180,11 @@ curl -s "<SUPABASE_URL>/rest/v1/ledger_entries?select=installment_number,period,
   -H "apikey: <ANON_KEY>" -H "Authorization: Bearer <TOKEN>"
 
 # Transacciones del usuario
-curl -s "<SUPABASE_URL>/rest/v1/transactions?select=id,amount,amount_ars,installments_count,deleted_at" \
+curl -s "<SUPABASE_URL>/rest/v1/transactions?select=id,amount,amount_ars,installments_count,request_id,deleted_at" \
+  -H "apikey: <ANON_KEY>" -H "Authorization: Bearer <TOKEN>"
+
+# Transacciones con una clave de idempotencia (US-70): incluye las eliminadas
+curl -s "<SUPABASE_URL>/rest/v1/transactions?select=id,amount,deleted_at&request_id=eq.<request_id>" \
   -H "apikey: <ANON_KEY>" -H "Authorization: Bearer <TOKEN>"
 ```
 

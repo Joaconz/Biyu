@@ -154,8 +154,15 @@ El evento económico. Una compra, un ingreso. **No es lo que suma el dashboard.*
 | occurred_on | date | fecha real del evento; no posterior a hoy en Argentina (FR-06, `create_transaction`, ADR-021) |
 | subscription_id | uuid FK → subscriptions | **opcional** — null si la cargó el usuario a mano |
 | subscription_period | date | día 1. `CHECK ((subscription_id is null) = (subscription_period is null))` |
+| request_id | uuid | **opcional** — clave de idempotencia de `create_transaction` (`p_request_id`, ADR-034). Null si la llamada no la mandó (V1, API sin clave) y en las ocurrencias de la puesta al día, que no pasan por `create_transaction` |
 | deleted_at | timestamptz | soft delete |
 | created_at | timestamptz | |
+
+Índice único **parcial**: (`user_id`, `request_id`) `where request_id is not null` (I18). Con
+una clave que ya existe para el usuario, `create_transaction` devuelve el `id` de esa
+transacción sin validar ni insertar nada (ni imputaciones ni deuda), **también si está
+eliminada**: reintentar no recrea lo que el usuario borró. Por `user_id`, la misma clave de otro
+usuario no choca ni devuelve su fila (C7). "Recuperar" (US-70) lo consulta por API, bajo RLS.
 
 Índice único **parcial**: (`subscription_id`, `subscription_period`) `where subscription_id
 is not null`. Es la garantía de idempotencia de la puesta al día (I11), y **no filtra por
@@ -229,6 +236,7 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 | I15 | `status = 'paused'` implica `paused_at` not null; `status = 'cancelled'` implica `cancelled_at` not null | Restricción de verificación |
 | I16 | La puesta al día es idempotente: ejecutarla dos veces sobre el mismo estado no crea ninguna transacción nueva | Dominio (función pura) + I11 en la base |
 | I17 | La puesta al día nunca genera una ocurrencia con `subscription_period` posterior al período corriente, anterior a `generate_from_period`, o posterior a `end_period` | Dominio |
+| I18 | No hay dos transacciones del mismo usuario con el mismo `request_id` (ADR-034): reintentar `create_transaction` con la misma clave devuelve la transacción ya creada | Índice único parcial `(user_id, request_id) where request_id is not null` + `create_transaction` |
 
 **I1' — por qué existe además de I1.** I1 garantiza que las cuotas en la moneda original
 suman el total original. No garantiza lo mismo en ARS: convertir cada cuota por separado y

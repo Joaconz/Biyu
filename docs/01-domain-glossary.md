@@ -33,6 +33,21 @@ Cualquier período estrictamente anterior al mes actual (`period < currentPeriod
 ### Fecha de imputación
 El período al que pertenece la primera imputación. Por defecto es el período de la fecha de la transacción. **No se modela el ciclo de cierre de la tarjeta**: una compra del 28 de enero imputa a enero aunque el resumen la cobre en febrero. Es una simplificación consciente (ver ADR-001, sección Consecuencias).
 
+### Clave de idempotencia (`request_id`)
+Un UUID que el cliente genera al guardar un borrador y manda a `create_transaction` como
+`p_request_id`. Reintentar con la misma clave devuelve la transacción que ya se creó con ella, aunque
+esté eliminada, en vez de crear otra: el reintento de un guardado cuya respuesta se perdió no duplica
+el gasto (NFR-10, ADR-034). Es única por usuario (I18). Se reusa solo mientras los valores del
+borrador sean los del intento que falló; cualquier cambio genera una clave nueva.
+
+### Movimiento pendiente
+Un borrador cuyo guardado falló por la red y que **todavía no es una transacción**. Vive solo en el
+dispositivo (`localStorage`, `biyu:pending-drafts:<user_id>`), con sus valores y todas las claves
+de idempotencia con que se intentó guardar. Es una ayuda para recuperarlo, no un dato guardado:
+nunca reemplaza a una transacción ni la suma en ningún KPI (NFR-18). Deja de existir cuando se
+guarda, cuando "Recuperar" encuentra que ya estaba guardado, cuando se descarta o al cerrar sesión
+(US-70, ADR-034). Un rechazo de la base no deja un movimiento pendiente.
+
 ### Suscripción (`Subscription`)
 Un **gasto recurrente mensual**: Netflix, el gimnasio, el hosting. No es una transacción: es
 una regla que genera transacciones, una por mes. Tiene monto, moneda, categoría, cuenta, día

@@ -28,6 +28,7 @@ export function RegisterPage() {
           categories={catalog.categories}
           accounts={catalog.accounts}
           defaultAccountId={catalog.defaultAccountId}
+          showPendingDrafts
         />
       )}
     </div>
