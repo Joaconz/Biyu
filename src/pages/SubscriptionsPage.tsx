@@ -1,16 +1,18 @@
 import { Link } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
+import { CommittedCard } from '@/components/subscriptions/CommittedCard'
 import { SubscriptionItem } from '@/components/subscriptions/SubscriptionItem'
 import { buttonVariants } from '@/components/ui/button'
-import { groupSubscriptions } from '@/domain/subscriptions'
+import { committedMonthlyTotal, groupSubscriptions } from '@/domain/subscriptions'
 import { useSubscriptions } from '@/hooks/useSubscriptions'
 import { todayInArgentina } from '@/lib/clock'
 
 /** Suscripciones (US-52): Activas, Pausadas y Canceladas, cada grupo solo si tiene filas. */
 export function SubscriptionsPage() {
   const state = useSubscriptions()
-  const today = todayInArgentina()
+  // El mismo "hoy" con el que el hook calculó las bloqueadas.
+  const today = state.status === 'ready' ? state.today : todayInArgentina()
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
@@ -56,17 +58,30 @@ export function SubscriptionsPage() {
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col gap-6">
-            {groupSubscriptions(state.subscriptions).map((group) => (
-              <GroupedSection key={group.status} title={group.label} data-status-group={group.status}>
-                <GroupedCard>
-                  {group.items.map((subscription) => (
-                    <SubscriptionItem key={subscription.id} subscription={subscription} today={today} />
-                  ))}
-                </GroupedCard>
-              </GroupedSection>
-            ))}
-          </div>
+          <>
+            {/* Es una estimación: si hay USD y no se pudieron leer los tipos de cambio, no se muestra (ADR-031). */}
+            {(state.fxRates || !state.subscriptions.some((s) => s.currency === 'USD')) && (
+              <CommittedCard
+                committed={committedMonthlyTotal(state.subscriptions, state.fxRates ?? new Map(), today)}
+              />
+            )}
+            <div className="flex flex-col gap-6">
+              {groupSubscriptions(state.subscriptions).map((group) => (
+                <GroupedSection key={group.status} title={group.label} data-status-group={group.status}>
+                  <GroupedCard>
+                    {group.items.map((subscription) => (
+                      <SubscriptionItem
+                        key={subscription.id}
+                        subscription={subscription}
+                        today={today}
+                        blocked={state.blocked.get(subscription.id)}
+                      />
+                    ))}
+                  </GroupedCard>
+                </GroupedSection>
+              ))}
+            </div>
+          </>
         ))}
     </div>
   )

@@ -80,6 +80,36 @@ export async function fetchGeneratedPeriods(subscriptionId: string): Promise<Set
   return new Set(data.flatMap((row) => (row.subscription_period ? [formatPeriod(fromDbDate(row.subscription_period))] : [])))
 }
 
+/** PostgREST corta cada respuesta en 1000 filas (`max_rows`): hay que pedir de a páginas. */
+const PAGE_SIZE = 1000
+
+/**
+ * Los períodos `YYYY-MM` con transacción de cada suscripción, también los de una borrada (R2, I11), por
+ * id de suscripción. La lista de Suscripciones los necesita para saber cuáles están bloqueadas (US-62).
+ * 50 suscripciones con dos años de historia ya pasan de las 1000 filas, de ahí la paginación.
+ */
+export async function fetchGeneratedPeriodsBySubscription(): Promise<Map<string, Set<string>>> {
+  const bySubscription = new Map<string, Set<string>>()
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('subscription_id, subscription_period')
+      .not('subscription_id', 'is', null)
+      .order('subscription_id')
+      .order('subscription_period')
+      .order('id')
+      .range(from, from + PAGE_SIZE - 1)
+    if (error) throw error
+    for (const row of data) {
+      if (!row.subscription_id || !row.subscription_period) continue
+      const periods = bySubscription.get(row.subscription_id) ?? new Set<string>()
+      periods.add(formatPeriod(fromDbDate(row.subscription_period)))
+      bySubscription.set(row.subscription_id, periods)
+    }
+    if (data.length < PAGE_SIZE) return bySubscription
+  }
+}
+
 // C2: los montos viajan como string; los tipos generados dicen `number` para numeric.
 const asNumeric = (value: string) => value as unknown as number
 
