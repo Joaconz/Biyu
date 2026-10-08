@@ -185,7 +185,7 @@ P2 entra si alcanza el sprint.
 | Export CSV | [#19](https://github.com/Joaconz/Biyu/issues/19) | V2 | US-47 ([#201](https://github.com/Joaconz/Biyu/issues/201)) · FR-22 · C9 · ADR-029 |
 | Importar desde Excel | [#203](https://github.com/Joaconz/Biyu/issues/203) | V2 | US-74 ([#204](https://github.com/Joaconz/Biyu/issues/204)), US-76 ([#205](https://github.com/Joaconz/Biyu/issues/205)), US-77 ([#206](https://github.com/Joaconz/Biyu/issues/206)), US-78 ([#207](https://github.com/Joaconz/Biyu/issues/207)) · FR-06 · C4 · C6 · NFR-10 · ADR-035. Reemplaza a la idea #169 |
 | Dashboard por categoría | [#14](https://github.com/Joaconz/Biyu/issues/14) (épica de V1) | V2 | US-72 ([#242](https://github.com/Joaconz/Biyu/issues/242)), US-73 ([#243](https://github.com/Joaconz/Biyu/issues/243)) · FR-20 · C11 · ADR-038. Reemplaza a las ideas #170 y #171 |
-| Interfaz y no funcionales de V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | V2 | `roadmap.md` §V2 · NFR-01 a NFR-10 |
+| Interfaz y no funcionales de V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | V2 | US-69 ([#233](https://github.com/Joaconz/Biyu/issues/233), barra Registrar · Resumen · Deudas · Suscripciones; Movimientos cuelga del Resumen) · `roadmap.md` §V2 · NFR-01 a NFR-10 · NFR-08 · FR-08 · C11 · ADR-023, ADR-024. Historias en `entrega-2/historias/navegacion.md` |
 | Calidad V2 | [#21](https://github.com/Joaconz/Biyu/issues/21) | V2 | Regresión de V1, confirmación de defectos, catálogo de V2 |
 | Automatización | [#22](https://github.com/Joaconz/Biyu/issues/22) | V3 | `roadmap.md` §V3 · NFR-19, NFR-20 |
 | Edición de transacciones | [#23](https://github.com/Joaconz/Biyu/issues/23) | V3 | FR-07 · ADR-009 |
