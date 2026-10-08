@@ -90,9 +90,9 @@ export async function fetchLiveTransactionCount(subscriptionId: string): Promise
     .select('id', { count: 'exact', head: true })
     .eq('subscription_id', subscriptionId)
     .is('deleted_at', null)
-  if (error?.code === '22P02') return 0
   if (error) throw error
-  return count ?? 0
+  if (count === null) throw new TypeError('PostgREST no devolvió el conteo de transacciones')
+  return count
 }
 
 /** PostgREST corta cada respuesta en 1000 filas (`max_rows`): hay que pedir de a páginas. */

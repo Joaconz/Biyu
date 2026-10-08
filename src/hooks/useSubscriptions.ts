@@ -86,7 +86,15 @@ export function useSubscription(id: string) {
     // El aviso de bloqueada (US-62) necesita los períodos generados; sin los tipos de cambio solo se juzga una ARS.
     const blocked =
       subscription && generated ? blockedOccurrences(subscription, generated, fxRates, todayInArgentina()) : []
-    return { subscription, generatedPeriods: generated ?? new Set<string>(), blocked, fxRates, transactionCount }
+    // El N del diálogo de cancelar suma las vigentes y los meses vencidos sin generar: sin los períodos
+    // generados esos meses se contarían dos veces, así que sin ellos no se promete un número (US-58 CA-5).
+    return {
+      subscription,
+      generatedPeriods: generated ?? new Set<string>(),
+      blocked,
+      fxRates,
+      transactionCount: generated !== null ? transactionCount : null,
+    }
   }, [id])
 }
 

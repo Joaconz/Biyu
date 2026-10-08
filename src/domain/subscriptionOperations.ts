@@ -13,7 +13,7 @@ import {
 } from './period'
 import { parseMoney, type Decimal } from './money'
 import type { BlockedOccurrence } from './subscriptionBlocked'
-import { computeDueOccurrences, nextChargeDate, noMoreChargesText, occurrenceDate, type SubscriptionRecord } from './subscriptions'
+import { computeDueOccurrences, evaluateOccurrences, nextChargeDate, noMoreChargesText, occurrenceDate, type SubscriptionRecord } from './subscriptions'
 
 type Schedule = Pick<SubscriptionRecord, 'billingDay' | 'generateFromPeriod' | 'endPeriod'>
 
@@ -121,7 +121,7 @@ export function resumedNoticeText(generatedAfter: number, today: Date): string {
  * US-58 CA-5: el N del diálogo de cancelar es lo que queda después de confirmar: las transacciones
  * vigentes de la suscripción (sin `deleted_at`) más los meses vencidos que la cancelación genera antes,
  * que son los no bloqueados (R6). Sin los tipos de cambio leídos no se puede saber cuántos genera una
- * suscripción en USD y se cuentan solo las vigentes.
+ * suscripción en USD con meses vencidos por generar: devuelve null y el diálogo no promete un número.
  */
 export function expensesKeptOnCancel(
   liveTransactions: number,
@@ -129,22 +129,20 @@ export function expensesKeptOnCancel(
   alreadyGenerated: ReadonlySet<string>,
   fxRatesByPeriod: ReadonlyMap<string, Decimal> | null,
   today: Date,
-): number {
-  if (subscription.currency === 'USD' && !fxRatesByPeriod) return liveTransactions
-  const due = computeDueOccurrences(
-    {
-      status: subscription.status,
-      amount: parseMoney(subscription.amount),
-      currency: subscription.currency,
-      billingDay: subscription.billingDay,
-      generateFromPeriod: subscription.generateFromPeriod,
-      endPeriod: subscription.endPeriod,
-    },
-    alreadyGenerated,
-    fxRatesByPeriod ?? new Map(),
-    today,
-  )
-  return liveTransactions + due.length
+): number | null {
+  const state = {
+    status: subscription.status,
+    amount: parseMoney(subscription.amount),
+    currency: subscription.currency,
+    billingDay: subscription.billingDay,
+    generateFromPeriod: subscription.generateFromPeriod,
+    endPeriod: subscription.endPeriod,
+  }
+  // Sin los tipos de cambio solo se sabe el número si no hay ningún mes vencido por generar.
+  if (subscription.currency === 'USD' && !fxRatesByPeriod) {
+    return evaluateOccurrences(state, alreadyGenerated, new Map(), today).length === 0 ? liveTransactions : null
+  }
+  return liveTransactions + computeDueOccurrences(state, alreadyGenerated, fxRatesByPeriod ?? new Map(), today).length
 }
 
 /**

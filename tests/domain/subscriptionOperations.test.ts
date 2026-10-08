@@ -217,8 +217,32 @@ describe('expensesKeptOnCancel (US-58 CA-5)', () => {
     expect(expensesKeptOnCancel(0, usd, new Set(), rates, TODAY)).toBe(2)
   })
 
-  it('USD sin los tipos de cambio leídos: cuenta solo las vigentes', () => {
-    expect(expensesKeptOnCancel(3, { ...ars, currency: 'USD' }, new Set(), null, TODAY)).toBe(3)
+  it('USD sin los tipos de cambio leídos: no se sabe cuántos genera, no hay número', () => {
+    expect(expensesKeptOnCancel(3, { ...ars, currency: 'USD' }, new Set(), null, TODAY)).toBeNull()
+  })
+
+  it('USD sin los tipos de cambio leídos pero sin meses vencidos por generar: el número es exacto', () => {
+    const upToDate = new Set(['2026-05', '2026-06', '2026-07', '2026-08', '2026-09'])
+    expect(expensesKeptOnCancel(5, { ...ars, currency: 'USD' }, upToDate, null, TODAY)).toBe(5)
+  })
+
+  it('ARS no necesita tipos de cambio', () => {
+    expect(expensesKeptOnCancel(0, { ...ars, generateFromPeriod: { year: 2026, month: 9 } }, new Set(), null, TODAY)).toBe(1)
+  })
+
+  it('el mes de fin anterior al corriente corta los vencidos (R1)', () => {
+    expect(expensesKeptOnCancel(1, { ...ars, endPeriod: { year: 2026, month: 6 } }, new Set(['2026-05']), null, TODAY)).toBe(2)
+  })
+
+  it('el día de cobro es hoy: el mes corriente ya vence y se genera (R5)', () => {
+    const base = { ...ars, billingDay: 6, generateFromPeriod: OCT }
+    expect(expensesKeptOnCancel(0, base, new Set(), null, TODAY)).toBe(1)
+    expect(expensesKeptOnCancel(0, { ...base, billingDay: 7 }, new Set(), null, TODAY)).toBe(0)
+  })
+
+  it('un mes con monto en pesos fuera de rango no se genera y no cuenta', () => {
+    const huge = { ...ars, currency: 'USD' as const, amount: '999999999999.99', generateFromPeriod: { year: 2026, month: 9 } }
+    expect(expensesKeptOnCancel(0, huge, new Set(), new Map([['2026-09', new Decimal('1200')]]), TODAY)).toBe(0)
   })
 
   it('una borrada cuenta como generada para la puesta al día pero no como vigente (R2, C10)', () => {
