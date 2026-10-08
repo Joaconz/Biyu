@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { ALREADY_IMPORTED_TEXT } from '@/domain/importFailure'
 import {
   notImportedHeading,
   notImportedLine,
@@ -13,6 +14,11 @@ export function ResultStep({ result, onImportAnother }: { result: ImportResult; 
   const rejected = result.notImported.length
   return (
     <div className="flex flex-col gap-5">
+      {result.alreadyImported && (
+        <p data-testid="import-result-already" className="rounded-lg bg-accent p-3 text-callout font-medium">
+          {ALREADY_IMPORTED_TEXT}
+        </p>
+      )}
       <div className="flex flex-col gap-1.5">
         <p data-testid="import-result-title" className="text-title-2 font-bold">
           {resultTitle(result)}
