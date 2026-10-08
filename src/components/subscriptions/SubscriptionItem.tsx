@@ -1,5 +1,6 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, TriangleAlert } from 'lucide-react'
 import { Link } from 'react-router'
+import { blockedMark, type BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import {
   billingDayText,
   endedText,
@@ -13,8 +14,18 @@ import { cn } from '@/lib/utils'
  * Fila de Suscripciones (US-52): nombre y día de cobro a la izquierda, monto a la derecha. Una
  * terminada (ADR-032) muestra "Terminó en…" en lugar del día de cobro y sigue en "Activas".
  */
-export function SubscriptionItem({ subscription, today }: { subscription: SubscriptionRecord; today: Date }) {
+export function SubscriptionItem({
+  subscription,
+  today,
+  blocked = [],
+}: {
+  subscription: SubscriptionRecord
+  today: Date
+  /** Períodos vencidos que no se pudieron generar (US-62); vacío si no está bloqueada. */
+  blocked?: readonly BlockedOccurrence[]
+}) {
   const ended = isEnded(subscription, today)
+  const mark = blockedMark(blocked)
   const muted = ended || subscription.status !== 'active'
   return (
     <Link
@@ -38,6 +49,16 @@ export function SubscriptionItem({ subscription, today }: { subscription: Subscr
         ) : (
           <span data-testid="subscriptions-item-billing-day" className="text-footnote text-muted-foreground">
             {billingDayText(subscription.billingDay)}
+          </span>
+        )}
+        {mark && (
+          <span
+            data-testid="subscriptions-item-blocked"
+            data-reason={mark.reason}
+            className="flex items-center gap-1 text-footnote font-medium text-warning"
+          >
+            <TriangleAlert aria-hidden="true" className="size-3.5 shrink-0" />
+            {mark.text}
           </span>
         )}
       </div>

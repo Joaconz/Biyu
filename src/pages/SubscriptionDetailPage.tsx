@@ -2,8 +2,10 @@ import { Link, useParams } from 'react-router'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { BackHeader } from '@/components/subscriptions/BackHeader'
 import { SubscriptionActions } from '@/components/subscriptions/SubscriptionActions'
+import { SubscriptionBlockedNotice } from '@/components/subscriptions/SubscriptionBlockedNotice'
 import { buttonVariants } from '@/components/ui/button'
 import { formatPeriodLong } from '@/domain/period'
+import { blockedNotice, type BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import { nextChargeText, statusText, subscriptionAmountText, type SubscriptionRecord } from '@/domain/subscriptions'
 import { useSubscription } from '@/hooks/useSubscriptions'
 import { todayInArgentina } from '@/lib/clock'
@@ -77,12 +79,18 @@ export function SubscriptionDetailPage() {
 
       {subscription && state.status === 'ready' && (
         <>
+          <BlockedNotice blocked={state.blocked} />
           <SubscriptionData subscription={subscription} generatedPeriods={state.generatedPeriods} />
           <SubscriptionActions subscription={subscription} generatedPeriods={state.generatedPeriods} onChanged={state.refresh} />
         </>
       )}
     </div>
   )
+}
+
+function BlockedNotice({ blocked }: { blocked: BlockedOccurrence[] }) {
+  const notice = blockedNotice(blocked)
+  return notice ? <SubscriptionBlockedNotice notice={notice} /> : null
 }
 
 function SubscriptionData({

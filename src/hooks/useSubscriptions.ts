@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import type { SubscriptionRecord } from '@/domain/subscriptions'
 import type { Decimal } from '@/domain/money'
+import { blockedBySubscription, blockedOccurrences } from '@/domain/subscriptionBlocked'
+import { todayInArgentina } from '@/lib/clock'
 import { fetchActiveAccounts, fetchActiveCategories, type Account, type Category } from '@/lib/catalog'
 import { fetchFxRatesByPeriod } from '@/lib/fxRates'
-import { fetchGeneratedPeriods, fetchSubscription, fetchSubscriptions } from '@/lib/subscriptions'
+import {
+  fetchGeneratedPeriods,
+  fetchGeneratedPeriodsBySubscription,
+  fetchSubscription,
+  fetchSubscriptions,
+} from '@/lib/subscriptions'
 
 export type Loadable<T> = { status: 'loading' } | { status: 'error' } | ({ status: 'ready' } & T)
 
@@ -47,18 +53,37 @@ function useLoad<T>(
   }
 }
 
+/**
+ * La lista y, aparte, lo que hace falta para saber cuáles están bloqueadas (US-62): los tipos de cambio
+ * y los períodos ya generados. Son un aviso, no la pantalla: si no se pueden leer, la lista se muestra
+ * igual, sin marcas (ADR-031).
+ */
 export function useSubscriptions() {
-  return useLoad(async () => ({ subscriptions: await fetchSubscriptions() }), [])
+  return useLoad(async () => {
+    const [subscriptions, fxRates, generated] = await Promise.all([
+      fetchSubscriptions(),
+      fetchFxRatesByPeriod().catch(() => null),
+      fetchGeneratedPeriodsBySubscription().catch(() => null),
+    ])
+    // Un solo "hoy" para toda la pantalla: las marcas y el total tienen que hablar del mismo mes.
+    const today = todayInArgentina()
+    const blocked = blockedBySubscription(subscriptions, generated, fxRates, today)
+    return { subscriptions, blocked, fxRates, today }
+  }, [])
 }
 
 export function useSubscription(id: string) {
   return useLoad(async () => {
     // Sin los períodos generados solo se pierde el caso R2 de "Próximo cobro": no tira abajo el detalle.
-    const [subscription, generatedPeriods] = await Promise.all([
+    const [subscription, generated, fxRates] = await Promise.all([
       fetchSubscription(id),
-      fetchGeneratedPeriods(id).catch(() => new Set<string>()),
+      fetchGeneratedPeriods(id).catch(() => null),
+      fetchFxRatesByPeriod().catch(() => null),
     ])
-    return { subscription, generatedPeriods }
+    // El aviso de bloqueada (US-62) necesita los períodos generados; sin los tipos de cambio solo se juzga una ARS.
+    const blocked =
+      subscription && generated ? blockedOccurrences(subscription, generated, fxRates, todayInArgentina()) : []
+    return { subscription, generatedPeriods: generated ?? new Set<string>(), blocked }
   }, [id])
 }
 
