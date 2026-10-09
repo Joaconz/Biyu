@@ -96,7 +96,12 @@ SMOKE_URL=https://<preview-o-produccion>.vercel.app npm run test:e2e
 
 **Si tu PR trae una migración**, Vercel despliega el front pero no toca la base: después del merge
 alguien con acceso al proyecto la aplica con `supabase link --project-ref <ref>` (una vez) y
-`supabase db push`, y corre la prueba de humo contra producción. La configuración de Auth del proyecto
+`supabase db push`, y corre la prueba de humo contra producción.
+
+**Si tu PR trae o cambia una Edge Function** (`supabase/functions/`), `db push` tampoco la despliega:
+hay que correr `supabase functions deploy <nombre>` y comprobar con `supabase functions list` que
+figure `ACTIVE`. Hoy es `run-subscription-catchup` (US-53); sin desplegarla, la app muestra siempre
+"No pudimos cargar tus suscripciones vencidas". La configuración de Auth del proyecto
 hosteado (confirmación de email apagada, ADR-011; política de contraseñas) se maneja desde el panel
 de Supabase: `supabase/config.toml` solo aplica a la base local. La política de contraseñas tiene
 que coincidir con la de `config.toml` (DEF-005): en Authentication → Providers → Email, largo mínimo
