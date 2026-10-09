@@ -176,7 +176,7 @@ seis cuelgan de la épica [#203](https://github.com/Joaconz/Biyu/issues/203), qu
 
   | Encabezado | Celda obligatoria | Qué va | Formatos aceptados |
   |---|---|---|---|
-  | Cuotas pendientes | No. Vacía = la compra se imputa desde el mes de su fecha, como hasta ahora | Cuántas cuotas faltan pagar, contando la del mes de hoy | Entero, celda numérica o texto |
+  | Cuotas pendientes | No. Vacía = la compra se imputa desde el mes de su fecha, como hasta ahora | Cuántas cuotas faltan pagar, contando la del mes de hoy (una compra de 6 cuotas con 3 ya pagadas lleva 3) | Entero, celda numérica o texto |
 
   - Sin la columna, todas las filas se tratan como vacías en "Cuotas pendientes".
   - La columna cuenta para decidir si una fila está vacía (sección 2): una fila con solo "Cuotas
@@ -314,8 +314,11 @@ seis cuelgan de la épica [#203](https://github.com/Joaconz/Biyu/issues/203), qu
        esa compra."
     4. "La categoría y la cuenta tienen que existir en Biyu con el mismo nombre. Las mayúsculas no
        importan; las tildes sí. Un gasto necesita categoría."
-    5. "Para una compra en cuotas con tarjeta de crédito, poné la cantidad en Cuotas. Si ya pagaste
-       algunas, poné en Cuotas pendientes cuántas te faltan, contando la de este mes."
+    5. "Si compraste en cuotas con tarjeta de crédito, poné el monto total de la compra (no el de una
+       cuota) y la cantidad en Cuotas (hasta 12). Si ya pagaste algunas, poné en Cuotas pendientes
+       cuántas te faltan, contando la de este mes: en una compra de 6 cuotas con 3 pagadas, van 3. La
+       fecha es la de la compra. Si dejás Cuotas pendientes vacía, se cargan todas las cuotas desde el
+       mes de la fecha."
     6. "Antes de importar vas a ver qué filas tienen errores y por qué. Las que están bien se importan
        aunque otras fallen."
   - Tabla "Ejemplo", con los encabezados de la plantilla (US-80 · CA-1) y dos filas:
@@ -464,12 +467,12 @@ en cualquier orden. Cualquier otro encabezado se ignora y se lista en el paso 2.
 |---|---|---|---|
 | Fecha | Sí | Fecha del movimiento (`occurred_on`) | Celda con formato de fecha de Excel (si tiene hora, se toma solo el día; se respeta el sistema de fechas del libro, 1900 o 1904), o texto `DD/MM/AAAA` con día y mes de 1 o 2 dígitos ("5/9/2026" vale). Una celda numérica **sin** formato de fecha (por ejemplo 46000) no es una fecha: da F2. No hay fecha mínima, igual que en Registrar |
 | Tipo | Sí | `Gasto` o `Ingreso` | Texto, sin distinguir mayúsculas |
-| Monto | Sí | Monto total del movimiento, siempre positivo (el signo lo da Tipo, I4) | Celda numérica, o texto con el mismo criterio que el monto de Registrar (`tryParseMoney`): "1234,56", "1.234,56", "1234.56"; un punto seguido de grupos de 3 dígitos es separador de miles ("1.500" = 1500). Sin símbolo de moneda ni espacios internos |
+| Monto | Sí | Monto total del movimiento, siempre positivo (el signo lo da Tipo, I4). En una compra en cuotas va el total de la compra, no el valor de una cuota | Celda numérica, o texto con el mismo criterio que el monto de Registrar (`tryParseMoney`): "1234,56", "1.234,56", "1234.56"; un punto seguido de grupos de 3 dígitos es separador de miles ("1.500" = 1500). Sin símbolo de moneda ni espacios internos |
 | Moneda | Sí | `ARS` o `USD` | Texto, sin distinguir mayúsculas |
 | Tipo de cambio | Solo si Moneda = USD | Pesos por dólar de **esa** fila (`fx_rate`, se congela, C5) | Celda numérica o texto con el criterio de Monto, hasta 4 decimales. No se completa con el tipo de cambio de referencia del mes (sección 9) |
 | Categoría | Sí si Tipo = Gasto | Nombre de una categoría **activa** del usuario | Se compara sin distinguir mayúsculas; las tildes **sí** cuentan, porque "Educación" y "Educacion" pueden ser dos categorías distintas (índice `lower(name)`, `04-data-model.md`). En un Ingreso es opcional; si viene, tiene que existir |
 | Cuenta | Sí | Nombre de una cuenta **activa** del usuario | Mismo criterio que Categoría |
-| Cuotas | No (vacía = 1) | Cantidad de cuotas | Entero de 1 a 12, celda numérica o texto |
+| Cuotas | No (vacía = 1) | Cantidad de cuotas de la compra; solo en un Gasto con cuenta de tarjeta de crédito | Entero de 1 a 12, celda numérica o texto |
 | Nota | No | Descripción | Texto libre. Vacía = sin descripción (US-08) |
 
 **Celdas numéricas y C2.** Excel guarda los números como binario de punto flotante: una fórmula
