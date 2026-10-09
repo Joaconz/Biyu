@@ -74,7 +74,8 @@ cliente y qué deriva el servidor, y cómo se valida I7 antes de escribir.
   `src/domain/`) aplica las mismas reglas; sus textos son los de US-34 y US-41
   (`entrega-2/historias/deudas.md`) y los del servidor son los de este ADR. El cliente sigue sin
   decidir nada que la base no revalide.
-- La edición de transacciones (FR-07, V3) tendrá que decidir qué pasa con la deuda vinculada al
+- La edición de transacciones (FR-07, V2: US-84, ADR-043 §5) rechaza editar un gasto con deuda vinculada;
+  levantar esa restricción tendrá que decidir qué pasa con la deuda al
   cambiar monto, moneda, tipo o mes del gasto; hoy I7 rechazaría bajar el monto por debajo de la
   deuda o cambiar la moneda.
 - Una compra en cuotas compartida genera una sola deuda por el monto que indica el usuario, no una

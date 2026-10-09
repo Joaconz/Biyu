@@ -95,5 +95,7 @@ El modelo actual no tiene dónde guardar "ya pagué K cuotas":
   - compra empezada con deudas, rechazada;
   - montos con resto en ARS y en USD (US$100 a TC 1000, 3 cuotas, K = 1: imputaciones de US$33,33 y
     US$33,34, de $33.335,00 cada una en pesos), con I1 e I1'.
+- ADR-043 §8: una compra empezada no se puede editar; quien implemente US-80 o US-84 segundo agrega la
+  guarda (`check_violation` "Una compra empezada no se puede editar") y su criterio en US-84.
 - Docs a actualizar al implementar: `04-data-model.md` (columna, I2, nota de `first_period`, vista de
   integridad) y `01-domain-glossary.md` ("compra en cuotas empezada").

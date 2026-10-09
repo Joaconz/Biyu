@@ -898,8 +898,8 @@ US-34 y US-41) → US-83 (balance, sobre US-36, US-39 y US-40).
 4. La entrada "Deudas" de la barra inferior (#172) y el feedback de guardado con reintento
    conservando lo cargado en Registrar son de la feature "Navegación e interfaz", que aún no tiene
    historias ni IDs; esta especificación no las redefine.
-5. La edición de transacciones (FR-07) es de V3 (`roadmap.md` §V3, `08-trazabilidad.md`). Cuando
-   llegue, su historia tiene que definir qué pasa con la deuda vinculada al bajar el monto del gasto
+5. La edición de transacciones (FR-07) es de V2 (US-84, ADR-043), que rechaza editar un gasto con deuda
+   vinculada. Cuando se levante esa restricción, su historia tiene que definir qué pasa con la deuda vinculada al bajar el monto del gasto
    por debajo de la deuda, cambiar la moneda, pasarlo a ingreso o cambiarlo de mes; hoy el trigger
    de I7 rechazaría los dos primeros casos.
 6. `08-trazabilidad.md` asigna FR-18 a "US-34 a US-36, US-41". Esta especificación traza también

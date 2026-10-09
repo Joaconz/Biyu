@@ -1,6 +1,6 @@
 # ADR-009 — Editar una transacción regenera sus imputaciones desde cero
 
-**Estado:** aceptada · **Fecha:** 2026-08 · **No implementada en v1** (ver Alcance, abajo)
+**Estado:** aceptada · **Fecha:** 2026-08 · **No implementada en v1.** Aplicada en V2 y modificada por [ADR-043](043-editar-un-movimiento-con-una-rpc.md) (ver Alcance, abajo)
 
 ## Contexto
 
@@ -20,6 +20,10 @@ transacción de base que actualiza `transactions`. Ninguna imputación se actual
 
 Un cambio en un campo que no participa del prorrateo (`description`, `category_id`,
 `account_id`) no toca `ledger_entries`.
+
+> **Nota de ADR-043 (V2).** La edición de V2 acota esos campos (la moneda y el tipo de cambio no se
+> editan, C5) y regenera las imputaciones siempre, también si solo cambian la categoría, la cuenta o la
+> descripción.
 
 ## Alternativas descartadas
 
@@ -48,6 +52,8 @@ e I1'.
   investigar el trade-off.
 
 ## Alcance
+
+> **Actualización (ADR-043):** US-84 la implementa en V2. El texto de abajo es el de la fecha del ADR.
 
 Esta decisión no se implementa como parte del Slice 0 ni de ningún slice de v1 declarado en
 `docs/roadmap.md`. Si se agrega edición de transacciones a v1, hay que actualizar primero

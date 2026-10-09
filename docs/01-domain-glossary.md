@@ -9,6 +9,8 @@ Los nombres de código van en inglés; la prosa y la UI, en español.
 ## Términos centrales
 
 ### Transacción (`Transaction`)
+En la interfaz se llama **movimiento** (no confundir con "movimiento pendiente", un borrador que todavía no es una transacción).
+
 El **evento económico** tal como ocurrió: una compra, un cobro de sueldo, una transferencia recibida. Ocurre una sola vez, en una fecha, por un monto total.
 
 Una transacción **no es** lo que impacta el mes. Una compra de $120.000 en 12 cuotas es *una* transacción de $120.000.
@@ -70,8 +72,8 @@ extiende sin rellenar los meses del medio (ADR-032).
 ### Ocurrencia (`Occurrence`)
 La transacción concreta que una suscripción genera para un período determinado. No es una
 entidad propia: es una fila de `transactions` con `subscription_id` y `subscription_period`
-cargados. Una vez creada se comporta como cualquier otra transacción — se edita, se borra y
-suma en el dashboard sin código especial.
+cargados. Una vez creada se comporta como cualquier otra transacción — se borra y suma en el
+dashboard sin código especial. En V2 no se edita desde Movimientos: se cambia el monto futuro editando la suscripción (US-84, ADR-043).
 
 ### Puesta al día (`catch-up`)
 El proceso que crea las ocurrencias de los períodos vencidos que todavía no existen. Corre al

@@ -46,7 +46,7 @@ Las dos historias reabren la decisión de gráficos del dashboard que se tomó e
   recargar la página. Cortar toda la red no sirve, porque la app no tiene service worker y el
   navegador no llega a cargarla.
 - **Fuera de alcance.** Cambiar la categoría de una transacción ya cargada. ADR-009 define que la
-  edición regenera las imputaciones, pero no está implementada en V1; cuando exista, se prueba en su
+  edición regenera las imputaciones y US-84 (ADR-043) la implementa en V2; se prueba en esa
   historia, no acá.
 
 ### Datos de ejemplo

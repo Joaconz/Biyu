@@ -28,7 +28,7 @@ historia, una historia sin issue o un issue sin casos es un hueco visible._
 | FR-04 | V1 | US-43, US-68 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene (ADR-014). **Ampliado** con US-68: la siembra evita la pantalla vacía, pero no deja ajustar el catálogo ni guía el primer registro |
 | FR-05 | V1 | US-42, US-44, US-45, US-68 | [#10](https://github.com/Joaconz/Biyu/issues/10) | Se mantiene. US-68 reúne el alta y el archivado (US-42, US-44, US-45) en la configuración inicial; la cuenta que elige ahí es la precarga de US-07 |
 | FR-06 | V1 | US-01 a US-11 | [#11](https://github.com/Joaconz/Biyu/issues/11) | Se mantiene |
-| FR-07 | V3 | — | [#23](https://github.com/Joaconz/Biyu/issues/23) | **Ajustado**: la pre-entrega lo ponía en V2; `roadmap.md` lo mueve a V3 como la mejora que genera más regresión (ADR-009) |
+| FR-07 | V2 | US-84 | [#23](https://github.com/Joaconz/Biyu/issues/23) | **Ajustado dos veces**: `roadmap.md` lo había movido a V3 como la mejora que genera más regresión (ADR-009); se vuelve a V2 con US-84 (ADR-043), como en la pre-entrega |
 | FR-08 | V1 · V2 | US-18, US-65, US-60 | [#15](https://github.com/Joaconz/Biyu/issues/15), [#12](https://github.com/Joaconz/Biyu/issues/12), [#17](https://github.com/Joaconz/Biyu/issues/17) | Se mantiene. US-65 se agregó porque la baja de una transacción suelta no tenía historia; US-60 (V2) la extiende a un mes generado por una suscripción |
 | FR-09 | V1 | US-12, US-13, US-14 | [#12](https://github.com/Joaconz/Biyu/issues/12) | **Ajustado**: de 1 a 12 cuotas, no de 2 a 24 (`roadmap.md` §V1; valores límite 0, 1, 2, 12, 13 en `07-plan-de-testing.md` §3). El tope vive en `transactions_installments_max` y en `create_transaction` ([#70](https://github.com/Joaconz/Biyu/issues/70), ADR-020) |
 | FR-10 | V1 | US-15 | [#12](https://github.com/Joaconz/Biyu/issues/12) | Confirmado: la última cuota absorbe el resto (C3, ADR-013) |
@@ -188,7 +188,7 @@ P2 entra si alcanza el sprint.
 | Interfaz y no funcionales de V2 | [#20](https://github.com/Joaconz/Biyu/issues/20) | V2 | US-69 ([#233](https://github.com/Joaconz/Biyu/issues/233), barra Registrar · Resumen · Deudas · Suscripciones; Movimientos cuelga del Resumen), US-70 ([#234](https://github.com/Joaconz/Biyu/issues/234), aviso de guardado y reintento sin duplicar, movimientos pendientes) · `roadmap.md` §V2 · NFR-01 a NFR-10 · NFR-08 · NFR-18 · FR-06 · FR-08 · C4 · C11 · I18 · ADR-023, ADR-024, ADR-034. Historias en `entrega-2/historias/navegacion.md` |
 | Calidad V2 | [#21](https://github.com/Joaconz/Biyu/issues/21) | V2 | Regresión de V1, confirmación de defectos, catálogo de V2 |
 | Automatización | [#22](https://github.com/Joaconz/Biyu/issues/22) | V3 | `roadmap.md` §V3 · NFR-19, NFR-20 |
-| Edición de transacciones | [#23](https://github.com/Joaconz/Biyu/issues/23) | V3 | FR-07 · ADR-009 |
+| Edición de transacciones | [#23](https://github.com/Joaconz/Biyu/issues/23) | V2 | US-84 ([#284](https://github.com/Joaconz/Biyu/issues/284), editar un movimiento ya cargado, `entrega-2/historias/editar-movimiento.md`) · FR-07 · ADR-009, ADR-043 |
 
 ## Huecos conocidos
 
