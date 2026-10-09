@@ -187,7 +187,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | period | date | día 1 del mes |
 | installment_number | int | 1..installments_count |
 | amount | numeric(14,2) | en la moneda de la transacción |
-| amount_ars | numeric(14,2) | **no es columna generada.** La calcula `create_transaction` junto con `amount` (misma regla que `domain/installments.ts`) y se persiste — ver I1' más abajo |
+| amount_ars | numeric(14,2) | **no es columna generada.** La calculan `create_transaction` y `update_transaction` junto con `amount` (misma regla que `domain/installments.ts`) y se persiste — ver I1' más abajo |
 
 Único: (`transaction_id`, `installment_number`).
 Índice: (`user_id`, `period`) — es el acceso principal del dashboard.

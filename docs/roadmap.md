@@ -36,7 +36,7 @@ de pruebas completo, gana el catálogo.
 
 ### Fuera de V1, a propósito
 
-Deudas, suscripciones, export CSV, edición de transacciones. **Deudas sale de V1 aunque
+Deudas, suscripciones, export CSV, edición de transacciones (esta pasó a V2 con US-84, ADR-043). **Deudas sale de V1 aunque
 esté especificado y sea tentador**: V2 necesita funcionalidad nueva sobre la cual ejercitar
 regresión, y las deudas son el mejor candidato porque tocan el dashboard sin reescribirlo.
 
@@ -60,6 +60,7 @@ Cálculo de cuotas (prorrateo exacto, con resto, 1 cuota, 12 cuotas, cruce de a�
 - **Suscripciones**: alta, puesta al día idempotente, pausa, reanudación, cancelación, edición de monto, total mensual comprometido. Ver `06-suscripciones.md`.
 - **Deudas**: gasto compartido que genera una deuda vinculada en la misma operación, alta de deuda suelta, listado filtrable, totales por dirección, marcar saldada y revertir, KPI de neto de reembolsos en el dashboard.
 - **Export CSV** de todas las transacciones (C9).
+- **Edición de un movimiento** ya cargado, con aviso de meses cerrados (FR-07). Ver `entrega-2/historias/editar-movimiento.md` (US-84) y ADR-043.
 
 ### Cambios de interfaz
 
@@ -108,7 +109,7 @@ Ejecución en GitHub Actions ante cada push y cada pull request, levantando el s
 
 ### Mejora funcional menor
 
-**Edición de una transacción existente.** Se elige a propósito y no por conveniencia: al cambiar el monto o la cantidad de cuotas hay que borrar y regenerar todas las imputaciones (ADR-009), y ese es el camino por el cual la invariante central del sistema se rompe en silencio. Es decir: es la feature más pequeña que produce el mejor material de regresión posible. La alternativa que se descartó —filtros y búsqueda en el listado— es más segura de construir y casi no genera casos interesantes.
+**Edición de una transacción existente** (movida a V2 con US-84, ADR-043; el motivo de abajo sigue valiendo). Se elige a propósito y no por conveniencia: al cambiar el monto o la cantidad de cuotas hay que borrar y regenerar todas las imputaciones (ADR-009), y ese es el camino por el cual la invariante central del sistema se rompe en silencio. Es decir: es la feature más pequeña que produce el mejor material de regresión posible. La alternativa que se descartó —filtros y búsqueda en el listado— es más segura de construir y casi no genera casos interesantes.
 
 ### Terminado cuando
 
