@@ -55,3 +55,9 @@ Una URL desconocida (p. ej. `/no-existe`) muestra la pantalla de error por defec
 privadas ya redirigen a `/login` sin sesión. Falta una ruta `*` en `src/router.tsx` (y un
 `errorElement` para errores de render) con una pantalla en castellano, con el sistema de diseño y un
 acceso a Registrar (o a Entrar si no hay sesión).
+
+## 6. Barra de navegación en teléfono al anclarla arriba
+
+Al anclar la barra de navegación al inicio de la pantalla en un teléfono aparece un error de
+renderizado (a revisar en dispositivo real, no solo en el emulador del navegador). Ver
+`mobile-native` para los casos típicos (100vh, notch, safe-area).
