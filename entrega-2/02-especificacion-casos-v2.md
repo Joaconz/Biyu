@@ -1,6 +1,6 @@
 # Entrega 2 · Especificación de casos de prueba (V2) · Deudas y Navegación
 
-Planilla: `02-especificacion-casos-v2.xlsx` (una hoja por caso, mismo formato que la Entrega 1: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos de prueba, pasos y resultado esperado). Alcance de este documento: **CP-DEU-018 a CP-DEU-029** (Deudas y gastos compartidos, US-34 · CA-8) y **CP-NAV-001 a CP-NAV-085** (Navegación e interfaz, US-69 y US-70): **98 casos**.
+Planilla: `02-especificacion-casos-v2.xlsx` (una hoja por caso, mismo formato que la Entrega 1: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos de prueba, pasos y resultado esperado). Alcance de este documento: **CP-DEU-018 a CP-DEU-029** (validaciones de gasto compartido, US-34 · CA-8), **CP-DEU-100 a CP-DEU-159** (listado, saldar, filtros, varias personas, neto y balance: US-30, US-37 a US-40, US-79, US-82 y US-83) y **CP-NAV-001 a CP-NAV-085** (Navegación e interfaz, US-69 y US-70): **190 casos**.
 
 Los casos salen de [`entrega-2/casos/deu.md`](casos/deu.md) y [`entrega-2/casos/nav.md`](casos/nav.md). Acá los pre-requisitos y los pasos están redactados **en lenguaje simple**, con lo que hay que tocar en la aplicación y lo que se tendría que ver. Para los casos de Deudas 018 a 028, que en su versión original son llamadas directas a la API (función de varias personas de US-82, todavía no implementada), se describe la **prueba equivalente en la pantalla de Registrar** (caso gemelo), y la prueba original queda anotada en «Notas del diseño».
 
@@ -28,6 +28,98 @@ Los casos salen de [`entrega-2/casos/deu.md`](casos/deu.md) y [`entrega-2/casos/
 | CP-DEU-027 | Media | El monto que te deben no acepta texto | US-34, US-82 | No | Negativo | Partición de equivalencia |
 | CP-DEU-028 | Alta | Una deuda en dólares que en pesos vale menos de un centavo se rechaza | US-34, US-82 | No | Límite | Valores límite |
 | CP-DEU-029 | Alta | Sin haber iniciado sesión no se puede crear un gasto compartido | US-34, US-82 | No | Negativo | Adivinación de errores |
+| CP-DEU-100 | Media | Abrir la dirección de «Saldadas» y recargar mantiene el filtro | US-38 | No | Positivo | Caso de uso |
+| CP-DEU-101 | Baja | Un filtro inválido en la dirección se trata como «Pendientes» | US-38 | No | Negativo | Partición de equivalencia |
+| CP-DEU-102 | Media | Deudas pendientes: la de fecha más nueva va primero | US-38 | No | Positivo | Caso de uso |
+| CP-DEU-102B | Media | Deudas saldadas: la saldada más recientemente va primero | US-38 | No | Positivo | Caso de uso |
+| CP-DEU-103 | Media | Sin deudas pendientes: mensaje y botón «Cargar una deuda» | US-38 | No | Límite | Partición de equivalencia |
+| CP-DEU-104 | Baja | Sin deudas saldadas: mensaje y sin botón | US-38 | No | Límite | Partición de equivalencia |
+| CP-DEU-105 | Baja | Sin ninguna deuda en «Todas»: mensaje y botón «Cargar una deuda» | US-38 | No | Límite | Partición de equivalencia |
+| CP-DEU-106 | Alta | Otro usuario no ve las deudas de alguien más | US-38 | No | Negativo | Adivinación de errores |
+| CP-DEU-107 | Alta | Por API, otro usuario no recibe las deudas de alguien más | US-38 | No | Negativo | Adivinación de errores |
+| CP-DEU-108 | Alta | Por API, sin sesión no se pueden leer las deudas | US-38 | No | Negativo | Adivinación de errores |
+| CP-DEU-108B | Alta | Sin sesión, la dirección /debts lleva al login | US-38 | No | Negativo | Transición de estados |
+| CP-DEU-108C | Alta | Sin sesión, la dirección /debts/new lleva al login | US-36, US-38 | No | Negativo | Transición de estados |
+| CP-DEU-109 | Alta | Marcar una deuda como saldada desde «Pendientes» | US-30, US-37, US-39 | Sí | Positivo | Transición de estados |
+| CP-DEU-110 | Alta | Marcar saldada desde «Todas» deja la fila como saldada | US-39 | Sí | Positivo | Transición de estados |
+| CP-DEU-111 | Alta | «Deshacer» devuelve la deuda a pendiente | US-39 | No | Positivo | Transición de estados |
+| CP-DEU-111B | Media | El aviso con «Deshacer» desaparece al cambiar de filtro | US-39 | No | Positivo | Transición de estados |
+| CP-DEU-112 | Media | Saldar una deuda que ya se saldó en otra pestaña muestra un error | US-39 | No | Negativo | Transición de estados |
+| CP-DEU-113 | Alta | Por API, saldar una deuda ya saldada se rechaza | US-39 | No | Negativo | Transición de estados |
+| CP-DEU-114 | Alta | Por API, un usuario no puede saldar la deuda de otro | US-39 | No | Negativo | Adivinación de errores |
+| CP-DEU-114B | Media | Por API, saldar una deuda que no existe se rechaza | US-39 | No | Negativo | Partición de equivalencia |
+| CP-DEU-115 | Alta | Por API, sin sesión no se puede saldar una deuda | US-39 | No | Negativo | Adivinación de errores |
+| CP-DEU-116 | Alta | Por API, no se puede modificar una deuda directamente | US-39 | No | Negativo | Adivinación de errores |
+| CP-DEU-116B | Alta | Por API, no se puede borrar una deuda directamente | US-39 | No | Negativo | Adivinación de errores |
+| CP-DEU-117 | Alta | «Volver a pendiente» desde «Saldadas» | US-40 | Sí | Positivo | Transición de estados |
+| CP-DEU-118 | Alta | «Volver a pendiente» desde «Todas» actualiza los totales | US-37, US-40 | Sí | Positivo | Transición de estados |
+| CP-DEU-119 | Alta | Por API, reabrir una deuda que ya está pendiente se rechaza | US-40 | No | Negativo | Transición de estados |
+| CP-DEU-119B | Media | Volver a pendiente una deuda que ya se reabrió en otra pestaña muestra un error | US-40 | No | Negativo | Transición de estados |
+| CP-DEU-120 | Alta | Por API, un usuario no puede reabrir la deuda de otro | US-40 | No | Negativo | Adivinación de errores |
+| CP-DEU-120B | Media | Por API, reabrir una deuda que no existe se rechaza | US-40 | No | Negativo | Partición de equivalencia |
+| CP-DEU-121 | Alta | Por API, sin sesión no se puede reabrir una deuda | US-40 | No | Negativo | Adivinación de errores |
+| CP-DEU-122 | Media | Saldar y reabrir tres veces seguidas deja la deuda pendiente | US-40 | No | Límite | Transición de estados |
+| CP-DEU-123 | Alta | Filtro por dirección: «Todas», «Te deben» y «Debés» | US-79 | Sí | Positivo | Transición de estados |
+| CP-DEU-124 | Media | Los filtros de estado y de dirección se combinan | US-79 | Sí | Positivo | Tabla de decisión |
+| CP-DEU-125 | Baja | Una dirección inválida se trata como «Todas» | US-79 | No | Negativo | Partición de equivalencia |
+| CP-DEU-126 | Baja | Sin deudas: «Pendientes» + «Te deben» | US-79 | No | Límite | Tabla de decisión |
+| CP-DEU-126B | Baja | Sin deudas: «Saldadas» + «Te deben» | US-79 | No | Límite | Tabla de decisión |
+| CP-DEU-126C | Baja | Sin deudas: «Todas» + «Te deben» | US-79 | No | Límite | Tabla de decisión |
+| CP-DEU-127 | Baja | Sin deudas: «Pendientes» + «Debés» | US-79 | No | Límite | Tabla de decisión |
+| CP-DEU-127B | Baja | Sin deudas: «Saldadas» + «Debés» | US-79 | No | Límite | Tabla de decisión |
+| CP-DEU-127C | Baja | Sin deudas: «Todas» + «Debés» | US-79 | No | Límite | Tabla de decisión |
+| CP-DEU-128 | Alta | Gasto compartido con varias personas: agregar, quitar y guardar | US-82 | Sí | Positivo | Caso de uso |
+| CP-DEU-128B | Media | Las personas se ordenan por nombre sin distinguir mayúsculas ni tildes | US-38, US-82 | No | Positivo | Partición de equivalencia |
+| CP-DEU-129 | Alta | «Dividir en partes iguales» entre 2 personas | US-82 | Sí | Positivo | Valores límite |
+| CP-DEU-129B | Media | Dividir un gasto de $0,02 entre 2 personas da error | US-82 | No | Negativo | Valores límite |
+| CP-DEU-129C | Baja | «Dividir en partes iguales» con los nombres vacíos | US-82 | No | Positivo | Partición de equivalencia |
+| CP-DEU-130 | Media | «Dividir en partes iguales» entre 3 personas | US-82 | No | Positivo | Partición de equivalencia |
+| CP-DEU-130B | Media | Cambiar la moneda con personas cargadas vacía los montos | US-82 | No | Positivo | Transición de estados |
+| CP-DEU-130C | Media | «Dividir en partes iguales» en dólares | US-82 | No | Positivo | Valores límite |
+| CP-DEU-130D | Media | En dólares, dividir un gasto muy chico da error de centavos | US-34, US-82 | No | Negativo | Valores límite |
+| CP-DEU-131 | Alta | Entre todos pueden deber todo el gasto (tu parte es $0) | US-82 | No | Límite | Valores límite |
+| CP-DEU-132 | Alta | La suma de lo que te deben no puede superar el gasto | US-82 | No | Límite | Valores límite |
+| CP-DEU-132B | Media | Bajar el gasto por debajo de lo que te deben da error | US-82 | No | Negativo | Transición de estados |
+| CP-DEU-132C | Media | Una persona que debe más que el gasto da error en su fila | US-41, US-82 | No | Negativo | Partición de equivalencia |
+| CP-DEU-132D | Media | Bajar el gasto muy por debajo da error en cada fila | US-82 | No | Negativo | Transición de estados |
+| CP-DEU-133 | Alta | Se puede compartir con hasta 10 personas | US-82 | No | Límite | Valores límite |
+| CP-DEU-134 | Alta | No se puede repetir una persona | US-82 | No | Negativo | Partición de equivalencia |
+| CP-DEU-135 | Media | Una persona sin nombre da error en su fila | US-82 | No | Negativo | Partición de equivalencia |
+| CP-DEU-135B | Media | Quitar una persona conserva a las demás | US-82 | No | Positivo | Transición de estados |
+| CP-DEU-135C | Media | Pasar a Ingreso y volver a Gasto reinicia la sección compartida | US-82 | No | Positivo | Transición de estados |
+| CP-DEU-135D | Media | Apagar «Gasto compartido» guarda el gasto sin deudas | US-82 | No | Positivo | Transición de estados |
+| CP-DEU-136 | Alta | Gasto compartido con 3 personas en 2 cuotas: etiqueta en Movimientos y Resumen | US-82 | Sí | Positivo | Partición de equivalencia |
+| CP-DEU-136B | Media | Al borrar un gasto con varias deudas, el aviso las lista | US-82 | No | Positivo | Caso de uso |
+| CP-DEU-136C | Alta | Las 3 deudas de un mismo gasto aparecen en Deudas | US-30, US-37, US-38, US-82 | Sí | Positivo | Caso de uso |
+| CP-DEU-136D | Alta | Eliminar el gasto saca sus 3 deudas | US-35, US-82 | No | Positivo | Transición de estados |
+| CP-DEU-136E | Alta | Restaurar el gasto devuelve sus 3 deudas con su estado | US-35, US-82 | No | Positivo | Transición de estados |
+| CP-DEU-137 | Alta | Por API, 2 personas y 1 monto se rechaza | US-82 | No | Negativo | Partición de equivalencia |
+| CP-DEU-138 | Media | Por API, listas vacías se rechazan | US-82 | No | Límite | Valores límite |
+| CP-DEU-139 | Alta | Por API, 11 personas se rechaza | US-82 | No | Límite | Valores límite |
+| CP-DEU-140 | Alta | Por API, la misma persona repetida se rechaza | US-82 | No | Negativo | Partición de equivalencia |
+| CP-DEU-141 | Alta | Por API, deudas que suman más que el gasto se rechazan | US-82 | No | Límite | Valores límite |
+| CP-DEU-142 | Alta | Dólares: el redondeo hace que las deudas sumen más que el gasto | US-82 | No | Límite | Valores límite |
+| CP-DEU-142A | Alta | Por API, el mismo caso de redondeo se rechaza | US-82 | No | Límite | Valores límite |
+| CP-DEU-142B | Alta | Por API, una segunda persona sin nombre se rechaza sin guardar nada | US-82 | No | Negativo | Partición de equivalencia |
+| CP-DEU-143 | Alta | Resumen: gasto bruto y neto de reembolsos | US-30 | Sí | Positivo | Caso de uso |
+| CP-DEU-144 | Alta | Resumen: el neto no cambia al saldar la deuda | US-30 | Sí | Positivo | Transición de estados |
+| CP-DEU-145 | Alta | Resumen: gasto en 12 cuotas con deuda, neto negativo | US-30 | Sí | Límite | Valores límite |
+| CP-DEU-146 | Alta | Resumen: una deuda suelta «Me deben» no cambia el neto | US-30 | No | Negativo | Partición de equivalencia |
+| CP-DEU-147 | Alta | Resumen: una deuda suelta «Debo» no cambia el neto | US-30 | No | Negativo | Partición de equivalencia |
+| CP-DEU-148 | Alta | Resumen: eliminar un gasto compartido actualiza el neto en vivo | US-30, US-35 | No | Positivo | Transición de estados |
+| CP-DEU-148B | Alta | Resumen: restaurar un gasto compartido vuelve a restar su deuda | US-30, US-35 | No | Positivo | Transición de estados |
+| CP-DEU-149 | Alta | Resumen: el neto en dólares no cambia si cambia el tipo de cambio | US-30 | Sí | Positivo | Caso de uso |
+| CP-DEU-150 | Media | Resumen: sin deudas vinculadas no aparece el neto | US-30 | No | Negativo | Partición de equivalencia |
+| CP-DEU-151 | Alta | Balance: una deuda suelta «Me deben» resta del balance del mes | US-83 | Sí | Positivo | Caso de uso |
+| CP-DEU-152 | Alta | Balance: una deuda suelta «Debo» suma al balance del mes | US-83 | Sí | Positivo | Caso de uso |
+| CP-DEU-153 | Alta | Balance: saldar la deuda suelta el mismo mes lo deja como antes | US-83 | Sí | Positivo | Transición de estados |
+| CP-DEU-153B | Media | Balance en cero: deuda suelta creada y saldada el mismo mes | US-83 | No | Límite | Valores límite |
+| CP-DEU-154 | Alta | Balance: una deuda saldada hoy mueve el balance de dos meses | US-83 | Sí | Positivo | Caso de uso |
+| CP-DEU-155 | Alta | Balance: reabrir la deuda saca el evento del mes actual | US-83 | No | Positivo | Transición de estados |
+| CP-DEU-156 | Alta | Balance: una deuda suelta «Debo» saldada hoy mueve dos meses | US-83 | Sí | Positivo | Caso de uso |
+| CP-DEU-157 | Alta | Balance: la deuda en dólares conserva el tipo de cambio de origen | US-83 | Sí | Positivo | Caso de uso |
+| CP-DEU-158 | Alta | Balance: un gasto compartido no aparece como deuda suelta | US-83 | No | Negativo | Partición de equivalencia |
+| CP-DEU-159 | Alta | Un mes solo con una deuda suelta no se ve vacío | US-83 | No | Límite | Valores límite |
 | CP-NAV-001 | Media | La barra tiene cuatro secciones en el orden correcto | US-69 | Sí | Positivo | Caso de uso |
 | CP-NAV-002 | Media | «Registrar» lleva a Registrar | US-69 | Sí | Positivo | Caso de uso |
 | CP-NAV-003 | Media | «Resumen» lleva al Resumen | US-69 | Sí | Positivo | Caso de uso |
@@ -626,6 +718,3026 @@ Los casos salen de [`entrega-2/casos/deu.md`](casos/deu.md) y [`entrega-2/casos/
 | 2 | Con el token del usuario, pedir GET a SUPABASE_URL/rest/v1/transactions?select=id y a /rest/v1/debts?select=id. | Ambos devuelven [] : no se creó nada. |
 
 **Notas del diseño:** No hay equivalente en pantalla: la app sin sesión lleva directo al login. Prueba original por API. BLOQUEADO: la función de varias personas (US-82, issue #270) todavía no existe en la app.
+
+---
+
+### CP-DEU-100 — Abrir la dirección de «Saldadas» y recargar mantiene el filtro
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-38 · CA-3 · FR-18 · C11 |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-100-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-100-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deudas D 1 y D 2 creadas desde Deudas → «Nueva deuda», y D 2 saldada con el botón «Marcar saldada».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+- D 2: Pedro te debe $8.000, con fecha 10/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=settled a la dirección de la app y apretar Enter. | «Saldadas» aparece seleccionado y solo se ve la fila de «Pedro». |
+| 2 | Recargar la página del navegador (F5). | La URL sigue siendo /debts?status=settled, «Saldadas» sigue seleccionado y solo se ve la fila de «Pedro». |
+
+---
+
+### CP-DEU-101 — Un filtro inválido en la dirección se trata como «Pendientes»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-38 · CA-4 · FR-18 · C11 |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-101-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-101-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deudas D 1 y D 2 creadas desde Deudas → «Nueva deuda», y D 2 saldada con el botón «Marcar saldada».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+- D 2: Pedro te debe $8.000, con fecha 10/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=xyz a la dirección de la app y apretar Enter. | «Pendientes» queda seleccionado y la lista muestra solo la fila pendiente de «Sofía». |
+| 2 | Tocar el filtro «Saldadas». | La URL pasa a /debts?status=settled y se muestra solo la fila de «Pedro». |
+
+---
+
+### CP-DEU-102 — Deudas pendientes: la de fecha más nueva va primero
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-38 · CA-5 (parte 1) · FR-18 · — |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-102-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-102-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. 3 deudas pendientes creadas secuencialmente (esperando 2 segundos entre cada una) desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Ana te debe $10.000, con fecha 01/10/2026.
+- D 2: Beto te debe $20.000, con fecha 15/08/2026.
+- D 3: Carla te debe $30.000, con fecha 01/10/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts a la dirección de la app y apretar Enter. | En «Pendientes», las 3 filas aparecen de arriba hacia abajo en el orden exacto: 1.º «Carla» (01/10/2026, creada más reciente), 2.º «Ana» (01/10/2026, creada antes), 3.º «Beto» (15/08/2026). |
+
+---
+
+### CP-DEU-102B — Deudas saldadas: la saldada más recientemente va primero
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-38 · CA-5 (parte 2) · FR-18 · — |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-102b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-102b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deudas D 1 y D 2 creadas desde Deudas → «Nueva deuda»; primero se salda D 1 con el botón «Marcar saldada» y, esperando 2 segundos, se salda D 2 con el botón «Marcar saldada».
+
+**Datos de prueba:**
+
+- D 1: Diego te debe $15.000, con fecha 10/08/2026.
+- D 2: Elena te debe $25.000, con fecha 05/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=settled a la dirección de la app y apretar Enter. | En «Saldadas», las 2 filas aparecen de arriba hacia abajo en el orden exacto: 1.º «Elena» (saldada más recientemente), 2.º «Diego». |
+
+---
+
+### CP-DEU-103 — Sin deudas pendientes: mensaje y botón «Cargar una deuda»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Límite |
+| Trazabilidad | US-38 · CA-7, CA-11 · FR-18 · — |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-103-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-103-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts a la dirección de la app y apretar Enter. | Se muestra el mensaje de lista vacía con el texto exacto «No tenés deudas pendientes.» y el botón «Cargar una deuda». |
+| 2 | Tocar el botón «Cargar una deuda». | Navega a /debts/new. |
+
+---
+
+### CP-DEU-104 — Sin deudas saldadas: mensaje y sin botón
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Límite |
+| Trazabilidad | US-38 · CA-7 · FR-18 · — |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-104-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-104-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=settled a la dirección de la app y apretar Enter. | Se muestra el mensaje de lista vacía con el texto exacto «Todavía no saldaste ninguna deuda.» y el botón no se ve. |
+
+---
+
+### CP-DEU-105 — Sin ninguna deuda en «Todas»: mensaje y botón «Cargar una deuda»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Límite |
+| Trazabilidad | US-38 · CA-7 · FR-18 · — |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-105-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-105-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | Se muestra el mensaje de lista vacía con el texto exacto «No cargaste ninguna deuda todavía.» y el botón «Cargar una deuda». |
+
+---
+
+### CP-DEU-106 — Otro usuario no ve las deudas de alguien más
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-38 · CA-9 · FR-18 · C7 |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Dos usuarios de prueba nuevos, cada uno con su propia sesión (ventana de incógnito distinta): Usuario A (qa+cp-deu-106-a@example.com) y Usuario B (qa+cp-deu-106-b@example.com), los dos con contraseña Clave123!. Cómo crearlos: en la pantalla «Entrar» tocar «Crear una cuenta», completar el email, la contraseña y «Confirmar contraseña», tocar «Crear cuenta» y «Saltear» en los 4 pasos de la configuración inicial. El caso se mira desde la ventana de incógnito del Usuario B.
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026 (cargada por el Usuario A).
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | En la ventana de incógnito donde inició sesión el Usuario B (qa+cp-deu-106-b@example.com), escribir /debts?status=all en la barra de direcciones y apretar Enter. | «Te deben» muestra «$0,00», «Debés» muestra «$0,00», el neto muestra «En cero» y se ve el estado vacío «No cargaste ninguna deuda todavía.» (0 filas del Usuario A visibles). |
+
+---
+
+### CP-DEU-107 — Por API, otro usuario no recibe las deudas de alguien más
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-38 · CA-9 (parte 1) · FR-18 · C7 |
+| Historias de usuario | US-38 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Dos usuarios de prueba NUEVOS: A (qa+cp-deu-107-a@example.com) y B (qa+cp-deu-107-b@example.com), los dos con contraseña Clave123!. Cómo crearlos: en la pantalla «Entrar» tocar «Crear una cuenta», completar el email, la contraseña y «Confirmar contraseña», tocar «Crear cuenta» y «Saltear» en los 4 pasos de la configuración inicial; cada usuario en su propia ventana de incógnito.
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de cada usuario: igual que el token de un solo usuario (POST a SUPABASE_URL/auth/v1/token?grant_type=password con «apikey» = ANON_KEY y el email y la contraseña del usuario); copiar el «access_token» de A y el de B.
+6. Usuarios A y B. Una deuda «Sofía te debe $60.000» con fecha 15/08/2026, cargada por A (desde Deudas → «Nueva deuda» con la sesión de A).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Con el token del usuario B pedir GET a /rest/v1/debts?select=* y a /rest/v1/debts?id=eq.<ID de la deuda de A>. | Las dos respuestas son 200 con la lista vacía []: B no ve nada de A. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-108 — Por API, sin sesión no se pueden leer las deudas
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-38 · CA-9 (parte 2) · C7 · FR-18 · C7 |
+| Historias de usuario | US-38 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+3. Ninguna: la consulta se hace sin sesión.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Pedir GET a /rest/v1/debts?select=* enviando solo el encabezado «apikey» (sin «Authorization»). | Responde 401 o 403 con el código 42501 («permission denied for table debts»). |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-108B — Sin sesión, la dirección /debts lleva al login
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-38 · CA-10 · FR-18 · C7 |
+| Historias de usuario | US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Ventana de incógnito limpia, SIN sesión iniciada.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Abrir una ventana de incógnito nueva (sin iniciar sesión), escribir /debts en la barra de direcciones y apretar Enter. | El navegador redirige a /login?next=%2Fdebts y muestra la pantalla «Entrar». |
+
+---
+
+### CP-DEU-108C — Sin sesión, la dirección /debts/new lleva al login
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-36 ("Rutas privadas") · US-38 · CA-10 · FR-18 · C7 |
+| Historias de usuario | US-36, US-38 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Ventana de incógnito limpia, SIN sesión iniciada.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Abrir una ventana de incógnito nueva (sin iniciar sesión), escribir /debts/new en la barra de direcciones y apretar Enter. | El navegador redirige a /login?next=%2Fdebts%2Fnew y muestra la pantalla «Entrar». |
+
+---
+
+### CP-DEU-109 — Marcar una deuda como saldada desde «Pendientes»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-39 · CA-1, CA-8 · US-37 · CA-5 · US-30 · CA-2 · FR-18 · I9 |
+| Historias de usuario | US-30, US-37, US-39 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-109-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-109-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda D 1 creada desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts a la dirección de la app y apretar Enter. | Se muestra «Te deben» = «$60.000,00», «A tu favor $60.000,00» y la fila de «Sofía» con el botón «Marcar saldada». |
+| 2 | Tocar el botón «Marcar saldada» de la fila de «Sofía». | La fila de «Sofía» sale de la lista de «Pendientes», aparece el estado vacío «No tenés deudas pendientes.», aparece el aviso con el texto exacto «Deuda con Sofía saldada» y el botón «Deshacer», y en la tarjeta de totales «Te deben» baja en el acto a «$0,00» y el neto pasa a «En cero». |
+
+---
+
+### CP-DEU-110 — Marcar saldada desde «Todas» deja la fila como saldada
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-39 · CA-2 · FR-18 · I9 · ADR-021 |
+| Historias de usuario | US-39 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-110-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-110-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda D 1 creada desde Deudas → «Nueva deuda».
+6. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | Se ve la fila de «Sofía» con el botón «Marcar saldada». |
+| 2 | Tocar el botón «Marcar saldada». | La fila de «Sofía» permanece en la lista y el estado muestra «Saldada el [fecha de hoy]», y el botón pasa a «Volver a pendiente». |
+
+---
+
+### CP-DEU-111 — «Deshacer» devuelve la deuda a pendiente
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-39 · CA-4 (parte 1) · FR-18 · I9 |
+| Historias de usuario | US-39 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-111-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-111-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda D 1 creada desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts a la dirección de la app y apretar Enter. | Se ve la fila de «Sofía» en «Pendientes». |
+| 2 | Tocar «Marcar saldada». | Aparece el aviso («Deuda con Sofía saldada») con el botón «Deshacer». |
+| 3 | Antes de que pasen 5 segundos, tocar el botón «Deshacer». | El aviso desaparece, la fila de «Sofía» vuelve a aparecer en «Pendientes» y «Te deben» vuelve a «$60.000,00». |
+
+---
+
+### CP-DEU-111B — El aviso con «Deshacer» desaparece al cambiar de filtro
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-39 · CA-4 (parte 2) · FR-18 · I9 |
+| Historias de usuario | US-39 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-111b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-111b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda D 1 creada desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts a la dirección de la app y apretar Enter. | Se ve la fila de «Sofía» en «Pendientes». |
+| 2 | Tocar «Marcar saldada». | Aparece el aviso con «Deuda con Sofía saldada» y «Deshacer». |
+| 3 | Antes de que pasen 5 segundos, tocar el filtro «Saldadas». | El aviso el aviso desaparece inmediatamente de la pantalla al cambiar de filtro. |
+
+---
+
+### CP-DEU-112 — Saldar una deuda que ya se saldó en otra pestaña muestra un error
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-39 · CA-5 · FR-18 · I9 |
+| Historias de usuario | US-39 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-112-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-112-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda D 1 creada desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | En la Pestaña 1, escribir /debts?status=all en la barra de direcciones y apretar Enter. | En la Pestaña 1 se ve la fila de «Sofía» pendiente con el botón «Marcar saldada». |
+| 2 | Abrir una segunda pestaña (Pestaña 2) en la misma ventana de incógnito, escribir /debts?status=all y apretar Enter. | En la Pestaña 2 también se ve la fila de «Sofía» pendiente con el botón «Marcar saldada». |
+| 3 | En la Pestaña 2, tocar «Marcar saldada». | En la Pestaña 2 la deuda de «Sofía» pasa a saldada. |
+| 4 | Volver a la Pestaña 1 (sin recargarla) y tocar el botón «Marcar saldada». | En la Pestaña 1 aparece el aviso de error con «No se pudo actualizar la deuda» y el motivo «La deuda ya está saldada», y la lista se refresca mostrando la fila de «Sofía» como saldada. |
+
+---
+
+### CP-DEU-113 — Por API, saldar una deuda ya saldada se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-39 · CA-6 (parte 1) · FR-18 · I9 · C6 |
+| Historias de usuario | US-39 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-113-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-113-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Una deuda «Sofía te debe $60.000» con fecha 15/08/2026, ya marcada como saldada (botón «Marcar saldada»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Con el token del usuario, enviar POST a /rest/v1/rpc/settle_debt con {"p_debt_id": "<ID de una deuda ya saldada>"}. | Responde 400 con el código 23514 y el mensaje «La deuda ya está saldada»; la deuda sigue saldada con su fecha original. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-114 — Por API, un usuario no puede saldar la deuda de otro
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-39 · CA-6 (parte 2) · ADR-037 §3 · FR-18 · C6 · C7 |
+| Historias de usuario | US-39 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Dos usuarios de prueba NUEVOS: A (qa+cp-deu-114-a@example.com) y B (qa+cp-deu-114-b@example.com), los dos con contraseña Clave123!. Cómo crearlos: en la pantalla «Entrar» tocar «Crear una cuenta», completar el email, la contraseña y «Confirmar contraseña», tocar «Crear cuenta» y «Saltear» en los 4 pasos de la configuración inicial; cada usuario en su propia ventana de incógnito.
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de cada usuario: igual que el token de un solo usuario (POST a SUPABASE_URL/auth/v1/token?grant_type=password con «apikey» = ANON_KEY y el email y la contraseña del usuario); copiar el «access_token» de A y el de B.
+6. Usuarios A y B. Una deuda «Sofía te debe $60.000» con fecha 15/08/2026, cargada por A y pendiente.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Con el token del usuario B, enviar POST a /rest/v1/rpc/settle_debt con el ID de una deuda del usuario A. | Responde 400 con el código 23514 y «La deuda no existe»; la deuda de A sigue pendiente. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-114B — Por API, saldar una deuda que no existe se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-39 · CA-6 (parte 2) · ADR-037 §3 · FR-18 · C6 |
+| Historias de usuario | US-39 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-114b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-114b-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Solo el usuario de prueba (el caso usa un identificador de deuda que no existe).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar POST a /rest/v1/rpc/settle_debt con un ID inexistente (00000000-0000-0000-0000-000000000000). | Responde 400 con el código 23514 y «La deuda no existe». |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-115 — Por API, sin sesión no se puede saldar una deuda
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-39 · CA-6 (parte 3) · FR-18 · C7 |
+| Historias de usuario | US-39 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+3. Ninguna: el pedido se hace sin sesión.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar POST a /rest/v1/rpc/settle_debt solo con el encabezado «apikey» (sin sesión). | Responde 401 o 403 con el código 42501 («permission denied for function settle_debt»). |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-116 — Por API, no se puede modificar una deuda directamente
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-39 · CA-7 · ADR-037 §1 · FR-18 · C7 |
+| Historias de usuario | US-39 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-116-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-116-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Una deuda «Sofía te debe $60.000» con fecha 15/08/2026 (pendiente).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Con el token del usuario, enviar PATCH a /rest/v1/debts?id=eq.<ID> con {"status": "settled"}. | Responde 403 con el código 42501 («permission denied for table debts»); la deuda sigue pendiente. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-116B — Por API, no se puede borrar una deuda directamente
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-39 · CA-7 · ADR-037 §1 · FR-18 · C7 |
+| Historias de usuario | US-39 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-116b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-116b-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Una deuda «Sofía te debe $60.000» con fecha 15/08/2026 (pendiente).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Con el token del usuario, enviar DELETE a /rest/v1/debts?id=eq.<ID>. | Responde 403 con el código 42501; la deuda sigue existiendo. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-117 — «Volver a pendiente» desde «Saldadas»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-40 · CA-1, CA-2 · FR-18 · I9 · C10 |
+| Historias de usuario | US-40 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-117-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-117-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda creada desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe US$40 (a tipo de cambio 1250), con fecha 15/08/2026 y nota «Viaje».
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=settled a la dirección de la app y apretar Enter. | Se ve la fila de «Sofía» con el botón «Volver a pendiente». |
+| 2 | Tocar «Volver a pendiente». | La fila sale de «Saldadas», aparece «Todavía no saldaste ninguna deuda.» y se muestra el aviso con el texto exacto «La deuda con Sofía volvió a pendiente». |
+
+---
+
+### CP-DEU-118 — «Volver a pendiente» desde «Todas» actualiza los totales
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-40 · CA-3 · US-37 · CA-5 · FR-18 · I9 |
+| Historias de usuario | US-37, US-40 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-118-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-118-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda D 1 creada desde Deudas → «Nueva deuda» y saldada con el botón «Marcar saldada».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | «Te deben» muestra «$0,00», el neto muestra «En cero» y la fila de «Sofía» tiene el botón «Volver a pendiente». |
+| 2 | Tocar «Volver a pendiente». | La fila de «Sofía» queda en la lista y el estado igual a «Pendiente», el botón pasa a «Marcar saldada», y en la tarjeta de totales «Te deben» sube en el acto a «$60.000,00» y el neto pasa a «A tu favor $60.000,00». |
+
+---
+
+### CP-DEU-119 — Por API, reabrir una deuda que ya está pendiente se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-40 · CA-4 (parte 1) · FR-18 · I9 · C6 |
+| Historias de usuario | US-40 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-119-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-119-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Una deuda «Sofía te debe $60.000» con fecha 15/08/2026 (pendiente).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Con el token del usuario, enviar POST a /rest/v1/rpc/reopen_debt con el ID de una deuda ya pendiente. | Responde 400 con el código 23514 y «La deuda ya está pendiente». |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-119B — Volver a pendiente una deuda que ya se reabrió en otra pestaña muestra un error
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-40 · CA-6 · FR-18 · I9 |
+| Historias de usuario | US-40 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-119b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-119b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda D 1 creada desde Deudas → «Nueva deuda» y saldada con el botón «Marcar saldada».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | En la Pestaña 1, escribir /debts?status=all en la barra de direcciones y apretar Enter. | En la Pestaña 1 se ve la fila de «Sofía» saldada con el botón «Volver a pendiente». |
+| 2 | Abrir una segunda pestaña (Pestaña 2) en la misma ventana de incógnito, escribir /debts?status=all y apretar Enter. | En la Pestaña 2 también se ve la fila de «Sofía» saldada con el botón «Volver a pendiente». |
+| 3 | En la Pestaña 2, tocar «Volver a pendiente». | En la Pestaña 2 la deuda de «Sofía» vuelve a pendiente. |
+| 4 | Volver a la Pestaña 1 (sin recargarla) y tocar «Volver a pendiente». | En la Pestaña 1 aparece el aviso de error con «No se pudo actualizar la deuda» y el motivo «La deuda ya está pendiente», y la lista se refresca mostrando la fila de «Sofía» como pendiente. |
+
+---
+
+### CP-DEU-120 — Por API, un usuario no puede reabrir la deuda de otro
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-40 · CA-4 (parte 2) · ADR-037 §3 · FR-18 · C6 · C7 |
+| Historias de usuario | US-40 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Dos usuarios de prueba NUEVOS: A (qa+cp-deu-120-a@example.com) y B (qa+cp-deu-120-b@example.com), los dos con contraseña Clave123!. Cómo crearlos: en la pantalla «Entrar» tocar «Crear una cuenta», completar el email, la contraseña y «Confirmar contraseña», tocar «Crear cuenta» y «Saltear» en los 4 pasos de la configuración inicial; cada usuario en su propia ventana de incógnito.
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de cada usuario: igual que el token de un solo usuario (POST a SUPABASE_URL/auth/v1/token?grant_type=password con «apikey» = ANON_KEY y el email y la contraseña del usuario); copiar el «access_token» de A y el de B.
+6. Usuarios A y B. Una deuda «Sofía te debe $60.000» con fecha 15/08/2026, cargada por A y marcada como saldada.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Con el token del usuario B, enviar POST a /rest/v1/rpc/reopen_debt con el ID de una deuda saldada de A. | Responde 400 con el código 23514 y «La deuda no existe»; la deuda de A sigue saldada. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-120B — Por API, reabrir una deuda que no existe se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-40 · CA-4 (parte 2) · ADR-037 §3 · FR-18 · C6 |
+| Historias de usuario | US-40 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-120b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-120b-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Solo el usuario de prueba (el caso usa un identificador de deuda que no existe).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar POST a /rest/v1/rpc/reopen_debt con un ID inexistente. | Responde 400 con el código 23514 y «La deuda no existe». |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-121 — Por API, sin sesión no se puede reabrir una deuda
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Adivinación de errores · Negativo |
+| Trazabilidad | US-40 · CA-4 (parte 3) · FR-18 · C7 |
+| Historias de usuario | US-40 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+3. Ninguna: el pedido se hace sin sesión.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar POST a /rest/v1/rpc/reopen_debt solo con el encabezado «apikey» (sin sesión). | Responde 401 o 403 con el código 42501 («permission denied for function reopen_debt»). |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-122 — Saldar y reabrir tres veces seguidas deja la deuda pendiente
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Límite |
+| Trazabilidad | US-40 · CA-5 · FR-18 · I9 |
+| Historias de usuario | US-40 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-122-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-122-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda pendiente creada desde Deudas → «Nueva deuda».
+6. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | Se ve 1 sola fila («Sofía», pendiente). |
+| 2 | Tocar «Marcar saldada». | La fila pasa a «Saldada el [fecha de hoy]» con el botón «Volver a pendiente». |
+| 3 | Tocar «Volver a pendiente». | La fila vuelve a «Pendiente» con el botón «Marcar saldada». |
+| 4 | Tocar «Marcar saldada». | La fila pasa a «Saldada el [fecha de hoy]» con el botón «Volver a pendiente». |
+| 5 | Tocar «Volver a pendiente». | La fila vuelve a «Pendiente» con el botón «Marcar saldada». |
+| 6 | Tocar «Marcar saldada». | La fila pasa a «Saldada el [fecha de hoy]» con el botón «Volver a pendiente». |
+| 7 | Tocar «Volver a pendiente». | En /debts?status=all sigue habiendo exactamente 1 fila, con estado «Pendiente» y «Te deben» = «$60.000,00». |
+
+---
+
+### CP-DEU-123 — Filtro por dirección: «Todas», «Te deben» y «Debés»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-79 · CA-1, CA-2, CA-7, CA-8, CA-9 · FR-18 · C11 |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-123-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-123-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deudas pendientes D 1 y D 2 creadas desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+- D 2: Le debés $15.000 a Ana, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts a la dirección de la app y apretar Enter. | Debajo del filtro de estado aparece el filtro de dirección con «Todas» (seleccionado), «Te deben» y «Debés». Se ven las 2 filas («Sofía» y «Ana»). |
+| 2 | Tocar «Te deben». | La URL cambia a /debts?direction=owed_to_me, «Te deben» queda seleccionado, la lista muestra solo a «Sofía», la tarjeta de totales sigue mostrando «Te deben» = «$60.000,00», «Debés» = «$15.000,00» y «A tu favor $45.000,00». |
+| 3 | Tocar «Debés». | La URL cambia a /debts?direction=i_owe, «Debés» queda seleccionado, la lista muestra solo a «Ana», la tarjeta de totales no cambia. |
+
+---
+
+### CP-DEU-124 — Los filtros de estado y de dirección se combinan
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | Sí |
+| Técnica · Tipo | Tabla de decisión · Positivo |
+| Trazabilidad | US-79 · CA-3, CA-5 · FR-18 · C11 |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-124-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-124-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. 3 deudas creadas desde Deudas → «Nueva deuda»; D 2 y D 3 saldadas con el botón «Marcar saldada».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+- D 2: Pedro te debe $8.000, con fecha 10/08/2026.
+- D 3: Le debés $25.000 a Marta, con fecha 12/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts a la dirección de la app y apretar Enter. | Se abre /debts con «Pendientes» y «Todas» seleccionados. |
+| 2 | Tocar «Debés». | La URL pasa a ?direction=i_owe. |
+| 3 | Tocar «Saldadas». | La URL conserva ambos parámetros (?direction=i_owe&status=settled o ?status=settled&direction=i_owe), «Saldadas» y «Debés» quedan seleccionados, y se lista únicamente la fila de «Marta». |
+| 4 | Recargar la página (F5). | Ambos filtros siguen seleccionados y la lista sigue mostrando únicamente a «Marta». |
+
+---
+
+### CP-DEU-125 — Una dirección inválida se trata como «Todas»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-79 · CA-4 · FR-18 · C11 |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-125-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-125-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deudas pendientes D 1 y D 2 creadas desde Deudas → «Nueva deuda».
+
+**Datos de prueba:**
+
+- D 1: Sofía te debe $60.000, con fecha 15/08/2026.
+- D 2: Le debés $15.000 a Ana, con fecha 15/08/2026.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?direction=xyz a la dirección de la app y apretar Enter. | «Todas» queda seleccionado y se listan las 2 filas («Sofía» y «Ana»). |
+| 2 | Tocar «Te deben». | La URL cambia a /debts?direction=owed_to_me y se muestra solo «Sofía». |
+
+---
+
+### CP-DEU-126 — Sin deudas: «Pendientes» + «Te deben»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Tabla de decisión · Límite |
+| Trazabilidad | US-79 · CA-6 · FR-18 · — |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-126-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-126-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?direction=owed_to_me a la dirección de la app y apretar Enter. | El mensaje de lista vacía muestra el texto exacto «Nadie te debe nada por ahora.» y el botón «Cargar una deuda» está visible. |
+
+---
+
+### CP-DEU-126B — Sin deudas: «Saldadas» + «Te deben»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Tabla de decisión · Límite |
+| Trazabilidad | US-79 · CA-6 · FR-18 · — |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-126b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-126b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=settled&direction=owed_to_me a la dirección de la app y apretar Enter. | El mensaje de lista vacía muestra el texto exacto «Todavía no te saldaron ninguna deuda.» y el botón no se ve. |
+
+---
+
+### CP-DEU-126C — Sin deudas: «Todas» + «Te deben»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Tabla de decisión · Límite |
+| Trazabilidad | US-79 · CA-6 · FR-18 · — |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-126c-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-126c-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=all&direction=owed_to_me a la dirección de la app y apretar Enter. | El mensaje de lista vacía muestra el texto exacto «No cargaste deudas a tu favor.» y el botón «Cargar una deuda» está visible. |
+
+---
+
+### CP-DEU-127 — Sin deudas: «Pendientes» + «Debés»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Tabla de decisión · Límite |
+| Trazabilidad | US-79 · CA-6 · FR-18 · — |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-127-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-127-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?direction=i_owe a la dirección de la app y apretar Enter. | El mensaje de lista vacía muestra el texto exacto «No debés nada por ahora.» y el botón «Cargar una deuda» está visible. |
+
+---
+
+### CP-DEU-127B — Sin deudas: «Saldadas» + «Debés»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Tabla de decisión · Límite |
+| Trazabilidad | US-79 · CA-6 · FR-18 · — |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-127b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-127b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=settled&direction=i_owe a la dirección de la app y apretar Enter. | El mensaje de lista vacía muestra el texto exacto «Todavía no saldaste ninguna deuda tuya.» y el botón no se ve. |
+
+---
+
+### CP-DEU-127C — Sin deudas: «Todas» + «Debés»
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Tabla de decisión · Límite |
+| Trazabilidad | US-79 · CA-6 · FR-18 · — |
+| Historias de usuario | US-79 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-127c-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-127c-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=all&direction=i_owe a la dirección de la app y apretar Enter. | El mensaje de lista vacía muestra el texto exacto «No cargaste deudas que debas.» y el botón «Cargar una deuda» está visible. |
+
+---
+
+### CP-DEU-128 — Gasto compartido con varias personas: agregar, quitar y guardar
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-82 · CA-1, CA-2, CA-10, CA-22 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-128-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-128-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | En «Fecha» tocar «Otra» y escribir 15/08/2026. | El campo de fecha muestra 15/08/2026. |
+| 4 | Tocar el interruptor «Gasto compartido». | Aparece 1 sola fila vacía, sin botón «Quitar»; debajo se ven los botones «Agregar persona» y «Dividir en partes iguales». |
+| 5 | En la fila 1 escribir Sofía en «¿Con quién?» y 40000 en «¿Cuánto te debe?». | La fila 1 muestra Sofía y 40000. |
+| 6 | Tocar «Agregar persona». | Se agrega la fila 2 vacía al final, el cursor queda en «¿Con quién?» de la fila 2 y aparece el botón «Quitar» en las dos filas. |
+| 7 | En la fila 2 escribir Juan en «¿Con quién?» y 40000 en «¿Cuánto te debe?». | El resumen muestra «Te van a deber $80.000,00 entre 2 personas · Tu parte: $40.000,00». |
+| 8 | Tocar «Guardar gasto». | Aparece el aviso «Gasto guardado» con la descripción «Juan y Sofía te deben $80.000,00». |
+| 9 | Agregar /transactions?period=2026-08 a la dirección de la app y apretar Enter. | La fila del gasto muestra la etiqueta «Compartido con Juan y Sofía». |
+| 10 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | En «Últimos movimientos», la fila del gasto muestra «Compartido con Juan y Sofía». |
+
+---
+
+### CP-DEU-128B — Las personas se ordenan por nombre sin distinguir mayúsculas ni tildes
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Positivo |
+| Trazabilidad | US-82 · CA-2, CA-10, CA-12 · US-38 · CA-5 · FR-18 · I7 |
+| Historias de usuario | US-38, US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-128b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-128b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | En la sección «Fecha», tocar «Otra» y escribir 15/08/2026. | El campo de fecha muestra 15/08/2026. |
+| 4 | Tocar el interruptor «Gasto compartido». | Aparece la fila 1. |
+| 5 | En la fila 1, escribir Beto en «¿Con quién?» y 30000 en «¿Cuánto te debe?». | La fila 1 muestra Beto y 30000. |
+| 6 | Tocar «Agregar persona», escribir álvaro en «¿Con quién?» de la fila 2 y 30000 en «¿Cuánto te debe?». | La fila 2 muestra álvaro y 30000. |
+| 7 | Tocar «Agregar persona», escribir Ángela en «¿Con quién?» de la fila 3 y 30000 en «¿Cuánto te debe?». | La fila 3 muestra Ángela y 30000. |
+| 8 | Tocar el botón «Guardar gasto». | Aparece el aviso «Gasto guardado» con la descripción exacta «álvaro, Ángela y Beto te deben $90.000,00». |
+| 9 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | Las 3 filas aparecen en el orden exacto de arriba hacia abajo: álvaro, Ángela, Beto (desempate por persona sin distinguir mayúsculas ni tildes). |
+
+---
+
+### CP-DEU-129 — «Dividir en partes iguales» entre 2 personas
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Valores límite · Positivo |
+| Trazabilidad | US-82 · CA-3, CA-22 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-129-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-129-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 100000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido». | Aparece la fila 1. |
+| 4 | En la fila 1, escribir Sofía en «¿Con quién?» y 10000 en «¿Cuánto te debe?». | La fila 1 muestra Sofía y 10000. |
+| 5 | Tocar «Agregar persona», escribir Juan en «¿Con quién?» de la fila 2 y 20000 en «¿Cuánto te debe?». | La fila 2 muestra Juan y 20000. |
+| 6 | Tocar el botón «Dividir en partes iguales». | El campo «¿Cuánto te debe?» de la fila 1 y el de la fila 2 reemplazan sus montos previos por 33333,33 (con coma decimal y sin separador de miles), y el resumen muestra el texto exacto «Te van a deber $66.666,66 entre 2 personas · Tu parte: $33.333,34». |
+
+---
+
+### CP-DEU-129B — Dividir un gasto de $0,02 entre 2 personas da error
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Negativo |
+| Trazabilidad | US-82 · CA-20 · FR-18 · I5, I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-129b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-129b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 0,02 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido». | Aparece la fila 1. |
+| 4 | En la fila 1, escribir Sofía en «¿Con quién?». | La fila 1 muestra Sofía. |
+| 5 | Tocar «Agregar persona» y escribir Juan en «¿Con quién?» de la fila 2. | La fila 2 muestra Juan. |
+| 6 | Tocar el botón «Dividir en partes iguales». | El campo «¿Cuánto te debe?» de la fila 1 y el de la fila 2 quedan con 0, cada fila muestra el mensaje exacto «El monto debe ser mayor a cero», y el botón «Guardar gasto» está deshabilitado. |
+
+---
+
+### CP-DEU-129C — «Dividir en partes iguales» con los nombres vacíos
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Baja |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Positivo |
+| Trazabilidad | US-82 · CA-3 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-129c-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-129c-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 90000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido». | Aparece la fila 1 con «¿Con quién?» vacío y el botón «Dividir en partes iguales» está habilitado. |
+| 4 | Tocar «Agregar persona». | Aparece la fila 2 con «¿Con quién?» vacío. |
+| 5 | Tocar el botón «Dividir en partes iguales». | El campo «¿Cuánto te debe?» de la fila 1 y el de la fila 2 se completan con 30000, los campos «¿Con quién?» siguen vacíos y el botón «Guardar gasto» sigue deshabilitado hasta completar las personas. |
+
+---
+
+### CP-DEU-130 — «Dividir en partes iguales» entre 3 personas
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Positivo |
+| Trazabilidad | US-82 · CA-3 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-130-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-130-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido». | Aparece la fila 1. |
+| 4 | Escribir Sofía en «¿Con quién?» de la fila 1, tocar «Agregar persona», escribir Juan en «¿Con quién?» de la fila 2, tocar «Agregar persona» y escribir Ana en «¿Con quién?» de la fila 3. | Hay 3 filas con Sofía, Juan y Ana. |
+| 5 | Tocar el botón «Dividir en partes iguales». | El campo «¿Cuánto te debe?» de las 3 filas muestra 30000 (sin,00) y el resumen muestra «Te van a deber $90.000,00 entre 3 personas · Tu parte: $30.000,00». |
+
+---
+
+### CP-DEU-130B — Cambiar la moneda con personas cargadas vacía los montos
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-82 · CA-16 · FR-18 · I4, I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-130b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-130b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 30000 en la fila 1, tocar «Agregar persona» y escribir Juan y 30000 en la fila 2. | Las 2 filas tienen Sofía (30000) y Juan (30000). |
+| 4 | Tocar el chip de resumen del monto ($120.000,00) arriba del paso 3 para volver al paso 1. | Se abre el paso 1 de 3, «¿Cuánto?». |
+| 5 | Tocar la moneda US$, escribir 100 en el monto, escribir 1250 en el tipo de cambio y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 6 | Tocar la categoría «Otros». | Se abre el paso 3 de 3: el interruptor «Gasto compartido» sigue encendido con las 2 filas, «¿Con quién?» conserva Sofía en la fila 1 y Juan en la fila 2, y el campo «¿Cuánto te debe?» de ambas filas está vacío con prefijo US$. |
+
+---
+
+### CP-DEU-130C — «Dividir en partes iguales» en dólares
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Positivo |
+| Trazabilidad | US-82 · CA-3 · FR-18 · I4, I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-130c-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-130c-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Tocar la moneda US$, escribir 100 en el campo del monto, escribir 1250 en el campo de tipo de cambio y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía en «¿Con quién?» de la fila 1, tocar «Agregar persona» y escribir Juan en «¿Con quién?» de la fila 2. | Hay 2 filas con Sofía y Juan. |
+| 4 | Tocar el botón «Dividir en partes iguales». | El campo «¿Cuánto te debe?» de ambas filas muestra 33,33 y el resumen muestra «Te van a deber US$66,66 entre 2 personas · Tu parte: US$33,34». |
+
+---
+
+### CP-DEU-130D — En dólares, dividir un gasto muy chico da error de centavos
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Negativo |
+| Trazabilidad | US-82 · CA-3 · US-34 · CA-7 · FR-18 · I4, I5, I7 |
+| Historias de usuario | US-34, US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-130d-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-130d-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Tocar la moneda US$, escribir 0,02 en el campo del monto, escribir 0,4 en el campo de tipo de cambio y tocar «Siguiente». | Se abre el paso 2 de 3 (0,02 × 0,4 = $0,01 en pesos para el gasto). |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido» y escribir Sofía en «¿Con quién?» de la fila 1. | La fila 1 muestra Sofía. |
+| 4 | Tocar el botón «Dividir en partes iguales». | El campo «¿Cuánto te debe?» de la fila 1 se completa con 0,01 (0,01 × 0,4 = 0,004 → $0,00), debajo de la fila aparece el mensaje de error con el texto exacto «En pesos daría menos de $0,01. Revisá el monto o el tipo de cambio», y «Guardar gasto» queda deshabilitado. |
+
+---
+
+### CP-DEU-131 — Entre todos pueden deber todo el gasto (tu parte es $0)
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-4 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-131-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-131-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | En la sección «Fecha», tocar «Otra» y escribir 15/08/2026. | El campo de fecha muestra 15/08/2026. |
+| 4 | Tocar el interruptor «Gasto compartido», escribir Sofía y 60000 en la fila 1, tocar «Agregar persona» y escribir Juan y 60000 en la fila 2. | El resumen muestra «Te van a deber $120.000,00 entre 2 personas · Tu parte: $0,00» y el botón «Guardar gasto» está habilitado. |
+| 5 | Tocar el botón «Guardar gasto». | Aparece el aviso «Gasto guardado» con la descripción «Juan y Sofía te deben $120.000,00». |
+
+---
+
+### CP-DEU-132 — La suma de lo que te deben no puede superar el gasto
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-4, CA-22 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-132-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-132-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 60000 en la fila 1, tocar «Agregar persona», escribir Juan y 60000,01 en la fila 2 y apretar Tab. | Aparece el mensaje de error con el texto exacto «Entre todos no pueden deber más que el gasto ($120.000,00)», el botón «Guardar gasto» queda deshabilitado. |
+
+---
+
+### CP-DEU-132B — Bajar el gasto por debajo de lo que te deben da error
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-82 · CA-18 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-132b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-132b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 40000 en la fila 1, tocar «Agregar persona» y escribir Juan y 40000 en la fila 2. | El resumen muestra «Te van a deber $80.000,00 entre 2 personas · Tu parte: $40.000,00». |
+| 4 | Tocar el chip de resumen del monto ($120.000,00) arriba del paso 3 para volver al paso 1. | Se abre el paso 1 de 3. |
+| 5 | Reemplazar el monto por 70000 y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 6 | Tocar la categoría «Otros». | Se abre el paso 3 de 3: los montos de las filas siguen siendo 40000 y 40000 (no se ajustan solos), se muestra el mensaje de error con el texto exacto «Entre todos no pueden deber más que el gasto ($70.000,00)» y «Guardar gasto» está deshabilitado. |
+
+---
+
+### CP-DEU-132C — Una persona que debe más que el gasto da error en su fila
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-82 · CA-19 · US-41 · CA-4 · FR-18 · I7 |
+| Historias de usuario | US-41, US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-132c-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-132c-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 150000 en la fila 1, tocar «Agregar persona», escribir Juan y 10000 en la fila 2 y apretar Tab. | En la fila 1 aparece el mensaje de error con el texto exacto «No puede superar el monto del gasto ($120.000,00)», no aparece el mensaje de error de la suma total y «Guardar gasto» está deshabilitado. |
+
+---
+
+### CP-DEU-132D — Bajar el gasto muy por debajo da error en cada fila
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Negativo |
+| Trazabilidad | US-82 · CA-18 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-132d-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-132d-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 40000 en la fila 1, tocar «Agregar persona» y escribir Juan y 40000 en la fila 2. | El resumen muestra «Te van a deber $80.000,00 entre 2 personas · Tu parte: $40.000,00». |
+| 4 | Tocar el chip de resumen del monto ($120.000,00) arriba del paso 3 para volver al paso 1. | Se abre el paso 1 de 3. |
+| 5 | Reemplazar el monto por 30000 y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 6 | Tocar la categoría «Otros». | Se abre el paso 3 de 3: tanto la fila 1 como la fila 2 muestran el mensaje de error con el texto exacto «No puede superar el monto del gasto ($30.000,00)», no aparece el mensaje de error de la suma total y «Guardar gasto» está deshabilitado. |
+
+---
+
+### CP-DEU-133 — Se puede compartir con hasta 10 personas
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-5, CA-22 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-133-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-133-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 110000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | En la sección «Fecha», tocar «Otra» y escribir 15/08/2026. | El campo de fecha muestra 15/08/2026. |
+| 4 | Tocar el interruptor «Gasto compartido». | Aparece la fila 1. |
+| 5 | Completar la fila 1 con Persona 01 y 10000, y tocar 9 veces en «Agregar persona», completando las filas 2 a 10 con Persona 02 a Persona 10 y 10000 en cada una. | Hay 10 filas, el botón «Agregar persona» está deshabilitado (disabled), y aparece el texto exacto «Podés compartir un gasto con hasta 10 personas». |
+| 6 | Tocar el botón «Guardar gasto». | Aparece el aviso «Gasto guardado» con la descripción exacta «Persona 01, Persona 02, Persona 03, Persona 04, Persona 05, Persona 06, Persona 07, Persona 08, Persona 09 y Persona 10 te deben $100.000,00». |
+
+---
+
+### CP-DEU-134 — No se puede repetir una persona
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-82 · CA-6 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-134-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-134-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 100000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 30000 en la fila 1, tocar «Agregar persona», escribir sofía en «¿Con quién?» de la fila 2, escribir 30000 en «¿Cuánto te debe?» de la fila 2 y apretar Tab. | En la fila 2 aparece el mensaje de error con el texto exacto «Ya agregaste a Sofía» y el botón «Guardar gasto» queda deshabilitado. |
+
+---
+
+### CP-DEU-135 — Una persona sin nombre da error en su fila
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-82 · CA-8 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-135-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-135-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 30000 en la fila 1, tocar «Agregar persona», tocar «¿Con quién?» de la fila 2 y sin escribir nada pasar a «¿Cuánto te debe?» de la fila 2 y escribir 20000, tocar «Agregar persona» y escribir Ana y 10000 en la fila 3. | En la fila 2 aparece el mensaje de error con el texto exacto «Ingresá con quién compartiste el gasto» y el botón «Guardar gasto» está deshabilitado. |
+
+---
+
+### CP-DEU-135B — Quitar una persona conserva a las demás
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-82 · CA-7 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-135b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-135b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el monto, tocar «Siguiente» y elegir la categoría «Otros». | Se abre el paso 3 de 3. |
+| 2 | Tocar el interruptor «Gasto compartido», escribir Sofía y 30000 en la fila 1, tocar «Agregar persona», escribir Juan y 20000 en la fila 2, tocar «Agregar persona» y escribir Ana y 10000 en la fila 3. | Hay 3 filas. |
+| 3 | Tocar el botón «Quitar» de la fila 2 (la de Juan). | Quedan 2 filas: la primera con Sofía y 30000, y la segunda con Ana y 10000. El resumen muestra «Te van a deber $40.000,00 entre 2 personas · Tu parte: $80.000,00». |
+
+---
+
+### CP-DEU-135C — Pasar a Ingreso y volver a Gasto reinicia la sección compartida
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-82 · CA-17 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-135c-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-135c-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 30000 en la fila 1, tocar «Agregar persona» y escribir Juan y 30000 en la fila 2. | Hay 2 filas cargadas. |
+| 4 | Tocar el chip de resumen del monto ($120.000,00) arriba del paso 3 para volver al paso 1. | Se abre el paso 1. |
+| 5 | Tocar «Ingreso» y luego volver a tocar «Gasto». | «Gasto» queda seleccionado. |
+| 6 | Tocar «Siguiente» y luego en la categoría «Otros». | Se abre el paso 3 de 3 con el interruptor «Gasto compartido» apagado (apagado). |
+| 7 | Tocar el interruptor «Gasto compartido». | Aparece 1 sola fila con «¿Con quién?» y «¿Cuánto te debe?» vacíos. |
+
+---
+
+### CP-DEU-135D — Apagar «Gasto compartido» guarda el gasto sin deudas
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-82 · CA-9 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-135d-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-135d-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir 120000 en el campo del monto y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | En la sección «Fecha», tocar «Otra» y escribir 15/08/2026. | El campo de fecha muestra 15/08/2026. |
+| 4 | Tocar el interruptor «Gasto compartido», escribir Sofía y 30000 en la fila 1, tocar «Agregar persona», escribir Juan y 30000 en la fila 2, tocar «Agregar persona» y escribir Ana y 30000 en la fila 3. | Hay 3 filas cargadas. |
+| 5 | Tocar el interruptor «Gasto compartido». | El interruptor queda apagado (apagado) y las 3 filas desaparecen. |
+| 6 | Tocar el botón «Guardar gasto». | Aparece el aviso «Gasto guardado» sin mención de deudas. |
+| 7 | Escribir 50000 en el campo del monto del nuevo gasto, tocar «Siguiente», tocar «Otros» y tocar el interruptor «Gasto compartido». | Aparece 1 sola fila vacía. |
+
+---
+
+### CP-DEU-136 — Gasto compartido con 3 personas en 2 cuotas: etiqueta en Movimientos y Resumen
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Partición de equivalencia · Positivo |
+| Trazabilidad | US-82 · CA-10 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-136-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-136-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en 2 cuotas, con fecha 15/08/2026 y nota «Cena», compartido con Sofía ($30.000), Juan ($30.000), Ana ($30.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /transactions?period=2026-08 a la dirección de la app y apretar Enter. | La cuota 1/2 muestra la etiqueta con el texto exacto «Compartido con Ana y 2 más». |
+| 2 | Agregar /transactions?period=2026-09 a la dirección de la app y apretar Enter. | La cuota 2/2 muestra la etiqueta con el texto exacto «Compartido con Ana y 2 más». |
+| 3 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | En «Últimos movimientos», la fila del gasto muestra con el texto exacto «Compartido con Ana y 2 más». |
+
+---
+
+### CP-DEU-136B — Al borrar un gasto con varias deudas, el aviso las lista
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-82 · CA-11 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-136b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-136b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha 15/08/2026 y nota «Cena», compartido con Sofía ($30.000), Juan ($30.000), Ana ($30.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /transactions?period=2026-08 a la dirección de la app y apretar Enter. | Se muestra la fila del gasto de $120.000,00. |
+| 2 | Tocar el botón de papelera de la fila del gasto. | Se abre el diálogo de confirmación de borrado y el elemento muestra el texto exacto «También dejan de contar las deudas con Ana, Juan y Sofía por $90.000,00 en total.». |
+
+---
+
+### CP-DEU-136C — Las 3 deudas de un mismo gasto aparecen en Deudas
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-82 · CA-12 · US-38 · CA-5 · US-37 · CA-1 · US-30 · CA-1 · FR-18, FR-19 · I7, I10 |
+| Historias de usuario | US-30, US-37, US-38, US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-136c-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-136c-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha 15/08/2026 y nota «Cena», compartido con Sofía ($30.000), Juan ($30.000), Ana ($30.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | «Te deben» muestra «$90.000,00»; la lista muestra 3 filas en el orden exacto Ana, Juan, Sofía, y cada una muestra con «Gasto compartido: Otros, $120.000,00 del 15/08/2026». |
+| 2 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$120.000,00» y el monto del neto muestra «$30.000,00» ($120.000,00 − $90.000,00). |
+
+---
+
+### CP-DEU-136D — Eliminar el gasto saca sus 3 deudas
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-82 · CA-13 · US-35 · CA-5 · FR-18 · I7, I10 |
+| Historias de usuario | US-35, US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-136d-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-136d-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha 15/08/2026 y nota «Cena», compartido con Sofía ($30.000), Juan ($30.000), Ana ($30.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. La deuda de «Ana» marcada como saldada (botón «Marcar saldada»).
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /transactions?period=2026-08 a la dirección de la app y apretar Enter. | Se muestra el gasto de $120.000,00. |
+| 2 | Tocar el botón de papelera del gasto y confirmar haciendo click en «Eliminar». | El gasto desaparece de Movimientos activos. |
+| 3 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | «Te deben» muestra «$0,00», el neto muestra «En cero» y la lista muestra el estado vacío «No cargaste ninguna deuda todavía.». |
+
+---
+
+### CP-DEU-136E — Restaurar el gasto devuelve sus 3 deudas con su estado
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-82 · CA-13 · US-35 · CA-6 · FR-18 · I7, I9, I10 |
+| Historias de usuario | US-35, US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-136e-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-136e-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha 15/08/2026 y nota «Cena», compartido con Sofía ($30.000), Juan ($30.000), Ana ($30.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. La deuda de «Ana» marcada como saldada (botón «Marcar saldada»).
+7. Ese gasto eliminado (Movimientos → tacho de la fila).
+8. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+9. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir /transactions?period=2026-08 en la barra de direcciones y apretar Enter, tocar la pestaña «Eliminados» y tocar «Restaurar» en la fila del gasto «Cena». | El gasto se restaura a Movimientos activos. |
+| 2 | Agregar /debts?status=all a la dirección de la app y apretar Enter. | Vuelven a aparecer las 3 deudas: «Juan» y «Sofía» con estado «Pendiente» («Te deben» = «$60.000,00») y «Ana» con estado «Saldada el [fecha de hoy]». |
+
+---
+
+### CP-DEU-137 — Por API, 2 personas y 1 monto se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-82 · CA-14 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-137-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-137-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Identificadores de la categoría «Otros» y de la cuenta «Efectivo»: pedidos GET a SUPABASE_URL/rest/v1/categories?select=id,name y SUPABASE_URL/rest/v1/accounts?select=id,name,type con los encabezados «apikey» = ANON_KEY y «Authorization» = Bearer + el token. Anotar el «id» de «Otros» y el de «Efectivo».
+7. Gasto de ejemplo: monto 120000 en pesos, fecha 2026-08-15, con la cuenta «Efectivo» y la categoría «Otros» del usuario de prueba.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar create_transaction con 2 personas ["Sofía","Juan"] y 1 solo monto [40000]. | Responde 400 con el código 23514 y «Un gasto compartido necesita una persona y un monto por cada deuda»; no se crea nada. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-138 — Por API, listas vacías se rechazan
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-14 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-138-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-138-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Identificadores de la categoría «Otros» y de la cuenta «Efectivo»: pedidos GET a SUPABASE_URL/rest/v1/categories?select=id,name y SUPABASE_URL/rest/v1/accounts?select=id,name,type con los encabezados «apikey» = ANON_KEY y «Authorization» = Bearer + el token. Anotar el «id» de «Otros» y el de «Efectivo».
+7. Gasto de ejemplo: monto 120000 en pesos, fecha 2026-08-15, con la cuenta «Efectivo» y la categoría «Otros» del usuario de prueba.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar create_transaction con listas vacías de personas y de montos. | Responde 400 con el código 23514 y «Un gasto compartido necesita al menos una persona»; no se crea nada. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-139 — Por API, 11 personas se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-14 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-139-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-139-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Identificadores de la categoría «Otros» y de la cuenta «Efectivo»: pedidos GET a SUPABASE_URL/rest/v1/categories?select=id,name y SUPABASE_URL/rest/v1/accounts?select=id,name,type con los encabezados «apikey» = ANON_KEY y «Authorization» = Bearer + el token. Anotar el «id» de «Otros» y el de «Efectivo».
+7. Gasto de ejemplo: monto 120000 en pesos, fecha 2026-08-15, con la cuenta «Efectivo» y la categoría «Otros» del usuario de prueba.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar create_transaction con 11 personas. | Responde 400 con el código 23514 y «Un gasto se comparte con hasta 10 personas»; no se crea nada. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-140 — Por API, la misma persona repetida se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-82 · CA-14 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-140-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-140-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Identificadores de la categoría «Otros» y de la cuenta «Efectivo»: pedidos GET a SUPABASE_URL/rest/v1/categories?select=id,name y SUPABASE_URL/rest/v1/accounts?select=id,name,type con los encabezados «apikey» = ANON_KEY y «Authorization» = Bearer + el token. Anotar el «id» de «Otros» y el de «Efectivo».
+7. Gasto de ejemplo: monto 120000 en pesos, fecha 2026-08-15, con la cuenta «Efectivo» y la categoría «Otros» del usuario de prueba.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar create_transaction con las personas "Sofía" y "SOFÍA". | Responde 400 con el código 23514 y «Cada persona puede aparecer una sola vez»; no se crea nada. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-141 — Por API, deudas que suman más que el gasto se rechazan
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-14 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-141-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-141-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Identificadores de la categoría «Otros» y de la cuenta «Efectivo»: pedidos GET a SUPABASE_URL/rest/v1/categories?select=id,name y SUPABASE_URL/rest/v1/accounts?select=id,name,type con los encabezados «apikey» = ANON_KEY y «Authorization» = Bearer + el token. Anotar el «id» de «Otros» y el de «Efectivo».
+7. Gasto de ejemplo: monto 120000 en pesos, fecha 2026-08-15, con la cuenta «Efectivo» y la categoría «Otros» del usuario de prueba.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar create_transaction de 120000 con montos 60000 y 60000.01. | Responde 400 con el código 23514 y «I7: la suma de las deudas no puede superar el monto del gasto»; no se crea nada. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-142 — Dólares: el redondeo hace que las deudas sumen más que el gasto
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-14, CA-22 · FR-18 · I4, I7 |
+| Historias de usuario | US-82 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-142-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-142-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Tocar la moneda US$, escribir 3 en el campo del monto, escribir 1000,005 en el campo de tipo de cambio y tocar «Siguiente». | Se abre el paso 2 de 3. |
+| 2 | Tocar la categoría «Otros». | Se abre el paso 3 de 3. |
+| 3 | Tocar el interruptor «Gasto compartido», escribir Sofía y 1 en la fila 1, tocar «Agregar persona», escribir Juan y 1 en la fila 2, tocar «Agregar persona», escribir Ana y 1 en la fila 3 y apretar Tab. | Aparece el mensaje de error con el texto exacto «En pesos, la suma supera el gasto por redondeo. Bajá un centavo alguna deuda.» y el botón «Guardar gasto» queda deshabilitado. |
+
+---
+
+### CP-DEU-142A — Por API, el mismo caso de redondeo se rechaza
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-82 · CA-14 · FR-18 · I4, I7 |
+| Historias de usuario | US-82 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-142a-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-142a-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Identificadores de la categoría «Otros» y de la cuenta «Efectivo»: pedidos GET a SUPABASE_URL/rest/v1/categories?select=id,name y SUPABASE_URL/rest/v1/accounts?select=id,name,type con los encabezados «apikey» = ANON_KEY y «Authorization» = Bearer + el token. Anotar el «id» de «Otros» y el de «Efectivo».
+7. Gasto de ejemplo: monto 120000 en pesos, fecha 2026-08-15, con la cuenta «Efectivo» y la categoría «Otros» del usuario de prueba.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar create_transaction de US$3 a tipo de cambio 1000.005 con tres deudas de 1. | Responde 400 con el código 23514 y «I7: en pesos, la suma de las deudas supera el gasto por redondeo»; no se crea nada. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-142B — Por API, una segunda persona sin nombre se rechaza sin guardar nada
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-82 · CA-14 · FR-18 · I7 |
+| Historias de usuario | US-82 |
+| Canal | API |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-142b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Herramienta para llamar a la API: Postman (o curl). Datos del entorno de prueba: dirección de la base («SUPABASE_URL») y clave pública («ANON_KEY»), que se ven en la pestaña «Network» del navegador, en el encabezado «apikey» de cualquier pedido de la app.
+5. Token de sesión del usuario: en Postman, pedido POST a SUPABASE_URL/auth/v1/token?grant_type=password con el encabezado «apikey» = ANON_KEY, tipo «Content-Type: application/json» y cuerpo {"email": "qa+cp-deu-142b-001@example.com", "password": "Clave123!"}. Debe responder 200; copiar el valor de «access_token».
+6. Identificadores de la categoría «Otros» y de la cuenta «Efectivo»: pedidos GET a SUPABASE_URL/rest/v1/categories?select=id,name y SUPABASE_URL/rest/v1/accounts?select=id,name,type con los encabezados «apikey» = ANON_KEY y «Authorization» = Bearer + el token. Anotar el «id» de «Otros» y el de «Efectivo».
+7. Gasto de ejemplo: monto 120000 en pesos, fecha 2026-08-15, con la cuenta «Efectivo» y la categoría «Otros» del usuario de prueba.
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Enviar create_transaction con personas ["Sofía", "   "] y montos [30000, 20000]. | Responde 400 con el código 23514 y «Ingresá con quién compartiste el gasto»; no se crea ni el gasto ni la deuda de Sofía. |
+
+**Notas del diseño:** Caso por API: se hace con Postman (o curl), no desde la pantalla.
+
+---
+
+### CP-DEU-143 — Resumen: gasto bruto y neto de reembolsos
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-30 · CA-1, CA-9, CA-10 · FR-19 · R3 · I7, I10 |
+| Historias de usuario | US-30 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-143-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-143-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha 15/08/2026 y nota «Supermercado», compartido con Sofía ($60.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | En la tarjeta «Gastado en agosto 2026»: el gasto total muestra «$120.000,00» (bruto); aparece la fila «Neto de reembolsos» y el monto del neto = «$60.000,00»; la aclaración del neto no se ve; y debajo se ve el enlace «Ver deudas». |
+| 2 | Tocar el enlace «Ver deudas». | El navegador navega a /debts y muestra la deuda de Sofía por $60.000,00. |
+
+---
+
+### CP-DEU-144 — Resumen: el neto no cambia al saldar la deuda
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-30 · CA-2, CA-10 · FR-19 · R3 · I9, I10 |
+| Historias de usuario | US-30 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-144-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-144-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha 15/08/2026, compartido con Sofía ($60.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Esa deuda marcada como saldada hoy (botón «Marcar saldada»).
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+8. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$120.000,00» y el monto del neto muestra «$60.000,00». |
+
+---
+
+### CP-DEU-145 — Resumen: gasto en 12 cuotas con deuda, neto negativo
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-30 · CA-3, CA-7, CA-8, CA-10 · FR-19 · R1, R3 · I2, I3, I7, I10 |
+| Historias de usuario | US-30 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-145-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-145-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en 12 cuotas, con fecha 15/08/2026, compartido con Sofía ($60.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | En el Resumen de agosto 2026: el gasto total muestra «$10.000,00»; el monto del neto muestra «-$50.000,00» ($10.000,00 − $60.000,00); y debajo se ve la aclaración del neto con el texto exacto «Las deudas se descuentan enteras en el mes de la compra, aunque sea en cuotas.». |
+| 2 | Agregar /dashboard?period=2026-09 a la dirección de la app y apretar Enter. | En el Resumen de septiembre 2026: el gasto total muestra «$10.000,00» (cuota 2/12) y la fila «Neto de reembolsos» no se ve. |
+
+**Notas del diseño:** Error de preparación del caso: pide 12 cuotas con la cuenta «Efectivo» y la app solo permite cuotas con una cuenta de tarjeta de crédito (regla I6); hay que preparar el gasto con la cuenta «Tarjeta de crédito».
+
+---
+
+### CP-DEU-146 — Resumen: una deuda suelta «Me deben» no cambia el neto
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-30 · CA-4 · FR-19 · I7 |
+| Historias de usuario | US-30 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-146-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-146-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $80.000 en una cuota, con fecha 15/08/2026. Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe $25.000, con fecha 16/08/2026.
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$80.000,00» y la fila «Neto de reembolsos» no se ve. |
+
+---
+
+### CP-DEU-147 — Resumen: una deuda suelta «Debo» no cambia el neto
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-30 · CA-4 · FR-19 · I7 |
+| Historias de usuario | US-30 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-147-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-147-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha 15/08/2026, compartido con Sofía ($60.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Deuda cargada desde Deudas → «Nueva deuda»: Le debés $15.000 a Martín, con fecha 16/08/2026.
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$120.000,00» y el monto del neto muestra «$60.000,00» (la deuda «Debo» de $15.000,00 no suma ni resta en el neto). |
+
+---
+
+### CP-DEU-148 — Resumen: eliminar un gasto compartido actualiza el neto en vivo
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-30 · CA-5 · US-35 · CA-5 · FR-19 · I7, I10 |
+| Historias de usuario | US-30, US-35 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-148-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-148-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $100.000 en una cuota, con fecha 15/08/2026 y nota «Cena», compartido con Sofía ($40.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Gasto de $50.000 en una cuota, con fecha 16/08/2026 y nota «Taxi», compartido con Juan ($20.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$150.000,00» y el monto del neto muestra «$90.000,00» ($150.000,00 − $60.000,00). |
+| 2 | En «Últimos movimientos» del Resumen, tocar el botón de papelera del gasto «Taxi» ($50.000,00) y confirmar haciendo click en «Eliminar». | Sin recargar la página, el gasto total pasa a «$100.000,00» y el monto del neto pasa a «$60.000,00» ($100.000,00 − $40.000,00). |
+
+---
+
+### CP-DEU-148B — Resumen: restaurar un gasto compartido vuelve a restar su deuda
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-30 · CA-5 · US-35 · CA-6 · FR-19 · I7, I10 |
+| Historias de usuario | US-30, US-35 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-148b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-148b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $100.000 en una cuota, con fecha 15/08/2026 y nota «Cena», compartido con Sofía ($40.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Gasto de $50.000 en una cuota, con fecha 16/08/2026 y nota «Taxi», compartido con Juan ($20.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+7. El gasto «Taxi» eliminado (Movimientos → tacho).
+8. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir /transactions?period=2026-08 en la barra de direcciones y apretar Enter, tocar «Eliminados» y tocar «Restaurar» en la fila de «Taxi». | El gasto «Taxi» se restaura a Movimientos activos. |
+| 2 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$150.000,00» y el monto del neto muestra «$90.000,00» ($150.000,00 − $60.000,00). |
+
+---
+
+### CP-DEU-149 — Resumen: el neto en dólares no cambia si cambia el tipo de cambio
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-30 · CA-6, CA-10 · FR-19 · R2, R3 · I4, I7, I10 |
+| Historias de usuario | US-30 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-149-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-149-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de US$100 a tipo de cambio 1250 en una cuota, con fecha 15/08/2026, compartido con Sofía (US$40) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Tipo de cambio de referencia cambiado a 1500 para agosto de 2026: Ajustes → «Tipo de cambio de referencia» → elegir el mes, escribir el valor y «Guardar tipo de cambio».
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$125.000,00» y el monto del neto muestra «$75.000,00» ($125.000,00 − $50.000,00, usando el valor en pesos congelado de la deuda y no $60.000,00). |
+
+---
+
+### CP-DEU-150 — Resumen: sin deudas vinculadas no aparece el neto
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-30 · CA-7, CA-8 · FR-19 · — |
+| Historias de usuario | US-30 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-150-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-150-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $45.000 en una cuota, con fecha 15/08/2026. Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El gasto total muestra «$45.000,00» y la fila «Neto de reembolsos» no se ve. |
+
+---
+
+### CP-DEU-151 — Balance: una deuda suelta «Me deben» resta del balance del mes
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-83 · CA-1, CA-10, CA-14 · FR-18, FR-20 · I7 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-151-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-151-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Ingreso de $100.000, con fecha el día 10 del mes actual. Se carga desde Registrar tocando «Ingreso» (cuenta «Efectivo»).
+6. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe $20.000, con fecha el día 10 del mes actual.
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+8. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El total de ingresos muestra «$100.000,00»; el gasto total muestra «$0,00»; el balance muestra «$80.000,00»; la etiqueta del balance muestra «Superávit»; la línea de deudas sueltas muestra el texto exacto «Incluye deudas sueltas: -$20.000,00»; y la fila «Neto de reembolsos» no se ve. |
+
+---
+
+### CP-DEU-152 — Balance: una deuda suelta «Debo» suma al balance del mes
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-83 · CA-2, CA-10 · FR-18, FR-20 · I7 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-152-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-152-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Ingreso de $100.000, con fecha el día 10 del mes actual. Se carga desde Registrar tocando «Ingreso» (cuenta «Efectivo»).
+6. Deuda cargada desde Deudas → «Nueva deuda»: Le debés $50.000 a Marta, con fecha el día 10 del mes actual.
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+8. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El total de ingresos muestra «$100.000,00»; el gasto total muestra «$0,00»; el balance muestra «$150.000,00»; la etiqueta del balance muestra «Superávit»; y la línea de deudas sueltas muestra el texto exacto «Incluye deudas sueltas: $50.000,00». |
+
+---
+
+### CP-DEU-153 — Balance: saldar la deuda suelta el mismo mes lo deja como antes
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-83 · CA-3 · FR-18, FR-20 · I7, I9 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-153-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-153-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Ingreso de $100.000, con fecha el día 10 del mes actual. Se carga desde Registrar tocando «Ingreso» (cuenta «Efectivo»).
+6. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe $20.000, con fecha el día 10 del mes actual.
+7. Esa deuda marcada como saldada hoy (botón «Marcar saldada»).
+8. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El balance muestra «$100.000,00», la etiqueta del balance muestra «Superávit» y la línea de deudas sueltas muestra el texto exacto «Incluye deudas sueltas: $0,00». |
+
+---
+
+### CP-DEU-153B — Balance en cero: deuda suelta creada y saldada el mismo mes
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Media |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-83 · CA-3, CA-9, CA-10 · FR-18, FR-20 · I7, I9 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-153b-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-153b-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe $20.000, con fecha el día 10 del mes actual.
+6. Esa deuda marcada como saldada hoy (botón «Marcar saldada»).
+7. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+8. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El total de ingresos muestra «$0,00»; el gasto total muestra «$0,00»; el balance muestra «$0,00»; la etiqueta del balance muestra el texto exacto «En cero»; y la línea de deudas sueltas muestra «Incluye deudas sueltas: $0,00». |
+
+---
+
+### CP-DEU-154 — Balance: una deuda saldada hoy mueve el balance de dos meses
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-83 · CA-4, CA-10, CA-11 · FR-18, FR-20 · I7, I9 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-154-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-154-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe $20.000, con fecha el día 15 del mes anterior.
+6. Esa deuda marcada como saldada hoy (botón «Marcar saldada»).
+7. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes anterior a la dirección de la app y apretar Enter. | El balance muestra «-$20.000,00», la etiqueta del balance muestra «Déficit» y la línea de deudas sueltas muestra «Incluye deudas sueltas: -$20.000,00». |
+| 2 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El balance muestra «$20.000,00», la etiqueta del balance muestra «Superávit» y la línea de deudas sueltas muestra «Incluye deudas sueltas: $20.000,00». |
+
+---
+
+### CP-DEU-155 — Balance: reabrir la deuda saca el evento del mes actual
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Transición de estados · Positivo |
+| Trazabilidad | US-83 · CA-5, CA-14 · FR-18, FR-20 · I7, I9 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-155-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-155-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Ingreso de $100.000, con fecha el día 10 del mes actual. Se carga desde Registrar tocando «Ingreso» (cuenta «Efectivo»).
+6. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe $20.000, con fecha el día 15 del mes anterior.
+7. Esa deuda marcada como saldada hoy (botón «Marcar saldada»).
+8. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+9. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Escribir /debts?status=settled en la barra de direcciones y apretar Enter, y tocar «Volver a pendiente» en la fila de Juan. | Aparece el aviso «La deuda con Juan volvió a pendiente». |
+| 2 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El balance vuelve a mostrar «$100.000,00» (ingresos − gastos) y la línea de deudas sueltas no se ve. |
+| 3 | Agregar /dashboard?period=AAAA-MM del mes anterior a la dirección de la app y apretar Enter. | El balance sigue mostrando «-$20.000,00» y la línea de deudas sueltas muestra «Incluye deudas sueltas: -$20.000,00». |
+
+---
+
+### CP-DEU-156 — Balance: una deuda suelta «Debo» saldada hoy mueve dos meses
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-83 · CA-6, CA-11 · FR-18, FR-20 · I7, I9 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-156-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-156-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda cargada desde Deudas → «Nueva deuda»: Le debés $50.000 a Marta, con fecha el día 15 del mes anterior.
+6. Esa deuda marcada como saldada hoy (botón «Marcar saldada»).
+7. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes anterior a la dirección de la app y apretar Enter. | El balance muestra «$50.000,00», la etiqueta del balance muestra «Superávit» y la línea de deudas sueltas muestra «Incluye deudas sueltas: $50.000,00». |
+| 2 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El balance muestra «-$50.000,00», la etiqueta del balance muestra «Déficit» y la línea de deudas sueltas muestra «Incluye deudas sueltas: -$50.000,00». |
+
+---
+
+### CP-DEU-157 — Balance: la deuda en dólares conserva el tipo de cambio de origen
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | Sí |
+| Técnica · Tipo | Caso de uso · Positivo |
+| Trazabilidad | US-83 · CA-7 · FR-18, FR-20 · R2 · I4, I7, I9 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-157-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-157-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe US$40 (a tipo de cambio 1250), con fecha el día 15 del mes anterior.
+6. Tipo de cambio de referencia cambiado a 1500 para el mes actual: Ajustes → «Tipo de cambio de referencia» → elegir el mes, escribir el valor y «Guardar tipo de cambio».
+7. Esa deuda marcada como saldada hoy (botón «Marcar saldada»).
+8. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes anterior a la dirección de la app y apretar Enter. | El balance muestra «-$50.000,00» y la línea de deudas sueltas muestra «Incluye deudas sueltas: -$50.000,00». |
+| 2 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El balance muestra «$50.000,00» (no «$60.000,00») y la línea de deudas sueltas muestra «Incluye deudas sueltas: $50.000,00». |
+
+---
+
+### CP-DEU-158 — Balance: un gasto compartido no aparece como deuda suelta
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Partición de equivalencia · Negativo |
+| Trazabilidad | US-83 · CA-8, CA-14 · FR-18, FR-20 · I7, I9 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-158-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-158-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Gasto de $120.000 en una cuota, con fecha el día 10 del mes actual, compartido con Sofía ($60.000) (Registrar → «Gasto compartido»). Se carga desde Registrar (categoría «Otros», cuenta «Efectivo»).
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+7. Fechas que dependen de hoy: «mes actual» es el mes de hoy; «mes anterior» es el mes calendario anterior; «el día 10 del mes actual» es el día 10 del mes de hoy (si hoy es antes del 10, la fecha de hoy); «el día 15 del mes anterior» es el 15 del mes anterior; «hoy» es el día en que se ejecuta el caso. En las direcciones, period=AAAA-MM es el año y el mes con dos dígitos (por ejemplo, para octubre de 2026: period=2026-10).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El gasto total muestra «$120.000,00», el balance muestra «-$120.000,00» y la línea de deudas sueltas no se ve. |
+| 2 | Escribir /debts en la barra de direcciones y apretar Enter, y tocar «Marcar saldada» en la fila de Sofía. | Aparece el aviso «Deuda con Sofía saldada». |
+| 3 | Agregar /dashboard?period=AAAA-MM del mes actual a la dirección de la app y apretar Enter. | El balance sigue mostrando «-$120.000,00» y la línea de deudas sueltas sigue sin existir en pantalla. |
+
+**Notas del diseño:** Este caso se cumple también sin la función US-83 (la línea «Incluye deudas sueltas» no se muestra nunca todavía); no prueba nada hasta que exista.
+
+---
+
+### CP-DEU-159 — Un mes solo con una deuda suelta no se ve vacío
+
+| Campo | Contenido |
+|---|---|
+| Funcionalidad | Deudas y gastos compartidos |
+| Prioridad | Alta |
+| Camino feliz | No |
+| Técnica · Tipo | Valores límite · Límite |
+| Trazabilidad | US-83 · CA-9, CA-10 · FR-18, FR-20 · I7 |
+| Historias de usuario | US-83 |
+| Canal | UI |
+| Automatizable | Sí |
+
+**Pre-requisitos:**
+
+1. La aplicación Biyu funcionando y accesible en el navegador (dirección de la app, por ejemplo https://biyu-rust.vercel.app). En este documento «la dirección de la app» es esa URL.
+2. Navegador Google Chrome (versión estable), usando una ventana de incógnito para que no haya sesiones anteriores.
+3. Usuario de prueba NUEVO, creado solo para este caso: email qa+cp-deu-159-001@example.com, contraseña Clave123!. Cómo crearlo: en la pantalla «Entrar» tocar «Crear una cuenta»; completar el email, la contraseña y «Confirmar contraseña»; tocar «Crear cuenta» y después «Saltear» en cada uno de los 4 pasos de la configuración inicial. Termina en Registrar, paso 1 («¿Cuánto?»).
+4. Sesión iniciada con ese usuario: si se cerró la sesión, en «Entrar» escribir qa+cp-deu-159-001@example.com en «Email» y Clave123! en «Contraseña» y tocar «Entrar». Debe abrirse Registrar, paso 1 («¿Cuánto?»).
+5. Deuda cargada desde Deudas → «Nueva deuda»: Juan te debe $20.000, con fecha 15/08/2026.
+6. Catálogo inicial del usuario: viene con la cuenta «Efectivo» y la categoría «Otros» (no hace falta crear nada más).
+
+**Datos de prueba:**
+
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Agregar /dashboard?period=2026-08 a la dirección de la app y apretar Enter. | El mensaje de mes vacío no se ve; se ven las tarjetas del Resumen con el gasto total = «$0,00», el total de ingresos = «$0,00», el balance = «-$20.000,00», la etiqueta del balance = «Déficit» y la línea de deudas sueltas = «Incluye deudas sueltas: -$20.000,00», y las secciones de categorías, cuentas y últimos movimientos muestran sus estados vacíos individuales. |
 
 ---
 
