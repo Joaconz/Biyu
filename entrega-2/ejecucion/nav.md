@@ -6,7 +6,7 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-NAV-nnn` → result
 
 ## Condiciones de la ejecución
 
-- **Ejecución manual (equipo):** 75 de los 85 casos, siguiendo los pasos de cada caso y los procedimientos `PR-nn` de
+- **Ejecución manual (equipo):** 40 de los 85 casos, siguiendo los pasos de cada caso y los procedimientos `PR-nn` de
   [`docs/12-procedimientos-de-prueba.md`](../../docs/12-procedimientos-de-prueba.md). Fecha, versión probada y
   entorno: a completar por quien ejecutó.
 - **Ejecutados por Claude Code (9 casos):** CP-NAV-013, 014, 015, 016, 017, 038, 039, 053 y 054, que el equipo no
@@ -34,10 +34,10 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-NAV-nnn` → result
 | CP-NAV-015 | Media | US-69 · CA-5 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
 | CP-NAV-016 | Media | US-69 · CA-5 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
 | CP-NAV-017 | Media | US-69 · CA-5 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-018 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-019 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-020 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-021 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
+| CP-NAV-018 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-019 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-020 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-021 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
 | CP-NAV-022 | Media | US-69 · CA-7 | UI | **PASSED** | Manual | — |
 | CP-NAV-023 | Media | US-69 · CA-8 | UI | **PASSED** | Manual | — |
 | CP-NAV-024 | Media | US-69 · CA-9 | UI | **PASSED** | Manual | — |
@@ -56,15 +56,15 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-NAV-nnn` → result
 | CP-NAV-037 | Alta | US-70 · CA-6c | UI | **PASSED** | Manual | — |
 | CP-NAV-038 | Alta | US-70 · CA-7 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
 | CP-NAV-039 | Alta | US-70 · CA-8 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-040 | Alta | US-70 · CA-9 | API | **PASSED** | Manual | — |
-| CP-NAV-041 | Alta | US-70 · CA-10 | API | **PASSED** | Manual | — |
-| CP-NAV-042 | Alta | US-70 · CA-11 | API | **PASSED** | Manual | — |
-| CP-NAV-043 | Alta | US-70 · CA-12 | API | **PASSED** | Manual | — |
-| CP-NAV-044 | Alta | US-70 · CA-13 | API | **PASSED** | Manual | — |
-| CP-NAV-045 | Alta | US-70 · CA-14 | API | **PASSED** | Manual | — |
-| CP-NAV-046 | Alta | US-70 · CA-15 | API | **PASSED** | Manual | — |
+| CP-NAV-040 | Alta | US-70 · CA-9 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-041 | Alta | US-70 · CA-10 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-042 | Alta | US-70 · CA-11 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-043 | Alta | US-70 · CA-12 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-044 | Alta | US-70 · CA-13 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-045 | Alta | US-70 · CA-14 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-046 | Alta | US-70 · CA-15 | API | **Pendiente** (sin ejecutar) | — | — |
 | CP-NAV-047 | Alta | US-70 · CA-16 | UI | **PASSED** | Manual | — |
-| CP-NAV-048 | Alta | US-70 · CA-16 | API | **PASSED** | Manual | — |
+| CP-NAV-048 | Alta | US-70 · CA-16 | API | **Pendiente** (sin ejecutar) | — | — |
 | CP-NAV-049 | Alta | US-70 · CA-17 | UI | **PASSED** | Manual | — |
 | CP-NAV-050 | Alta | US-70 · CA-17 | UI | **PASSED** | Manual | — |
 | CP-NAV-051 | Alta | US-70 · CA-18 | UI | **PASSED** | Manual | — |
@@ -79,38 +79,38 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-NAV-nnn` → result
 | CP-NAV-060 | Media | US-70 · CA-27 | UI | **Pendiente** (sin ejecutar) | — | — |
 | CP-NAV-061 | Alta | US-70 · CA-28 | UI | **PASSED** | Manual | — |
 | CP-NAV-062 | Alta | US-70 · CA-29 · US-68 | UI | **PASSED** | Manual | — |
-| CP-NAV-063 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-064 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-065 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-066 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-067 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-068 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-069 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-070 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-071 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-072 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-073 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-074 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-075 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-076 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-077 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-078 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-079 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-080 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-081 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-082 | Media | US-69 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-083 | Alta | US-70 · CA-20 | API | **PASSED** | Manual | — |
-| CP-NAV-084 | Alta | US-70 · CA-21 | API | **PASSED** | Manual | — |
-| CP-NAV-085 | Alta | US-70 · CA-5 | API | **PASSED** | Manual | — |
+| CP-NAV-063 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-064 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-065 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-066 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-067 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-068 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-069 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-070 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-071 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-072 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-073 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-074 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-075 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-076 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-077 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-078 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-079 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-080 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-081 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-082 | Media | US-69 · CA-6 | UI | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-083 | Alta | US-70 · CA-20 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-084 | Alta | US-70 · CA-21 | API | **Pendiente** (sin ejecutar) | — | — |
+| CP-NAV-085 | Alta | US-70 · CA-5 | API | **Pendiente** (sin ejecutar) | — | — |
 
 ## Resumen
 
 | Status | Casos |
 |---|---:|
-| PASSED | 84 |
+| PASSED | 49 |
 | FAILED | 0 |
 | BLOCKED | 0 |
-| Pendiente (sin ejecutar) | 1 |
+| Pendiente (sin ejecutar) | 36 |
 | **Total** | **85** |
 
 ## Ejecutados por Claude Code
@@ -141,6 +141,9 @@ el navegador integrado de Claude Code (CP-NAV-013 a 017, anchos emulados 320, 10
 
 ## Pendientes
 
+- **Casos con herramienta técnica (35):** CP-NAV-018 a 021, 040 a 046, 048, 063 a 082 y 083 a 085: sin
+  ejecutar. Son verificaciones por consola de Chrome (identificadores `data-testid` únicos en cada pantalla y ancho) y por
+  API (idempotencia de `request_id`, rechazo por categoría archivada y consultas de apoyo).
 - **CP-NAV-060** (TalkBack anuncia el aviso de error sin mover el foco): sin ejecutar. Requiere un teléfono Pixel 7 con
   Android 15, Chrome y TalkBack en español, que no estuvo disponible.
 - El resto de los casos queda sin defectos reportados.
