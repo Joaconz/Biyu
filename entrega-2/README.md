@@ -8,11 +8,11 @@ resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-p
 | Parte | Archivo | Qué es | Estado |
 |---|---|---|---|
 | A | `01-historias-de-usuario-v2.md` + `mocks/` | Historias de V2 con pantalla, botones, campos, validaciones, criterios `CA-k` y mock | Pendiente |
-| A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Parcial**: Deudas CP-DEU-018 a 029 y Navegación CP-NAV-001 a 085 (98 casos, pasos en lenguaje simple) |
+| A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Parcial**: Deudas CP-DEU-018 a 029 y 100 a 159, y Navegación CP-NAV-001 a 085 (190 casos, pasos en lenguaje simple) |
 | A | `03-seleccion-regresion.md` / `.xlsx` | Casos de V1 elegidos para regresión, con el criterio (ADR-027) | Pendiente |
-| B | `04-ejecucion.md` / `.xlsx` + `evidencia/` | Ejecución manual de V2, regresión y confirmación de defectos | **Parcial**: ejecución de esos 98 casos (95 PASSED, 1 FAILED, 1 BLOCKED, 1 sin ejecutar). Sin regresión ni `evidencia/` |
+| B | `04-ejecucion.md` / `.xlsx` + `evidencia/` | Ejecución manual de V2, regresión y confirmación de defectos | **Parcial**: ejecución de esos 190 casos (143 PASSED, 1 FAILED, 2 DUDA, 43 BLOCKED, 1 sin ejecutar). Sin regresión ni `evidencia/` |
 | B | `05-reportes-de-defectos.md` / `.xlsx` | Defectos de V2, con la funcionalidad que afectan (desde DEF-029) | **Parcial**: DEF-029 (CP-NAV-084) |
-| B | `06-reporte-de-ejecucion.md` / `.xlsx` | % PASSED / FAILED / BLOCKED, gráfico y cambios de estado por caso entre entregas | **Parcial**: métricas, gráfico y criterios de salida de Deudas 018–029 y Navegación |
+| B | `06-reporte-de-ejecucion.md` / `.xlsx` | % PASSED / FAILED / BLOCKED, gráfico y cambios de estado por caso entre entregas | **Parcial**: métricas, gráfico y criterios de salida de Deudas 018–029 y 100–159, y Navegación |
 | Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | Pendiente |
 | B | `08-presentacion.html` | Presentación de 15 minutos con la demo | Pendiente |
 | Estudio | `09-resumen-de-estudio.md` | Para explicar todo oralmente | Pendiente |
