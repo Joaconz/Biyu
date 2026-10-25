@@ -30,7 +30,7 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-DEU-nnn` → result
 | CP-DEU-026 | Media | US-34 · CA-8 | API | **PASSED** | — |
 | CP-DEU-027 | Media | US-34 · CA-8 | API | **PASSED** | — |
 | CP-DEU-028 | Alta | US-34 · CA-8 | API | **PASSED** | — |
-| CP-DEU-029 | Alta | US-34 · CA-8 | API | **Pendiente** (sin ejecutar) | — |
+| CP-DEU-029 | Alta | US-34 · CA-8 | API | **BLOCKED** | — |
 
 ## Resumen
 
@@ -38,13 +38,15 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-DEU-nnn` → result
 |---|---:|
 | PASSED | 12 |
 | FAILED | 0 |
-| BLOCKED | 0 |
-| Pendiente (sin ejecutar) | 1 |
+| BLOCKED | 1 |
+| Pendiente (sin ejecutar) | 0 |
 | **Total** | **13** |
 
 ## Pendientes
 
-- **CP-DEU-029** (`create_transaction` con rol `anon` responde `42501`): todavía no se ejecutó. Su
-  status se carga cuando se corra.
-- **Navegación (CP-NAV-001 a 085):** en ejecución; su registro va en un PR aparte.
+- **CP-DEU-029** (`create_transaction` con rol `anon` responde `42501`): **BLOCKED**. Ejecutado el 2026-10-25 en el
+  entorno local: como está escrito (con `p_shared_persons` y `p_shared_amounts`) responde `404 PGRST202` («función no
+  encontrada») porque la función de varias personas de US-82 todavía no existe (issue #270 abierto). Sin sesión y con la
+  función actual de una sola persona sí responde `401` con el código `42501`. Se repite el caso cuando exista la función.
+- **Navegación (CP-NAV-001 a 085):** su registro está en `ejecucion/nav.md` y en `04-ejecucion.xlsx`.
 - El resto de los casos de Deudas (CP-DEU-001 a 017 y 030 en adelante) queda fuera de este registro.
