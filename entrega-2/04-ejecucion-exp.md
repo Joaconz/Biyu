@@ -8,7 +8,7 @@ Planilla: `04-ejecucion-exp.xlsx` (una hoja por caso con "Reporte de ejecución 
 - **Versión probada:** `main` en el commit `1c72d0f` (código local, sin cambios). No se probó el deploy de Vercel.
 - **Entorno:** Local: Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires, reloj del navegador fijado en 09/10/2026.
 - **Quién ejecutó:** **los 75 casos los ejecutó Claude Code (IA), supervisado por Santiago.** Ningún caso de EXP lo ejecutó el equipo a mano ni tenía un estado previo.
-- **Cómo se ejecutó:** un script de Playwright por caso ([`ejecucion/exp/`](ejecucion/exp/)). Cada caso crea su propio usuario (alta por API y entrada por la pantalla de ingreso, con la configuración inicial salteada), prepara los movimientos por la API (`create_transaction`, `delete_transaction`, `restore_transaction`, `upsert_fx_rate`, `delete_account`, categorías y cuentas) y recorre la pantalla Movimientos como lo haría una persona. Las descargas se leen del archivo que baja el navegador y se comparan byte a byte. Cada caso deja una captura del estado final en `evidencia/`.
+- **Cómo se ejecutó:** un script de Playwright por caso. Cada caso crea su propio usuario (alta por API y entrada por la pantalla de ingreso, con la configuración inicial salteada), prepara los movimientos por la API (`create_transaction`, `delete_transaction`, `restore_transaction`, `upsert_fx_rate`, `delete_account`, categorías y cuentas) y recorre la pantalla Movimientos como lo haría una persona. Las descargas se leen del archivo que baja el navegador y se comparan byte a byte.
 - **Datos:** usuarios `qa+cp-exp-<nnn>-001@example.com` (con un sufijo de corrida), contraseña `Clave123!` y montos ficticios (C14), en Supabase local. En producción no se creó nada.
 
 ## Resultado por caso
@@ -105,7 +105,6 @@ La hoja abre con «Solo septiembre 2026» elegido, «Todo 2026» visible, «Desc
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV»
 ```
 
-**Evidencia:** [CP-EXP-001.jpg](evidencia/CP-EXP-001.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-002 — Sin period se usa octubre 2026 · **PASSED**
@@ -120,7 +119,6 @@ Sin `period` en la URL (reloj en 09/10/2026) la hoja abre con «Solo octubre 202
 Pantalla final: /transactions?period=2026-10 · hoja abierta · botón «Descargar CSV»
 ```
 
-**Evidencia:** [CP-EXP-002.jpg](evidencia/CP-EXP-002.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-003 — Cancelar desde Vacío cierra sin descargar · **PASSED**
@@ -136,7 +134,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-003.jpg](evidencia/CP-EXP-003.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-004 — El mes actual permite exportar sin aviso · **PASSED**
@@ -151,7 +148,6 @@ Pantalla final: /transactions?period=2026-09 · hoja cerrada
 Pantalla final: /transactions?period=2026-10 · hoja abierta · botón «Descargar CSV»
 ```
 
-**Evidencia:** [CP-EXP-004.jpg](evidencia/CP-EXP-004.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-005 — El mes anterior permite exportar sin aviso · **PASSED**
@@ -166,7 +162,6 @@ Pantalla final: /transactions?period=2026-10 · hoja abierta · botón «Descarg
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV»
 ```
 
-**Evidencia:** [CP-EXP-005.jpg](evidencia/CP-EXP-005.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-006 — El mes siguiente está bloqueado · **PASSED**
@@ -181,7 +176,6 @@ Mes futuro (2026-11): «Exportar» deshabilitado, aparece «Solo podés exportar
 Pantalla final: /transactions?period=2026-11 · hoja cerrada · aviso: «Solo podés exportar el mes actual o meses anteriores.»
 ```
 
-**Evidencia:** [CP-EXP-006.jpg](evidencia/CP-EXP-006.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-007 — El alcance mensual propone el nombre 2026-09 · **PASSED**
@@ -197,7 +191,6 @@ Descarga: biyu-movimientos-2026-09.csv · 217 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-007.jpg](evidencia/CP-EXP-007.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-008 — El alcance anual propone el nombre 2025 · **PASSED**
@@ -213,7 +206,6 @@ Descarga: biyu-movimientos-2025.csv · 209 bytes · 1 fila(s) de datos · fila 1
 Pantalla final: /transactions?period=2025-06 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-008.jpg](evidencia/CP-EXP-008.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-009 — El primer día del mes se incluye · **PASSED**
@@ -229,7 +221,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-009.jpg](evidencia/CP-EXP-009.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-010 — El último día del mes se incluye · **PASSED**
@@ -245,7 +236,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-010.jpg](evidencia/CP-EXP-010.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-011 — El día anterior al mes se excluye · **PASSED**
@@ -261,7 +251,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en septiembre 2026.»
 ```
 
-**Evidencia:** [CP-EXP-011.jpg](evidencia/CP-EXP-011.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-012 — El día posterior al mes se excluye · **PASSED**
@@ -277,7 +266,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en septiembre 2026.»
 ```
 
-**Evidencia:** [CP-EXP-012.jpg](evidencia/CP-EXP-012.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-013 — El 1 de enero se incluye en el año · **PASSED**
@@ -293,7 +281,6 @@ Descarga: biyu-movimientos-2025.csv · 207 bytes · 1 fila(s) de datos · fila 1
 Pantalla final: /transactions?period=2025-06 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-013.jpg](evidencia/CP-EXP-013.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-014 — El 31 de diciembre se incluye en el año · **PASSED**
@@ -309,7 +296,6 @@ Descarga: biyu-movimientos-2025.csv · 207 bytes · 1 fila(s) de datos · fila 1
 Pantalla final: /transactions?period=2025-06 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-014.jpg](evidencia/CP-EXP-014.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-015 — El día anterior al año se excluye · **PASSED**
@@ -325,7 +311,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2025-06 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en 2025.»
 ```
 
-**Evidencia:** [CP-EXP-015.jpg](evidencia/CP-EXP-015.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-016 — El día posterior al año se excluye · **PASSED**
@@ -341,7 +326,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2025-06 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en 2025.»
 ```
 
-**Evidencia:** [CP-EXP-016.jpg](evidencia/CP-EXP-016.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-017 — Una transacción eliminada queda fuera · **PASSED**
@@ -357,7 +341,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en septiembre 2026.»
 ```
 
-**Evidencia:** [CP-EXP-017.jpg](evidencia/CP-EXP-017.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-018 — Una transacción restaurada vuelve a exportarse · **PASSED**
@@ -373,7 +356,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-018.jpg](evidencia/CP-EXP-018.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-019 — El filtro Eliminados no cambia los bytes · **PASSED**
@@ -390,7 +372,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09&view=deleted · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-019.jpg](evidencia/CP-EXP-019.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-020 — El archivo comienza con BOM UTF-8 · **PASSED**
@@ -406,7 +387,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-020.jpg](evidencia/CP-EXP-020.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-021 — El encabezado tiene doce columnas exactas · **PASSED**
@@ -422,7 +402,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-021.jpg](evidencia/CP-EXP-021.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-022 — Cada fila termina en CRLF incluida la última · **PASSED**
@@ -438,7 +417,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-022.jpg](evidencia/CP-EXP-022.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-023 — Doce cuotas salen en una sola fila por el total · **PASSED**
@@ -454,7 +432,6 @@ Descarga: biyu-movimientos-2026-08.csv · 215 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-08 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-023.jpg](evidencia/CP-EXP-023.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-024 — Un mes con solo cuota heredada produce Vacío · **PASSED**
@@ -470,7 +447,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en septiembre 2026.»
 ```
 
-**Evidencia:** [CP-EXP-024.jpg](evidencia/CP-EXP-024.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-025 — ARS se escribe con dos decimales exactos · **PASSED**
@@ -486,7 +462,6 @@ Descarga: biyu-movimientos-2026-09.csv · 209 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-025.jpg](evidencia/CP-EXP-025.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-026 — USD conserva cuatro decimales de TC · **PASSED**
@@ -502,7 +477,6 @@ Descarga: biyu-movimientos-2026-09.csv · 219 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-026.jpg](evidencia/CP-EXP-026.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-027 — Cambiar la referencia no recalcula el histórico · **PASSED**
@@ -518,7 +492,6 @@ Descarga: biyu-movimientos-2026-09.csv · 219 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-027.jpg](evidencia/CP-EXP-027.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-028 — Una coma obliga a entrecomillar la descripción · **PASSED**
@@ -534,7 +507,6 @@ Descarga: biyu-movimientos-2026-09.csv · 227 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-028.jpg](evidencia/CP-EXP-028.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-029 — Las comillas internas se duplican · **PASSED**
@@ -550,7 +522,6 @@ Descarga: biyu-movimientos-2026-09.csv · 230 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-029.jpg](evidencia/CP-EXP-029.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-030 — Un LF queda dentro de un campo citado · **DUDA**
@@ -566,7 +537,6 @@ Descarga: biyu-movimientos-2026-09.csv · 230 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-030.jpg](evidencia/CP-EXP-030.jpg)
 **Notas:** Google Sheets no usado; validado con un lector RFC 4180 propio
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
@@ -583,7 +553,6 @@ Descarga: biyu-movimientos-2026-09.csv · 212 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-031.jpg](evidencia/CP-EXP-031.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-032 — Descripción con más se neutraliza · **PASSED**
@@ -599,7 +568,6 @@ Descarga: biyu-movimientos-2026-09.csv · 217 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-032.jpg](evidencia/CP-EXP-032.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-033 — Descripción con menos se neutraliza · **PASSED**
@@ -615,7 +583,6 @@ Descarga: biyu-movimientos-2026-09.csv · 219 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-033.jpg](evidencia/CP-EXP-033.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-034 — Descripción con arroba se neutraliza · **PASSED**
@@ -631,7 +598,6 @@ Descarga: biyu-movimientos-2026-09.csv · 216 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-034.jpg](evidencia/CP-EXP-034.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-035 — Descripción con tabulación se neutraliza · **PASSED**
@@ -647,7 +613,6 @@ Descarga: biyu-movimientos-2026-09.csv · 214 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-035.jpg](evidencia/CP-EXP-035.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-036 — Descripción con retorno de carro se neutraliza · **PASSED**
@@ -663,7 +628,6 @@ Descarga: biyu-movimientos-2026-09.csv · 215 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-036.jpg](evidencia/CP-EXP-036.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-037 — Una categoría que empieza con igual se neutraliza · **PASSED**
@@ -679,7 +643,6 @@ Descarga: biyu-movimientos-2026-09.csv · 216 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-037.jpg](evidencia/CP-EXP-037.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-038 — Una cuenta que empieza con arroba se neutraliza · **PASSED**
@@ -695,7 +658,6 @@ Descarga: biyu-movimientos-2026-09.csv · 210 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-038.jpg](evidencia/CP-EXP-038.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-039 — Las filas se ordenan por fecha y creación · **PASSED**
@@ -711,7 +673,6 @@ Descarga: biyu-movimientos-2026-09.csv · 407 bytes · 3 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 3 movimientos»
 ```
 
-**Evidencia:** [CP-EXP-039.jpg](evidencia/CP-EXP-039.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-040 — 1.000 transacciones se exportan sin faltantes · **PASSED**
@@ -727,7 +688,6 @@ Descarga: biyu-movimientos-2025.csv · 104107 bytes · 1000 fila(s) de datos · 
 Pantalla final: /transactions?period=2025-09 · hoja cerrada · aviso: «Exportamos 1.000 movimientos»
 ```
 
-**Evidencia:** [CP-EXP-040.jpg](evidencia/CP-EXP-040.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-041 — 1.500 transacciones se exportan sin faltantes · **PASSED**
@@ -743,7 +703,6 @@ Descarga: biyu-movimientos-2025.csv · 156107 bytes · 1500 fila(s) de datos · 
 Pantalla final: /transactions?period=2025-09 · hoja cerrada · aviso: «Exportamos 1.500 movimientos»
 ```
 
-**Evidencia:** [CP-EXP-041.jpg](evidencia/CP-EXP-041.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-042 — 2.000 transacciones se exportan sin faltantes · **PASSED**
@@ -759,7 +718,6 @@ Descarga: biyu-movimientos-2025.csv · 208107 bytes · 2000 fila(s) de datos · 
 Pantalla final: /transactions?period=2025-09 · hoja cerrada · aviso: «Exportamos 2.000 movimientos»
 ```
 
-**Evidencia:** [CP-EXP-042.jpg](evidencia/CP-EXP-042.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-043 — El CSV de A no contiene movimientos de B · **PASSED**
@@ -775,7 +733,6 @@ Descarga: biyu-movimientos-2026-09.csv · 213 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-043.jpg](evidencia/CP-EXP-043.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-044 — La API con token de A devuelve cero filas de B · **PASSED**
@@ -791,7 +748,6 @@ API con token de A: GET transactions?id=eq.<ID-B> → HTTP 200, []; GET transact
 Pantalla final: /register · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-044.jpg](evidencia/CP-EXP-044.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-045 — Categoría archivada sale con el nombre actual · **PASSED**
@@ -807,7 +763,6 @@ Descarga: biyu-movimientos-2026-09.csv · 213 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-045.jpg](evidencia/CP-EXP-045.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-046 — Cuenta archivada sale con el nombre actual · **PASSED**
@@ -823,7 +778,6 @@ Descarga: biyu-movimientos-2026-09.csv · 216 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-046.jpg](evidencia/CP-EXP-046.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-047 — Un ingreso exporta categoría vacía · **PASSED**
@@ -839,7 +793,6 @@ Descarga: biyu-movimientos-2026-09.csv · 219 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-047.jpg](evidencia/CP-EXP-047.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-048 — Eliminar una cuenta quita su transacción · **PASSED**
@@ -855,7 +808,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en septiembre 2026.»
 ```
 
-**Evidencia:** [CP-EXP-048.jpg](evidencia/CP-EXP-048.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-049 — Descargar muestra Exportando y aria-busy · **PASSED**
@@ -870,7 +822,6 @@ Con la lectura demorada, el botón dice «Exportando…», está deshabilitado y
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Exportando…»
 ```
 
-**Evidencia:** [CP-EXP-049.jpg](evidencia/CP-EXP-049.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-050 — Los controles quedan bloqueados al exportar · **PASSED**
@@ -885,7 +836,6 @@ Con «Exportando…» quedan deshabilitados los dos alcances, «Cancelar» y «D
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Exportando…»
 ```
 
-**Evidencia:** [CP-EXP-050.jpg](evidencia/CP-EXP-050.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-051 — Un doble click inicia una sola descarga · **PASSED**
@@ -900,7 +850,6 @@ Un doble clic rápido genera una sola descarga y un solo aviso «Exportamos 1 mo
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-051.jpg](evidencia/CP-EXP-051.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-052 — Una fila usa singular y cierra la hoja · **PASSED**
@@ -916,7 +865,6 @@ Descarga: biyu-movimientos-2026-09.csv · 207 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-052.jpg](evidencia/CP-EXP-052.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-053 — Dos filas usan plural · **PASSED**
@@ -932,7 +880,6 @@ Descarga: biyu-movimientos-2026-09.csv · 307 bytes · 2 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 2 movimientos»
 ```
 
-**Evidencia:** [CP-EXP-053.jpg](evidencia/CP-EXP-053.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-054 — Un mes sin transacciones muestra Vacío · **PASSED**
@@ -948,7 +895,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV»
 ```
 
-**Evidencia:** [CP-EXP-054.jpg](evidencia/CP-EXP-054.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-055 — Un año sin transacciones muestra Vacío anual · **PASSED**
@@ -964,7 +910,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2025-06 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en 2025.»
 ```
 
-**Evidencia:** [CP-EXP-055.jpg](evidencia/CP-EXP-055.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-056 — Un período con solo eliminadas muestra Vacío · **PASSED**
@@ -980,7 +925,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · mensaje: «No tenés movimientos con fecha en septiembre 2026.»
 ```
 
-**Evidencia:** [CP-EXP-056.jpg](evidencia/CP-EXP-056.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-057 — Offline muestra el error exacto · **PASSED**
@@ -996,7 +940,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · error: «No pudimos exportar tus movimientos. Probá de nuevo.»
 ```
 
-**Evidencia:** [CP-EXP-057.jpg](evidencia/CP-EXP-057.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-058 — El reintento después de Offline descarga completo · **PASSED**
@@ -1012,7 +955,6 @@ Descarga: biyu-movimientos-2026-09.csv · 307 bytes · 2 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 2 movimientos»
 ```
 
-**Evidencia:** [CP-EXP-058.jpg](evidencia/CP-EXP-058.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-059 — Cancelar desde Error cierra sin descargar · **PASSED**
@@ -1028,7 +970,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-059.jpg](evidencia/CP-EXP-059.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-060 — Cancelar cierra sin descargar · **PASSED**
@@ -1044,7 +985,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-060.jpg](evidencia/CP-EXP-060.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-061 — Escape cierra sin descargar · **PASSED**
@@ -1060,7 +1000,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-061.jpg](evidencia/CP-EXP-061.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-062 — Tocar fuera cierra sin descargar · **FAILED**
@@ -1077,7 +1016,6 @@ Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descarg
 Falla detectada: tocar fuera NO cierra la hoja (el click cae en el div de fondo aria-hidden, no en el contenedor)
 ```
 
-**Evidencia:** [CP-EXP-062.jpg](evidencia/CP-EXP-062.jpg)
 **Defectos:** DEF-030
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
@@ -1094,7 +1032,6 @@ Pantalla final: /transactions?period=2026-08 · hoja abierta · botón «Descarg
 Falla detectada: la URL pasó a 2026-08 pero la hoja sigue abierta
 ```
 
-**Evidencia:** [CP-EXP-063.jpg](evidencia/CP-EXP-063.jpg)
 **Defectos:** DEF-031
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
@@ -1111,7 +1048,6 @@ Pantalla final: /transactions?period=2026-08 · hoja cerrada · aviso: «Exporta
 Falla detectada: Atrás durante Exportando no cancela: descargas=1, avisos de éxito=1
 ```
 
-**Evidencia:** [CP-EXP-064.jpg](evidencia/CP-EXP-064.jpg)
 **Defectos:** DEF-032
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
@@ -1129,7 +1065,6 @@ Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descarg
 Falla detectada: la URL pasó a 2026-09 pero la hoja sigue abierta
 ```
 
-**Evidencia:** [CP-EXP-065.jpg](evidencia/CP-EXP-065.jpg)
 **Defectos:** DEF-031
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
@@ -1146,7 +1081,6 @@ Descarga: ninguna
 Pantalla final: /dashboard?period=2026-09 · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-066.jpg](evidencia/CP-EXP-066.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-067 — Exportar no modifica datos ni período · **PASSED**
@@ -1162,7 +1096,6 @@ Descarga: biyu-movimientos-2026-09.csv · 209 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-067.jpg](evidencia/CP-EXP-067.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-068 — Una alta concurrente impide descargar un año incompleto · **PASSED**
@@ -1178,7 +1111,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2025-09 · hoja abierta · botón «Descargar CSV» · error: «No pudimos exportar tus movimientos. Probá de nuevo.»
 ```
 
-**Evidencia:** [CP-EXP-068.jpg](evidencia/CP-EXP-068.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-069 — Escape no cierra la hoja durante Exportando · **PASSED**
@@ -1193,7 +1125,6 @@ Con la hoja en «Exportando…», Escape no la cierra y sigue mostrando «Export
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Exportando…»
 ```
 
-**Evidencia:** [CP-EXP-069.jpg](evidencia/CP-EXP-069.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-070 — Tocar fuera no cierra la hoja durante Exportando · **PASSED**
@@ -1208,7 +1139,6 @@ La hoja sigue abierta y mostrando «Exportando…», pero el caso no prueba nada
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Exportando…»
 ```
 
-**Evidencia:** [CP-EXP-070.jpg](evidencia/CP-EXP-070.jpg)
 **Defectos:** DEF-030
 **Notas:** Sin valor hoy: tocar fuera nunca cierra la hoja (DEF-030); el resultado sería el mismo sin el bloqueo
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
@@ -1226,7 +1156,6 @@ Descarga: biyu-movimientos-2026-09.csv · 226 bytes · 1 fila(s) de datos · fil
 Pantalla final: /transactions?period=2026-09 · hoja cerrada · aviso: «Exportamos 1 movimiento»
 ```
 
-**Evidencia:** [CP-EXP-071.jpg](evidencia/CP-EXP-071.jpg)
 **Notas:** Google Sheets no usado; validado con un lector RFC 4180 propio
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
@@ -1243,7 +1172,6 @@ Descarga: biyu-movimientos-2026-09.csv · 209 bytes · 1 fila(s) de datos · fil
 Pantalla final: /dashboard?period=2026-09 · hoja cerrada
 ```
 
-**Evidencia:** [CP-EXP-072.jpg](evidencia/CP-EXP-072.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-073 — HTTP 500 muestra Error y no descarga · **PASSED**
@@ -1259,7 +1187,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · error: «No pudimos exportar tus movimientos. Probá de nuevo.»
 ```
 
-**Evidencia:** [CP-EXP-073.jpg](evidencia/CP-EXP-073.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-074 — Un monto textual inválido cancela la descarga · **PASSED**
@@ -1275,7 +1202,6 @@ Descarga: ninguna
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV» · error: «No pudimos exportar tus movimientos. Probá de nuevo.»
 ```
 
-**Evidencia:** [CP-EXP-074.jpg](evidencia/CP-EXP-074.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago
 
 ### CP-EXP-075 — Cambiar el alcance borra el mensaje de Error · **PASSED**
@@ -1290,5 +1216,4 @@ Al elegir «Todo 2026» queda elegido y el mensaje de error desaparece.
 Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV»
 ```
 
-**Evidencia:** [CP-EXP-075.jpg](evidencia/CP-EXP-075.jpg)
 **Ejecutó:** Claude Code (IA), supervisado por Santiago

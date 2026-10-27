@@ -7,8 +7,8 @@ Planilla: `06-reporte-de-ejecucion-exp.xlsx` (hoja "Reporte de ejecución - EXP 
 | Versión probada | `main` en el commit `1c72d0f` (código local, sin cambios). No se probó el deploy de Vercel |
 | Entorno | Local: Vite en `http://127.0.0.1:5173` + Supabase local. Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires, reloj del navegador fijado en 09/10/2026 12:00 |
 | Fecha | 2026-10-27 |
-| Ejecutó | Claude Code (IA), supervisado por Santiago. Los 75 casos, con los scripts de `ejecucion/exp/` (`casos-a.mjs`, `casos-b.mjs` y `casos-c.mjs`) |
-| Evidencia | `ejecucion/exp/resultados-a.json`, `resultados-b.json` y `resultados-c.json` (resultado y observaciones de cada caso) y 75 capturas en `evidencia/` (`CP-EXP-nnn.jpg`) |
+| Ejecutó | Claude Code (IA), supervisado por Santiago. Los 75 casos, con scripts de Playwright |
+| Evidencia | Lo observado en cada caso (nombre y tamaño del archivo descargado, fila exportada, mensajes y estado final de la pantalla) figura en «Resultado obtenido» de `04-ejecucion-exp`. No se guardaron capturas ni los scripts en el repositorio |
 
 ## 1. Planificados, ejecutados, pasados, fallados y bloqueados
 
@@ -112,23 +112,8 @@ Los tres defectos son de la hoja «Exportar movimientos» (cómo se cierra); nin
 7. **Bajas.** `delete_transaction` responde 204 sin cuerpo (ver DEF-029); el script lo toma como éxito en 017, 019, 056 y los demás casos que eliminan una transacción.
 8. **Casos reescritos por errores del script, no del caso ni de la app.** Se rehicieron CP-EXP-017 (la baja responde 204), CP-EXP-023 y 024 (faltaba la tarjeta de crédito) y CP-EXP-062 a 066 (esperas y verificaciones insuficientes en la primera versión; CP-EXP-066 se ejecutó tecleando la URL de destino, como pide el caso). No se cambió el resultado de ningún caso a mano.
 9. **Dependencias.** Para correr el import de Excel hubo que instalar `read-excel-file` y `write-excel-file` (estaban en `package.json` pero no en `node_modules`); no afecta a EXP.
-10. **Aviso de suscripciones en las capturas.** En varias capturas se ve «No pudimos cargar tus suscripciones vencidas»: la Edge Function de la puesta al día de suscripciones no estaba levantada en el Supabase local. No afecta a Exportar CSV (no se usa) y no cambia ningún resultado.
-11. **Evidencia.** Cada caso guarda una captura del estado final de la pantalla (`evidencia/CP-EXP-nnn.jpg`) y las observaciones del script (nombre y tamaño del archivo, fila exportada, mensajes). El contenido de los CSV no se guardó en el repositorio.
+10. **Evidencia.** No se adjuntaron capturas ni los scripts al repositorio; lo observado (nombre y tamaño del archivo, fila exportada, mensajes y estado final de la pantalla) queda en «Resultado obtenido» de cada caso. El contenido de los CSV tampoco se guardó.
 
 ## 8. Datos de prueba
 
-Todo en Supabase **local**, con usuarios `qa+cp-exp-<nnn>-001@example.com` (los de aislamiento, `-A` y `-B`) y montos ficticios. `supabase db reset` los borra. En producción no se creó nada. La contraseña de prueba (`Clave123!`) está en `ejecucion/exp/lib.mjs` y solo existe en la base local.
-
-## Cómo se reproduce
-
-```bash
-supabase start && supabase migration up
-VITE_SUPABASE_URL=http://127.0.0.1:54321 VITE_SUPABASE_ANON_KEY=<anon key local> npx vite --port 5173 --strictPort
-node entrega-2/ejecucion/exp/casos-a.mjs   # CP-EXP-001 a 039 (menos 017, 023 y 024)
-node entrega-2/ejecucion/exp/casos-b.mjs   # 017, 023, 024 y 040 a 075 (menos 062 a 066)
-node entrega-2/ejecucion/exp/casos-c.mjs   # 062 a 066
-PYTHONUTF8=1 python entrega-2/ejecucion/exp/generar_exp.py
-```
-
-- Cada script escribe `resultados-<a|b|c>.json` y las capturas de `evidencia/`. Solo apuntan al stack local: nunca a producción.
-- `generar_exp.py` necesita `openpyxl` y arma los tres `.md` y las tres planillas. Los resultados y el texto de lo obtenido salen de `resultados-*.json` y `obtenido.json`; los defectos, de `defectos.json`.
+Todo en Supabase **local**, con usuarios `qa+cp-exp-<nnn>-001@example.com` (los de aislamiento, `-A` y `-B`) y montos ficticios. `supabase db reset` los borra. En producción no se creó nada. La contraseña de prueba es `Clave123!` y solo existe en la base local.

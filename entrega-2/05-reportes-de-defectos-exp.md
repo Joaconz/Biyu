@@ -42,7 +42,7 @@ Tocar fuera de la hoja «Exportar movimientos» no la cierra.
 
 **Resultado obtenido.** La hoja sigue abierta. El elemento que recibe el clic en esa posición es el div de fondo (clases fixed inset-0 -z-10, aria-hidden="true"), no el contenedor de la hoja. Solo «Cancelar» y Escape la cierran.
 
-**Evidencia.** Captura evidencia/CP-EXP-062.jpg (hoja abierta tras el clic) y document.elementFromPoint(5, 5) = DIV.fixed.inset-0.-z-10.bg-[rgba(43,30,25,0.32)], aria-hidden=true
+**Evidencia.** Observado en la corrida de CP-EXP-062: la hoja sigue abierta tras el clic; document.elementFromPoint(5, 5) = DIV.fixed.inset-0.-z-10.bg-[rgba(43,30,25,0.32)], aria-hidden=true
 
 **Notas.** Causa probable: en src/components/transactions/ExportTransactionsDialog.tsx el cierre por clic exige e.target === e.currentTarget, pero el div de fondo es hijo del contenedor y cubre toda la pantalla: recibe el clic y el destino nunca coincide. No se corrigió nada.
 
@@ -74,7 +74,7 @@ Con la hoja «Exportar movimientos» abierta, «Atrás» y «Adelante» del nave
 
 **Resultado obtenido.** La URL cambia al período anterior (o al siguiente) y la hoja sigue abierta. El evento popstate sí se dispara (verificado en 3 de 3 repeticiones), pero la hoja no se cierra.
 
-**Evidencia.** Capturas evidencia/CP-EXP-063.jpg y evidencia/CP-EXP-065.jpg (URL cambiada con la hoja abierta); log de popstate: ['popstate@?period=2026-08']
+**Evidencia.** Observado en las corridas de CP-EXP-063 y CP-EXP-065: URL cambiada con la hoja abierta; log de popstate: ['popstate@?period=2026-08']
 
 **Notas.** Causa no determinada. En ExportTransactionsDialog.tsx hay un efecto que cierra la hoja cuando cambia location.key y un oyente de popstate; ninguno logra cerrarla. Hipótesis sin confirmar: el efecto que reinicia initialLocationKeyRef cuando cambia location.key corre antes del que compara la clave y la deja siempre igual. No se corrigió nada.
 
@@ -106,6 +106,6 @@ Con la hoja «Exportar movimientos» abierta, «Atrás» y «Adelante» del nave
 
 **Resultado obtenido.** Al terminar la lectura se descarga biyu-movimientos-2026-09.csv y aparece el aviso «Exportamos 1 movimiento» (1 descarga y 1 aviso), con el usuario ya en ?period=2026-08.
 
-**Evidencia.** Captura evidencia/CP-EXP-064.jpg (aviso de éxito en el período anterior); descargas registradas por el navegador = 1
+**Evidencia.** Observado en la corrida de CP-EXP-064: aviso de éxito en el período anterior; descargas registradas por el navegador = 1
 
 **Notas.** Relacionado con DEF-031: el cierre por «Atrás» no llega a abortar la exportación en curso (AbortController). No se investigó a fondo. No se corrigió nada.
