@@ -1,0 +1,60 @@
+[
+  {
+    "id": "CP-EXP-062",
+    "status": "FAILED",
+    "note": "tocar fuera NO cierra la hoja (el click cae en el div de fondo aria-hidden, no en el contenedor)",
+    "obs": [
+      "Descarga: ninguna",
+      "Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV»"
+    ],
+    "evidence": [
+      "evidencia/CP-EXP-062.jpg"
+    ]
+  },
+  {
+    "id": "CP-EXP-063",
+    "status": "FAILED",
+    "note": "la URL pasó a 2026-08 pero la hoja sigue abierta",
+    "obs": [
+      "Pantalla final: /transactions?period=2026-08 · hoja abierta · botón «Descargar CSV»"
+    ],
+    "evidence": [
+      "evidencia/CP-EXP-063.jpg"
+    ]
+  },
+  {
+    "id": "CP-EXP-064",
+    "status": "FAILED",
+    "note": "Atrás durante Exportando no cancela: descargas=1, avisos de éxito=1",
+    "obs": [
+      "Pantalla final: /transactions?period=2026-08 · hoja cerrada · aviso: «Exportamos 1 movimiento»"
+    ],
+    "evidence": [
+      "evidencia/CP-EXP-064.jpg"
+    ]
+  },
+  {
+    "id": "CP-EXP-065",
+    "status": "FAILED",
+    "note": "la URL pasó a 2026-09 pero la hoja sigue abierta",
+    "obs": [
+      "Descarga: ninguna",
+      "Pantalla final: /transactions?period=2026-09 · hoja abierta · botón «Descargar CSV»"
+    ],
+    "evidence": [
+      "evidencia/CP-EXP-065.jpg"
+    ]
+  },
+  {
+    "id": "CP-EXP-066",
+    "status": "PASSED",
+    "note": "",
+    "obs": [
+      "Descarga: ninguna",
+      "Pantalla final: /dashboard?period=2026-09 · hoja cerrada"
+    ],
+    "evidence": [
+      "evidencia/CP-EXP-066.jpg"
+    ]
+  }
+]
