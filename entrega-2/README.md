@@ -8,11 +8,12 @@ resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-p
 | Parte | Archivo | Qué es | Estado |
 |---|---|---|---|
 | A | `01-historias-de-usuario-v2.md` + `mocks/` | Historias de V2 con pantalla, botones, campos, validaciones, criterios `CA-k` y mock | Pendiente |
-| A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Parcial**: Deudas CP-DEU-018 a 029 y 100 a 159, y Navegación CP-NAV-001 a 085 (190 casos, pasos en lenguaje simple) |
+| A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Parcial**: 53 casos de Deudas (28) y Navegación (25) con pasos en lenguaje simple. El catálogo completo de V2 (`casos/`) se recortó el 2026-10-27 a 206 casos (NAV 25, DEU 61, EXP 31, SUS 48, IMP 41) |
 | A | `03-seleccion-regresion.md` / `.xlsx` | Casos de V1 elegidos para regresión, con el criterio (ADR-027) | Pendiente |
-| B | `04-ejecucion.md` / `.xlsx` | Ejecución de V2 de todos los módulos (Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones): una hoja por caso, resultado por caso y detalle de lo que no es PASSED | **Parcial**: 611 casos (492 PASSED, 18 FAILED, 12 DUDA, 88 BLOCKED, 1 sin ejecutar). 480 con IA, 52 a mano y 78 de Suscripciones informados como «ok» por el equipo. Sin regresión |
-| B | `05-reportes-de-defectos.md` / `.xlsx` | Defectos de V2 de todos los módulos, con la funcionalidad que afectan (desde DEF-029) | **Parcial**: DEF-029 a DEF-037 (4 Medios y 5 Bajos), sin issue |
+| B | `04-ejecucion.md` / `.xlsx` | Ejecución de V2 de todos los módulos (Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones): una hoja por caso, resultado por caso y detalle de lo que no es PASSED | **Parcial**: 189 casos (178 PASSED, 8 FAILED, 3 BLOCKED). 147 con IA, 21 a mano y 21 de Suscripciones informados como «ok» por el equipo. Sin regresión |
+| B | `05-reportes-de-defectos.md` / `.xlsx` | Defectos de V2 de todos los módulos, con la funcionalidad que afectan (desde DEF-030) | **Parcial**: DEF-030 a DEF-037 (4 Medios y 4 Bajos; DEF-029 se retiró por ser un error del caso), sin issue |
 | B | `06-reporte-de-ejecucion.md` / `.xlsx` | % PASSED / FAILED / BLOCKED por módulo, quién ejecutó cada caso (IA o equipo), criterios de salida y desvíos | **Parcial**: Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones |
+| Adicional | `equivalencia-ids.md` | Tabla con el ID anterior y el ID nuevo de cada caso de V2 (recorte y renumeración del 2026-10-27) | Hecho |
 | Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | Pendiente |
 | B | `08-presentacion.html` | Presentación de 15 minutos con la demo | Pendiente |
 | Estudio | `09-resumen-de-estudio.md` | Para explicar todo oralmente | Pendiente |

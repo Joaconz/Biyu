@@ -1,5 +1,7 @@
 # Entrega 2 · Ejecución de casos de prueba · Navegación e interfaz (NAV)
 
+> **Nota del 2026-10-27.** Este es un registro histórico de la ejecución original, con los IDs anteriores. El catálogo de V2 se recortó después (de 672 a 206 casos) y se renumeró: varios casos que figuran acá ya no están en `casos/` y los demás tienen otro ID (ver [`equivalencia-ids.md`](../equivalencia-ids.md)). El registro vigente es [`04-ejecucion.md`](../04-ejecucion.md).
+
 Registro de la ejecución de **CP-NAV-001 a CP-NAV-085** (US-69 y US-70). Los casos están escritos en
 [`entrega-2/casos/nav.md`](../casos/nav.md); acá solo va el resultado. Mismo esquema de IDs que la
 Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-NAV-nnn` → resultado → defecto `DEF-nnn`.

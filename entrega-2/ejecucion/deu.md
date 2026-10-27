@@ -1,5 +1,7 @@
 # Entrega 2 · Ejecución de casos de prueba · Deudas y gastos compartidos (DEU)
 
+> **Nota del 2026-10-27.** Este es un registro histórico de la ejecución original, con los IDs anteriores. El catálogo de V2 se recortó después (de 672 a 206 casos) y se renumeró: varios casos que figuran acá ya no están en `casos/` y los demás tienen otro ID (ver [`equivalencia-ids.md`](../equivalencia-ids.md)). El registro vigente es [`04-ejecucion.md`](../04-ejecucion.md).
+
 Registro de la ejecución manual de **CP-DEU-018 a CP-DEU-029** (más la variante CP-DEU-020B), los casos
 negativos de `create_transaction` de la US-34 · CA-8. Los casos están escritos en
 [`entrega-2/casos/deu.md`](../casos/deu.md); acá solo va el resultado. Mismo esquema de IDs que la
