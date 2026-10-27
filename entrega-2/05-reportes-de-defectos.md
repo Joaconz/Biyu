@@ -18,8 +18,9 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-034 | Operar sobre la suscripción de otro usuario responde HTTP 500 en lugar de 404 | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-094, CP-SUS-100, CP-SUS-107 y CP-SUS-129 | US-56 · CA-9, US-57 · CA-7, US-58 · CA-9 y US-59 (Pausar, reanudar, cancelar y editar: par de autorización) |
 | DEF-035 | Sin sesión, la API responde HTTP 401 y los casos esperan 403 | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-065, CP-SUS-066, CP-SUS-095, CP-SUS-101, CP-SUS-108 y CP-SUS-130 | US-52 · CA-13 y US-56 · CA-9, US-57 · CA-7, US-58 · CA-9, US-59 (rol anon) |
 | DEF-036 | La vista previa del calendario no marca con data-blocked="false" las filas que no están bloqueadas | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-157 | US-61 · Vista previa del calendario al dar de alta una suscripción |
+| DEF-037 | El primer clic en «US$» de «Nueva deuda» se pierde: el error de «Persona» corre los botones y la moneda no se selecciona | Media | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-DEU-063 | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 3 · Baja: 5 · Total abiertos: 8.
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 4 · Baja: 5 · Total abiertos: 9.
 
 ## DEF-029 · La baja de un gasto (delete_transaction) responde 204 sin cuerpo y el caso espera 200 con null
 
@@ -270,3 +271,35 @@ En «Se cargan al guardar», la fila de un mes sin bloqueo no tiene el atributo 
 **Evidencia.** Observaciones de la corrida de CP-SUS-157
 
 **Notas.** En src/components/subscriptions/SubscriptionPreview.tsx el atributo se escribe como data-blocked={row.blockedBy ? 'true' : undefined}. Parece un error del caso, o un atributo de automatización por completar. No se corrigió nada.
+
+## DEF-037 · El primer clic en «US$» de «Nueva deuda» se pierde: el error de «Persona» corre los botones y la moneda no se selecciona
+
+| Campo | Contenido |
+|---|---|
+| Estado | Abierto · se reproduce el 2026-10-27 |
+| Severidad | Media |
+| Prioridad (sugerida) | A definir por el PO |
+| Encontrado en | ejecución de CP-DEU-063 (Entrega 2). |
+| Caso de prueba | CP-DEU-063 |
+| Historia | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
+| Issue | A crear |
+| Reportó | Claude Code (IA), supervisado por Santiago |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63) |
+
+En «Nueva deuda», si el primer clic sobre el formulario es en «US$», la moneda no se selecciona y no aparece el campo «Tipo de cambio (ARS por US$)». Hace falta un segundo clic.
+
+**Pasos para reproducir**
+
+1. Abrir la app e iniciar sesión con un usuario de prueba (con la configuración inicial salteada).
+2. Abrir /debts/new (Deudas → «Nueva deuda»): el foco queda en «Persona».
+3. Sin escribir nada, hacer clic en «US$».
+4. Mirar el formulario: la moneda sigue sin cambiar, no aparece el campo «Tipo de cambio (ARS por US$)» y debajo de «Persona» aparece «Ingresá el nombre de la persona».
+5. Hacer clic otra vez en «US$»: ahora sí se selecciona y aparece el campo «Tipo de cambio».
+
+**Resultado esperado.** CP-DEU-063 (paso 6): al hacer clic en «US$» se selecciona la moneda y aparece el campo «Tipo de cambio (ARS por US$)».
+
+**Resultado obtenido.** El primer clic en «US$» no hace nada visible. Al salir del foco de «Persona» aparece el error «Ingresá el nombre de la persona» y los botones bajan unos 26 px (la caja de «US$» pasa de y = 343,8 a y = 370,0 entre apretar y soltar el botón del mouse), así que el clic cae en otro elemento. El segundo clic funciona.
+
+**Evidencia.** Medidas de la corrida de CP-DEU-063 (posición de «US$» antes y después de apretar el mouse)
+
+**Notas.** Causa probable: la validación al perder el foco muestra el mensaje de error entre el mousedown y el mouseup y desplaza los botones, de modo que el clic no llega al botón. No se corrigió nada. Con un segundo clic el resto del caso se cumple (≈ $0,01 y se guarda amount 0.01, fx_rate 0.5000 y amount_ars 0.01). Puede explicar parte de las dudas del equipo sobre los casos de tipo de cambio en US$ (CP-DEU-050C y 050D).

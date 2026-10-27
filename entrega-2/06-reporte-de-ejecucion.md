@@ -7,19 +7,19 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 | Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución de Claude Code: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. |
 | Entorno | Manual: Google Chrome contra el deploy. Claude Code: Vite local (127.0.0.1:5173) + Supabase local; Chromium (Playwright 1.63) y navegador integrado; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. |
 | Fecha | 2026-10-25 | 2026-10-27 |
-| Ejecutó | Santiago (a mano: Deudas 018 a 028 y 40 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (75), IMP (144) y 80 casos de SUS. El equipo: 78 casos de SUS, informados como «ok» por mensaje. |
+| Ejecutó | Santiago (a mano: Deudas 018 a 028 y 40 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (75), IMP (144), 80 casos de SUS y 44 casos de Deudas (039 a 093). El equipo: 78 casos de SUS, informados como «ok» por mensaje. |
 | Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. |
 
 ## 1. Planificados, ejecutados, pasados, fallados y bloqueados
 
 | Métrica | Casos | % |
 |---|---|---|
-| Planificados | 567 | 100 % |
-| Ejecutados (PASSED + FAILED + DUDA) | 478 | 84 % de avance |
-| PASSED | 449 | 94 % de los ejecutados |
-| FAILED | 17 | 4 % de los ejecutados |
-| DUDA (pasa, con dudas) | 12 | 3 % de los ejecutados |
-| BLOCKED | 88 | 16 % de los planificados |
+| Planificados | 611 | 100 % |
+| Ejecutados (PASSED + FAILED + DUDA) | 522 | 85 % de avance |
+| PASSED | 492 | 94 % de los ejecutados |
+| FAILED | 18 | 3 % de los ejecutados |
+| DUDA (pasa, con dudas) | 12 | 2 % de los ejecutados |
+| BLOCKED | 88 | 14 % de los planificados |
 | No ejecutados | 1 | — |
 
 **Deudas y Navegación (190 casos):**
@@ -28,6 +28,12 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 - **BLOCKED:** 43 casos que dependen de funciones todavía no implementadas: CP-DEU-029 y CP-DEU-128 a 142B (US-82, issue #270), y CP-DEU-151 a 157 y 159 (US-83, issue #271).
 - **DUDA:** CP-DEU-145 (la preparación pide 12 cuotas con una cuenta «Efectivo», que la app rechaza; parece un error del caso) y CP-DEU-158 (se cumple, pero también se cumpliría sin US-83).
 - **No ejecutado:** CP-NAV-060: requiere un Pixel 7 con TalkBack.
+
+**Deudas, casos 039 a 093 (44 casos ejecutados con IA):**
+
+- **FAILED (1):** CP-DEU-063 (DEF-037): el primer clic en «US$» de «Nueva deuda» se pierde (al salir del foco de «Persona» aparece el error y los botones se corren), así que el campo «Tipo de cambio» no aparece; con un segundo clic el resto del caso se cumple.
+- **PASSED (43):** lectura de `debts` con el gasto vinculado (039), origen «Deuda suelta» (043), baja y restauración de un gasto con deuda (044 y 045), `settle_debt` y `reopen_debt` sobre un gasto eliminado (046 y 047), alta de deuda por pantalla (048, 049C, 050, 050B, 050C, 050D, 057, 069B, 070 y 071) y los 27 casos de `create_debt` directo por API (072 a 093), incluidos el rechazo del rol anónimo y del `INSERT` directo.
+- **Diferencias con el informe del equipo:** CP-DEU-050C y 050D pasan (el tipo de cambio se sugiere y se actualiza al cambiar el mes si hay referencia cargada y se elige la fecha antes de tocar «US$»; el clic perdido de DEF-037 puede haber confundido al equipo); CP-DEU-057 pasa; CP-DEU-071 pasa: el botón «Cancelar» existe y está debajo de «Guardar deuda».
 
 **Exportar CSV (EXP) (75 casos):**
 
@@ -59,6 +65,7 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 | DEU-D · Compartir con varias personas (US-82, 128 a 142B) | 33 | 0 | 0 | 0 | 33 | 0 |
 | DEU-E · Neto de reembolsos en el Resumen (US-30, 143 a 150) | 9 | 8 | 0 | 1 | 0 | 0 |
 | DEU-F · Deudas sueltas en el balance del mes (US-83, 151 a 159) | 10 | 0 | 0 | 1 | 9 | 0 |
+| DEU-G · Lectura y baja de gastos compartidos, alta de deuda suelta y create_debt por API (US-35, US-36 y US-41; 039 a 093, 44 casos ejecutados con IA) | 44 | 43 | 1 | 0 | 0 | 0 |
 | NAV-69 · Barra de navegación (US-69) | 49 | 49 | 0 | 0 | 0 | 0 |
 | NAV-70 · Aviso de guardado y reintento (US-70) | 36 | 34 | 1 | 0 | 0 | 1 |
 | EXP · Exportar CSV (US-47, 001 a 075) | 75 | 69 | 4 | 2 | 0 | 0 |
@@ -67,42 +74,42 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 
 | Prioridad | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Alta | 289 | 210 | 13 | 10 | 56 | 0 |
-| Media | 254 | 217 | 3 | 2 | 31 | 1 |
-| Baja | 24 | 22 | 1 | 0 | 1 | 0 |
+| Alta | 312 | 232 | 14 | 10 | 56 | 0 |
+| Media | 274 | 237 | 3 | 2 | 31 | 1 |
+| Baja | 25 | 23 | 1 | 0 | 1 | 0 |
 
 | Tipo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Positivo | 259 | 197 | 6 | 7 | 48 | 1 |
-| Negativo | 213 | 172 | 11 | 3 | 27 | 0 |
-| Límite | 95 | 80 | 0 | 2 | 13 | 0 |
+| Positivo | 270 | 208 | 6 | 7 | 48 | 1 |
+| Negativo | 231 | 190 | 11 | 3 | 27 | 0 |
+| Límite | 110 | 94 | 1 | 2 | 13 | 0 |
 
 | Técnica | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Partición de equivalencia | 249 | 193 | 12 | 7 | 37 | 0 |
-| Tabla de decisión | 10 | 10 | 0 | 0 | 0 | 0 |
-| Valores límite | 129 | 109 | 0 | 2 | 18 | 0 |
-| Adivinación de errores | 24 | 23 | 0 | 0 | 1 | 0 |
-| Caso de uso | 39 | 28 | 1 | 1 | 8 | 1 |
-| Transición de estados | 114 | 85 | 4 | 2 | 23 | 0 |
+| Partición de equivalencia | 263 | 207 | 12 | 7 | 37 | 0 |
+| Tabla de decisión | 15 | 15 | 0 | 0 | 0 | 0 |
+| Valores límite | 144 | 123 | 1 | 2 | 18 | 0 |
+| Adivinación de errores | 26 | 25 | 0 | 0 | 1 | 0 |
+| Caso de uso | 41 | 30 | 1 | 1 | 8 | 1 |
+| Transición de estados | 120 | 91 | 4 | 2 | 23 | 0 |
 | Prueba de rendimiento | 1 | 1 | 0 | 0 | 0 | 0 |
 | Prueba de interfaz adaptable | 1 | 0 | 0 | 0 | 1 | 0 |
 
 | Canal | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| API | 120 | 92 | 11 | 1 | 16 | 0 |
-| UI | 447 | 357 | 6 | 11 | 72 | 1 |
+| API | 150 | 122 | 11 | 1 | 16 | 0 |
+| UI | 461 | 370 | 7 | 11 | 72 | 1 |
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
 | Módulo | Casos | A mano por el equipo | Con IA (Claude Code, supervisado por Santiago) | Informados «ok» por el equipo, sin repetir |
 |---|---|---|---|---|
-| Deudas (DEU) | 105 | 12 (018 a 028 y 020B) | 93 | 0 |
+| Deudas (DEU) | 149 | 12 (018 a 028 y 020B) | 137 | 0 |
 | Navegación (NAV) | 85 | 40 | 44 (y 1 sin ejecutar: CP-NAV-060) | 0 |
 | Exportar CSV (EXP) | 75 | 0 | 75 | 0 |
 | Importar Excel (IMP) | 144 | 0 | 144 | 0 |
 | Suscripciones (SUS) | 158 | 0 | 80 | 78 |
-| **Total** | **567** | **52** | **436** | **78** |
+| **Total** | **611** | **52** | **480** | **78** |
 
 Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en §6; los de SUS informados como «ok» por el equipo son los 78 que no figuran como ejecutados con IA (lista en `04-ejecucion`).
 
@@ -112,9 +119,9 @@ Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustitu
 |---|---|---|
 | Crítica | 0 | — |
 | Alta | 0 | — |
-| Media | 3 | DEF-030, DEF-031, DEF-032 |
+| Media | 4 | DEF-030, DEF-031, DEF-032, DEF-037 |
 | Baja | 5 | DEF-029, DEF-033, DEF-034, DEF-035, DEF-036 |
-| **Total abiertos** | **8** | DEF-029, DEF-030, DEF-031, DEF-032, DEF-033, DEF-034, DEF-035, DEF-036 |
+| **Total abiertos** | **9** | DEF-029, DEF-030, DEF-031, DEF-032, DEF-033, DEF-034, DEF-035, DEF-036, DEF-037 |
 
 Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 
@@ -124,7 +131,7 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 |---|---|---|
 | 1. Cero defectos de severidad Crítica abiertos | Cumplido | No hay defectos críticos (los defectos abiertos son de severidad Media y Baja). |
 | 2. Cero defectos de severidad Alta abiertos, o justificados por el PO | Cumplido | No hay defectos de severidad Alta. |
-| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 233 de 289 casos de prioridad Alta ejecutados. No ejecutados: 56, todos BLOCKED (o sin ejecutar) porque dependen de funcionalidades todavía no implementadas: US-82 (issue #270) y US-83 (issue #271) en Deudas, US-80 (Cuotas pendientes) y US-81 (guía de Importar) en Importar Excel; más CP-NAV-060 (requiere un Pixel 7 con TalkBack). Se ejecutan en V3. |
+| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 256 de 312 casos de prioridad Alta ejecutados. No ejecutados: 56, todos BLOCKED (o sin ejecutar) porque dependen de funcionalidades todavía no implementadas: US-82 (issue #270) y US-83 (issue #271) en Deudas, US-80 (Cuotas pendientes) y US-81 (guía de Importar) en Importar Excel; más CP-NAV-060 (requiere un Pixel 7 con TalkBack). Se ejecutan en V3. |
 | 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I1, I10, I18, I2, I3, I4, I7, I9 con casos ejecutados; solo con casos sin ejecutar: I5. En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
 | 5. Regresión de V1 ejecutada y defectos corregidos confirmados | No evaluado | Fuera del alcance de este reporte: la selección de regresión (03) y la confirmación de los defectos de V1 se informan aparte. |
 
@@ -144,6 +151,16 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 8. CP-NAV-084 FAILED por una diferencia entre el caso y la implementación (204 sin cuerpo en vez de 200 con null). Parece un error del caso. No se corrigió nada: hay que decidir si cambia el caso o la función (DEF-029).
 9. Adaptaciones de DevTools en las ejecuciones de Claude Code: el corte de red y el perfil de 20 s se aplicaron con el protocolo de Chrome (el mismo mecanismo de Network); en 013 a 017 se ocultó la barra de desplazamiento clásica del navegador integrado para imitar un celular. CP-NAV-041 usó una barrera en Node en lugar del script de PowerShell. CP-NAV-059 verifica la variante mensual equivalente (H-NAV-02).
 10. Evidencia: no se adjuntaron capturas al repositorio; lo observado queda en «Resultado obtenido» de cada caso (04-ejecucion).
+
+### Deudas, casos 039 a 093 (ejecutado el 2026-10-27)
+
+1. Ejecución con scripts de Playwright y llamadas directas a la API, no a mano; la propiedad cruzada del plan no se aplicó. Entorno local (Vite + Supabase local), solo Chromium, reloj real (27/10/2026); no se probó el deploy de Vercel.
+2. Los casos CP-DEU-039 y 044 a 047 piden crear el gasto compartido con varias personas (`p_shared_persons` y `p_shared_amounts`, US-82), que todavía no existe. Se prepararon con una sola persona (`p_shared_person` y `p_shared_amount`), como en las ejecuciones anteriores de Deudas.
+3. CP-DEU-070 y CP-DEU-086 piden la fecha de mañana: se usó la real (28/10/2026).
+4. CP-DEU-063 se ejecutó como está escrito: el primer clic en «US$» se pierde (DEF-037) y el caso queda FAILED; se verificó que con un segundo clic el resto se cumple. El caso tampoco carga un tipo de cambio de referencia; no hace falta porque el campo permite escribirlo a mano.
+5. En CP-DEU-050, 050B, 050C y 050D se cargó el tipo de cambio de referencia por API (`upsert_fx_rate`) como indica la preparación y se eligió la fecha antes de tocar «US$».
+6. CP-DEU-071: el botón «Cancelar» existe (`debt-form-cancel`) pero queda debajo de «Guardar deuda» y puede requerir desplazar la pantalla; el equipo informó que no lo veía.
+7. Los casos que el equipo informó como «OK» no se repitieron y no figuran en el reporte. No se adjuntaron capturas ni los scripts.
 
 ### Exportar CSV (EXP) (ejecutado el 2026-10-27)
 
