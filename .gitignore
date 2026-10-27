@@ -67,3 +67,5 @@ htmlcov/
 # --- Playwright ---
 test-results/
 playwright-report/
+playwright-report-catalogo
+test-results-catalogo
