@@ -10,6 +10,7 @@ Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 
 - **Ejecutó Claude Code, supervisado por Santiago (Deudas):** el intento de CP-DEU-029 y los 92 casos CP-DEU-100 a 159, en el mismo entorno local. La preparación (deudas, gastos y tipos de cambio) se cargó por API, como en los casos originales con PR-04.
 - **Datos:** usuarios y montos ficticios, uno por caso.
 - **Exportar CSV (CP-EXP-001 a 075), Importar Excel (CP-IMP-001 a 144) y Suscripciones (CP-SUS):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** los 75 de EXP, los 144 de IMP y 80 de los 158 de SUS (los que el equipo no pudo probar o informó con una observación). Los otros 78 casos de SUS los ejecutó el equipo y los informó como «ok» en un mensaje; no se repitieron. Detalle del entorno y de lo sustituido en `06-reporte-de-ejecucion`, §7.
+- **Deudas, casos 039 a 093 (44 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright, reloj real), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** los 44 casos que el equipo no había podido probar o informó con una observación (CP-DEU-039, 043 a 048, 049C, 050, 050B a 050D, 057, 063, 069B, 070, 071 y 072 a 093). Los que el equipo informó como «OK» (por ejemplo CP-DEU-040 a 042, 049, 051 a 056, 058 a 062 y 094 a 099) no se repitieron y no figuran en este reporte.
 - **Criterio para BLOCKED:** un caso que no se puede ejecutar porque falta una funcionalidad o un botón queda BLOCKED para V3.
 
 
@@ -30,6 +31,50 @@ Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 
 | CP-DEU-027 | Media | El monto que te deben no acepta texto | **PASSED** | Santiago | — |
 | CP-DEU-028 | Alta | Una deuda en dólares que en pesos vale menos de un centavo se rechaza | **PASSED** | Santiago | — |
 | CP-DEU-029 | Alta | Sin haber iniciado sesión no se puede crear un gasto compartido | **BLOCKED** | Claude Code | — |
+| CP-DEU-039 | Alta | GET /rest/v1/debts expone transaction_id con el id del gasto vinculado y los datos embebidos de transactions | **PASSED** | Claude Code | — |
+| CP-DEU-043 | Media | En /debts?status=all, una deuda suelta muestra "Deuda suelta" en debts-item-origin | **PASSED** | Claude Code | — |
+| CP-DEU-044 | Alta | Eliminar el gasto vinculado oculta la deuda de /debts, deja de sumarla en "Te deben" y en el neto del Resumen, y conserva intacta su fila en debts | **PASSED** | Claude Code | — |
+| CP-DEU-045 | Alta | Al restaurar desde Movimientos → Eliminados un gasto cuya deuda vinculada estaba saldada, la deuda vuelve a /debts con estado saldada y la misma fecha settled_at | **PASSED** | Claude Code | — |
+| CP-DEU-046 | Alta | Directo contra settle_debt, intentar saldar la deuda de un gasto eliminado responde "La deuda no existe" | **PASSED** | Claude Code | — |
+| CP-DEU-047 | Alta | Directo contra reopen_debt, intentar reabrir la deuda saldada de un gasto eliminado responde "La deuda no existe" | **PASSED** | Claude Code | — |
+| CP-DEU-048 | Alta | Estado inicial de /debts/new y guardado de una deuda "Me deben" en ARS por $20.000,00 crea una fila pendiente con transaction_id = null en una sola llamada a create_debt | **PASSED** | Claude Code | — |
+| CP-DEU-049C | Baja | En /debts/new, una "Nota (opcional)" con solo espacios ("   ") se guarda sin nota (notes = null) | **PASSED** | Claude Code | — |
+| CP-DEU-050 | Alta | En /debts/new, elegir "US$" con TC de referencia de 1250 precompleta "1.250,00", muestra "≈ $50.000,00" para US$40 y guarda fx_rate = 1250.0000 y amount_ars = 50000.00 | **PASSED** | Claude Code | — |
+| CP-DEU-050B | Alta | En /debts/new, con "US$" y TC de referencia de 1250 cargado, editar a mano el "Tipo de cambio" a 1300 pisa al de referencia y guarda fx_rate = 1300.0000 | **PASSED** | Claude Code | — |
+| CP-DEU-050C | Media | En /debts/new con "US$", si el usuario no editó el "Tipo de cambio", cambiar la "Fecha" a otro mes actualiza el TC sugerido al del nuevo mes | **PASSED** | Claude Code | — |
+| CP-DEU-050D | Media | En /debts/new con "US$", si el usuario editó a mano el "Tipo de cambio", cambiar la "Fecha" a otro mes respeta el valor editado | **PASSED** | Claude Code | — |
+| CP-DEU-057 | Media | En /debts/new, un "Monto" con más de 2 decimales ("0,001") muestra "El monto admite hasta 2 decimales" | **PASSED** | Claude Code | — |
+| CP-DEU-063 | Alta | En /debts/new con US$, Monto = 0,01 y TC = 0,5 se acepta (redondeo half-up a $0,01) y guarda amount_ars = "0.01" | **FAILED** | Claude Code | DEF-037 |
+| CP-DEU-069B | Media | En /debts/new, una "Persona" de 60 caracteres se acepta y el campo impide escribir el carácter 61 | **PASSED** | Claude Code | — |
+| CP-DEU-070 | Alta | En /debts/new, una fecha posterior a hoy (<MAÑANA>) muestra "La fecha no puede ser futura" y deshabilita "Guardar deuda" | **PASSED** | Claude Code | — |
+| CP-DEU-071 | Media | En /debts/new, hacer click en "Cancelar" con datos cargados vuelve a /debts sin crear ninguna deuda | **PASSED** | Claude Code | — |
+| CP-DEU-072 | Alta | Directo contra create_debt, p_person = "" se rechaza con "Ingresá el nombre de la persona" | **PASSED** | Claude Code | — |
+| CP-DEU-073 | Alta | Directo contra create_debt, p_person = "   " se rechaza con "Ingresá el nombre de la persona" | **PASSED** | Claude Code | — |
+| CP-DEU-074 | Media | Directo contra create_debt, p_person = "\t" se rechaza con "Ingresá el nombre de la persona" | **PASSED** | Claude Code | — |
+| CP-DEU-075 | Media | Directo contra create_debt, p_person de 61 caracteres se rechaza con "La persona admite hasta 60 caracteres" | **PASSED** | Claude Code | — |
+| CP-DEU-076 | Alta | Directo contra create_debt, p_amount = 0 se rechaza con "I4: el monto debe ser mayor a cero" | **PASSED** | Claude Code | — |
+| CP-DEU-076B | Alta | Directo contra create_debt, p_amount = null se rechaza con "I4: el monto debe ser mayor a cero" | **PASSED** | Claude Code | — |
+| CP-DEU-077 | Alta | Directo contra create_debt, p_amount = -10 se rechaza con "I4: el monto debe ser mayor a cero" | **PASSED** | Claude Code | — |
+| CP-DEU-078 | Media | Directo contra create_debt, p_amount = 1.001 (literal JSON) se rechaza con "I4: el monto admite hasta 2 decimales" | **PASSED** | Claude Code | — |
+| CP-DEU-079 | Media | Directo contra create_debt, p_amount = "NaN" se rechaza con "I4: el monto debe ser mayor a cero" | **PASSED** | Claude Code | — |
+| CP-DEU-080 | Alta | Directo contra create_debt, p_currency = "USD" con p_fx_rate = null se rechaza con "I5: fx_rate es obligatorio si y solo si la moneda es USD" | **PASSED** | Claude Code | — |
+| CP-DEU-081 | Media | Directo contra create_debt, p_currency = "ARS" con p_fx_rate = "1250.0000" se rechaza con "I5: fx_rate es obligatorio si y solo si la moneda es USD" | **PASSED** | Claude Code | — |
+| CP-DEU-082 | Media | Directo contra create_debt, p_fx_rate = 10000000000 se rechaza con "El tipo de cambio es demasiado grande" | **PASSED** | Claude Code | — |
+| CP-DEU-083 | Alta | Directo contra create_debt, p_fx_rate = 0 se rechaza con "I5: fx_rate debe ser mayor a cero" | **PASSED** | Claude Code | — |
+| CP-DEU-083B | Alta | Directo contra create_debt, p_fx_rate = -100 se rechaza con "I5: fx_rate debe ser mayor a cero" | **PASSED** | Claude Code | — |
+| CP-DEU-084 | Alta | Directo contra create_debt, USD 1000000000 a TC 1000 se rechaza con "En pesos daría más que el máximo de $999.999.999.999,99" | **PASSED** | Claude Code | — |
+| CP-DEU-084B | Media | Directo contra create_debt, p_amount = "1000000000000.00" en ARS se rechaza por desborde de numeric(14,2) (code = "22003") | **PASSED** | Claude Code | — |
+| CP-DEU-084C | Media | Directo contra create_debt, p_amount = "1000000000000.00" en USD a TC "0.5000" se rechaza por desborde de numeric(14,2) (code = "22003") | **PASSED** | Claude Code | — |
+| CP-DEU-085 | Alta | Directo contra create_debt, USD 0.01 a TC 0.4 se rechaza con "I4: en pesos daría menos de $0,01" | **PASSED** | Claude Code | — |
+| CP-DEU-086 | Alta | Directo contra create_debt, p_incurred_on = "<MAÑANA>" se rechaza con "La fecha no puede ser posterior a hoy" | **PASSED** | Claude Code | — |
+| CP-DEU-087 | Media | Directo contra create_debt, p_incurred_on = null se rechaza con "La fecha es obligatoria" | **PASSED** | Claude Code | — |
+| CP-DEU-088 | Media | Directo contra create_debt, una nota de 201 caracteres se rechaza con "La nota admite hasta 200 caracteres" | **PASSED** | Claude Code | — |
+| CP-DEU-089 | Media | Directo contra create_debt, p_direction = null se rechaza con "Dirección y moneda son obligatorias" | **PASSED** | Claude Code | — |
+| CP-DEU-089B | Media | Directo contra create_debt, p_currency = null se rechaza con "Dirección y moneda son obligatorias" | **PASSED** | Claude Code | — |
+| CP-DEU-090 | Media | Directo contra create_debt, p_currency = "EUR" (fuera del enum) se rechaza con code = "22P02" | **PASSED** | Claude Code | — |
+| CP-DEU-091 | Media | Directo contra create_debt, p_direction = "x" (fuera del enum) se rechaza con code = "22P02" | **PASSED** | Claude Code | — |
+| CP-DEU-092 | Alta | Directo contra create_debt con el rol anon (sin Authorization) responde 42501 (permission denied) | **PASSED** | Claude Code | — |
+| CP-DEU-093 | Alta | Un POST /rest/v1/debts directo con sesión autenticada responde 42501 (permission denied) y no crea filas | **PASSED** | Claude Code | — |
 | CP-DEU-100 | Media | Abrir la dirección de «Saldadas» y recargar mantiene el filtro | **PASSED** | Claude Code | — |
 | CP-DEU-101 | Baja | Un filtro inválido en la dirección se trata como «Pendientes» | **PASSED** | Claude Code | — |
 | CP-DEU-102 | Media | Deudas pendientes: la de fecha más nueva va primero | **PASSED** | Claude Code | — |
@@ -589,18 +634,18 @@ Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 
 
 | Status | Casos |
 |---|---|
-| PASSED | 449 |
-| FAILED | 17 |
+| PASSED | 492 |
+| FAILED | 18 |
 | DUDA (pasa, con dudas) | 12 |
 | BLOCKED | 88 |
 | No ejecutados | 1 |
-| **Total** | **567** |
+| **Total** | **611** |
 
 Por módulo:
 
 | Módulo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Deudas (DEU) | 105 | 60 | 0 | 2 | 43 | 0 |
+| Deudas (DEU) | 149 | 103 | 1 | 2 | 43 | 0 |
 | Navegación (NAV) | 85 | 83 | 1 | 0 | 0 | 1 |
 | Exportar CSV (EXP) | 75 | 69 | 4 | 2 | 0 | 0 |
 | Importar Excel (IMP) | 144 | 90 | 1 | 8 | 45 | 0 |
@@ -617,6 +662,18 @@ Por módulo:
 **Defectos:** —
 
 **Notas:** BLOQUEADO: la función de varias personas (US-82, issue #270 abierto) todavía no está implementada en la app. Cuando exista, repetir el caso. Sin defecto: el bloqueo depende de una historia pendiente.
+
+### CP-DEU-063 — En /debts/new con US$, Monto = 0,01 y TC = 0,5 se acepta (redondeo half-up a $0,01) y guarda amount_ars = "0.01" · **FAILED**
+
+**Esperado:** Se muestra `data-testid="debt-form-fx-ars-equivalent"` con `"≈ $0,01"` y se habilita "Guardar deuda". Aparece `"Deuda guardada"` y se abre `/debts?status=pending`. Devuelve 1 fila con `amount_text = "0.01"`, `fx_rate_text = "0.5000"` y `amount_ars_text = "0.01"`.
+
+**Obtenido:** Paso 6: el primer clic en «US$» no selecciona la moneda (se pierde porque al salir del foco de «Persona» aparece el error y corre los botones); con un segundo clic el resto del caso se cumple: ≈ $0,01 y se guarda amount 0.01, fx_rate 0.5000 y amount_ars 0.01 — Observado en la corrida — Paso 6: tras el primer clic en «US$», el campo «Tipo de cambio» NO aparece (el clic se perdió: al salir del foco de «Persona» aparece «Ingresá el nombre de la persona» y los botones se corren hacia abajo) Con un segundo clic en «US$» el campo «Tipo de cambio» aparece
+
+**Informe previo del equipo:** Hasta el paso 7 ok; el 8 no sabe cómo testear.
+
+**Defectos:** DEF-037
+
+**Notas:** Ver DEF-037. Con un segundo clic en «US$» el resto del caso se cumple.
 
 ### CP-DEU-128 — Gasto compartido con varias personas: agregar, quitar y guardar · **BLOCKED**
 
@@ -1874,6 +1931,50 @@ Por módulo:
 | Caso | Status | Obtenido |
 |---|---|---|
 | CP-DEU-029 | BLOCKED | No se pudo ejecutar como está escrito. Se probaron tres variantes en el entorno local: (A) el caso tal cual (sin sesión, con p_shared_persons y p_shared_amounts): responde 404 PGRST202 «función no encontrada» y no 401/42501; (B) sin sesión con la función actual de una sola persona (p_shared_person): responde 401 con el código 42501 «permission denied for function create_transaction» (sin sesión no se puede crear gastos); (C) con sesión y la firma de varias personas: también 404. Por eso el resultado esperado no puede comprobarse hasta que exista la función. |
+| CP-DEU-039 | PASSED | Coincide con el resultado esperado. Se verificó: Responde HTTP 200 con 1 fila donde person = "Sofía", amount_text = "60000.00", transaction_id = "<TX_ID>" y el objeto transactions contiene id = "<TX_ID>", amount_text = "120000.00", currency = "ARS", occurred_on = "2026-08-15", deleted_at = null y categories.name = "Tecnología". — Observado en la corrida — adaptación: US-82 (varias personas) no existe; se preparó con p_shared_person y p_shared_amount de una persona [{"id":"e51aa189-dc75-4f0b-8451-9b3081a428e5","person":"Sofía","amount_text":"60000.00","transaction_id":"b31f8883-327c-49d1-be54-8d12a5583352","transactions":{"id":"b31f8883-327c-49d1-be54-8d12a5583352","currency":"ARS","categorie… |
+| CP-DEU-043 | PASSED | Coincide con el resultado esperado. Se verificó: Muestra el texto exacto "Deuda suelta". |
+| CP-DEU-044 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila intacta con person = "Sofía", status = "pending", settled_at = null, amount_text = "60000.00" y transaction_id = "<TX_ID>". — Observado en la corrida — adaptación: US-82 (varias personas) no existe; se preparó con p_shared_person y p_shared_amount de una persona |
+| CP-DEU-045 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con status = "settled" y settled_at exactamente igual a <SETTLED_AT>. — Observado en la corrida — adaptación: US-82 (varias personas) no existe; se preparó con p_shared_person y p_shared_amount de una persona |
+| CP-DEU-046 | PASSED | Coincide con el resultado esperado. Se verificó: La fila <DEBT_ID> sigue con status = "pending" y settled_at = null. — Observado en la corrida — adaptación: US-82 (varias personas) no existe; se preparó con p_shared_person y p_shared_amount de una persona HTTP 400 {"code":"23514","details":null,"hint":null,"message":"La deuda no existe"} |
+| CP-DEU-047 | PASSED | Coincide con el resultado esperado. Se verificó: La fila <DEBT_ID> sigue con status = "settled" y settled_at IS NOT NULL. — Observado en la corrida — adaptación: US-82 (varias personas) no existe; se preparó con p_shared_person y p_shared_amount de una persona HTTP 400 {"code":"23514","details":null,"hint":null,"message":"La deuda no existe"} |
+| CP-DEU-048 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con person = "Juan", direction = "owed_to_me", status = "pending", currency = "ARS", fx_rate = null, amount_text = "20000.00", amount_ars_text = "20000.00", incurred_on = "<HOY>", notes = null y transaction_id = null. — Observado en la corrida — Estado inicial: {"dir":"true","persona":"","foco":"debt-form-person","monto":"","ars":"true","fxEnDom":0,"fecha":"2026-10-27","nota":"","submitOff":true,"cancel":1} |
+| CP-DEU-049C | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con person = "Juan" y notes = null. |
+| CP-DEU-050 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con currency = "USD", amount_text = "40.00", fx_rate_text = "1250.0000" y amount_ars_text = "50000.00". — Observado en la corrida — TC sugerido: «1.250,00» |
+| CP-DEU-050B | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con fx_rate_text = "1300.0000" y amount_ars_text = "130000.00". |
+| CP-DEU-050C | PASSED | Coincide con el resultado esperado. Se verificó: El campo data-testid="debt-form-fx-rate" se actualiza automáticamente al TC de julio: 1.200,00 (o 1200). — Observado en la corrida — TC agosto «1.250,00» → julio «1.200,00» |
+| CP-DEU-050D | PASSED | Coincide con el resultado esperado. Se verificó: El campo data-testid="debt-form-fx-rate" conserva 1350 (no se pisa con el 1200 de julio). — Observado en la corrida — TC editado «1350» → tras cambiar la fecha «1350» |
+| CP-DEU-057 | PASSED | Coincide con el resultado esperado. Se verificó: Aparece data-testid="debt-form-amount-error" con el texto exacto "El monto admite hasta 2 decimales", y "Guardar deuda" queda deshabilitado. — Observado en la corrida — error: «El monto admite hasta 2 decimales»; Guardar deuda deshabilitado |
+| CP-DEU-063 | FAILED | Paso 6: el primer clic en «US$» no selecciona la moneda (se pierde porque al salir del foco de «Persona» aparece el error y corre los botones); con un segundo clic el resto del caso se cumple: ≈ $0,01 y se guarda amount 0.01, fx_rate 0.5000 y amount_ars 0.01 — Observado en la corrida — Paso 6: tras el primer clic en «US$», el campo «Tipo de cambio» NO aparece (el clic se perdió: al salir del foco de «Persona» aparece «Ingresá el nombre de la persona» y los botones se corren hacia abajo) Con un segundo clic en «US$» el campo «Tipo de cambio» aparece |
+| CP-DEU-069B | PASSED | Coincide con el resultado esperado. Se verificó: Se abre /debts?status=pending mostrando la fila con data-testid="debts-item-person" de 60 caracteres exactos. |
+| CP-DEU-070 | PASSED | Coincide con el resultado esperado. Se verificó: Debajo de "Fecha" aparece data-testid="debt-form-date-error" con el texto exacto "La fecha no puede ser futura", y el botón "Guardar deuda" queda deshabilitado (disabled). — Observado en la corrida — fecha 2026-10-28; error: «La fecha no puede ser futura» |
+| CP-DEU-071 | PASSED | Coincide con el resultado esperado. Se verificó: Vuelve a /debts sin mostrar diálogo de confirmación y se ve el estado vacío "No tenés deudas pendientes." (data-testid="debts-empty"). |
+| CP-DEU-072 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"Ingresá el nombre de la persona"} |
+| CP-DEU-073 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"Ingresá el nombre de la persona"} |
+| CP-DEU-074 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"Ingresá el nombre de la persona"} |
+| CP-DEU-075 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"La persona admite hasta 60 caracteres"} |
+| CP-DEU-076 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I4: el monto debe ser mayor a cero"} |
+| CP-DEU-076B | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I4: el monto debe ser mayor a cero"} |
+| CP-DEU-077 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I4: el monto debe ser mayor a cero"} |
+| CP-DEU-078 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I4: el monto admite hasta 2 decimales"} |
+| CP-DEU-079 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I4: el monto debe ser mayor a cero"} |
+| CP-DEU-080 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I5: fx_rate es obligatorio si y solo si la moneda es USD"} |
+| CP-DEU-081 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I5: fx_rate es obligatorio si y solo si la moneda es USD"} |
+| CP-DEU-082 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"El tipo de cambio es demasiado grande"} |
+| CP-DEU-083 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I5: fx_rate debe ser mayor a cero"} |
+| CP-DEU-083B | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I5: fx_rate debe ser mayor a cero"} |
+| CP-DEU-084 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"En pesos daría más que el máximo de $999.999.999.999,99"} |
+| CP-DEU-084B | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"22003","details":"A field with precision 14, scale 2 must round to an absolute value less than 10^12.","hint":null,"message":"numeric field overflow"} |
+| CP-DEU-084C | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"22003","details":"A field with precision 14, scale 2 must round to an absolute value less than 10^12.","hint":null,"message":"numeric field overflow"} |
+| CP-DEU-085 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"I4: en pesos daría menos de $0,01"} |
+| CP-DEU-086 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"La fecha no puede ser posterior a hoy"} |
+| CP-DEU-087 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"La fecha es obligatoria"} |
+| CP-DEU-088 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"La nota admite hasta 200 caracteres"} |
+| CP-DEU-089 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"Dirección y moneda son obligatorias"} |
+| CP-DEU-089B | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"Dirección y moneda son obligatorias"} |
+| CP-DEU-090 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"22P02","details":null,"hint":null,"message":"invalid input value for enum currency_code: \"EUR\""} |
+| CP-DEU-091 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"22P02","details":null,"hint":null,"message":"invalid input value for enum debt_direction: \"x\""} |
+| CP-DEU-092 | PASSED | Coincide con el resultado esperado. Se verificó: Responde HTTP 401 o 403 con code = "42501" (permission denied for function create_debt). — Observado en la corrida — HTTP 401 {"code":"42501","details":null,"hint":null,"message":"permission denied for function create_debt"} |
+| CP-DEU-093 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 403 {"code":"42501","details":null,"hint":"Grant the required privileges to the current role with: GRANT INSERT ON public.debts TO authenticated;","message":"permission denied for table debts"} |
 | CP-DEU-100 | PASSED | Coincide con el resultado esperado en cada paso (verificado en la pantalla y, donde el caso lo pide, en la base). |
 | CP-DEU-101 | PASSED | Coincide con el resultado esperado en cada paso (verificado en la pantalla y, donde el caso lo pide, en la base). |
 | CP-DEU-102 | PASSED | Coincide con el resultado esperado en cada paso (verificado en la pantalla y, donde el caso lo pide, en la base). |

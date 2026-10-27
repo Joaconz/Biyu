@@ -10,8 +10,8 @@ resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-p
 | A | `01-historias-de-usuario-v2.md` + `mocks/` | Historias de V2 con pantalla, botones, campos, validaciones, criterios `CA-k` y mock | Pendiente |
 | A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Parcial**: Deudas CP-DEU-018 a 029 y 100 a 159, y Navegación CP-NAV-001 a 085 (190 casos, pasos en lenguaje simple) |
 | A | `03-seleccion-regresion.md` / `.xlsx` | Casos de V1 elegidos para regresión, con el criterio (ADR-027) | Pendiente |
-| B | `04-ejecucion.md` / `.xlsx` | Ejecución de V2 de todos los módulos (Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones): una hoja por caso, resultado por caso y detalle de lo que no es PASSED | **Parcial**: 567 casos (449 PASSED, 17 FAILED, 12 DUDA, 88 BLOCKED, 1 sin ejecutar). 436 con IA, 52 a mano y 78 de Suscripciones informados como «ok» por el equipo. Sin regresión |
-| B | `05-reportes-de-defectos.md` / `.xlsx` | Defectos de V2 de todos los módulos, con la funcionalidad que afectan (desde DEF-029) | **Parcial**: DEF-029 a DEF-036 (3 Medios y 5 Bajos), sin issue |
+| B | `04-ejecucion.md` / `.xlsx` | Ejecución de V2 de todos los módulos (Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones): una hoja por caso, resultado por caso y detalle de lo que no es PASSED | **Parcial**: 611 casos (492 PASSED, 18 FAILED, 12 DUDA, 88 BLOCKED, 1 sin ejecutar). 480 con IA, 52 a mano y 78 de Suscripciones informados como «ok» por el equipo. Sin regresión |
+| B | `05-reportes-de-defectos.md` / `.xlsx` | Defectos de V2 de todos los módulos, con la funcionalidad que afectan (desde DEF-029) | **Parcial**: DEF-029 a DEF-037 (4 Medios y 5 Bajos), sin issue |
 | B | `06-reporte-de-ejecucion.md` / `.xlsx` | % PASSED / FAILED / BLOCKED por módulo, quién ejecutó cada caso (IA o equipo), criterios de salida y desvíos | **Parcial**: Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones |
 | Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | Pendiente |
 | B | `08-presentacion.html` | Presentación de 15 minutos con la demo | Pendiente |
