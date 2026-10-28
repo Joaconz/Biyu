@@ -21,7 +21,7 @@ DEF-029 se retiró el 2026-10-27: era un error de un caso de Navegación (CP-NAV
 | DEF-036 | La vista previa del calendario no marca con data-blocked="false" las filas que no están bloqueadas | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-048 | US-61 · Vista previa del calendario al dar de alta una suscripción |
 | DEF-037 | El primer clic en «US$» de «Nueva deuda» se pierde: el error de «Persona» corre los botones y la moneda no se selecciona | Media | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-DEU-024 y CP-DEU-025 | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
 
-**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 4 · Baja: 5 · Total abiertos: 9.
+**Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 4 · Baja: 4 · Total abiertos: 8.
 
 ## DEF-030 · Tocar fuera de la hoja «Exportar movimientos» no la cierra
 
