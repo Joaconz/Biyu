@@ -4,9 +4,6 @@ Para cada punto de la consigna, qué archivo abrir y qué mostrar. Para buscar u
 abrí el archivo y buscá su ID con Ctrl+F (Cmd+F en Mac). En las planillas, cada hoja se llama como
 el caso sin el `CP-` (por ejemplo, la hoja `EXP-027` es CP-EXP-027).
 
-La regresión de V1 (sección 4) está en el PR #310. Hasta que se mergee, la regresión, la confirmación
-completa de los defectos de V1 y las métricas de regresión del 06 se ven en esa rama.
-
 ## 1. Mapa de la consigna
 
 | Pide la consigna | Archivo | Qué mostrar |
@@ -17,7 +14,7 @@ completa de los defectos de V1 y las métricas de regresión del 06 se ven en es
 | Implementación de V2 con IA, con los mismos requerimientos | [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) | §1: cómo se separó la especificación de la implementación. §5: los prompts. §8: qué prompt y qué herramienta produjo cada PR |
 | Pasarle a la IA los defectos para que los corrija | [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) §6 | La plantilla y los 7 PR que corrigieron los 22 defectos de V1 |
 | Ejecución de los casos de V2 | [`04-ejecucion.md`](04-ejecucion.md) · [`.xlsx`](04-ejecucion.xlsx) | Resultado por caso y detalle de cada caso que no es PASSED |
-| Ejecución de la regresión de V1 | [`04-ejecucion.md`](04-ejecucion.md), apartado «Regresión de V1» (PR #310) | Los 60 casos de V1 sobre V2 |
+| Ejecución de la regresión de V1 | [`04-ejecucion.md`](04-ejecucion.md), apartado «Regresión de V1» | Los 60 casos de V1 sobre V2 |
 | Confirmación de los defectos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) §5 | Los 22 defectos repetidos sobre V2 con su resultado |
 | **Parte B** · Organización del equipo | [`README.md`](README.md) «Equipo» · [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) §3 | Quién hizo qué, y qué se hizo con IA y qué sin IA |
 | **Parte B** · % PASSED, FAILED y BLOCKED, con un gráfico | [`graficos/`](graficos/) · [`06-reporte-de-ejecucion.md`](06-reporte-de-ejecucion.md) §1 y §2 | Los dos gráficos de abajo |
