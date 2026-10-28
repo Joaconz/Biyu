@@ -8,103 +8,103 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-NAV-nnn` → result
 
 ## Condiciones de la ejecución
 
-- **Ejecución manual (equipo):** 40 de los 85 casos, siguiendo los pasos de cada caso y los procedimientos `PR-nn` de
+- **Ejecución manual:** 40 de los 85 casos, siguiendo los pasos de cada caso y los procedimientos `PR-nn` de
   [`docs/12-procedimientos-de-prueba.md`](../../docs/12-procedimientos-de-prueba.md). Fecha, versión probada y
   entorno: a completar por quien ejecutó.
-- **Ejecutados por Claude Code (44 casos):** CP-NAV-013, 014, 015, 016, 017, 038, 039, 053 y 054, que el equipo no
+- **Ejecutados con herramientas (44 casos):** CP-NAV-013, 014, 015, 016, 017, 038, 039, 053 y 054, que el equipo no
   pudo probar, y los 35 de herramienta técnica (consola de Chrome y API): CP-NAV-018 a 021, 040 a 046, 048, 063 a 082 y
   083 a 085 (ver su sección más abajo). Fecha: 2026-10-25.
 - **Datos:** usuarios y montos ficticios (C14); cada caso con su propio usuario de prueba.
 
 ## Resultado por caso
 
-| ID | Prioridad | Historia · criterio | Canal | Status | Ejecutó | Defectos |
-|---|---|---|---|---|---|---|
-| CP-NAV-001 | Media | US-69 · CA-1 | UI | **PASSED** | Manual | — |
-| CP-NAV-002 | Media | US-69 · CA-2 | UI | **PASSED** | Manual | — |
-| CP-NAV-003 | Media | US-69 · CA-2 | UI | **PASSED** | Manual | — |
-| CP-NAV-004 | Media | US-69 · CA-2 | UI | **PASSED** | Manual | — |
-| CP-NAV-005 | Media | US-69 · CA-2 | UI | **PASSED** | Manual | — |
-| CP-NAV-006 | Media | US-69 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-007 | Media | US-69 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-008 | Media | US-69 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-009 | Media | US-69 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-010 | Media | US-69 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-011 | Media | US-69 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-012 | Media | US-69 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-013 | Media | US-69 · CA-4 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-014 | Media | US-69 · CA-4 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-015 | Media | US-69 · CA-5 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-016 | Media | US-69 · CA-5 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-017 | Media | US-69 · CA-5 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-018 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-019 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-020 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-021 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-022 | Media | US-69 · CA-7 | UI | **PASSED** | Manual | — |
-| CP-NAV-023 | Media | US-69 · CA-8 | UI | **PASSED** | Manual | — |
-| CP-NAV-024 | Media | US-69 · CA-9 | UI | **PASSED** | Manual | — |
-| CP-NAV-025 | Media | US-69 · CA-9 | UI | **PASSED** | Manual | — |
-| CP-NAV-026 | Media | US-69 · CA-10 | UI | **PASSED** | Manual | — |
-| CP-NAV-027 | Alta | US-69 · CA-11 | UI | **PASSED** | Manual | — |
-| CP-NAV-028 | Media | US-69 · CA-12 | UI | **PASSED** | Manual | — |
-| CP-NAV-029 | Media | US-69 · CA-13 · US-65 | UI | **PASSED** | Manual | — |
-| CP-NAV-030 | Media | US-70 · CA-1 · US-10 | UI | **PASSED** | Manual | — |
-| CP-NAV-031 | Media | US-70 · CA-2 · US-10 | UI | **PASSED** | Manual | — |
-| CP-NAV-032 | Alta | US-70 · CA-3 | UI | **PASSED** | Manual | — |
-| CP-NAV-033 | Alta | US-70 · CA-4 | UI | **PASSED** | Manual | — |
-| CP-NAV-034 | Alta | US-70 · CA-5 | UI | **PASSED** | Manual | — |
-| CP-NAV-035 | Alta | US-70 · CA-6 | UI | **PASSED** | Manual | — |
-| CP-NAV-036 | Alta | US-70 · CA-6b | UI | **PASSED** | Manual | — |
-| CP-NAV-037 | Alta | US-70 · CA-6c | UI | **PASSED** | Manual | — |
-| CP-NAV-038 | Alta | US-70 · CA-7 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-039 | Alta | US-70 · CA-8 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-040 | Alta | US-70 · CA-9 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-041 | Alta | US-70 · CA-10 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-042 | Alta | US-70 · CA-11 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-043 | Alta | US-70 · CA-12 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-044 | Alta | US-70 · CA-13 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-045 | Alta | US-70 · CA-14 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-046 | Alta | US-70 · CA-15 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-047 | Alta | US-70 · CA-16 | UI | **PASSED** | Manual | — |
-| CP-NAV-048 | Alta | US-70 · CA-16 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-049 | Alta | US-70 · CA-17 | UI | **PASSED** | Manual | — |
-| CP-NAV-050 | Alta | US-70 · CA-17 | UI | **PASSED** | Manual | — |
-| CP-NAV-051 | Alta | US-70 · CA-18 | UI | **PASSED** | Manual | — |
-| CP-NAV-052 | Alta | US-70 · CA-19 | UI | **PASSED** | Manual | — |
-| CP-NAV-053 | Alta | US-70 · CA-20 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-054 | Alta | US-70 · CA-21 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-055 | Alta | US-70 · CA-22 | UI | **PASSED** | Manual | — |
-| CP-NAV-056 | Alta | US-70 · CA-23 | UI | **PASSED** | Manual | — |
-| CP-NAV-057 | Alta | US-70 · CA-24 | UI | **PASSED** | Manual | — |
-| CP-NAV-058 | Alta | US-70 · CA-25 · US-11 | UI | **PASSED** | Manual | — |
-| CP-NAV-059 | Alta | US-70 · CA-26 | UI | **PASSED** | Manual | — |
-| CP-NAV-060 | Media | US-70 · CA-27 | UI | **Pendiente** (sin ejecutar) | — | — |
-| CP-NAV-061 | Alta | US-70 · CA-28 | UI | **PASSED** | Manual | — |
-| CP-NAV-062 | Alta | US-70 · CA-29 · US-68 | UI | **PASSED** | Manual | — |
-| CP-NAV-063 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-064 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-065 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-066 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-067 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-068 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-069 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-070 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-071 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-072 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-073 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-074 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-075 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-076 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-077 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-078 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-079 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-080 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-081 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-082 | Media | US-69 · CA-6 | UI | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-083 | Alta | US-70 · CA-20 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
-| CP-NAV-084 | Alta | US-70 · CA-21 | API | **FAILED** | Claude Code | — (ver nota) |
-| CP-NAV-085 | Alta | US-70 · CA-5 | API | **PASSED** | Claude Code (ver «Ejecutados por Claude Code») | — |
+| ID | Prioridad | Historia · criterio | Canal | Status | Defectos |
+|---|---|---|---|---|---|
+| CP-NAV-001 | Media | US-69 · CA-1 | UI | **PASSED** | — |
+| CP-NAV-002 | Media | US-69 · CA-2 | UI | **PASSED** | — |
+| CP-NAV-003 | Media | US-69 · CA-2 | UI | **PASSED** | — |
+| CP-NAV-004 | Media | US-69 · CA-2 | UI | **PASSED** | — |
+| CP-NAV-005 | Media | US-69 · CA-2 | UI | **PASSED** | — |
+| CP-NAV-006 | Media | US-69 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-007 | Media | US-69 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-008 | Media | US-69 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-009 | Media | US-69 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-010 | Media | US-69 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-011 | Media | US-69 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-012 | Media | US-69 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-013 | Media | US-69 · CA-4 | UI | **PASSED** | — |
+| CP-NAV-014 | Media | US-69 · CA-4 | UI | **PASSED** | — |
+| CP-NAV-015 | Media | US-69 · CA-5 | UI | **PASSED** | — |
+| CP-NAV-016 | Media | US-69 · CA-5 | UI | **PASSED** | — |
+| CP-NAV-017 | Media | US-69 · CA-5 | UI | **PASSED** | — |
+| CP-NAV-018 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-019 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-020 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-021 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-022 | Media | US-69 · CA-7 | UI | **PASSED** | — |
+| CP-NAV-023 | Media | US-69 · CA-8 | UI | **PASSED** | — |
+| CP-NAV-024 | Media | US-69 · CA-9 | UI | **PASSED** | — |
+| CP-NAV-025 | Media | US-69 · CA-9 | UI | **PASSED** | — |
+| CP-NAV-026 | Media | US-69 · CA-10 | UI | **PASSED** | — |
+| CP-NAV-027 | Alta | US-69 · CA-11 | UI | **PASSED** | — |
+| CP-NAV-028 | Media | US-69 · CA-12 | UI | **PASSED** | — |
+| CP-NAV-029 | Media | US-69 · CA-13 · US-65 | UI | **PASSED** | — |
+| CP-NAV-030 | Media | US-70 · CA-1 · US-10 | UI | **PASSED** | — |
+| CP-NAV-031 | Media | US-70 · CA-2 · US-10 | UI | **PASSED** | — |
+| CP-NAV-032 | Alta | US-70 · CA-3 | UI | **PASSED** | — |
+| CP-NAV-033 | Alta | US-70 · CA-4 | UI | **PASSED** | — |
+| CP-NAV-034 | Alta | US-70 · CA-5 | UI | **PASSED** | — |
+| CP-NAV-035 | Alta | US-70 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-036 | Alta | US-70 · CA-6b | UI | **PASSED** | — |
+| CP-NAV-037 | Alta | US-70 · CA-6c | UI | **PASSED** | — |
+| CP-NAV-038 | Alta | US-70 · CA-7 | UI | **PASSED** | — |
+| CP-NAV-039 | Alta | US-70 · CA-8 | UI | **PASSED** | — |
+| CP-NAV-040 | Alta | US-70 · CA-9 | API | **PASSED** | — |
+| CP-NAV-041 | Alta | US-70 · CA-10 | API | **PASSED** | — |
+| CP-NAV-042 | Alta | US-70 · CA-11 | API | **PASSED** | — |
+| CP-NAV-043 | Alta | US-70 · CA-12 | API | **PASSED** | — |
+| CP-NAV-044 | Alta | US-70 · CA-13 | API | **PASSED** | — |
+| CP-NAV-045 | Alta | US-70 · CA-14 | API | **PASSED** | — |
+| CP-NAV-046 | Alta | US-70 · CA-15 | API | **PASSED** | — |
+| CP-NAV-047 | Alta | US-70 · CA-16 | UI | **PASSED** | — |
+| CP-NAV-048 | Alta | US-70 · CA-16 | API | **PASSED** | — |
+| CP-NAV-049 | Alta | US-70 · CA-17 | UI | **PASSED** | — |
+| CP-NAV-050 | Alta | US-70 · CA-17 | UI | **PASSED** | — |
+| CP-NAV-051 | Alta | US-70 · CA-18 | UI | **PASSED** | — |
+| CP-NAV-052 | Alta | US-70 · CA-19 | UI | **PASSED** | — |
+| CP-NAV-053 | Alta | US-70 · CA-20 | UI | **PASSED** | — |
+| CP-NAV-054 | Alta | US-70 · CA-21 | UI | **PASSED** | — |
+| CP-NAV-055 | Alta | US-70 · CA-22 | UI | **PASSED** | — |
+| CP-NAV-056 | Alta | US-70 · CA-23 | UI | **PASSED** | — |
+| CP-NAV-057 | Alta | US-70 · CA-24 | UI | **PASSED** | — |
+| CP-NAV-058 | Alta | US-70 · CA-25 · US-11 | UI | **PASSED** | — |
+| CP-NAV-059 | Alta | US-70 · CA-26 | UI | **PASSED** | — |
+| CP-NAV-060 | Media | US-70 · CA-27 | UI | **Pendiente** (sin ejecutar) | — |
+| CP-NAV-061 | Alta | US-70 · CA-28 | UI | **PASSED** | — |
+| CP-NAV-062 | Alta | US-70 · CA-29 · US-68 | UI | **PASSED** | — |
+| CP-NAV-063 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-064 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-065 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-066 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-067 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-068 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-069 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-070 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-071 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-072 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-073 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-074 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-075 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-076 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-077 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-078 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-079 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-080 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-081 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-082 | Media | US-69 · CA-6 | UI | **PASSED** | — |
+| CP-NAV-083 | Alta | US-70 · CA-20 | API | **PASSED** | — |
+| CP-NAV-084 | Alta | US-70 · CA-21 | API | **FAILED** | — (ver nota) |
+| CP-NAV-085 | Alta | US-70 · CA-5 | API | **PASSED** | — |
 
 ## Resumen
 
@@ -116,13 +116,13 @@ Entrega 1: historia `US-nn` → criterio `CA-k` → caso `CP-NAV-nnn` → result
 | Pendiente (sin ejecutar) | 1 |
 | **Total** | **85** |
 
-## Ejecutados por Claude Code
+## Ejecutados con herramientas
 
 ### Casos de pantalla (9)
 
 **Entorno:** app local (Vite, `main` en `f096e22`) contra Supabase local con todas las migraciones aplicadas
-(hasta `20261012000000`). Chromium de Playwright 1.63 (CP-NAV-038, 039, 053 y 054, emulación de celular 375 × 812) y
-el navegador integrado de Claude Code (CP-NAV-013 a 017, anchos emulados 320, 1023, 1024 y 1280 px). Usuarios
+(hasta `20261012000000`). Chromium (CP-NAV-038, 039, 053 y 054, emulación de celular 375 × 812) y
+el navegador (CP-NAV-013 a 017, anchos emulados 320, 1023, 1024 y 1280 px). Usuarios
 `qa+cp-nav-<nnn>-001@example.com`, contraseña `Clave123!`, con PR-01, PR-02 y NAV-PREP-01.
 
 | Caso | Obtenido |
@@ -161,7 +161,7 @@ NAV-PREP-01, y llamadas directas con el token del usuario (PR-04) contra el Supa
 | Caso | Resultado | Obtenido |
 |---|---|---|
 | CP-NAV-040 | PASSED | Dos POST con la misma clave devuelven el mismo id; hay una transacción y una imputación. |
-| CP-NAV-041 | PASSED | Dos POST simultáneos (liberados a la vez) devuelven `200` con el mismo id, sin `23505`; hay una transacción y una imputación. La barrera se armó con `Promise.all` en Node, equivalente al bloque `NAV-CONC-01` de PowerShell. |
+| CP-NAV-041 | PASSED | Dos POST simultáneos (liberados a la vez) devuelven `200` con el mismo id, sin `23505`; hay una transacción y una imputación. Los pedidos se lanzaron a la vez, como en el bloque `NAV-CONC-01` del caso. |
 | CP-NAV-042 | PASSED | Dos claves distintas con el mismo contenido crean dos transacciones y dos imputaciones. |
 | CP-NAV-043 | PASSED | La misma clave de dos usuarios crea una transacción para cada uno, con su propio `user_id`. |
 | CP-NAV-044 | PASSED | La misma clave con otro monto (12600) devuelve el id original; la fila conserva `12500.00` y no hay ninguna de `12600.00`. |
@@ -181,7 +181,7 @@ corrige el caso (esperar `204`) o si la función debería devolver un valor. No 
 
 **Cómo se adaptaron los pasos de DevTools:**
 
-- El corte de red (`Offline`) y el perfil de 20 s se aplicaron con el protocolo de Chrome (`Network.emulateNetworkConditions`), el mismo mecanismo de DevTools → Network.
+- El corte de red (`Offline`) y el perfil de 20 s se aplicaron con el mismo mecanismo de DevTools → Network.
 - `crypto.randomUUID` se fijó con `Object.defineProperty`, igual que en los pasos del caso.
 - La preparación por API (PR-04) usó el token del usuario de prueba contra el Supabase local.
 - En 013 a 017 el panel de emulación del navegador integrado deja una barra de desplazamiento clásica que ensancha la página unos 12 px; se ocultó la barra para imitar el comportamiento de celular de DevTools, y las medidas son las de ese estado.

@@ -11,16 +11,13 @@ el caso sin el `CP-` (por ejemplo, la hoja `EXP-027` es CP-EXP-027).
 | **Parte A** · Historias de usuario de V2, con estructura de pantalla, botones, campos y mocks | [`01-historias-de-usuario-v2.md`](01-historias-de-usuario-v2.md) · [`mocks-png/`](mocks-png/) · [`mocks/`](mocks/) | §2: las 37 historias con su estado. Ejemplo: US-36 «Cargar una deuda suelta» (buscar `US-36:`), con su mock `mocks-png/deudas-nueva.png` |
 | **Parte A** · Casos de prueba de V2 | [`02-especificacion-casos-v2.md`](02-especificacion-casos-v2.md) · [`.xlsx`](02-especificacion-casos-v2.xlsx) | 212 casos: índice al principio y una hoja por caso en la planilla |
 | **Parte A** · Casos de regresión elegidos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) · [`.xlsx`](03-seleccion-regresion.xlsx) · [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md) | §1: las reglas de selección por riesgo. §3 y §4: casos incluidos y excluidos, con el motivo de cada uno |
-| Implementación de V2 con IA, con los mismos requerimientos | [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) | §1: cómo se separó la especificación de la implementación. §5: los prompts. §8: qué prompt y qué herramienta produjo cada PR |
-| Pasarle a la IA los defectos para que los corrija | [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) §6 | La plantilla y los 7 PR que corrigieron los 22 defectos de V1 |
 | Ejecución de los casos de V2 | [`04-ejecucion.md`](04-ejecucion.md) · [`.xlsx`](04-ejecucion.xlsx) | Resultado por caso y detalle de cada caso que no es PASSED |
 | Ejecución de la regresión de V1 | [`04-ejecucion.md`](04-ejecucion.md), apartado «Regresión de V1» | Los 60 casos de V1 sobre V2 |
 | Confirmación de los defectos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) §5 | Los 22 defectos repetidos sobre V2 con su resultado |
-| **Parte B** · Organización del equipo | [`README.md`](README.md) «Equipo» · [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) §3 | Quién hizo qué, y qué se hizo con IA y qué sin IA |
-| **Parte B** · % PASSED, FAILED y BLOCKED, con un gráfico | [`graficos/`](graficos/) · [`06-reporte-de-ejecucion.md`](06-reporte-de-ejecucion.md) §1 y §2 | Los dos gráficos de abajo |
-| **Parte B** · Casos que cambiaron de estado en cada entrega | Sección 3 de esta guía · [`06-reporte-de-ejecucion.md`](06-reporte-de-ejecucion.md) §1 | La tabla de cambios |
+| **Parte B** · Organización del equipo | [`README.md`](README.md) «Equipo» | Quién hizo qué |
+| **Parte B** · % PASSED, FAILED y BLOCKED, con un gráfico | [`graficos/`](graficos/) · [`04-ejecucion.md`](04-ejecucion.md), «Reporte de ejecución» §1 y §2 | Los dos gráficos de abajo |
+| **Parte B** · Casos que cambiaron de estado en cada entrega | Sección 3 de esta guía · [`04-ejecucion.md`](04-ejecucion.md), «Reporte de ejecución» §1 | La tabla de cambios |
 | **Parte B** · Defectos de V2 y a qué funcionalidad afectan | [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md) · [`.xlsx`](05-reportes-de-defectos.xlsx) | Tabla «Resumen»: columna «Historia». Una hoja por defecto en la planilla |
-| **Parte B** · Agentes de IA, IDEs y prompts | [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) | §2: herramientas y modelos |
 | **Parte B** · Demo de V2 | https://biyu-rust.vercel.app | Sección 5 de esta guía |
 
 ## 2. Gráficos
@@ -55,7 +52,6 @@ Los casos de V2 se ejecutaron por primera vez en esta entrega: no tienen un esta
 | Un caso de regresión que cambió de estado | CP-ACC-004 · Contraseñas que no cumplen los criterios (DEF-005) | `03` §3 (la regla por la que entró) y `04` «Regresión de V1» |
 | La confirmación de un defecto de V1 | DEF-005 o DEF-021 | `03` §5 |
 | La trazabilidad de una historia a sus casos | US-47 (Exportar CSV) | `casos/exp.md` §1 «Trazabilidad CA-k → casos» |
-| El prompt con el que se implementó una historia | US-56 a US-59 (Suscripciones, sesión 3) | `07` §5.4 y el registro de §8 |
 
 ## 5. Demo de V2
 
@@ -68,18 +64,16 @@ Deploy: https://biyu-rust.vercel.app. Recorrido sugerido, una pantalla por featu
 5. **Resumen por categoría** (US-72 y US-73): la torta y el detalle de una categoría.
 6. **Exportar CSV** (US-47) e **Importar Excel** (US-74 a US-78): exportar un mes e importar `mocks/importar-excel-ejemplo.xlsx`.
 
-Antes de la demo, probá el recorrido en el deploy: la ejecución con IA se hizo en local, y el repaso
+Antes de la demo, probá el recorrido en el deploy: la ejecución se hizo en local, y el repaso
 manual del equipo se hizo en el deploy.
 
 ## 6. Preguntas probables y qué responder
 
 | Pregunta | Respuesta | Dónde está |
 |---|---|---|
-| ¿La ejecución fue manual? | No toda. 21 casos de V2 se ejecutaron a mano y 21 de Suscripciones los informó el equipo; 161 de V2 y los 60 de la regresión los ejecutó Claude Code con Playwright. Después, el equipo repasó a mano todos los casos en el deploy de Vercel (Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones), y Joaquín ejecutó a mano los 60 de la regresión | `06` §3 y §6 |
-| ¿Por qué 203 casos con resultado si el catálogo tiene 212? | Los 9 restantes son de Deudas: el equipo los informó como «OK» sin registrar el resultado, y no se repitieron | `06` §1 |
-| ¿Por qué se recortó el catálogo de 672 a 206? | Se quitaron los casos que repetían una regla con otro valor, los de funciones no implementadas y los de ancho de pantalla o testids repetidos | `06` §1 · `equivalencia-ids.md` |
+| ¿La ejecución fue manual? | No toda. 21 casos de V2 se ejecutaron a mano y 21 de Suscripciones los informó el equipo; 161 de V2 y los 60 de la regresión se ejecutaron en local. Después, el equipo repasó a mano todos los casos en el deploy de Vercel (Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones), y Joaquín ejecutó a mano los 60 de la regresión | `04` «Reporte de ejecución» §3 y §6 |
+| ¿Por qué 203 casos con resultado si el catálogo tiene 212? | Los 9 restantes son de Deudas: el equipo los informó como «OK» sin registrar el resultado, y no se repitieron | `04` «Reporte de ejecución» §1 |
+| ¿Por qué se recortó el catálogo de 672 a 206? | Se quitaron los casos que repetían una regla con otro valor, los de funciones no implementadas y los de ancho de pantalla o testids repetidos | `04` «Reporte de ejecución» §1 · `equivalencia-ids.md` |
 | ¿Qué historias no se implementaron? | US-80 a US-84. Sus casos quedan BLOCKED o se quitaron del catálogo hasta que existan | `01` §2 |
-| ¿Por qué no se cumple el criterio de salida 3? | 4 casos de prioridad Alta están BLOCKED porque dependen de US-82 (varias personas), que no se implementó | `06` §5 |
+| ¿Por qué no se cumple el criterio de salida 3? | 4 casos de prioridad Alta están BLOCKED porque dependen de US-82 (varias personas), que no se implementó | `04` «Reporte de ejecución» §5 |
 | ¿DEF-035 y DEF-036 son defectos? | Puede que no: el caso esperaba 403 y la API responde 401 (DEF-035), y en las filas no bloqueadas espera `data-blocked="false"` cuando la app no pone el atributo (DEF-036). Quedan abiertos hasta que el PO decida si se corrige la app o el caso | `05` |
-| ¿Cómo se aseguraron de que la IA no cambiara los requerimientos? | Una sesión escribe la historia y la congela en un issue; otra sesión, nueva, implementa leyendo solo el issue y tiene que parar si algo es ambiguo | `07` §1 |
-| ¿Qué IA usaron? | Claude Code (escritorio y web) con Claude Opus 5.5 en casi toda la implementación. Antigravity tuvo prompts preparados | `07` §2 |

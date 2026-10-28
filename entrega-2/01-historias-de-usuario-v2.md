@@ -2,7 +2,7 @@
 
 **Testing de Aplicaciones · Proyecto Integrador · Proyecto Biyu.** Este documento reúne en un solo lugar los requerimientos (historias de usuario) de la segunda versión de la aplicación (V2, el MVP usable), con el detalle que pide la consigna: pantalla y estructura, botones, campos y sus validaciones, estados, criterios de aceptación (`CA-k`), `data-testid` y mocks.
 
-Cada Parte es el contenido, sin cambios, de un archivo de `entrega-2/historias/`, que siguen siendo la fuente. Las mismas historias son las que usa el equipo de desarrollo (el agente de IA) y el de testing: los casos de prueba las citan como `US-nn · CA-k`. Los mocks están en [`mocks/`](mocks/) y sus capturas en [`mocks-png/`](mocks-png/).
+Cada Parte es el contenido, sin cambios, de un archivo de `entrega-2/historias/`, que siguen siendo la fuente. Las mismas historias son las que usan el equipo de desarrollo y el de testing: los casos de prueba las citan como `US-nn · CA-k`. Los mocks están en [`mocks/`](mocks/) y sus capturas en [`mocks-png/`](mocks-png/).
 
 ## 1. Qué trae V2
 
@@ -20,7 +20,7 @@ V1 dejó la base: registrar gastos e ingresos en pesos y dólares, compras en cu
 
 ## 2. Historias de V2 y su estado
 
-Estado al 2026-10-27, según lo implementado en la aplicación: **32 de 37 historias implementadas**. Las que no llegaron a V2 son US-80, US-81, US-82, US-83 y US-84; sus casos de prueba no están en el catálogo o quedan bloqueados (ver `06-reporte-de-ejecucion`).
+Estado al 2026-10-27, según lo implementado en la aplicación: **32 de 37 historias implementadas**. Las que no llegaron a V2 son US-80, US-81, US-82, US-83 y US-84; sus casos de prueba no están en el catálogo o quedan bloqueados (ver `04-ejecucion`, «Reporte de ejecución»).
 
 | Historia | Título | Issue | Parte | Estado | Casos de prueba |
 |---|---|---|---|---|---|
