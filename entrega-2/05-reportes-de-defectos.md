@@ -8,7 +8,7 @@ DEF-029 se retiró el 2026-10-27: era un error de un caso de Navegación (CP-NAV
 
 **Los casos BLOCKED no tienen defecto:** dependen de funcionalidades todavía no implementadas (US-82, US-83, US-80 y US-81) y se vuelven a ejecutar en V3.
 
-**Regresión de V1 (2026-10-28):** los 60 casos de V1 seleccionados pasaron sobre V2; no se abrió ningún defecto nuevo (ver `06-reporte-de-ejecucion`).
+**Regresión de V1 (2026-10-28):** los 60 casos de V1 seleccionados pasaron sobre V2; no se abrió ningún defecto nuevo (ver `04-ejecucion`, «Reporte de ejecución»).
 
 ## Resumen
 
@@ -36,8 +36,7 @@ DEF-029 se retiró el 2026-10-27: era un error de un caso de Navegación (CP-NAV
 | Caso de prueba | CP-EXP-027 |
 | Historia | US-47 · Exportar movimientos a CSV (CA-23) |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63), reloj fijado en 09/10/2026 |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium, reloj fijado en 09/10/2026 |
 
 Tocar fuera de la hoja «Exportar movimientos» no la cierra.
 
@@ -68,8 +67,7 @@ Tocar fuera de la hoja «Exportar movimientos» no la cierra.
 | Caso de prueba | CP-EXP-028 (el caso equivalente con «Adelante» se recortó del catálogo el 2026-10-27) |
 | Historia | US-47 · Exportar movimientos a CSV (CA-24 y requisito «todo cambio de URL») |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63), reloj fijado en 09/10/2026 |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium, reloj fijado en 09/10/2026 |
 
 Con la hoja «Exportar movimientos» abierta, «Atrás» y «Adelante» del navegador cambian el período de la URL pero la hoja no se cierra.
 
@@ -100,8 +98,7 @@ Con la hoja «Exportar movimientos» abierta, «Atrás» y «Adelante» del nave
 | Caso de prueba | CP-EXP-029 |
 | Historia | US-47 · Exportar movimientos a CSV (CA-24) |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63), reloj fijado en 09/10/2026 |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium, reloj fijado en 09/10/2026 |
 
 «Atrás» durante «Exportando…» no cancela la exportación: el archivo se descarga igual.
 
@@ -109,7 +106,7 @@ Con la hoja «Exportar movimientos» abierta, «Atrás» y «Adelante» del nave
 
 1. Abrir la app e iniciar sesión con un usuario de prueba que tenga un gasto de septiembre de 2026.
 2. Abrir /transactions?period=2026-08, tocar el mes siguiente (URL ?period=2026-09) y tocar «Exportar».
-3. Demorar unos segundos las respuestas de /rest/v1/transactions (en las pruebas, 3 s con Playwright; en DevTools, «1 kbit/s» y latencia 2000 ms).
+3. Demorar unos segundos las respuestas de /rest/v1/transactions (en las pruebas, 3 s; en DevTools, «1 kbit/s» y latencia 2000 ms).
 4. Tocar «Descargar CSV»: el botón pasa a «Exportando…».
 5. Hacer clic en «Atrás» del navegador y esperar a que termine la demora.
 
@@ -132,8 +129,7 @@ Con la hoja «Exportar movimientos» abierta, «Atrás» y «Adelante» del nave
 | Caso de prueba | CP-IMP-024 |
 | Historia | US-76 · Revisión de filas (CA-5) |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63) |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium |
 
 En la Revisión del importador, la tarjeta de una fila «Lista» muestra el texto de la categoría y de la cuenta tal cual está en el Excel (por ejemplo «educación» y «efectivo»), en lugar del nombre con el que existen en Biyu («Educación» y «Efectivo»).
 
@@ -163,8 +159,7 @@ En la Revisión del importador, la tarjeta de una fila «Lista» muestra el text
 | Caso de prueba | CP-SUS-032 (otros tres casos con el mismo defecto se recortaron del catálogo el 2026-10-27) |
 | Historia | US-56 · CA-9, US-57 · CA-7, US-58 · CA-9 y US-59 (Pausar, reanudar, cancelar y editar: par de autorización) |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63) · Edge Functions locales levantadas |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium · Edge Functions locales levantadas |
 
 Cuando un usuario llama a pause_subscription, resume_subscription, cancel_subscription o update_subscription con el identificador de una suscripción de otro usuario, la API rechaza la operación (P0002 «Suscripción no encontrada») pero con HTTP 500 en lugar de 404.
 
@@ -194,8 +189,7 @@ Cuando un usuario llama a pause_subscription, resume_subscription, cancel_subscr
 | Caso de prueba | CP-SUS-022 (otros cinco casos con el mismo defecto se recortaron del catálogo el 2026-10-27) |
 | Historia | US-52 · CA-13 y US-56 · CA-9, US-57 · CA-7, US-58 · CA-9, US-59 (rol anon) |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63) · Edge Functions locales levantadas |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium · Edge Functions locales levantadas |
 
 Las llamadas a las funciones y la lectura de la tabla de suscripciones con la clave anónima (sin sesión) se rechazan con "code": "42501" como pide el caso, pero con HTTP 401 y no con 403.
 
@@ -223,8 +217,7 @@ Las llamadas a las funciones y la lectura de la tabla de suscripciones con la cl
 | Caso de prueba | CP-SUS-048 |
 | Historia | US-75 · Vista previa del calendario al dar de alta una suscripción |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63) · Edge Functions locales levantadas |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium · Edge Functions locales levantadas |
 
 En «Se cargan al guardar», la fila de un mes sin bloqueo no tiene el atributo data-blocked; el caso espera data-blocked="false". La fila bloqueada sí lleva data-blocked="true" y el texto «Sin tipo de cambio: se carga cuando lo cargues».
 
@@ -253,8 +246,7 @@ En «Se cargan al guardar», la fila de un mes sin bloqueo no tiene el atributo 
 | Caso de prueba | CP-DEU-024 y CP-DEU-025 |
 | Historia | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
 | Issue | A crear |
-| Reportó | Claude Code (IA) |
-| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63) |
+| Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium |
 
 En «Nueva deuda», si el primer clic sobre el formulario es en «US$», la moneda no se selecciona y no aparece el campo «Tipo de cambio (ARS por US$)». Hace falta un segundo clic.
 

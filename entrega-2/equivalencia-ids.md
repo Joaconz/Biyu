@@ -1,6 +1,6 @@
 # Entrega 2 · Equivalencia de IDs de casos de prueba (V2)
 
-El 2026-10-27 el catálogo de V2 se recortó de 672 a 206 casos y después se **renumeró**: cada módulo quedó con IDs consecutivos desde 001. Esta tabla relaciona el **ID anterior** (el que figura en mensajes, issues, capturas o versiones viejas de los reportes) con el **ID nuevo** (el vigente en `casos/`, `02`, `04`, `05`, `06` y los `.xlsx`).
+El 2026-10-27 el catálogo de V2 se recortó de 672 a 206 casos y después se **renumeró**: cada módulo quedó con IDs consecutivos desde 001. Esta tabla relaciona el **ID anterior** (el que figura en mensajes, issues, capturas o versiones viejas de los reportes) con el **ID nuevo** (el vigente en `casos/`, `02`, `04`, `05` y los `.xlsx`).
 
 - Los casos que se quitaron en el recorte **no tienen ID nuevo** y no figuran acá.
 - Los registros históricos de `ejecucion/` conservan los IDs anteriores.

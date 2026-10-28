@@ -1,12 +1,11 @@
 {
-  "descripcion": "Resultado crudo de la cuarta corrida de la regresión de V1 sobre V2 (la que vale) y de las confirmaciones de DEF-005, DEF-021 y DEF-026 repetidas el mismo día. Ver entrega-2/04-ejecucion.md (Regresión de V1) y 06-reporte-de-ejecucion.md §6.",
+  "descripcion": "Resultado crudo de la cuarta corrida de la regresión de V1 sobre V2 (la que vale) y de las confirmaciones de DEF-005, DEF-021 y DEF-026 repetidas el mismo día. Ver entrega-2/04-ejecucion.md (Regresión de V1 y Reporte de ejecución §6).",
   "corrida": "mvs6enbi",
   "fecha": "2026-10-28",
   "finalizada": "2026-10-28T13:56:17.107Z",
   "app": "http://localhost:5173",
   "commit": "109007a",
-  "entorno": "Vite local + Supabase local (supabase/config.toml); Chromium (Playwright) emulando un celular de 390 × 844 px, es-AR, America/Argentina/Buenos_Aires; DEF-021 en WebKit con el viewport de iPhone 13",
-  "ejecuto": "Claude Code (IA)",
+  "entorno": "Vite local + Supabase local (supabase/config.toml); Chromium emulando un celular de 390 × 844 px, es-AR, America/Argentina/Buenos_Aires; DEF-021 en WebKit con el viewport de iPhone 13",
   "totales": {
     "PASSED": 60
   },
