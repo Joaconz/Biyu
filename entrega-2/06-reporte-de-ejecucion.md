@@ -18,9 +18,9 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 |---|---|---|
 | Planificados | 197 | 100 % |
 | Ejecutados (PASSED + FAILED + DUDA) | 193 | 98 % de avance |
-| PASSED | 180 | 93 % de los ejecutados |
+| PASSED | 183 | 95 % de los ejecutados |
 | FAILED | 9 | 5 % de los ejecutados |
-| DUDA (pasa, con dudas) | 4 | 2 % de los ejecutados |
+| DUDA (pasa, con dudas) | 1 | 1 % de los ejecutados |
 | BLOCKED | 4 | 2 % de los planificados |
 | No ejecutados | 0 | — |
 
@@ -37,10 +37,11 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 **Deudas, 8 casos pendientes (CP-DEU-001 a 004, 011 a 013 y 025; ejecutados con IA el 2026-10-27):**
 
-- **PASSED (2):** CP-DEU-004 (falta «¿Cuánto te debe?») y CP-DEU-012 (deuda un centavo mayor que el gasto).
+- **PASSED (5):** CP-DEU-001, 003 y 011 (después de corregir los casos), CP-DEU-004 (falta «¿Cuánto te debe?») y CP-DEU-012 (deuda un centavo mayor que el gasto).
 - **FAILED (1):** CP-DEU-025 (DEF-037): el primer clic en «US$» de «Nueva deuda» se pierde y el campo «Tipo de cambio» no aparece; con un segundo clic el resto se cumple (mensaje «El tipo de cambio debe ser mayor a cero»).
-- **DUDA (4):** CP-DEU-001 y CP-DEU-011 no piden elegir una cuenta y, como están escritos, «Guardar gasto» queda deshabilitado («Completá cuenta para guardar»); con «Efectivo» elegida se cumple todo lo esperado (parece un error del caso). CP-DEU-003 tampoco pide elegir cuenta y además fija el tipo de cambio antes de cambiar la fecha a otro mes: la app descarta a propósito el tipo de cambio al cambiar de mes y hay que volver a cargarlo en el paso 1; con eso se cumple todo (parece un error del caso). CP-DEU-002 se cumple (12 cuotas de $10.000,00 y 1 deuda de Sofía por $60.000,00 vinculada, con 1 sola llamada y ninguna a /debts), pero el pedido usa p_shared_person y p_shared_amount en lugar de los arreglos que pide el paso 15, porque US-82 no existe.
+- **DUDA (1):** CP-DEU-002 se cumple (12 cuotas de $10.000,00 y 1 deuda de Sofía por $60.000,00 vinculada, con 1 sola llamada y ninguna a /debts), pero el pedido usa p_shared_person y p_shared_amount en lugar de los arreglos que pide el paso 15, porque US-82 no existe.
 - **BLOCKED (1):** CP-DEU-013 (por API, deuda mayor que el gasto): con p_shared_persons y p_shared_amounts responde 404 PGRST202 porque US-82 (issue #270) no existe; con una sola persona responde 400, code 23514 y «I7: la deuda no puede superar el monto del gasto», sin dejar filas.
+- **Casos corregidos:** en la primera corrida CP-DEU-001, 003 y 011 quedaron en DUDA por pasos que faltaban o estaban mal ordenados; se corrigieron en casos/deu.md y se volvieron a ejecutar (ver el último apartado de Deudas).
 
 **Exportar CSV (EXP) (31 casos):**
 
@@ -63,7 +64,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 | Módulo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| DEU-H · Gasto compartido con una persona y tope de la deuda (US-34, US-36 y US-41; CP-DEU-001 a 004, 011 a 013 y 025; 8 casos ejecutados con IA) | 8 | 2 | 1 | 4 | 1 | 0 |
+| DEU-H · Gasto compartido con una persona y tope de la deuda (US-34, US-36 y US-41; CP-DEU-001 a 004, 011 a 013 y 025; 8 casos ejecutados con IA) | 8 | 5 | 1 | 1 | 1 | 0 |
 | DEU-A · Gasto compartido: validaciones de create_transaction (US-34, CP-DEU-005 a 010) | 6 | 6 | 0 | 0 | 0 | 0 |
 | DEU-B · Listado, filtro por estado y acceso (US-37 y US-38, CP-DEU-040 a 045) | 6 | 6 | 0 | 0 | 0 | 0 |
 | DEU-C · Saldar, volver a pendiente y filtro por dirección (US-39, US-40 y US-79, CP-DEU-046 a 054) | 9 | 9 | 0 | 0 | 0 | 0 |
@@ -78,30 +79,30 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 | Prioridad | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Alta | 126 | 112 | 6 | 4 | 4 | 0 |
+| Alta | 126 | 115 | 6 | 1 | 4 | 0 |
 | Media | 67 | 65 | 2 | 0 | 0 | 0 |
 | Baja | 4 | 3 | 1 | 0 | 0 | 0 |
 
 | Tipo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Positivo | 83 | 75 | 4 | 3 | 1 | 0 |
+| Positivo | 83 | 77 | 4 | 1 | 1 | 0 |
 | Negativo | 81 | 78 | 3 | 0 | 0 | 0 |
-| Límite | 33 | 27 | 2 | 1 | 3 | 0 |
+| Límite | 33 | 28 | 2 | 0 | 3 | 0 |
 
 | Técnica | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Partición de equivalencia | 88 | 83 | 4 | 1 | 0 | 0 |
+| Partición de equivalencia | 88 | 84 | 4 | 0 | 0 | 0 |
 | Tabla de decisión | 4 | 4 | 0 | 0 | 0 | 0 |
-| Valores límite | 40 | 34 | 2 | 1 | 3 | 0 |
+| Valores límite | 40 | 35 | 2 | 0 | 3 | 0 |
 | Adivinación de errores | 16 | 16 | 0 | 0 | 0 | 0 |
 | Caso de uso | 14 | 11 | 1 | 1 | 1 | 0 |
-| Transición de estados | 34 | 31 | 2 | 1 | 0 | 0 |
+| Transición de estados | 34 | 32 | 2 | 0 | 0 | 0 |
 | Prueba de rendimiento | 1 | 1 | 0 | 0 | 0 | 0 |
 
 | Canal | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
 | API | 52 | 48 | 2 | 0 | 2 | 0 |
-| UI | 145 | 132 | 7 | 4 | 2 | 0 |
+| UI | 145 | 135 | 7 | 1 | 2 | 0 |
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
@@ -167,13 +168,12 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 ### Deudas, 8 casos pendientes (ejecutado el 2026-10-27)
 
 1. Ejecución con scripts de Playwright (Chromium emulando un celular de 375 × 812 px, es-AR, hora de Argentina) y llamadas directas a la API, no a mano; la propiedad cruzada del plan no se aplicó. Entorno local (Vite + Supabase local), sobre `main` en `deac2c7`, reloj real (27/10/2026); no se probó el deploy de Vercel.
-2. Usuarios `qa+cp-deu-<id>-001@example.com`, uno por caso. Un intento anterior del script falló por selectores y creó usuarios con ese email: se borraron de la base local antes de la corrida final.
-3. CP-DEU-001, 003 y 011 no piden elegir una cuenta, pero sin cuenta «Guardar gasto» queda deshabilitado («Completá cuenta para guardar»): se eligió «Efectivo» (la cuenta que nombran los datos de prueba de otros casos). Parece un error de los casos: agregar el paso.
-4. CP-DEU-003 fija el tipo de cambio antes de cambiar la fecha a otro mes; la app descarta el tipo de cambio al cambiar de mes (es intencional) y en el paso 3 de 3 no hay dónde volver a escribirlo, así que se volvió al paso 1 («cambiar monto») para cargarlo de nuevo. Parece un error del caso.
-5. CP-DEU-002: la categoría «Tecnología» se creó por pantalla desde Ajustes (el caso pide crearla por API con PR-04). La consulta final de la base (transactions, ledger_entries y debts) se hizo por API con el token del usuario. Los parámetros del pedido son los de una sola persona porque la función de varias personas (US-82) no existe.
-6. CP-DEU-013 se ejecutó como está escrito y quedó BLOCKED; además se probó la variante con una sola persona (p_shared_person y p_shared_amount), que da el rechazo esperado.
-7. CP-DEU-025 reproduce DEF-037 (el primer clic en «US$» se pierde).
-8. No se adjuntaron capturas ni los scripts; lo observado queda en «Resultado obtenido» de cada caso (04-ejecucion).
+2. Usuarios `qa+cp-deu-<id>-001@example.com`, uno por caso. Los intentos anteriores del script (que fallaron por selectores) y la primera corrida de los casos 001, 003 y 011 crearon usuarios con ese email: se borraron de la base local antes de cada corrida final.
+3. En la primera corrida, CP-DEU-001, 003 y 011 no pedían elegir una cuenta, pero sin cuenta «Guardar gasto» queda deshabilitado («Completá cuenta para guardar»), y el 003 fijaba el tipo de cambio antes de cambiar la fecha a otro mes (la app lo descarta a propósito al cambiar de mes y en el paso 3 de 3 no hay dónde volver a escribirlo): quedaron en DUDA. El mismo día se corrigieron los tres casos en `casos/deu.md` (paso de elegir «Efectivo» y, en el 003, volver al paso 1 para cargar de nuevo el tipo de cambio) y se volvieron a ejecutar con los pasos corregidos: PASSED.
+4. CP-DEU-002: la categoría «Tecnología» se creó por pantalla desde Ajustes (el caso pide crearla por API con PR-04). La consulta final de la base (transactions, ledger_entries y debts) se hizo por API con el token del usuario. Los parámetros del pedido son los de una sola persona porque la función de varias personas (US-82) no existe.
+5. CP-DEU-013 se ejecutó como está escrito y quedó BLOCKED; además se probó la variante con una sola persona (p_shared_person y p_shared_amount), que da el rechazo esperado.
+6. CP-DEU-025 reproduce DEF-037 (el primer clic en «US$» se pierde).
+7. No se adjuntaron capturas ni los scripts; lo observado queda en «Resultado obtenido» de cada caso (04-ejecucion).
 
 ### Exportar CSV (EXP) (ejecutado el 2026-10-27)
 
