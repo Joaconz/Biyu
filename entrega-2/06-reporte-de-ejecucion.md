@@ -7,21 +7,21 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 | Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución de Claude Code: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. |
 | Entorno | Manual: Google Chrome contra el deploy. Claude Code: Vite local (127.0.0.1:5173) + Supabase local; Chromium (Playwright 1.63) y navegador integrado; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. |
 | Fecha | 2026-10-25 | 2026-10-27 |
-| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 16 casos de Deudas (CP-DEU-015 a 035). El equipo: 21 casos de SUS, informados como «ok» por mensaje. |
+| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025). El equipo: 21 casos de SUS, informados como «ok» por mensaje. |
 | Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. |
 
 ## 1. Planificados, ejecutados, pasados, fallados y bloqueados
 
-Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). Los números de este reporte son los **189 casos que tienen resultado**; los 17 de Deudas restantes (CP-DEU-001, 002, 003, 004, 011, 012, 013, 014, 018, 020, 021, 022, 025, 036, 037, 038 y 039) no figuraban en el registro: el equipo informó como «OK» los CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039, y los otros 8 no se ejecutaron.
+Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). Los números de este reporte son los **197 casos que tienen resultado**; los 9 de Deudas restantes (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no figuran porque el equipo los informó como «OK» y no se repitieron. Los 8 casos de Deudas que no se habían ejecutado se ejecutaron el 2026-10-27 (ver abajo).
 
 | Métrica | Casos | % |
 |---|---|---|
-| Planificados | 189 | 100 % |
-| Ejecutados (PASSED + FAILED + DUDA) | 186 | 98 % de avance |
-| PASSED | 178 | 96 % de los ejecutados |
-| FAILED | 8 | 4 % de los ejecutados |
-| DUDA (pasa, con dudas) | 0 | 0 % de los ejecutados |
-| BLOCKED | 3 | 2 % de los planificados |
+| Planificados | 197 | 100 % |
+| Ejecutados (PASSED + FAILED + DUDA) | 193 | 98 % de avance |
+| PASSED | 180 | 93 % de los ejecutados |
+| FAILED | 9 | 5 % de los ejecutados |
+| DUDA (pasa, con dudas) | 4 | 2 % de los ejecutados |
+| BLOCKED | 4 | 2 % de los planificados |
 | No ejecutados | 0 | — |
 
 **Deudas y Navegación (28 casos de Deudas y 25 de Navegación):**
@@ -34,6 +34,13 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 - **FAILED (1):** CP-DEU-024 (DEF-037): el primer clic en «US$» de «Nueva deuda» se pierde (al salir del foco de «Persona» aparece el error y los botones se corren), así que el campo «Tipo de cambio» no aparece; con un segundo clic el resto del caso se cumple.
 - **PASSED (15):** baja y restauración de un gasto con deuda (CP-DEU-015 y 016), alta de deuda por pantalla (017, 019, 023 y 026) y los 9 casos de `create_debt` directo por API (027, 028, 029, 030, 031, 032, 033, 034 y 035), incluidos el rechazo del rol anónimo y del `INSERT` directo.
 - **Diferencias con el informe del equipo:** CP-DEU-023 pasa.
+
+**Deudas, 8 casos pendientes (CP-DEU-001 a 004, 011 a 013 y 025; ejecutados con IA el 2026-10-27):**
+
+- **PASSED (2):** CP-DEU-004 (falta «¿Cuánto te debe?») y CP-DEU-012 (deuda un centavo mayor que el gasto).
+- **FAILED (1):** CP-DEU-025 (DEF-037): el primer clic en «US$» de «Nueva deuda» se pierde y el campo «Tipo de cambio» no aparece; con un segundo clic el resto se cumple (mensaje «El tipo de cambio debe ser mayor a cero»).
+- **DUDA (4):** CP-DEU-001 y CP-DEU-011 no piden elegir una cuenta y, como están escritos, «Guardar gasto» queda deshabilitado («Completá cuenta para guardar»); con «Efectivo» elegida se cumple todo lo esperado (parece un error del caso). CP-DEU-003 tampoco pide elegir cuenta y además fija el tipo de cambio antes de cambiar la fecha a otro mes: la app descarta a propósito el tipo de cambio al cambiar de mes y hay que volver a cargarlo en el paso 1; con eso se cumple todo (parece un error del caso). CP-DEU-002 se cumple (12 cuotas de $10.000,00 y 1 deuda de Sofía por $60.000,00 vinculada, con 1 sola llamada y ninguna a /debts), pero el pedido usa p_shared_person y p_shared_amount en lugar de los arreglos que pide el paso 15, porque US-82 no existe.
+- **BLOCKED (1):** CP-DEU-013 (por API, deuda mayor que el gasto): con p_shared_persons y p_shared_amounts responde 404 PGRST202 porque US-82 (issue #270) no existe; con una sola persona responde 400, code 23514 y «I7: la deuda no puede superar el monto del gasto», sin dejar filas.
 
 **Exportar CSV (EXP) (31 casos):**
 
@@ -56,6 +63,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 | Módulo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
+| DEU-H · Gasto compartido con una persona y tope de la deuda (US-34, US-36 y US-41; CP-DEU-001 a 004, 011 a 013 y 025; 8 casos ejecutados con IA) | 8 | 2 | 1 | 4 | 1 | 0 |
 | DEU-A · Gasto compartido: validaciones de create_transaction (US-34, CP-DEU-005 a 010) | 6 | 6 | 0 | 0 | 0 | 0 |
 | DEU-B · Listado, filtro por estado y acceso (US-37 y US-38, CP-DEU-040 a 045) | 6 | 6 | 0 | 0 | 0 | 0 |
 | DEU-C · Saldar, volver a pendiente y filtro por dirección (US-39, US-40 y US-79, CP-DEU-046 a 054) | 9 | 9 | 0 | 0 | 0 | 0 |
@@ -70,41 +78,41 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 | Prioridad | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Alta | 119 | 111 | 5 | 0 | 3 | 0 |
-| Media | 66 | 64 | 2 | 0 | 0 | 0 |
+| Alta | 126 | 112 | 6 | 4 | 4 | 0 |
+| Media | 67 | 65 | 2 | 0 | 0 | 0 |
 | Baja | 4 | 3 | 1 | 0 | 0 | 0 |
 
 | Tipo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Positivo | 80 | 75 | 4 | 0 | 1 | 0 |
-| Negativo | 80 | 77 | 3 | 0 | 0 | 0 |
-| Límite | 29 | 26 | 1 | 0 | 2 | 0 |
+| Positivo | 83 | 75 | 4 | 3 | 1 | 0 |
+| Negativo | 81 | 78 | 3 | 0 | 0 | 0 |
+| Límite | 33 | 27 | 2 | 1 | 3 | 0 |
 
 | Técnica | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Partición de equivalencia | 86 | 82 | 4 | 0 | 0 | 0 |
+| Partición de equivalencia | 88 | 83 | 4 | 1 | 0 | 0 |
 | Tabla de decisión | 4 | 4 | 0 | 0 | 0 | 0 |
-| Valores límite | 36 | 33 | 1 | 0 | 2 | 0 |
+| Valores límite | 40 | 34 | 2 | 1 | 3 | 0 |
 | Adivinación de errores | 16 | 16 | 0 | 0 | 0 | 0 |
-| Caso de uso | 13 | 11 | 1 | 0 | 1 | 0 |
-| Transición de estados | 33 | 31 | 2 | 0 | 0 | 0 |
+| Caso de uso | 14 | 11 | 1 | 1 | 1 | 0 |
+| Transición de estados | 34 | 31 | 2 | 1 | 0 | 0 |
 | Prueba de rendimiento | 1 | 1 | 0 | 0 | 0 | 0 |
 
 | Canal | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| API | 51 | 48 | 2 | 0 | 1 | 0 |
-| UI | 138 | 130 | 6 | 0 | 2 | 0 |
+| API | 52 | 48 | 2 | 0 | 2 | 0 |
+| UI | 145 | 132 | 7 | 4 | 2 | 0 |
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
 | Módulo | Casos | A mano por el equipo | Con IA (Claude Code, supervisado por Santiago) | Informados «ok» por el equipo, sin repetir |
 |---|---|---|---|---|
-| Deudas (DEU) | 44 | 6 (CP-DEU-005, 006, 007, 008, 009 y 010) | 38 | 0 |
+| Deudas (DEU) | 52 | 6 (CP-DEU-005, 006, 007, 008, 009 y 010) | 46 | 0 |
 | Navegación (NAV) | 25 | 15 | 10 | 0 |
 | Exportar CSV (EXP) | 31 | 0 | 31 | 0 |
 | Importar Excel (IMP) | 41 | 0 | 41 | 0 |
 | Suscripciones (SUS) | 48 | 0 | 27 | 21 |
-| **Total** | **189** | **21** | **147** | **21** |
+| **Total** | **197** | **21** | **155** | **21** |
 
 Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en §6; los de SUS informados como «ok» por el equipo son los 21 que no figuran como ejecutados con IA (lista en `04-ejecucion`).
 
@@ -126,17 +134,17 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 |---|---|---|
 | 1. Cero defectos de severidad Crítica abiertos | Cumplido | No hay defectos críticos (los defectos abiertos son de severidad Media y Baja). |
 | 2. Cero defectos de severidad Alta abiertos, o justificados por el PO | Cumplido | No hay defectos de severidad Alta. |
-| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 116 de 119 casos de prioridad Alta ejecutados. No ejecutados: 3, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056 y 057. Se ejecutan en V3. |
-| 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I4, I5, I7 e I9 con casos ejecutados; I1, I2 e I3 (cuotas) ya no tienen caso en este alcance después del recorte y quedan para la regresión de V1. En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
+| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 122 de 126 casos de prioridad Alta ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. |
+| 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I2, I3, I4, I5, I7 e I9 con casos ejecutados; I1 ya no tiene caso en este alcance después del recorte y queda para la regresión de V1. En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
 | 5. Regresión de V1 ejecutada y defectos corregidos confirmados | No evaluado | Fuera del alcance de este reporte: la selección de regresión (03) y la confirmación de los defectos de V1 se informan aparte. |
 
-**Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos). El criterio 3 **no se cumple**: los tres casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial, y el 5 (regresión de V1) se informa aparte.
+**Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos). El criterio 3 **no se cumple**: los cuatro casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial, y el 5 (regresión de V1) se informa aparte.
 
 ## 6. Desvíos respecto de lo planificado
 
 ### Deudas y Navegación (ejecutado el 2026-10-25)
 
-1. Catálogo recortado y alcance parcial de V2. El 2026-10-27 se recortó el catálogo de 672 a 206 casos y este reporte cubre los que tienen resultado: 28 casos de Deudas (CP-DEU-005 a 010 y 040 a 061) y 25 de Navegación. Los casos de Deudas sin resultado (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025, más los que el equipo informó «OK») y los de Dashboard no están incluidos.
+1. Catálogo recortado y alcance parcial de V2. El 2026-10-27 se recortó el catálogo de 672 a 206 casos y este reporte cubre los que tienen resultado: 28 casos de Deudas (CP-DEU-005 a 010 y 040 a 061), 8 casos de Deudas ejecutados después (ver el último apartado de Deudas) y 25 de Navegación. Los 9 casos de Deudas que el equipo informó como «OK» y los de Dashboard no están incluidos.
 2. Tres formas de ejecutar. 15 casos de Navegación y los 6 de Deudas (CP-DEU-005 a 010) los ejecutó Santiago a mano en el deploy de Vercel, con Chrome. Los otros 10 de Navegación y los 22 de Deudas del 101 en adelante los ejecutó Claude Code en el entorno local (Playwright, navegador integrado y pedidos directos a la API). La propiedad cruzada del plan (07-plan-de-testing §1) no se aplicó.
 3. Deudas CP-DEU-005 a 010 se verificaron en la pantalla, no por API. Los casos están escritos como llamadas directas a create_transaction con varias personas (US-82), que todavía no existe (issue #270). Se ejecutó la prueba equivalente en Registrar («Gasto compartido») de cada caso gemelo; el resultado esperado de la pantalla es el mensaje de error y el botón «Guardar gasto» deshabilitado.
 4. Función todavía no implementada. US-82 (compartir con varias personas, issue #270) no existe en la app: quedan BLOCKED CP-DEU-055, 056 y 057. Se comprobó la ausencia de la función (botones y respuesta de la API) y no se les abrió defecto: dependen de una historia pendiente. Los demás casos de US-82 y todos los de US-83 (deudas sueltas en el balance del mes, issue #271) se quitaron del catálogo.
@@ -155,6 +163,17 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 4. CP-DEU-024 se ejecutó como está escrito: el primer clic en «US$» se pierde (DEF-037) y el caso queda FAILED; se verificó que con un segundo clic el resto se cumple. El caso tampoco carga un tipo de cambio de referencia; no hace falta porque el campo permite escribirlo a mano.
 5. En CP-DEU-019 se cargó el tipo de cambio de referencia por API (`upsert_fx_rate`) como indica la preparación y se eligió la fecha antes de tocar «US$».
 6. Los casos que el equipo informó como «OK» no se repitieron y no figuran en el reporte. No se adjuntaron capturas ni los scripts.
+
+### Deudas, 8 casos pendientes (ejecutado el 2026-10-27)
+
+1. Ejecución con scripts de Playwright (Chromium emulando un celular de 375 × 812 px, es-AR, hora de Argentina) y llamadas directas a la API, no a mano; la propiedad cruzada del plan no se aplicó. Entorno local (Vite + Supabase local), sobre `main` en `deac2c7`, reloj real (27/10/2026); no se probó el deploy de Vercel.
+2. Usuarios `qa+cp-deu-<id>-001@example.com`, uno por caso. Un intento anterior del script falló por selectores y creó usuarios con ese email: se borraron de la base local antes de la corrida final.
+3. CP-DEU-001, 003 y 011 no piden elegir una cuenta, pero sin cuenta «Guardar gasto» queda deshabilitado («Completá cuenta para guardar»): se eligió «Efectivo» (la cuenta que nombran los datos de prueba de otros casos). Parece un error de los casos: agregar el paso.
+4. CP-DEU-003 fija el tipo de cambio antes de cambiar la fecha a otro mes; la app descarta el tipo de cambio al cambiar de mes (es intencional) y en el paso 3 de 3 no hay dónde volver a escribirlo, así que se volvió al paso 1 («cambiar monto») para cargarlo de nuevo. Parece un error del caso.
+5. CP-DEU-002: la categoría «Tecnología» se creó por pantalla desde Ajustes (el caso pide crearla por API con PR-04). La consulta final de la base (transactions, ledger_entries y debts) se hizo por API con el token del usuario. Los parámetros del pedido son los de una sola persona porque la función de varias personas (US-82) no existe.
+6. CP-DEU-013 se ejecutó como está escrito y quedó BLOCKED; además se probó la variante con una sola persona (p_shared_person y p_shared_amount), que da el rechazo esperado.
+7. CP-DEU-025 reproduce DEF-037 (el primer clic en «US$» se pierde).
+8. No se adjuntaron capturas ni los scripts; lo observado queda en «Resultado obtenido» de cada caso (04-ejecucion).
 
 ### Exportar CSV (EXP) (ejecutado el 2026-10-27)
 

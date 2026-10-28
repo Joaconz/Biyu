@@ -4,7 +4,7 @@ Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 
 
 ## Condiciones de la ejecución
 
-Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). Acá figuran los 189 que tienen resultado; los 17 de Deudas restantes (CP-DEU-001, 002, 003, 004, 011, 012, 013, 014, 018, 020, 021, 022, 025, 036, 037, 038 y 039) no figuraban en este registro: el equipo informó como «OK» los CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039, y los otros 8 (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025) no se ejecutaron.
+Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). Acá figuran los 197 que tienen resultado; los 9 de Deudas restantes (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no figuran porque el equipo los informó como «OK» y no se repitieron.
 
 - **Fecha:** 2026-10-25.
 - **Ejecutó a mano (Santiago):** CP-DEU-005, 006, 007, 008, 009 y 010, y 15 casos de Navegación (CP-NAV-001, 002, 003, 004, 008, 009, 010, 011, 012, 013, 019, 021, 023, 024 y 025), en el **deploy de Vercel** (https://biyu-rust.vercel.app), con **Google Chrome**.
@@ -13,24 +13,33 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 - **Datos:** usuarios y montos ficticios, uno por caso.
 - **Exportar CSV (31 casos), Importar Excel (41 casos) y Suscripciones (48 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** los 31 de EXP, los 41 de IMP y 27 de los 48 de SUS (los que el equipo no pudo probar o informó con una observación). Los otros 21 casos de SUS los ejecutó el equipo y los informó como «ok» en un mensaje; no se repitieron. Detalle del entorno y de lo sustituido en `06-reporte-de-ejecucion`, §6.
 - **Deudas, casos CP-DEU-015 a 035 (16 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright, reloj real), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** CP-DEU-015, 016, 017, 019, 023, 024, 026, 027, 028, 029, 030, 031, 032, 033, 034 y 035. Los que el equipo informó como «OK» (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no se repitieron y no figuran en este reporte.
+- **Deudas, 8 casos pendientes (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, reloj real), sobre `main` en `deac2c7`. **Ejecutó Claude Code (IA), supervisado por Santiago.** Usuario nuevo por caso (`qa+cp-deu-<id>-001@example.com`); la pantalla se manejó con la interfaz y, donde el caso lo pide, la base se consultó por API con el token del usuario de prueba. Los casos 001, 003 y 011 no piden elegir una cuenta para guardar, así que se eligió «Efectivo».
 - **Criterio para BLOCKED:** un caso que no se puede ejecutar porque falta una funcionalidad o un botón queda BLOCKED para V3.
 
 ## Resultado por caso
 
 | ID | Prioridad | Título | Status | Ejecutó | Defectos |
 |---|---|---|---|---|---|
+| CP-DEU-001 | Alta | El interruptor «Gasto compartido» se enciende y se apaga, y el gasto se guarda sin deuda | **DUDA** | Claude Code | — |
+| CP-DEU-002 | Alta | Gasto compartido de $120.000,00 en 12 cuotas: se guarda el gasto y la deuda vinculada de Sofía | **DUDA** | Claude Code | — |
+| CP-DEU-003 | Alta | Gasto compartido en dólares (US$100 a tipo de cambio 1250): avisa en dólares y congela el tipo de cambio | **DUDA** | Claude Code | — |
+| CP-DEU-004 | Media | El monto adeudado vacío muestra «Ingresá cuánto te debe» y no deja guardar | **PASSED** | Claude Code | — |
 | CP-DEU-005 | Alta | No se puede compartir un gasto si falta cuánto te deben | **PASSED** | Santiago | — |
 | CP-DEU-006 | Alta | No se puede compartir un gasto si falta con quién | **PASSED** | Santiago | — |
 | CP-DEU-007 | Alta | Un ingreso no se puede compartir | **PASSED** | Santiago | — |
 | CP-DEU-008 | Alta | El nombre hecho solo de espacios no cuenta como nombre | **PASSED** | Santiago | — |
 | CP-DEU-009 | Media | El nombre admite hasta 60 caracteres, no 61 | **PASSED** | Santiago | — |
 | CP-DEU-010 | Alta | No se puede deber 0 pesos | **PASSED** | Santiago | — |
+| CP-DEU-011 | Alta | Una deuda igual al gasto se acepta: «Tu parte» queda en $0,00 | **DUDA** | Claude Code | — |
+| CP-DEU-012 | Alta | Una deuda un centavo mayor que el gasto no se puede guardar | **PASSED** | Claude Code | — |
+| CP-DEU-013 | Alta | Por API, una deuda mayor que el gasto se rechaza y no se guarda nada | **BLOCKED** | Claude Code | — |
 | CP-DEU-015 | Alta | Eliminar el gasto vinculado oculta la deuda de /debts, deja de sumarla en "Te deben" y en el neto del Resumen, y conserva intacta su fila en debts | **PASSED** | Claude Code | — |
 | CP-DEU-016 | Alta | Al restaurar desde Movimientos → Eliminados un gasto cuya deuda vinculada estaba saldada, la deuda vuelve a /debts con estado saldada y la misma fecha settled_at | **PASSED** | Claude Code | — |
 | CP-DEU-017 | Alta | Estado inicial de /debts/new y guardado de una deuda "Me deben" en ARS por $20.000,00 crea una fila pendiente con transaction_id = null en una sola llamada a create_debt | **PASSED** | Claude Code | — |
 | CP-DEU-019 | Alta | En /debts/new, elegir "US$" con TC de referencia de 1250 precompleta "1.250,00", muestra "≈ $50.000,00" para US$40 y guarda fx_rate = 1250.0000 y amount_ars = 50000.00 | **PASSED** | Claude Code | — |
 | CP-DEU-023 | Media | En /debts/new, un "Monto" con más de 2 decimales ("0,001") muestra "El monto admite hasta 2 decimales" | **PASSED** | Claude Code | — |
 | CP-DEU-024 | Alta | En /debts/new con US$, Monto = 0,01 y TC = 0,5 se acepta (redondeo half-up a $0,01) y guarda amount_ars = "0.01" | **FAILED** | Claude Code | DEF-037 |
+| CP-DEU-025 | Alta | En «Nueva deuda» con US$, un tipo de cambio de 0 muestra «El tipo de cambio debe ser mayor a cero» | **FAILED** | Claude Code | DEF-037 |
 | CP-DEU-026 | Alta | En /debts/new, una fecha posterior a hoy (<MAÑANA>) muestra "La fecha no puede ser futura" y deshabilita "Guardar deuda" | **PASSED** | Claude Code | — |
 | CP-DEU-027 | Alta | Directo contra create_debt, p_person = "" se rechaza con "Ingresá el nombre de la persona" | **PASSED** | Claude Code | — |
 | CP-DEU-028 | Media | Directo contra create_debt, p_person de 61 caracteres se rechaza con "La persona admite hasta 60 caracteres" | **PASSED** | Claude Code | — |
@@ -213,24 +222,74 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 
 | Status | Casos |
 |---|---|
-| PASSED | 178 |
-| FAILED | 8 |
-| DUDA (pasa, con dudas) | 0 |
-| BLOCKED | 3 |
+| PASSED | 180 |
+| FAILED | 9 |
+| DUDA (pasa, con dudas) | 4 |
+| BLOCKED | 4 |
 | No ejecutados | 0 |
-| **Total** | **189** |
+| **Total** | **197** |
 
 Por módulo:
 
 | Módulo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Deudas (DEU) | 44 | 40 | 1 | 0 | 3 | 0 |
+| Deudas (DEU) | 52 | 42 | 2 | 4 | 4 | 0 |
 | Navegación (NAV) | 25 | 25 | 0 | 0 | 0 | 0 |
 | Exportar CSV (EXP) | 31 | 28 | 3 | 0 | 0 | 0 |
 | Importar Excel (IMP) | 41 | 40 | 1 | 0 | 0 | 0 |
 | Suscripciones (SUS) | 48 | 45 | 3 | 0 | 0 | 0 |
 
 ## Detalle de los casos que no son PASSED
+
+### CP-DEU-001 — El interruptor «Gasto compartido» se enciende y se apaga, y el gasto se guarda sin deuda · **DUDA**
+
+**Esperado:** Con el interruptor apagado se ven solo los datos del gasto; al encenderlo aparecen «¿Con quién?» y «¿Cuánto te debe?» y el resumen «Sofía te va a deber $25.000,00 · Tu parte: $25.000,00»; al apagarlo desaparecen. Al guardar aparece «Gasto guardado» sin mención de deuda, /debts?status=all muestra «No cargaste ninguna deuda todavía.» y quedan 1 transacción de $50.000,00 y 0 deudas.
+
+**Obtenido:** Los pasos 1 a 13 coinciden: el interruptor llega apagado sin campos, al encenderlo aparecen «¿Con quién?» y «¿Cuánto te debe?» vacíos (este con prefijo $), el resumen dice «Sofía te va a deber $25.000,00 · Tu parte: $25.000,00» y al apagarlo desaparecen. El paso 14 no se puede hacer como está escrito: «Guardar gasto» queda deshabilitado con el aviso «Completá cuenta para guardar», porque el caso no pide elegir una cuenta (los datos de prueba nombran «Efectivo», pero ningún paso la elige). Con la cuenta «Efectivo» elegida: aparece «Gasto guardado» sin mención de deuda, /debts?status=all muestra «No cargaste ninguna deuda todavía.» y la base queda con 1 transacción de 50000.00 y 0 deudas.
+
+**Defectos:** —
+
+**Notas:** Parece un error del caso, no de la aplicación (la app exige elegir cuenta para guardar). Agregar al caso el paso de elegir la cuenta «Efectivo» antes de «Guardar gasto».
+
+### CP-DEU-002 — Gasto compartido de $120.000,00 en 12 cuotas: se guarda el gasto y la deuda vinculada de Sofía · **DUDA**
+
+**Esperado:** Aparece «Gasto guardado» con «Sofía te debe $60.000,00»; se emite 1 sola llamada create_transaction con p_shared_persons = ["Sofía"] y p_shared_amounts = ["60000.00"] y ninguna a /rest/v1/debts. En la base: 1 transacción de 120000.00 en 12 cuotas, 12 filas de ledger_entries de 10000.00 (2026-08 a 2027-07) y 1 deuda de Sofía de 60000.00, pendiente, vinculada a la transacción.
+
+**Obtenido:** Coincide casi todo: se creó la categoría «Tecnología»; con «Tarjeta de crédito», 12 cuotas y fecha 15/08/2026 el resumen dice «Sofía te va a deber $60.000,00 · Tu parte: $60.000,00»; al guardar aparece «Gasto guardado» ($120.000,00 en 12 cuotas · Tecnología · Tarjeta de crédito · Sofía te debe $60.000,00), con 1 sola llamada create_transaction y ninguna a /rest/v1/debts; el formulario queda listo para otro gasto con «Tarjeta de crédito» preseleccionada y el interruptor apagado. /debts?status=all muestra una deuda de Sofía por $60.000,00 pendiente con «Gasto compartido: Tecnología, $120.000,00 del 15/08/2026». En la base: transactions 1 fila de 120000.00 en 12 cuotas; ledger_entries 12 filas de 10000.00 (2026-08-01 a 2027-07-01); debts 1 fila (Sofía, 60000.00, ARS, owed_to_me, pending, settled_at null, incurred_on 2026-08-15, transaction_id igual al de la transacción). La diferencia: el pedido que envía la pantalla usa p_shared_person = "Sofía" y p_shared_amount = "60000" (una sola persona), no los arreglos p_shared_persons y p_shared_amounts que pide el paso 15.
+
+**Defectos:** —
+
+**Notas:** Se cumple en lo esencial (1 llamada, 0 a /debts, 12 cuotas y deuda vinculada correctas). La diferencia es solo el nombre de los parámetros: la función de varias personas (US-82, issue #270) todavía no existe. Sin defecto. Repetir el paso 15 cuando exista US-82.
+
+### CP-DEU-003 — Gasto compartido en dólares (US$100 a tipo de cambio 1250): avisa en dólares y congela el tipo de cambio · **DUDA**
+
+**Esperado:** Aparece «Gasto guardado» con «Sofía te debe US$40,00» y la base guarda 1 deuda de Sofía en USD de 40.00 con fx_rate 1250.0000 y amount_ars 50000.00.
+
+**Obtenido:** Los pasos 1 a 14 coinciden: al elegir «US$» aparece «Tipo de cambio (ARS por US$)», con 100 y 1250 se ve el equivalente «≈ $125.000,00», y con la fecha 15/08/2026 y el interruptor encendido el resumen dice «Sofía te va a deber US$40,00 · Tu parte: US$60,00». El paso 15 no se puede hacer como está escrito: al cambiar la fecha a otro mes (agosto) la app descarta el tipo de cambio escrito a mano (el monto queda «US$100,00» sin TC) y «Guardar gasto» queda deshabilitado con «Completá tipo de cambio para guardar»; en el paso 3 de 3 no hay dónde escribirlo, hay que volver al paso 1. Tampoco se pide elegir cuenta (se eligió «Efectivo»). Con el tipo de cambio 1250 vuelto a cargar en el paso 1: aparece «Gasto guardado» con «Sofía te debe US$40,00» y la base guarda 1 deuda de Sofía, USD, 40.00, fx_rate 1250.0000, amount_ars 50000.00.
+
+**Defectos:** —
+
+**Notas:** Parece un error del caso: la app descarta a propósito el tipo de cambio al cambiar de mes (TransactionForm.tsx: «Al cambiar de mes, no se conserva accidentalmente el TC sugerido del período anterior»). Corregir el caso: elegir la fecha antes de escribir el tipo de cambio y elegir una cuenta. Sin defecto.
+
+### CP-DEU-011 — Una deuda igual al gasto se acepta: «Tu parte» queda en $0,00 · **DUDA**
+
+**Esperado:** El resumen dice «Sofía te va a deber $10.000,00 · Tu parte: $0,00» y «Guardar gasto» está habilitado; aparece «Gasto guardado» con «Sofía te debe $10.000,00» y /debts?status=all muestra la fila de Sofía con «$10.000,00».
+
+**Obtenido:** Coincide con una salvedad: el caso no pide elegir cuenta y, como está escrito, «Guardar gasto» queda deshabilitado con «Completá cuenta para guardar» (el paso 8 espera que esté habilitado). Con la cuenta «Efectivo» elegida: el resumen dice «Sofía te va a deber $10.000,00 · Tu parte: $0,00», aparece «Gasto guardado» con «Sofía te debe $10.000,00», /debts?status=all muestra la fila de Sofía con «$10.000,00» y la base guarda 1 transacción de 10000.00 y 1 deuda de 10000.00.
+
+**Defectos:** —
+
+**Notas:** Parece un error del caso, no de la aplicación (la app exige elegir cuenta para guardar). Agregar al caso el paso de elegir la cuenta «Efectivo» antes de «Guardar gasto».
+
+### CP-DEU-013 — Por API, una deuda mayor que el gasto se rechaza y no se guarda nada · **BLOCKED**
+
+**Esperado:** create_transaction responde HTTP 400 con code 23514 y el mensaje «I7: la deuda no puede superar el monto del gasto»; transactions, ledger_entries y debts quedan vacías.
+
+**Obtenido:** No se pudo ejecutar como está escrito: create_transaction con p_shared_persons y p_shared_amounts responde HTTP 404 con code PGRST202 (función no encontrada), porque la función de varias personas (US-82, issue #270) todavía no existe. Con la función actual (una persona: p_shared_person = "Sofía" y p_shared_amount = "10000.01") responde HTTP 400 con code 23514 y el mensaje «I7: la deuda no puede superar el monto del gasto», y transactions, ledger_entries y debts quedan vacías.
+
+**Defectos:** —
+
+**Notas:** BLOQUEADO por función no implementada: repetir el caso cuando se implemente US-82 (issue #270). Sin defecto: depende de una historia pendiente.
 
 ### CP-DEU-024 — En /debts/new con US$, Monto = 0,01 y TC = 0,5 se acepta (redondeo half-up a $0,01) y guarda amount_ars = "0.01" · **FAILED**
 
@@ -243,6 +302,16 @@ Por módulo:
 **Defectos:** DEF-037
 
 **Notas:** Ver DEF-037. Con un segundo clic en «US$» el resto del caso se cumple.
+
+### CP-DEU-025 — En «Nueva deuda» con US$, un tipo de cambio de 0 muestra «El tipo de cambio debe ser mayor a cero» · **FAILED**
+
+**Esperado:** Con «US$», Persona «Juan», Monto 40 y Tipo de cambio 0, al salir del campo aparece «El tipo de cambio debe ser mayor a cero» y «Guardar deuda» queda deshabilitado; no se guarda nada.
+
+**Obtenido:** Paso 6: el primer clic en «US$» no selecciona la moneda y el campo «Tipo de cambio (ARS por US$)» no aparece, (se hizo clic en «US$» apenas se abrió «Nueva deuda», con el foco todavía en «Persona»). Con un segundo clic en «US$» el resto se cumple: al escribir 0 en «Tipo de cambio (ARS por US$)» y salir del campo aparece «El tipo de cambio debe ser mayor a cero», «Guardar deuda» queda deshabilitado y debts queda vacía.
+
+**Defectos:** DEF-037
+
+**Notas:** Ver DEF-037 (mismo problema que CP-DEU-024). Es el escenario descrito en DEF-037: clic en «US$» apenas se abre «Nueva deuda». Con un segundo clic en «US$» el resto del caso se cumple.
 
 ### CP-DEU-055 — Gasto compartido con varias personas: agregar, quitar y guardar · **BLOCKED**
 
@@ -336,17 +405,24 @@ Por módulo:
 
 **Defectos:** DEF-036
 
-
 ## Resultado obtenido de los casos que ejecutó Claude Code
 
 | Caso | Status | Obtenido |
 |---|---|---|
+| CP-DEU-001 | DUDA | Los pasos 1 a 13 coinciden. En el paso 14 «Guardar gasto» queda deshabilitado («Completá cuenta para guardar») porque el caso no pide elegir cuenta; con «Efectivo» elegida se guarda sin deuda y /debts queda vacío. — Parece un error del caso. |
+| CP-DEU-002 | DUDA | Se cumple todo (12 cuotas de $10.000,00 y 1 deuda de Sofía por $60.000,00 vinculada, con 1 sola llamada y ninguna a /debts). Diferencia: el pedido usa p_shared_person y p_shared_amount (una persona) y no los arreglos del paso 15, porque US-82 no existe. |
+| CP-DEU-003 | DUDA | Los pasos 1 a 14 coinciden. En el paso 15 «Guardar gasto» queda deshabilitado («Completá tipo de cambio para guardar»): al cambiar la fecha a agosto la app descarta el TC escrito; con el TC vuelto a cargar en el paso 1 se guarda y la deuda queda en USD 40.00 con fx_rate 1250.0000 y amount_ars 50000.00. — Parece un error del caso. |
+| CP-DEU-004 | PASSED | Coincide con el resultado esperado. Se verificó: «Guardar gasto» deshabilitado; mensaje «Ingresá cuánto te debe»; transactions y debts vacías. |
+| CP-DEU-011 | DUDA | Coincide, salvo que el caso no pide elegir cuenta y «Guardar gasto» queda deshabilitado («Completá cuenta para guardar»); con «Efectivo» elegida se guarda, la fila de Sofía muestra «$10.000,00» y quedan 1 gasto y 1 deuda de 10000.00. — Parece un error del caso. |
+| CP-DEU-012 | PASSED | Coincide con el resultado esperado. Se verificó: mensaje «No puede superar el monto del gasto ($10.000,00)», sin resumen, «Guardar gasto» deshabilitado, transactions y debts vacías. |
+| CP-DEU-013 | BLOCKED | La función de varias personas (US-82) no existe: como está escrito responde 404 PGRST202. Con una sola persona responde 400, code 23514 y «I7: la deuda no puede superar el monto del gasto», sin dejar filas. |
 | CP-DEU-015 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila intacta con person = "Sofía", status = "pending", settled_at = null, amount_text = "60000.00" y transaction_id = "<TX_ID>". — Observado en la corrida — adaptación: US-82 (varias personas) no existe; se preparó con p_shared_person y p_shared_amount de una persona |
 | CP-DEU-016 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con status = "settled" y settled_at exactamente igual a <SETTLED_AT>. — Observado en la corrida — adaptación: US-82 (varias personas) no existe; se preparó con p_shared_person y p_shared_amount de una persona |
 | CP-DEU-017 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con person = "Juan", direction = "owed_to_me", status = "pending", currency = "ARS", fx_rate = null, amount_text = "20000.00", amount_ars_text = "20000.00", incurred_on = "<HOY>", notes = null y transaction_id = null. — Observado en la corrida — Estado inicial: {"dir":"true","persona":"","foco":"debt-form-person","monto":"","ars":"true","fxEnDom":0,"fecha":"2026-10-27","nota":"","submitOff":true,"cancel":1} |
 | CP-DEU-019 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve 1 fila con currency = "USD", amount_text = "40.00", fx_rate_text = "1250.0000" y amount_ars_text = "50000.00". — Observado en la corrida — TC sugerido: «1.250,00» |
 | CP-DEU-023 | PASSED | Coincide con el resultado esperado. Se verificó: Aparece data-testid="debt-form-amount-error" con el texto exacto "El monto admite hasta 2 decimales", y "Guardar deuda" queda deshabilitado. — Observado en la corrida — error: «El monto admite hasta 2 decimales»; Guardar deuda deshabilitado |
 | CP-DEU-024 | FAILED | Paso 6: el primer clic en «US$» no selecciona la moneda (se pierde porque al salir del foco de «Persona» aparece el error y corre los botones); con un segundo clic el resto del caso se cumple: ≈ $0,01 y se guarda amount 0.01, fx_rate 0.5000 y amount_ars 0.01 — Observado en la corrida — Paso 6: tras el primer clic en «US$», el campo «Tipo de cambio» NO aparece (el clic se perdió: al salir del foco de «Persona» aparece «Ingresá el nombre de la persona» y los botones se corren hacia abajo) Con un segundo clic en «US$» el campo «Tipo de cambio» aparece |
+| CP-DEU-025 | FAILED | Paso 6: el primer clic en «US$» no selecciona la moneda (no aparece «Tipo de cambio»); con un segundo clic el resto se cumple: mensaje «El tipo de cambio debe ser mayor a cero», «Guardar deuda» deshabilitado, debts vacía. |
 | CP-DEU-026 | PASSED | Coincide con el resultado esperado. Se verificó: Debajo de "Fecha" aparece data-testid="debt-form-date-error" con el texto exacto "La fecha no puede ser futura", y el botón "Guardar deuda" queda deshabilitado (disabled). — Observado en la corrida — fecha 2026-10-28; error: «La fecha no puede ser futura» |
 | CP-DEU-027 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"Ingresá el nombre de la persona"} |
 | CP-DEU-028 | PASSED | Coincide con el resultado esperado. Se verificó: Devuelve []. — Observado en la corrida — HTTP 400 {"code":"23514","details":null,"hint":null,"message":"La persona admite hasta 60 caracteres"} |
