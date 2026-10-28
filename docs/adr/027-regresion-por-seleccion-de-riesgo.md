@@ -17,15 +17,17 @@ La regresión de V2 es un **subconjunto elegido por riesgo**, con el criterio es
 marcado como incluido o excluido con su motivo. Entran:
 
 1. Todos los casos de prioridad **Alta** de V1.
-2. Todos los casos de los módulos que V2 toca: Dashboard (`DAS`: KPI de neto de reembolsos, torta,
+2. Los casos de prioridad **Alta o Media** de los módulos que V2 toca: Dashboard (`DAS`: KPI de neto de reembolsos, torta,
    detalle de categoría), Registro (`REG`: gasto compartido, feedback de guardado, confirmación
    de borrado), Cuotas (`CUO`: confirmación destructiva), Cuentas de Configuración (`CFG`) y Monedas
    (`MON`: suscripciones y deudas en USD).
 3. Los casos ligados a un defecto corregido, como confirmación.
 4. Los casos que fallaron en V1.
 
-Los casos de Prioridad Media o Baja de módulos que V2 no toca se excluyen y conservan el resultado
-de su última ejecución. Las exclusiones se listan en `entrega-2/03-seleccion-regresion`.
+Los casos de Prioridad Media o Baja de módulos que V2 no toca, y los de Prioridad Baja de los módulos
+que sí toca (salvo que los incluya otra regla), se excluyen y conservan el resultado de su última
+ejecución. Con esa regla, la selección de V1 queda en 58 de los 74 casos (2026-10-27). Las exclusiones
+se listan en `entrega-2/03-seleccion-regresion`.
 
 ## Alternativas descartadas
 
