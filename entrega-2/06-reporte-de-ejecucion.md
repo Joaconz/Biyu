@@ -7,7 +7,7 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 | Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución de Claude Code: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. | `main` en `109007a` (local, con las 24 migraciones hasta `20261012000000`). No se probó el deploy de Vercel. |
 | Entorno | Manual: Google Chrome contra el deploy. Claude Code: Vite local (127.0.0.1:5173) + Supabase local; Chromium (Playwright 1.63) y navegador integrado; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. | Vite local (localhost:5173) + Supabase local reiniciado con `supabase/config.toml`; Chromium (Playwright) emulando un celular de 390 × 844 px, es-AR, America/Argentina/Buenos_Aires; reloj real, salvo CP-REG-013 (15/10/2026, como en V1). |
 | Fecha | 2026-10-25 | 2026-10-27 | 2026-10-28 |
-| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. | Claude Code (IA), supervisado por Joaquín: los 60 casos de V1 seleccionados en `03-seleccion-regresion`. Repaso manual de los 39 de prioridad Alta por el equipo: pendiente. |
+| Ejecutó | A mano (Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code (el resto). | Claude Code (IA): EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. | Claude Code (IA): los 60 casos de V1 seleccionados en `03-seleccion-regresion`. Repaso manual de los 39 de prioridad Alta por el equipo: pendiente. |
 | Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. | Usuarios `qa+reg-<caso o grupo>-<corrida>@example.com` y montos ficticios; se borraron de la base local al terminar. |
 
 ## 1. Planificados, ejecutados, pasados, fallados y bloqueados
@@ -153,7 +153,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
-| Módulo | Casos | A mano por el equipo | Con IA (Claude Code, supervisado por Santiago) | Informados «ok» por el equipo, sin repetir |
+| Módulo | Casos | A mano por el equipo | Con IA (Claude Code) | Informados «ok» por el equipo, sin repetir |
 |---|---|---|---|---|
 | Deudas (DEU) | 52 | 6 (CP-DEU-005, 006, 007, 008, 009 y 010) | 46 | 0 |
 | Navegación (NAV) | 25 | 15 | 10 | 0 |
@@ -165,7 +165,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en §6; los de SUS informados como «ok» por el equipo son los 21 que no figuran como ejecutados con IA (lista en `04-ejecucion`).
 
-La regresión de V1 (60 casos, aparte de los 203) la ejecutó entera Claude Code (IA), supervisado por Joaquín: 0 a mano y 60 con IA. El repaso manual de los 39 casos de prioridad Alta por el equipo (hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx`) está pendiente.
+La regresión de V1 (60 casos, aparte de los 203) la ejecutó entera Claude Code (IA): 0 a mano y 60 con IA. El repaso manual de los 39 casos de prioridad Alta por el equipo (hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx`) está pendiente.
 
 ## 4. Defectos por severidad
 
@@ -196,7 +196,7 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía. La regresió
 ### Deudas y Navegación (ejecutado el 2026-10-25)
 
 1. Catálogo recortado y alcance parcial de V2. El 2026-10-27 se recortó el catálogo de 672 a 206 casos y este reporte cubre los que tienen resultado: 28 casos de Deudas (CP-DEU-005 a 010 y 040 a 061), 8 casos de Deudas ejecutados después (ver el último apartado de Deudas) y 25 de Navegación. Los 9 casos de Deudas que el equipo informó como «OK» y los de Dashboard no están incluidos.
-2. Tres formas de ejecutar. 15 casos de Navegación y los 6 de Deudas (CP-DEU-005 a 010) los ejecutó Santiago a mano en el deploy de Vercel, con Chrome. Los otros 10 de Navegación y los 22 de Deudas del 101 en adelante los ejecutó Claude Code en el entorno local (Playwright, navegador integrado y pedidos directos a la API). La propiedad cruzada del plan (07-plan-de-testing §1) no se aplicó.
+2. Tres formas de ejecutar. 15 casos de Navegación y los 6 de Deudas (CP-DEU-005 a 010) se ejecutaron a mano en el deploy de Vercel, con Chrome. Los otros 10 de Navegación y los 22 de Deudas del 101 en adelante los ejecutó Claude Code en el entorno local (Playwright, navegador integrado y pedidos directos a la API). La propiedad cruzada del plan (07-plan-de-testing §1) no se aplicó.
 3. Deudas CP-DEU-005 a 010 se verificaron en la pantalla, no por API. Los casos están escritos como llamadas directas a create_transaction con varias personas (US-82), que todavía no existe (issue #270). Se ejecutó la prueba equivalente en Registrar («Gasto compartido») de cada caso gemelo; el resultado esperado de la pantalla es el mensaje de error y el botón «Guardar gasto» deshabilitado.
 4. Función todavía no implementada. US-82 (compartir con varias personas, issue #270) no existe en la app: quedan BLOCKED CP-DEU-055, 056 y 057. Se comprobó la ausencia de la función (botones y respuesta de la API) y no se les abrió defecto: dependen de una historia pendiente. Los demás casos de US-82 y todos los de US-83 (deudas sueltas en el balance del mes, issue #271) se quitaron del catálogo.
 5. Casos con dudas quitados. Dos casos de Deudas (uno cuya preparación pedía 12 cuotas con la cuenta «Efectivo», que la app rechaza, y otro que se cumple aunque no exista US-83) estaban en DUDA y se quitaron en el recorte.

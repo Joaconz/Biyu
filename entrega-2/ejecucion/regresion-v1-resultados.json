@@ -6,7 +6,7 @@
   "app": "http://localhost:5173",
   "commit": "109007a",
   "entorno": "Vite local + Supabase local (supabase/config.toml); Chromium (Playwright) emulando un celular de 390 × 844 px, es-AR, America/Argentina/Buenos_Aires; DEF-021 en WebKit con el viewport de iPhone 13",
-  "ejecuto": "Claude Code (IA), supervisado por Joaquín",
+  "ejecuto": "Claude Code (IA)",
   "totales": {
     "PASSED": 60
   },

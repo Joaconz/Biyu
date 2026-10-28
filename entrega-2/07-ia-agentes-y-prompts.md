@@ -34,7 +34,7 @@ diseñó Testing.
 | **Claude Code en la web** (claude.ai/code) | Joaquín | Implementación de Suscripciones (US-56 a US-63 y US-75), Importar Excel (US-74 a US-78) y US-34. Los PR enlazan la sesión |
 | **Antigravity** (IDE de Google) | Joaquín | Destino de los prompts de implementación del 2026-10-07 y 2026-10-08 (sección 5.2). Como no corre los subagentes de Claude Code, el prompt le pide leer sus instrucciones de `.agents/` |
 | **Codex** (CLI de OpenAI) | Opción del equipo | Documentado en `docs/09-guia-de-inicio.md` §5, con las mismas reglas (`AGENTS.md`) |
-| **Playwright** (con Claude Code) | Santiago y Joaquín | Ejecución con IA de los casos de V2 y de la regresión de V1 (Chromium emulando un celular), más pedidos directos a la API con el token del usuario de prueba |
+| **Playwright** (con Claude Code) | El equipo | Ejecución con IA de los casos de V2 y de la regresión de V1 (Chromium emulando un celular), más pedidos directos a la API con el token del usuario de prueba |
 
 **Modelos** (según la línea `Co-Authored-By` de los commits): Claude Opus 5.5 en la mayor parte de la
 implementación y de los fixes; Claude Sonnet 5.5 en las specs de Deudas, Excel, Navegación y US-84;
@@ -71,7 +71,7 @@ apunta a CLAUDE.md para las IA que no son Claude Code. `.agents/` es una copia d
 | Implementación de V2 | Joaquín y Santiago | Todo el código, migraciones y tests (Vitest y pgTAP) | Revisión y merge de cada PR |
 | Fix de los defectos de V1 | Santiago | Fix y test de regresión de cada defecto | Revisión y merge |
 | Diseño de casos de V2 | Micaela, Valentina y Mariana | — | Los casos de `casos/*.md` (PR #287 a #291) |
-| Ejecución de V2 | Santiago, Joaquín y el equipo | 161 casos con Claude Code, supervisados | 21 casos a mano y 21 de Suscripciones informados por el equipo |
+| Ejecución de V2 | El equipo | 161 casos con Claude Code | 21 casos a mano y 21 de Suscripciones informados por el equipo |
 | Regresión de V1 | Joaquín | 60 casos con Claude Code | Repaso manual de los 39 casos de prioridad Alta (pendiente) |
 
 ## 4. Prompts para especificar las features
@@ -484,7 +484,7 @@ La consigna no pide IA en Testing, pero se usó y se declara:
 - **Revisión de las specs y los casos:** los agentes `spec-critic` y `spec-consistency-checker` sobre
   cada historia y sobre los casos de V2.
 - **Ejecución:** Claude Code ejecutó 161 casos de V2 y los 60 casos de la regresión de V1 con
-  Playwright y pedidos directos a la API, supervisado por Santiago o Joaquín. Cada sesión partía de un
+  Playwright y pedidos directos a la API. Cada sesión partía de un
   plan con los casos a ejecutar, la regla para decidir PASSED, FAILED o BLOCKED y la prohibición de
   cambiar un resultado a mano. Quién ejecutó cada caso está en `06-reporte-de-ejecucion.md` §3.
 - **Reportes:** el agente `docs-writer` redactó los reportes de ejecución y de defectos con el formato
