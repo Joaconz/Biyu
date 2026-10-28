@@ -24,8 +24,10 @@ marcado como incluido o excluido con su motivo. Entran:
 3. Los casos ligados a un defecto corregido, como confirmación.
 4. Los casos que fallaron en V1.
 
-Los casos de Prioridad Media o Baja de módulos que V2 no toca se excluyen y conservan el resultado
-de su última ejecución. Las exclusiones se listan en `entrega-2/03-seleccion-regresion`.
+Los casos de Prioridad Media o Baja de módulos que V2 no toca, y los de Prioridad Baja de los módulos
+que sí toca (salvo que los incluya otra regla), se excluyen y conservan el resultado de su última
+ejecución. Con esa regla, la selección de V1 queda en 58 de los 74 casos (2026-10-27). Las exclusiones
+se listan en `entrega-2/03-seleccion-regresion`.
 
 ## Alternativas descartadas
 
