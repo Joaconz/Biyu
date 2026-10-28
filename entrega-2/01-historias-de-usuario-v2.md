@@ -13,7 +13,7 @@ Cada Parte es el contenido, sin cambios, de un archivo de `entrega-2/historias/`
 | 3 | Suscripciones | Alta, pausa, reanudación, cancelación y edición de suscripciones, carga automática de los meses vencidos, aviso en USD sin tipo de cambio, total comprometido y vista previa del calendario (US-52 a US-63 y US-75). | SUS (48) |
 | 4 | Exportar CSV | Exportar las transacciones de un mes o de un año a un archivo CSV (US-47). | EXP (31) |
 | 5 | Importar Excel | Subir un archivo de Excel, revisar las filas, importar las válidas, reintentar sin duplicar (US-74, US-76, US-77, US-78); compras en cuotas ya empezadas y guía para armar el archivo (US-80 y US-81). | IMP (41) |
-| 6 | Resumen por categoría | Gráfico de torta del gasto por categoría en el Resumen (US-72) y detalle de una categoría (US-73). | sin casos |
+| 6 | Resumen por categoría | Gráfico de torta del gasto por categoría en el Resumen (US-72) y detalle de una categoría (US-73). | CAT (6) |
 | 7 | Editar un movimiento | Editar un movimiento ya cargado (US-84). | sin casos |
 
 V1 dejó la base: registrar gastos e ingresos en pesos y dólares, compras en cuotas, categorías y cuentas, y un Resumen mensual. V2 lo vuelve usable en el día a día: deudas y gastos compartidos, suscripciones, exportar e importar, y una navegación y un guardado más confiables.
@@ -58,8 +58,8 @@ Estado al 2026-10-27, según lo implementado en la aplicación: **32 de 37 histo
 | US-78 | Reintentar una importación sin duplicar | [#207](https://github.com/Joaconz/Biyu/issues/207) | 5 | Implementada | IMP (41) |
 | US-80 | Importar una compra en cuotas ya empezada | [#268](https://github.com/Joaconz/Biyu/issues/268) | 5 | **No implementada** | IMP (41) |
 | US-81 | Guía para armar el archivo de importación | [#269](https://github.com/Joaconz/Biyu/issues/269) | 5 | **No implementada** | IMP (41) |
-| US-72 | Gráfico de torta del gasto por categoría en el Resumen | [#242](https://github.com/Joaconz/Biyu/issues/242) | 6 | Implementada | sin casos |
-| US-73 | Detalle de una categoría desde el Resumen | [#243](https://github.com/Joaconz/Biyu/issues/243) | 6 | Implementada | sin casos |
+| US-72 | Gráfico de torta del gasto por categoría en el Resumen | [#242](https://github.com/Joaconz/Biyu/issues/242) | 6 | Implementada | CAT (6) |
+| US-73 | Detalle de una categoría desde el Resumen | [#243](https://github.com/Joaconz/Biyu/issues/243) | 6 | Implementada | CAT (6) |
 | US-84 | Editar un movimiento ya cargado | [#284](https://github.com/Joaconz/Biyu/issues/284) | 7 | **No implementada** | sin casos |
 
 US-71 (confirmación antes de borrar) no tiene historia propia en V2: la cubre US-65 de V1.
