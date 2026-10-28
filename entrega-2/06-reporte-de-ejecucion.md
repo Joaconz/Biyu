@@ -1,6 +1,6 @@
 # Entrega 2 · Reporte de ejecución de casos de prueba (V2) · Deudas, Navegación, Exportar CSV, Importar Excel, Suscripciones y Resumen por categoría, y regresión de V1
 
-Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, prioridad, título, historia, camino feliz, status y defectos, más el resumen y los criterios de salida). Gráficos de los porcentajes: [`graficos/resultados-por-entrega.svg`](graficos/resultados-por-entrega.svg) y [`graficos/resultados-v2-por-modulo.svg`](graficos/resultados-v2-por-modulo.svg). Formato del contenido: `docs/07-plan-de-testing.md` §6. Registro por caso en [`04-ejecucion.md`](04-ejecucion.md); defectos en [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md).
+Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, prioridad, título, historia, camino feliz, status y defectos, más el resumen y los criterios de salida). La planilla no trae la columna «Ejecutó»: quién ejecutó cada caso está en `04-ejecucion` y, por módulo, en §3 de este documento; el resumen de la planilla sigue con el total ejecutado con IA, a mano e informado «ok». Gráficos de los porcentajes: [`graficos/resultados-por-entrega.svg`](graficos/resultados-por-entrega.svg) y [`graficos/resultados-v2-por-modulo.svg`](graficos/resultados-v2-por-modulo.svg). Formato del contenido: `docs/07-plan-de-testing.md` §6. Registro por caso en [`04-ejecucion.md`](04-ejecucion.md); defectos en [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md).
 
 | Dato | Deudas y Navegación | Exportar CSV, Importar Excel y Suscripciones | Regresión de V1 |
 |---|---|---|---|
@@ -152,6 +152,8 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 | Baja | 1 | 1 | 0 | 0 | 0 |
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
+
+El detalle por caso está en la columna «Ejecutó» de `04-ejecucion`; la planilla de este reporte no la incluye.
 
 | Módulo | Casos | A mano por el equipo | Con IA (Claude Code) | Informados «ok» por el equipo, sin repetir | Repaso manual posterior (después de Claude Code) |
 |---|---|---|---|---|---|
