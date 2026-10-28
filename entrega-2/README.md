@@ -8,13 +8,13 @@ resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-p
 | Parte | Archivo | Qué es | Estado |
 |---|---|---|---|
 | A | `01-historias-de-usuario-v2.md` + `mocks/` | Historias de V2 con pantalla, botones, campos, validaciones, criterios `CA-k` y mock | **Hecho**: 37 historias de V2 en un solo documento (32 implementadas); las fuentes siguen en `historias/` |
-| A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Parcial**: 53 casos de Deudas (28) y Navegación (25) con pasos en lenguaje simple. El catálogo completo de V2 (`casos/`) se recortó el 2026-10-27 a 206 casos (NAV 25, DEU 61, EXP 31, SUS 48, IMP 41) y se sumaron 6 de Resumen por categoría (CAT) |
+| A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Hecho**: los 212 casos del catálogo (DEU 61, NAV 25, EXP 31, IMP 41, SUS 48, CAT 6), con un índice y una hoja por caso. 53 tienen los pasos en lenguaje simple (Deudas y Navegación) y 159 el formato del catálogo de `casos/`, recortado el 2026-10-27 |
 | A | `03-seleccion-regresion.md` / `.xlsx` | Casos de V1 elegidos para regresión, con el criterio (ADR-027) | **Parcial**: selección de 58 de los 74 casos de V1, con el motivo de cada uno, y confirmación de los 22 defectos de V1 (21 confirmados y 1 no concluyente, cerrado igual). Falta ejecutar la regresión |
 | B | `04-ejecucion.md` / `.xlsx` | Ejecución de V2 de todos los módulos (Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones): una hoja por caso, resultado por caso y detalle de lo que no es PASSED | **Parcial**: 203 casos (189 PASSED, 9 FAILED, 1 DUDA, 4 BLOCKED). 161 con IA, 21 a mano y 21 de Suscripciones informados como «ok» por el equipo. Sin regresión |
 | B | `05-reportes-de-defectos.md` / `.xlsx` | Defectos de V2 de todos los módulos, con la funcionalidad que afectan (desde DEF-030) | **Parcial**: DEF-030 a DEF-037 (4 Medios y 4 Bajos; DEF-029 se retiró por ser un error del caso), sin issue |
 | B | `06-reporte-de-ejecucion.md` / `.xlsx` | % PASSED / FAILED / BLOCKED por módulo, quién ejecutó cada caso (IA o equipo), criterios de salida y desvíos | **Parcial**: Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones |
 | Adicional | `equivalencia-ids.md` | Tabla con el ID anterior y el ID nuevo de cada caso de V2 (recorte y renumeración del 2026-10-27) | Hecho |
-| Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | Pendiente |
+| Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | **Hecho**: herramientas y modelos, prompts de especificación, de implementación y de corrección de defectos tal cual se usaron, y el registro de qué prompt y qué herramienta produjo cada PR |
 | B | `08-presentacion.html` | Presentación de 15 minutos con la demo | Pendiente |
 | Estudio | `09-resumen-de-estudio.md` | Para explicar todo oralmente | Pendiente |
 
