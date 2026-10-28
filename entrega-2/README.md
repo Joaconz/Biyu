@@ -7,7 +7,7 @@ resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-p
 
 | Parte | Archivo | Qué es | Estado |
 |---|---|---|---|
-| A | `01-historias-de-usuario-v2.md` + `mocks/` | Historias de V2 con pantalla, botones, campos, validaciones, criterios `CA-k` y mock | Pendiente |
+| A | `01-historias-de-usuario-v2.md` + `mocks/` | Historias de V2 con pantalla, botones, campos, validaciones, criterios `CA-k` y mock | **Hecho**: 37 historias de V2 en un solo documento (32 implementadas); las fuentes siguen en `historias/` |
 | A | `02-especificacion-casos-v2.md` / `.xlsx` | Casos de prueba de V2 | **Parcial**: 53 casos de Deudas (28) y Navegación (25) con pasos en lenguaje simple. El catálogo completo de V2 (`casos/`) se recortó el 2026-10-27 a 206 casos (NAV 25, DEU 61, EXP 31, SUS 48, IMP 41) |
 | A | `03-seleccion-regresion.md` / `.xlsx` | Casos de V1 elegidos para regresión, con el criterio (ADR-027) | **Hecho** (selección): 58 de los 74 casos de V1, con el motivo de cada uno, y los 22 defectos de V1 a confirmar. Falta ejecutarla |
 | B | `04-ejecucion.md` / `.xlsx` | Ejecución de V2 de todos los módulos (Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones): una hoja por caso, resultado por caso y detalle de lo que no es PASSED | **Parcial**: 197 casos (183 PASSED, 9 FAILED, 1 DUDA, 4 BLOCKED). 155 con IA, 21 a mano y 21 de Suscripciones informados como «ok» por el equipo. Sin regresión |
