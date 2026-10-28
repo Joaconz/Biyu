@@ -4,7 +4,7 @@ Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 
 
 ## Condiciones de la ejecución
 
-Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). Acá figuran los 197 que tienen resultado; los 9 de Deudas restantes (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no figuran porque el equipo los informó como «OK» y no se repitieron.
+Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). A esos 206 casos se suman los 6 de Resumen por categoría (CAT), escritos el 2026-10-27: 212 en total. Acá figuran los 203 que tienen resultado; los 9 de Deudas restantes (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no figuran porque el equipo los informó como «OK» y no se repitieron.
 
 - **Fecha:** 2026-10-25.
 - **Ejecutó a mano (Santiago):** CP-DEU-005, 006, 007, 008, 009 y 010, y 15 casos de Navegación (CP-NAV-001, 002, 003, 004, 008, 009, 010, 011, 012, 013, 019, 021, 023, 024 y 025), en el **deploy de Vercel** (https://biyu-rust.vercel.app), con **Google Chrome**.
@@ -14,6 +14,7 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 - **Exportar CSV (31 casos), Importar Excel (41 casos) y Suscripciones (48 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** los 31 de EXP, los 41 de IMP y 27 de los 48 de SUS (los que el equipo no pudo probar o informó con una observación). Los otros 21 casos de SUS los ejecutó el equipo y los informó como «ok» en un mensaje; no se repitieron. Detalle del entorno y de lo sustituido en `06-reporte-de-ejecucion`, §6.
 - **Deudas, casos CP-DEU-015 a 035 (16 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright, reloj real), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** CP-DEU-015, 016, 017, 019, 023, 024, 026, 027, 028, 029, 030, 031, 032, 033, 034 y 035. Los que el equipo informó como «OK» (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no se repitieron y no figuran en este reporte.
 - **Deudas, 8 casos pendientes (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, reloj real), sobre `main` en `deac2c7`. **Ejecutó Claude Code (IA), supervisado por Santiago.** Usuario nuevo por caso (`qa+cp-deu-<id>-001@example.com`); la pantalla se manejó con la interfaz y, donde el caso lo pide, la base se consultó por API con el token del usuario de prueba. Los casos 001, 003 y 011 se corrigieron el mismo día (paso de elegir la cuenta «Efectivo» y, en el 003, volver a cargar el tipo de cambio después de cambiar la fecha) y se volvieron a ejecutar.
+- **Resumen por categoría (CAT, 6 casos: CP-CAT-001 a 006):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, es-AR, hora de Argentina), sobre `main` en `15e3c4b`. **Ejecutó Claude Code (IA), supervisado por Santiago.** Usuario nuevo por caso (`qa+cp-cat-<nnn>-001@example.com`); los movimientos de cada caso se cargaron por la API con `create_transaction` (y `delete_transaction` en el 002), y todo lo demás se hizo por pantalla.
 - **Criterio para BLOCKED:** un caso que no se puede ejecutar porque falta una funcionalidad o un botón queda BLOCKED para V3.
 
 ## Resultado por caso
@@ -217,17 +218,23 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 | CP-SUS-046 | Media | Una suscripción en estado `paused` no suma al total mensual comprometido (`"$0,00"` y `"No tenés suscripciones activas este mes"`) | **PASSED** | Equipo (informado por mensaje) | — |
 | CP-SUS-047 | Alta | Vista previa en `/subscriptions/new` con `$5.000,00` ARS, día `28` (`> <DIA_HOY>`), desde `<MES_HACE_2>` y sin fin muestra 2 meses en `"Se cargan al guardar"`, 3 en `"Próximos cobros"`, resumen de `"$10.000,00"` y al guardar crea exactamente esas 2 transacciones | **PASSED** | Claude Code | — |
 | CP-SUS-048 | Alta | Vista previa en `/subscriptions/new` en USD con tipo de cambio en `<MES_HACE_2>` y sin tipo de cambio en `<MES_ANTERIOR>` marca `<MES_ANTERIOR>` con `data-blocked="true"` y no lo cuenta en el resumen | **FAILED** | Claude Code | DEF-036 |
+| CP-CAT-001 | Alta | La torta muestra una porción por categoría, con su monto y su porcentaje | **PASSED** | Claude Code | — |
+| CP-CAT-002 | Alta | Los ingresos y los gastos eliminados no entran en la torta | **PASSED** | Claude Code | — |
+| CP-CAT-003 | Media | Con 7 categorías, las dos más chicas se agrupan en «Resto» en la torta | **PASSED** | Claude Code | — |
+| CP-CAT-004 | Alta | Tocar una categoría del Resumen abre su detalle del mes | **PASSED** | Claude Code | — |
+| CP-CAT-005 | Media | En el detalle, «Mes anterior» y «‹ Resumen» conservan la categoría y el mes | **PASSED** | Claude Code | — |
+| CP-CAT-006 | Media | Una categoría que no existe muestra un aviso con salida al Resumen | **PASSED** | Claude Code | — |
 
 ## Resumen
 
 | Status | Casos |
 |---|---|
-| PASSED | 183 |
+| PASSED | 189 |
 | FAILED | 9 |
 | DUDA (pasa, con dudas) | 1 |
 | BLOCKED | 4 |
 | No ejecutados | 0 |
-| **Total** | **197** |
+| **Total** | **203** |
 
 Por módulo:
 
@@ -238,6 +245,7 @@ Por módulo:
 | Exportar CSV (EXP) | 31 | 28 | 3 | 0 | 0 | 0 |
 | Importar Excel (IMP) | 41 | 40 | 1 | 0 | 0 | 0 |
 | Suscripciones (SUS) | 48 | 45 | 3 | 0 | 0 | 0 |
+| Resumen por categoría (CAT) | 6 | 6 | 0 | 0 | 0 | 0 |
 
 ## Detalle de los casos que no son PASSED
 
@@ -538,3 +546,9 @@ Por módulo:
 Los 6 casos de Deudas (CP-DEU-005 a 010) y los 15 de Navegación ejecutados a mano coincidieron con el resultado esperado en cada paso.
 
 Los 78 casos de Suscripciones informados como «ok» por el equipo no se repitieron: su estado es el que informó el equipo, sin detalle de la ejecución.
+| CP-CAT-001 | PASSED | Coincide con el resultado esperado. Se verificó: el Resumen de septiembre 2026 muestra «Gastado en septiembre» $100.000,00; la torta tiene 3 porciones (de 0° a 216°, de 216° a 324° y de 324° a 360°) y la lista «Por categoría» muestra Comida y supermercado $60.000,00 60,0 %, Transporte $30.000,00 30,0 % y Servicios $10.000,00 10,0 %. |
+| CP-CAT-002 | PASSED | Coincide con el resultado esperado. Se verificó: con un gasto eliminado de $9.999,00 y un ingreso de $500.000,00, el Resumen de septiembre 2026 muestra «Gastado» $100.000,00 e «Ingresos» $500.000,00; la lista tiene 3 filas (Comida y supermercado $60.000,00, Transporte $30.000,00 y Servicios $10.000,00) y la torta 3 porciones. |
+| CP-CAT-003 | PASSED | Coincide con el resultado esperado. Se verificó: con 7 categorías ($128.000,00) la torta tiene 6 porciones y la última, «Resto», tiene data-amount 13000.00, data-percentage 10.2 y data-count 2; la lista muestra las 7 categorías, la primera con 31,3 % y Entretenimiento con 6,3 %. «Resto» no tiene un rótulo visible en pantalla: solo se ve en los atributos de la porción. |
+| CP-CAT-004 | PASSED | Coincide con el resultado esperado. Se verificó: al tocar «Comida y supermercado» se abre /dashboard/categories/<id>?period=2026-09 con el título «Comida y supermercado», $40.000,00, «80,0 % del gasto de septiembre» y «Cuotas de meses anteriores $0,00»; la lista tiene 2 filas («28 sep · Tarjeta de débito» -$15.000,00 y «14 sep · Efectivo» -$25.000,00) y las barras muestran agosto $20,0 mil, septiembre $40,0 mil y $0 en los meses anteriores. |
+| CP-CAT-005 | PASSED | Coincide con el resultado esperado. Se verificó: en el detalle de septiembre 2026 ($40.000,00), «Mes anterior» pasa a Agosto 2026 (?period=2026-08) con la misma categoría, $20.000,00 y «100,0 % del gasto de agosto»; «‹ Resumen» abre /dashboard?period=2026-08 con el Resumen de Agosto 2026. |
+| CP-CAT-006 | PASSED | Coincide con el resultado esperado. Se verificó: la dirección con una categoría inexistente muestra «No encontramos esta categoría.» y «Volver al Resumen», sin nombre ni montos; «Volver al Resumen» abre /dashboard?period=2026-09. |

@@ -7,18 +7,18 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 | Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución de Claude Code: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. |
 | Entorno | Manual: Google Chrome contra el deploy. Claude Code: Vite local (127.0.0.1:5173) + Supabase local; Chromium (Playwright 1.63) y navegador integrado; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. |
 | Fecha | 2026-10-25 | 2026-10-27 |
-| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025). El equipo: 21 casos de SUS, informados como «ok» por mensaje. |
+| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. |
 | Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. |
 
 ## 1. Planificados, ejecutados, pasados, fallados y bloqueados
 
-Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). Los números de este reporte son los **197 casos que tienen resultado**; los 9 de Deudas restantes (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no figuran porque el equipo los informó como «OK» y no se repitieron. Los 8 casos de Deudas que no se habían ejecutado se ejecutaron el 2026-10-27 (ver abajo).
+Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). Ese día se sumaron además **6 casos de Resumen por categoría** (CAT, US-72 y US-73), que no tenían ninguno: 212 en total. Los números de este reporte son los **203 casos que tienen resultado**; los 9 de Deudas restantes (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no figuran porque el equipo los informó como «OK» y no se repitieron.
 
 | Métrica | Casos | % |
 |---|---|---|
-| Planificados | 197 | 100 % |
-| Ejecutados (PASSED + FAILED + DUDA) | 193 | 98 % de avance |
-| PASSED | 183 | 95 % de los ejecutados |
+| Planificados | 203 | 100 % |
+| Ejecutados (PASSED + FAILED + DUDA) | 199 | 98 % de avance |
+| PASSED | 189 | 95 % de los ejecutados |
 | FAILED | 9 | 5 % de los ejecutados |
 | DUDA (pasa, con dudas) | 1 | 1 % de los ejecutados |
 | BLOCKED | 4 | 2 % de los planificados |
@@ -60,6 +60,11 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 - **Lo que sí se cumple:** las validaciones principales de `create_subscription` (mensajes y códigos exactos), el aislamiento entre usuarios, el rechazo de `INSERT` directo, la puesta al día (idempotencia, estado pausada, USD sin tipo de cambio), pausar, reanudar, cancelar y editar, el detalle de otro usuario, la eliminación de ocurrencias, la marca de suscripción, el total comprometido y dos vistas previas del calendario.
 - **Equipo:** 21 casos los informó el equipo como «ok» y no se repitieron; su estado es el informado, sin detalle.
 
+**Resumen por categoría (CAT) (6 casos, ejecutados con IA el 2026-10-27):**
+
+- **PASSED (6):** la torta con una porción por categoría (CP-CAT-001), sin ingresos ni gastos eliminados (CP-CAT-002) y con «Resto» a partir de 7 categorías (CP-CAT-003); el detalle de una categoría (CP-CAT-004), su navegación por mes y hacia el Resumen (CP-CAT-005) y el aviso de una categoría que no existe (CP-CAT-006).
+- US-84 (editar un movimiento) no tiene casos porque la función todavía no existe en la aplicación.
+
 ## 2. Cobertura por módulo, prioridad, tipo, técnica y canal
 
 | Módulo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
@@ -76,33 +81,34 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 | EXP · Exportar CSV (US-47, 31 casos) | 31 | 28 | 3 | 0 | 0 | 0 |
 | IMP · Importar Excel (US-74 a US-79, 41 casos) | 41 | 40 | 1 | 0 | 0 | 0 |
 | SUS · Suscripciones (US-52 a US-63 y US-75, 48 casos) | 48 | 45 | 3 | 0 | 0 | 0 |
+| CAT · Resumen por categoría (US-72 y US-73, 6 casos) | 6 | 6 | 0 | 0 | 0 | 0 |
 
 | Prioridad | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Alta | 126 | 115 | 6 | 1 | 4 | 0 |
-| Media | 67 | 65 | 2 | 0 | 0 | 0 |
+| Alta | 129 | 118 | 6 | 1 | 4 | 0 |
+| Media | 70 | 68 | 2 | 0 | 0 | 0 |
 | Baja | 4 | 3 | 1 | 0 | 0 | 0 |
 
 | Tipo | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Positivo | 83 | 77 | 4 | 1 | 1 | 0 |
-| Negativo | 81 | 78 | 3 | 0 | 0 | 0 |
-| Límite | 33 | 28 | 2 | 0 | 3 | 0 |
+| Positivo | 86 | 80 | 4 | 1 | 1 | 0 |
+| Negativo | 83 | 80 | 3 | 0 | 0 | 0 |
+| Límite | 34 | 29 | 2 | 0 | 3 | 0 |
 
 | Técnica | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
-| Partición de equivalencia | 88 | 84 | 4 | 0 | 0 | 0 |
+| Partición de equivalencia | 89 | 85 | 4 | 0 | 0 | 0 |
 | Tabla de decisión | 4 | 4 | 0 | 0 | 0 | 0 |
-| Valores límite | 40 | 35 | 2 | 0 | 3 | 0 |
-| Adivinación de errores | 16 | 16 | 0 | 0 | 0 | 0 |
-| Caso de uso | 14 | 11 | 1 | 1 | 1 | 0 |
-| Transición de estados | 34 | 32 | 2 | 0 | 0 | 0 |
+| Valores límite | 41 | 36 | 2 | 0 | 3 | 0 |
+| Adivinación de errores | 17 | 17 | 0 | 0 | 0 | 0 |
+| Caso de uso | 16 | 13 | 1 | 1 | 1 | 0 |
+| Transición de estados | 35 | 33 | 2 | 0 | 0 | 0 |
 | Prueba de rendimiento | 1 | 1 | 0 | 0 | 0 | 0 |
 
 | Canal | Casos | PASSED | FAILED | DUDA | BLOCKED | No ejecutados |
 |---|---|---|---|---|---|---|
 | API | 52 | 48 | 2 | 0 | 2 | 0 |
-| UI | 145 | 135 | 7 | 1 | 2 | 0 |
+| UI | 151 | 141 | 7 | 1 | 2 | 0 |
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
@@ -113,7 +119,8 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 | Exportar CSV (EXP) | 31 | 0 | 31 | 0 |
 | Importar Excel (IMP) | 41 | 0 | 41 | 0 |
 | Suscripciones (SUS) | 48 | 0 | 27 | 21 |
-| **Total** | **197** | **21** | **155** | **21** |
+| Resumen por categoría (CAT) | 6 | 0 | 6 | 0 |
+| **Total** | **203** | **21** | **161** | **21** |
 
 Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en §6; los de SUS informados como «ok» por el equipo son los 21 que no figuran como ejecutados con IA (lista en `04-ejecucion`).
 
@@ -135,7 +142,7 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 |---|---|---|
 | 1. Cero defectos de severidad Crítica abiertos | Cumplido | No hay defectos críticos (los defectos abiertos son de severidad Media y Baja). |
 | 2. Cero defectos de severidad Alta abiertos, o justificados por el PO | Cumplido | No hay defectos de severidad Alta. |
-| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 122 de 126 casos de prioridad Alta ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. |
+| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 125 de 129 casos de prioridad Alta ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. |
 | 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I2, I3, I4, I5, I7 e I9 con casos ejecutados; I1 ya no tiene caso en este alcance después del recorte y queda para la regresión de V1. En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
 | 5. Regresión de V1 ejecutada y defectos corregidos confirmados | No evaluado | Fuera del alcance de este reporte: la selección de regresión (03) y la confirmación de los defectos de V1 se informan aparte. |
 
@@ -174,6 +181,14 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 5. CP-DEU-013 se ejecutó como está escrito y quedó BLOCKED; además se probó la variante con una sola persona (p_shared_person y p_shared_amount), que da el rechazo esperado.
 6. CP-DEU-025 reproduce DEF-037 (el primer clic en «US$» se pierde).
 7. No se adjuntaron capturas ni los scripts; lo observado queda en «Resultado obtenido» de cada caso (04-ejecucion).
+
+### Resumen por categoría (CAT) (ejecutado el 2026-10-27)
+
+1. Ejecución con scripts de Playwright (Chromium emulando un celular de 375 × 812 px, es-AR, hora de Argentina), no a mano; la propiedad cruzada del plan no se aplicó. Entorno local (Vite + Supabase local), sobre `main` en `15e3c4b`, reloj real (27/10/2026); no se probó el deploy de Vercel.
+2. Usuarios `qa+cp-cat-<nnn>-001@example.com`, uno por caso. Una primera corrida falló en tres casos por una diferencia de mayúsculas en el nombre del mes («Septiembre 2026» en pantalla, «septiembre 2026» en el caso) y en el 006 por esperar un total que no existe en un Resumen vacío; se corrigieron el texto de los casos y la espera del script, se borraron los usuarios de esa corrida y se volvió a ejecutar.
+3. Los movimientos de cada caso se cargaron por la API (`create_transaction`, y `delete_transaction` en el 002), como piden los casos; el resto se hizo por pantalla.
+4. CP-CAT-003: la porción «Resto» no tiene un rótulo visible; se verificó en sus atributos (`data-amount`, `data-percentage` y `data-count`), como dice el caso.
+5. No se adjuntaron capturas ni los scripts; lo observado queda en «Resultado obtenido» de cada caso (04-ejecucion).
 
 ### Exportar CSV (EXP) (ejecutado el 2026-10-27)
 
