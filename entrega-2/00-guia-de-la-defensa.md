@@ -9,8 +9,8 @@ el caso sin el `CP-` (por ejemplo, la hoja `EXP-027` es CP-EXP-027).
 | Pide la consigna | Archivo | Qué mostrar |
 |---|---|---|
 | **Parte A** · Historias de usuario de V2, con estructura de pantalla, botones, campos y mocks | [`01-historias-de-usuario-v2.md`](01-historias-de-usuario-v2.md) · [`mocks-png/`](mocks-png/) · [`mocks/`](mocks/) | §2: las 37 historias con su estado. Ejemplo: US-36 «Cargar una deuda suelta» (buscar `US-36:`), con su mock `mocks-png/deudas-nueva.png` |
-| **Parte A** · Casos de prueba de V2 | [`02-especificacion-casos-v2.md`](02-especificacion-casos-v2.md) · [`.xlsx`](02-especificacion-casos-v2.xlsx) | 212 casos: índice al principio y una hoja por caso en la planilla |
-| **Parte A** · Casos de regresión elegidos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) · [`.xlsx`](03-seleccion-regresion.xlsx) · [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md) | §1: las reglas de selección por riesgo. §3 y §4: casos incluidos y excluidos, con el motivo de cada uno |
+| **Parte A** · Casos de prueba de V2 | [`02-especificacion-casos-v2.md`](02-especificacion-casos-v2.md) · [planilla `02-casos-de-prueba.xlsx`](02-casos-de-prueba.xlsx) | 212 casos: índice al principio (con la columna «Origen») y una hoja por caso en la planilla |
+| **Parte A** · Casos de regresión elegidos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) · [planilla `02-casos-de-prueba.xlsx`](02-casos-de-prueba.xlsx), hojas «Selección de regresión» y «Defectos de V1 a confirmar» · [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md) | §1: las reglas de selección por riesgo. §3 y §4: casos incluidos y excluidos, con el motivo de cada uno |
 | Ejecución de los casos de V2 | [`04-ejecucion.md`](04-ejecucion.md) · [`.xlsx`](04-ejecucion.xlsx) | Resultado por caso y detalle de cada caso que no es PASSED |
 | Ejecución de la regresión de V1 | [`04-ejecucion.md`](04-ejecucion.md), apartado «Regresión de V1» | Los 60 casos de V1 sobre V2 |
 | Confirmación de los defectos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) §5 | Los 22 defectos repetidos sobre V2 con su resultado |

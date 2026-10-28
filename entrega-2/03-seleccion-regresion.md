@@ -1,6 +1,6 @@
 # Entrega 2 · Selección de casos de regresión (V1 sobre V2)
 
-Planilla: `03-seleccion-regresion.xlsx` (una hoja con los 74 casos de V1, la decisión y el resultado de la regresión en V2, y otra con los defectos de V1 a confirmar). Criterio: [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md).
+Planilla: `02-casos-de-prueba.xlsx`, la misma de los casos nuevos de V2: la hoja «Selección de regresión» tiene los 74 casos de V1, la decisión y el resultado de la regresión en V2; «Defectos de V1 a confirmar», los defectos; y cada uno de los 60 casos incluidos tiene su hoja con la especificación. Criterio: [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md).
 
 La consigna pide **seleccionar** los casos de V1 que se ejecutan sobre V2 para comprobar que lo que ya funcionaba sigue funcionando. Esta selección es por riesgo: cada caso figura como incluido o excluido, con su motivo.
 

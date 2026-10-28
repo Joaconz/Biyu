@@ -1,6 +1,6 @@
 # Entrega 2 · Especificación de casos de prueba (V2)
 
-Planilla: `02-especificacion-casos-v2.xlsx` (un índice y una hoja por caso, mismo formato que la Entrega 1: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos de prueba, pasos y resultado esperado). Alcance: los **212 casos** del catálogo de V2 después del recorte del 2026-10-27 (de 672 a 206 casos, más los 6 de Resumen por categoría que se sumaron ese día):
+Planilla: `02-casos-de-prueba.xlsx`, que reúne estos 212 casos con los 60 de regresión de V1 de `03-seleccion-regresion.md` (un índice con la columna «Origen» y una hoja por caso, mismo formato que la Entrega 1: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos de prueba, pasos y resultado esperado). Alcance: los **212 casos** del catálogo de V2 después del recorte del 2026-10-27 (de 672 a 206 casos, más los 6 de Resumen por categoría que se sumaron ese día):
 
 | Módulo | Historias | Casos |
 |---|---|---|
