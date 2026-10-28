@@ -1,0 +1,40 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='960' height='422' viewBox='0 0 960 422' font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif'>
+<rect width='960' height='422' fill='#FFFFFF'/>
+<text x='24' y='36' font-size='22' font-weight='700' fill='#1B1B1B'>Resultados por entrega y por ejecución</text>
+<text x='24' y='62' font-size='14' fill='#555'>Porcentaje sobre los casos planificados de cada ejecución</text>
+<text x='24' y='111' font-size='15' font-weight='600' fill='#1B1B1B'>Entrega 1 · ejecución 1</text>
+<text x='24' y='129' font-size='12' fill='#666'>V1, 28/09/2026 · 74 casos</text>
+<rect x='330.0' y='96' width='380.3' height='34' fill='#2E7D5B'/>
+<text x='520.1' y='118' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>90,5 % (67)</text>
+<rect x='710.3' y='96' width='17.0' height='34' fill='#C0392B'/>
+<rect x='727.3' y='96' width='22.7' height='34' fill='#8C8C8C'/>
+<text x='760' y='118' font-size='12' fill='#444'>Failed 3 · Blocked 4</text>
+<text x='24' y='175' font-size='15' font-weight='600' fill='#1B1B1B'>Entrega 1 · ejecución 2</text>
+<text x='24' y='193' font-size='12' fill='#666'>V1, re-test, 29/09/2026 · 74 casos</text>
+<rect x='330.0' y='160' width='408.6' height='34' fill='#2E7D5B'/>
+<text x='534.3' y='182' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>97,3 % (72)</text>
+<rect x='738.6' y='160' width='11.4' height='34' fill='#C0392B'/>
+<text x='760' y='182' font-size='12' fill='#444'>Failed 2</text>
+<text x='24' y='239' font-size='15' font-weight='600' fill='#1B1B1B'>Entrega 2 · casos de V2</text>
+<text x='24' y='257' font-size='12' fill='#666'>V2, 25 a 27/10/2026 · 203 casos</text>
+<rect x='330.0' y='224' width='391.0' height='34' fill='#2E7D5B'/>
+<text x='525.5' y='246' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>93,1 % (189)</text>
+<rect x='721.0' y='224' width='18.6' height='34' fill='#C0392B'/>
+<rect x='739.7' y='224' width='2.1' height='34' fill='#D4A017'/>
+<rect x='741.7' y='224' width='8.3' height='34' fill='#8C8C8C'/>
+<text x='760' y='246' font-size='12' fill='#444'>Failed 9 · Duda 1 · Blocked 4</text>
+<text x='24' y='303' font-size='15' font-weight='600' fill='#1B1B1B'>Entrega 2 · regresión de V1</text>
+<text x='24' y='321' font-size='12' fill='#666'>V2, 28/10/2026 · 60 casos</text>
+<rect x='330.0' y='288' width='420.0' height='34' fill='#2E7D5B'/>
+<text x='540.0' y='310' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>100 % (60)</text>
+<text x='760' y='310' font-size='12' fill='#444'></text>
+<rect x='24' y='371' width='12' height='12' fill='#2E7D5B'/>
+<text x='42' y='382' font-size='13' fill='#333'>PASSED</text>
+<rect x='134' y='371' width='12' height='12' fill='#C0392B'/>
+<text x='152' y='382' font-size='13' fill='#333'>FAILED</text>
+<rect x='244' y='371' width='12' height='12' fill='#D4A017'/>
+<text x='262' y='382' font-size='13' fill='#333'>DUDA</text>
+<rect x='354' y='371' width='12' height='12' fill='#8C8C8C'/>
+<text x='372' y='382' font-size='13' fill='#333'>BLOCKED</text>
+<text x='24' y='408' font-size='12' fill='#666'>Fuentes: entrega-1/05-reporte-de-ejecucion.md §1 y entrega-2/06-reporte-de-ejecucion.md §1. DUDA: pasa, con dudas.</text>
+</svg>

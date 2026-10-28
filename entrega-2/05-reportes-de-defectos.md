@@ -18,7 +18,7 @@ DEF-029 se retiró el 2026-10-27: era un error de un caso de Navegación (CP-NAV
 | DEF-033 | La tarjeta de una fila lista muestra la categoría y la cuenta como están escritas en el archivo, no como se llaman en Biyu | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-IMP-024 | US-76 · Revisión de filas (CA-5) |
 | DEF-034 | Operar sobre la suscripción de otro usuario responde HTTP 500 en lugar de 404 | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-032 (otros tres casos con el mismo defecto se recortaron del catálogo el 2026-10-27) | US-56 · CA-9, US-57 · CA-7, US-58 · CA-9 y US-59 (Pausar, reanudar, cancelar y editar: par de autorización) |
 | DEF-035 | Sin sesión, la API responde HTTP 401 y los casos esperan 403 | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-022 (otros cinco casos con el mismo defecto se recortaron del catálogo el 2026-10-27) | US-52 · CA-13 y US-56 · CA-9, US-57 · CA-7, US-58 · CA-9, US-59 (rol anon) |
-| DEF-036 | La vista previa del calendario no marca con data-blocked="false" las filas que no están bloqueadas | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-048 | US-61 · Vista previa del calendario al dar de alta una suscripción |
+| DEF-036 | La vista previa del calendario no marca con data-blocked="false" las filas que no están bloqueadas | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-048 | US-75 · Vista previa del calendario al dar de alta una suscripción |
 | DEF-037 | El primer clic en «US$» de «Nueva deuda» se pierde: el error de «Persona» corre los botones y la moneda no se selecciona | Media | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-DEU-024 y CP-DEU-025 | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
 
 **Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 4 · Baja: 5 · Total abiertos: 9.
@@ -219,7 +219,7 @@ Las llamadas a las funciones y la lectura de la tabla de suscripciones con la cl
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-SUS-048 (Entrega 2). |
 | Caso de prueba | CP-SUS-048 |
-| Historia | US-61 · Vista previa del calendario al dar de alta una suscripción |
+| Historia | US-75 · Vista previa del calendario al dar de alta una suscripción |
 | Issue | A crear |
 | Reportó | Claude Code (IA), supervisado por Santiago |
 | Entorno | Local, 2026-10-27 · Vite (http://127.0.0.1:5173) + Supabase local · main 1c72d0f · Chromium (Playwright 1.63) · Edge Functions locales levantadas |

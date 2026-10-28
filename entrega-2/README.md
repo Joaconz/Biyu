@@ -3,7 +3,10 @@
 Entregables de la Entrega 02 del Proyecto Integrador (Testing de Aplicaciones): **V2, el MVP usable**.
 Mismo esquema de IDs que la Entrega 1: **historia `US-nn` → criterio `CA-k` → caso `CP-<módulo>-<nnn>` →
 resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-plan-de-testing.md` §4
-(ADR-028) y los procedimientos `PR-nn` de `docs/12-procedimientos-de-prueba.md`. La ejecución es **manual**.
+(ADR-028) y los procedimientos `PR-nn` de `docs/12-procedimientos-de-prueba.md`. La ejecución fue en parte manual y en parte con IA supervisada (`06-reporte-de-ejecucion.md` §3).
+
+**Para la defensa:** [`00-guia-de-la-defensa.md`](00-guia-de-la-defensa.md) tiene el mapa de la consigna, los gráficos, los casos que
+cambiaron de estado y qué caso abrir para cada tema.
 
 | Parte | Archivo | Qué es | Estado |
 |---|---|---|---|

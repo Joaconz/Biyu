@@ -1,0 +1,50 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='960' height='550' viewBox='0 0 960 550' font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif'>
+<rect width='960' height='550' fill='#FFFFFF'/>
+<text x='24' y='36' font-size='22' font-weight='700' fill='#1B1B1B'>Entrega 2 · resultados de V2 por módulo</text>
+<text x='24' y='62' font-size='14' fill='#555'>Porcentaje sobre los casos con resultado de cada módulo (203 en total)</text>
+<text x='24' y='111' font-size='15' font-weight='600' fill='#1B1B1B'>Deudas (DEU)</text>
+<text x='24' y='129' font-size='12' fill='#666'>US-30, US-34 a 41, US-79 · 52 casos</text>
+<rect x='330.0' y='96' width='363.5' height='34' fill='#2E7D5B'/>
+<text x='511.7' y='118' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>86,5 % (45)</text>
+<rect x='693.5' y='96' width='16.2' height='34' fill='#C0392B'/>
+<rect x='709.6' y='96' width='8.1' height='34' fill='#D4A017'/>
+<rect x='717.7' y='96' width='32.3' height='34' fill='#8C8C8C'/>
+<text x='760' y='118' font-size='12' fill='#444'>Failed 2 · Duda 1 · Blocked 4</text>
+<text x='24' y='175' font-size='15' font-weight='600' fill='#1B1B1B'>Navegación (NAV)</text>
+<text x='24' y='193' font-size='12' fill='#666'>US-69, US-70 · 25 casos</text>
+<rect x='330.0' y='160' width='420.0' height='34' fill='#2E7D5B'/>
+<text x='540.0' y='182' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>100 % (25)</text>
+<text x='760' y='182' font-size='12' fill='#444'></text>
+<text x='24' y='239' font-size='15' font-weight='600' fill='#1B1B1B'>Exportar CSV (EXP)</text>
+<text x='24' y='257' font-size='12' fill='#666'>US-47 · 31 casos</text>
+<rect x='330.0' y='224' width='379.4' height='34' fill='#2E7D5B'/>
+<text x='519.7' y='246' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>90,3 % (28)</text>
+<rect x='709.4' y='224' width='40.6' height='34' fill='#C0392B'/>
+<text x='760' y='246' font-size='12' fill='#444'>Failed 3</text>
+<text x='24' y='303' font-size='15' font-weight='600' fill='#1B1B1B'>Importar Excel (IMP)</text>
+<text x='24' y='321' font-size='12' fill='#666'>US-74, US-76 a US-78 · 41 casos</text>
+<rect x='330.0' y='288' width='409.8' height='34' fill='#2E7D5B'/>
+<text x='534.9' y='310' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>97,6 % (40)</text>
+<rect x='739.8' y='288' width='10.2' height='34' fill='#C0392B'/>
+<text x='760' y='310' font-size='12' fill='#444'>Failed 1</text>
+<text x='24' y='367' font-size='15' font-weight='600' fill='#1B1B1B'>Suscripciones (SUS)</text>
+<text x='24' y='385' font-size='12' fill='#666'>US-52 a US-63, US-75 · 48 casos</text>
+<rect x='330.0' y='352' width='393.8' height='34' fill='#2E7D5B'/>
+<text x='526.9' y='374' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>93,8 % (45)</text>
+<rect x='723.8' y='352' width='26.2' height='34' fill='#C0392B'/>
+<text x='760' y='374' font-size='12' fill='#444'>Failed 3</text>
+<text x='24' y='431' font-size='15' font-weight='600' fill='#1B1B1B'>Resumen por categoría (CAT)</text>
+<text x='24' y='449' font-size='12' fill='#666'>US-72, US-73 · 6 casos</text>
+<rect x='330.0' y='416' width='420.0' height='34' fill='#2E7D5B'/>
+<text x='540.0' y='438' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>100 % (6)</text>
+<text x='760' y='438' font-size='12' fill='#444'></text>
+<rect x='24' y='499' width='12' height='12' fill='#2E7D5B'/>
+<text x='42' y='510' font-size='13' fill='#333'>PASSED</text>
+<rect x='134' y='499' width='12' height='12' fill='#C0392B'/>
+<text x='152' y='510' font-size='13' fill='#333'>FAILED</text>
+<rect x='244' y='499' width='12' height='12' fill='#D4A017'/>
+<text x='262' y='510' font-size='13' fill='#333'>DUDA</text>
+<rect x='354' y='499' width='12' height='12' fill='#8C8C8C'/>
+<text x='372' y='510' font-size='13' fill='#333'>BLOCKED</text>
+<text x='24' y='536' font-size='12' fill='#666'>Fuente: entrega-2/06-reporte-de-ejecucion.md §2. Deudas: 52 de 61 casos con resultado (9 informados «OK» sin registro).</text>
+</svg>
