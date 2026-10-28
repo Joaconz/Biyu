@@ -19,7 +19,7 @@ DEF-029 se retiró el 2026-10-27: era un error de un caso de Navegación (CP-NAV
 | DEF-034 | Operar sobre la suscripción de otro usuario responde HTTP 500 en lugar de 404 | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-032 (otros tres casos con el mismo defecto se recortaron del catálogo el 2026-10-27) | US-56 · CA-9, US-57 · CA-7, US-58 · CA-9 y US-59 (Pausar, reanudar, cancelar y editar: par de autorización) |
 | DEF-035 | Sin sesión, la API responde HTTP 401 y los casos esperan 403 | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-022 (otros cinco casos con el mismo defecto se recortaron del catálogo el 2026-10-27) | US-52 · CA-13 y US-56 · CA-9, US-57 · CA-7, US-58 · CA-9, US-59 (rol anon) |
 | DEF-036 | La vista previa del calendario no marca con data-blocked="false" las filas que no están bloqueadas | Baja | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-SUS-048 | US-61 · Vista previa del calendario al dar de alta una suscripción |
-| DEF-037 | El primer clic en «US$» de «Nueva deuda» se pierde: el error de «Persona» corre los botones y la moneda no se selecciona | Media | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-DEU-024 | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
+| DEF-037 | El primer clic en «US$» de «Nueva deuda» se pierde: el error de «Persona» corre los botones y la moneda no se selecciona | Media | A definir por el PO | Abierto · se reproduce el 2026-10-27 | CP-DEU-024 y CP-DEU-025 | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
 
 **Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 4 · Baja: 5 · Total abiertos: 9.
 
@@ -247,8 +247,8 @@ En «Se cargan al guardar», la fila de un mes sin bloqueo no tiene el atributo 
 | Estado | Abierto · se reproduce el 2026-10-27 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
-| Encontrado en | ejecución de CP-DEU-024 (Entrega 2). |
-| Caso de prueba | CP-DEU-024 |
+| Encontrado en | ejecución de CP-DEU-024 y CP-DEU-025 (Entrega 2). |
+| Caso de prueba | CP-DEU-024 y CP-DEU-025 |
 | Historia | US-36 · Cargar una deuda suelta (CA-6, FR-18) |
 | Issue | A crear |
 | Reportó | Claude Code (IA), supervisado por Santiago |
@@ -270,4 +270,4 @@ En «Nueva deuda», si el primer clic sobre el formulario es en «US$», la mone
 
 **Evidencia.** Medidas de la corrida de CP-DEU-024 (posición de «US$» antes y después de apretar el mouse)
 
-**Notas.** Causa probable: la validación al perder el foco muestra el mensaje de error entre el mousedown y el mouseup y desplaza los botones, de modo que el clic no llega al botón. No se corrigió nada. Con un segundo clic el resto del caso se cumple (≈ $0,01 y se guarda amount 0.01, fx_rate 0.5000 y amount_ars 0.01). Puede explicar parte de las dudas del equipo sobre los casos de tipo de cambio en US$ (dos casos recortados del catálogo).
+**Notas.** Causa probable: la validación al perder el foco muestra el mensaje de error entre el mousedown y el mouseup y desplaza los botones, de modo que el clic no llega al botón. No se corrigió nada. Con un segundo clic el resto del caso se cumple (≈ $0,01 y se guarda amount 0.01, fx_rate 0.5000 y amount_ars 0.01). Puede explicar parte de las dudas del equipo sobre los casos de tipo de cambio en US$ (dos casos recortados del catálogo). Se reprodujo también en CP-DEU-025 (2026-10-27), con el mismo comportamiento al hacer clic en «US$» apenas se abre «Nueva deuda»; con un segundo clic el resto del caso se cumple.
