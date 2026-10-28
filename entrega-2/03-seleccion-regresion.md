@@ -11,35 +11,35 @@ Entra a la regresión un caso de V1 si cumple **alguna** de estas reglas:
 | Regla | Qué incluye | Por qué |
 |---|---|---|
 | 1 | Todos los casos de prioridad **Alta** | Son los que cubren lo que no puede romperse. |
-| 2 | Todos los casos de los módulos que V2 toca: Registro, Cuotas, Resumen y Monedas, y los de Ajustes que V2 usa (cuentas y tipo de cambio de referencia: CP-CFG-006, 007, 009 y 010) | V2 modifica esas pantallas o escribe en las mismas tablas (el Resumen lee lo que crea cualquier transacción, incluidas las de suscripciones y deudas). |
+| 2 | Los casos de prioridad **Alta o Media** de los módulos que V2 toca: Registro, Cuotas, Resumen y Monedas, y los de Ajustes que V2 usa (cuentas y tipo de cambio de referencia: CP-CFG-006, 007, 009 y 010) | V2 modifica esas pantallas o escribe en las mismas tablas (el Resumen lee lo que crea cualquier transacción, incluidas las de suscripciones y deudas). |
 | 3 | Los casos ligados a un defecto de V1 **corregido y sin confirmar** | Sirven de testeo de confirmación. |
 | 4 | Los casos que **fallaron** en V1 | Hay que verificar que se arreglaron. |
 
-Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acceso y Configuración). Conservan el resultado de su última ejecución. Si aparece un defecto en un módulo excluido, se amplía la selección y se registra acá.
+Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acceso y Configuración) y los de prioridad Baja de los módulos que sí toca, salvo que los incluya otra regla (por ejemplo, que confirmen un defecto). Conservan el resultado de su última ejecución. Si aparece un defecto en un módulo excluido, se amplía la selección y se registra acá.
 
 ## 2. Resumen
 
-- **Casos de V1:** 74. **Incluidos en la regresión:** 65. **Excluidos:** 9.
-- Resultado de V1 de los incluidos: 63 PASSED y 2 FAILED (CP-ACC-004 y CP-CFG-004).
+- **Casos de V1:** 74. **Incluidos en la regresión:** 58. **Excluidos:** 16.
+- Resultado de V1 de los incluidos: 56 PASSED y 2 FAILED (CP-ACC-004 y CP-CFG-004).
 
 | Módulo | Casos | Incluidos | Excluidos |
 |---|---|---|---|
 | Acceso | 12 | 9 | 3 |
 | Configuración | 15 | 9 | 6 |
-| Registro | 16 | 16 | 0 |
-| Cuotas | 13 | 13 | 0 |
-| Monedas | 7 | 7 | 0 |
-| Resumen | 11 | 11 | 0 |
-| **Total** | **74** | **65** | **9** |
+| Registro | 16 | 13 | 3 |
+| Cuotas | 13 | 12 | 1 |
+| Monedas | 7 | 6 | 1 |
+| Resumen | 11 | 9 | 2 |
+| **Total** | **74** | **58** | **16** |
 
 | Prioridad | Casos | Incluidos | Excluidos |
 |---|---|---|---|
 | Alta | 39 | 39 | 0 |
 | Media | 26 | 19 | 7 |
-| Baja | 9 | 7 | 2 |
-| **Total** | **74** | **65** | **9** |
+| Baja | 9 | 0 | 9 |
+| **Total** | **74** | **58** | **16** |
 
-## 3. Casos incluidos (65)
+## 3. Casos incluidos (58)
 
 | ID | Prioridad | Título | Resultado en V1 | Reglas | Motivo |
 |---|---|---|---|---|---|
@@ -63,11 +63,8 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 | CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | 1 | prioridad Alta |
 | CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
 | CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-003 | Baja | Tipo "gasto" y moneda ARS por defecto | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
 | CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
 | CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-006 | Baja | La cuenta viene precargada con la última usada | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-007 | Baja | Guardar sin nota | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
 | CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
 | CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
 | CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-012 (corregido, falta confirmación) |
@@ -84,7 +81,6 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 | CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
 | CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
 | CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-008 | Baja | El listado muestra el número de cuota | PASSED | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
 | CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
 | CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
 | CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
@@ -95,7 +91,6 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 | CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | 2, 3 | módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio); confirma DEF-020 (corregido, falta confirmación) |
 | CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
 | CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
-| CP-MON-006 | Baja | El gasto en dólares se ve por separado | PASSED | 2 | módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
 | CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
 | CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 | CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
@@ -103,13 +98,11 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 | CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 | CP-DAS-005 | Media | Gasto por cuenta | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 | CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-007 | Baja | Balance negativo con signo explícito | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 | CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-009 | Baja | Una cuota heredada no cuenta como día con registro | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 | CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 | CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 
-## 4. Casos excluidos (9)
+## 4. Casos excluidos (16)
 
 | ID | Prioridad | Título | Resultado en V1 | Motivo |
 |---|---|---|---|---|
@@ -122,6 +115,13 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 | CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-CFG-014 | Media | La cuenta elegida como predeterminada viene preseleccionada | PASSED (ejecución 2) · DEF-017 | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-CFG-015 | Baja | El setup no reaparece y se puede reabrir desde Ajustes | PASSED (ejecución 2) · DEF-017 | prioridad Baja en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-REG-003 | Baja | Tipo "gasto" y moneda ARS por defecto | PASSED | prioridad Baja en el módulo Registro, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-REG-006 | Baja | La cuenta viene precargada con la última usada | PASSED | prioridad Baja en el módulo Registro, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-REG-007 | Baja | Guardar sin nota | PASSED | prioridad Baja en el módulo Registro, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-CUO-008 | Baja | El listado muestra el número de cuota | PASSED | prioridad Baja en el módulo Cuotas, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-MON-006 | Baja | El gasto en dólares se ve por separado | PASSED | prioridad Baja en el módulo Monedas, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-DAS-007 | Baja | Balance negativo con signo explícito | PASSED | prioridad Baja en el módulo Resumen, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-DAS-009 | Baja | Una cuota heredada no cuenta como día con registro | PASSED | prioridad Baja en el módulo Resumen, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
 
 ## 5. Defectos de V1 a confirmar en V2 (22)
 

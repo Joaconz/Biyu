@@ -17,7 +17,7 @@ La regresión de V2 es un **subconjunto elegido por riesgo**, con el criterio es
 marcado como incluido o excluido con su motivo. Entran:
 
 1. Todos los casos de prioridad **Alta** de V1.
-2. Todos los casos de los módulos que V2 toca: Dashboard (`DAS`: KPI de neto de reembolsos, torta,
+2. Los casos de prioridad **Alta o Media** de los módulos que V2 toca: Dashboard (`DAS`: KPI de neto de reembolsos, torta,
    detalle de categoría), Registro (`REG`: gasto compartido, feedback de guardado, confirmación
    de borrado), Cuotas (`CUO`: confirmación destructiva), Cuentas de Configuración (`CFG`) y Monedas
    (`MON`: suscripciones y deudas en USD).
