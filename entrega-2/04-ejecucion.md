@@ -568,66 +568,66 @@ Casos de V1 elegidos en `03-seleccion-regresion` (criterio de ADR-027: 58 de la 
 
 | ID | Prioridad | Título | Resultado en V1 | Status | Ejecutó | Defectos |
 |---|---|---|---|---|---|---|
-| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | PASSED · DEF-008 | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | FAILED · DEF-005 | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-001 | Alta | Crear una categoría con nombre y color | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-004 | Alta | Archivar una categoría con historia | FAILED · DEF-006 | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-011 | Media | Monto con tres decimales | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | PASSED · DEF-007 | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-REG-016 | Media | El monto toma el foco con teclado numérico | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | **PASSED** | **PASSED** | Claude Code | — |
-| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-005 | Media | Gasto por cuenta | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | **PASSED** | **PASSED** | Claude Code | — |
-| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | PASSED | **PASSED** | Claude Code | — |
+| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | PASSED · DEF-008 | **PASSED** | Claude Code | — |
+| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | PASSED | **PASSED** | Claude Code | — |
+| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | FAILED · DEF-005 | **PASSED** | Claude Code | — |
+| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | PASSED | **PASSED** | Claude Code | — |
+| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | PASSED | **PASSED** | Claude Code | — |
+| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | PASSED | **PASSED** | Claude Code | — |
+| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | PASSED | **PASSED** | Claude Code | — |
+| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-001 | Alta | Crear una categoría con nombre y color | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-004 | Alta | Archivar una categoría con historia | FAILED · DEF-006 | **PASSED** | Claude Code | — |
+| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | PASSED | **PASSED** | Claude Code | — |
+| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | **PASSED** | Claude Code | — |
+| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | **PASSED** | Claude Code | — |
+| CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-011 | Media | Monto con tres decimales | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | PASSED · DEF-007 | **PASSED** | Claude Code | — |
+| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | PASSED | **PASSED** | Claude Code | — |
+| CP-REG-016 | Media | El monto toma el foco con teclado numérico | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | PASSED | **PASSED** | Claude Code | — |
+| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | PASSED | **PASSED** | Claude Code | — |
+| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | PASSED | **PASSED** | Claude Code | — |
+| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | PASSED | **PASSED** | Claude Code | — |
+| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | **PASSED** | Claude Code | — |
+| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | **PASSED** | Claude Code | — |
+| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | **PASSED** | Claude Code | — |
+| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-005 | Media | Gasto por cuenta | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | **PASSED** | Claude Code | — |
+| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | **PASSED** | Claude Code | — |
 
 ### Resumen de la regresión
 

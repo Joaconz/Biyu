@@ -28,14 +28,14 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
 | DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Cerrado · corregido en #183; confirmado corregido el 2026-10-28 en V2 | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
 | DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
-| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Cerrado · confirmado en parte el 2026-10-28 en V2 (WebKit con el viewport de un iPhone 13; falta probarlo en un iPhone real) | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
 | DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | A definir por el PO | Cerrado · no se reprodujo en 16 altas el 2026-10-28 en V2 (era intermitente); el equipo lo cierra y se reabre si reaparece | — (aparece en e2e/setup.spec.ts, "una cuenta nueva ve el setup…") | US-68 · Configuración inicial al crear la cuenta; US-51 · Entrar directo tras registrarse |
 | DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (NFR-06, WCAG 2.1 AA en flujos críticos) | US-65 · Eliminar una transacción; DEF-011 · Eliminar una cuenta |
 | DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (relacionado con CP-CFG-003 y DEF-009) | US-42 · Categorías; DEF-011 · Editar cuentas |
 | DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (derivado de DEF-010) | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
-| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (relacionado con US-50 · Traducir errores de Auth) | US-50 · Traducir errores de Auth y evitar doble submit |
-| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (derivado de DEF-010 y DEF-023) | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
+| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | A definir por el PO | Cerrado · confirmado en parte el 2026-10-28 en V2 (con un 429 simulado; no se llegó al límite real de altas) | — (relacionado con US-50 · Traducir errores de Auth) | US-50 · Traducir errores de Auth y evitar doble submit |
+| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | A definir por el PO | Cerrado · confirmado en parte el 2026-10-28 en V2 (con la siembra demorada a propósito; no se reprodujo una demora real) | — (derivado de DEF-010 y DEF-023) | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
 
 **Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 0 · Baja: 0 · Total abiertos: 0 (22 corregidos que esperan confirmación).
 
@@ -672,7 +672,7 @@ El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
+| Estado | Cerrado · confirmado en parte el 2026-10-28 en V2 (WebKit con el viewport de un iPhone 13; falta probarlo en un iPhone real) |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | uso manual en producción desde un iPhone, fuera del catálogo escrito. |
@@ -866,7 +866,7 @@ Desde DEF-010, archivar todas las categorías ya no las vuelve a sembrar. Pero e
 
 | Campo | Contenido |
 |---|---|
-| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
+| Estado | Cerrado · confirmado en parte el 2026-10-28 en V2 (con un 429 simulado; no se llegó al límite real de altas) |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | testeo completo del 2026-10-05: la suite e2e llegó al límite de altas de Supabase Auth en producción. |
@@ -896,7 +896,7 @@ Cuando Supabase Auth corta por demasiadas altas desde la misma IP (429, over_req
 
 | Campo | Contenido |
 |---|---|
-| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
+| Estado | Cerrado · confirmado en parte el 2026-10-28 en V2 (con la siembra demorada a propósito; no se reprodujo una demora real) |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | revisando un fallo del Preview de #198 el 2026-10-05; la causa viene del arreglo de DEF-010 (#191). |
