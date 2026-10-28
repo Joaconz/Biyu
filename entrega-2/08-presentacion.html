@@ -135,13 +135,12 @@ body.show-notes .notes { display: block; }
 </style>
 
 <nav class="toolbar" aria-label="Controles">
-  <span class="counter" id="counter">1 / 28</span>
+  <span class="counter" id="counter">1 / 19</span>
   <button id="prev" type="button" aria-label="Slide anterior">←</button>
   <button id="next" type="button" aria-label="Slide siguiente">→</button>
   <button id="toggle-notes" type="button" aria-pressed="false">Notas (N)</button>
 </nav>
 
-<!-- ============ PORTADA ============ -->
 <section class="slide cover" id="portada">
   <div class="eyebrow">Testing de Aplicaciones, proyecto integrador. Entrega 02</div>
   <h1>biyu<span class="dot">.</span></h1>
@@ -150,99 +149,41 @@ body.show-notes .notes { display: block; }
   <div class="notes">Presentamos la Entrega 2: qué trae V2, cómo nos organizamos, cómo escribimos los requerimientos y se los dimos a la IA, los casos de prueba de V2 y de regresión, y qué salió de ejecutarlos. La demo va al final.</div>
 </section>
 
-<!-- ============ 1) QUÉ TRAE V2 ============ -->
-<section class="slide divider" id="sec-v2">
-  <div class="kicker">Parte 1 de 5</div>
-  <h2>Qué trae la V2</h2>
-  <p>Seis funcionalidades nuevas para que Biyu sea un MVP usable.</p>
+<section class="slide divider" id="sec-1">
+  <div class="kicker">Parte 1 de 3</div>
+  <h2>Requerimientos e implementación</h2>
+  <p>Qué trae V2, cómo nos organizamos y cómo se la dimos a la IA.</p>
 </section>
 
-<section class="slide" id="v2-numeros">
-  <div class="section-mark">Avances de la V2</div>
-  <h2>La V2, en números</h2>
-  <div class="stats">
-    <div class="stat hero"><span class="n">37</span><span class="l">historias de usuario de V2</span></div>
-    <div class="stat"><span class="n">32</span><span class="l">implementadas</span></div>
-    <div class="stat"><span class="n">6</span><span class="l">funcionalidades nuevas</span></div>
-    <div class="stat"><span class="n">212</span><span class="l">casos de prueba de V2</span></div>
-    <div class="stat"><span class="n">18</span><span class="l">ADR nuevos (43 en total)</span></div>
-  </div>
-  <p class="muted">No llegaron US-80 a US-84 (cuotas empezadas y guía en el Excel, varias personas por gasto, deudas sueltas en el balance y editar un movimiento): quedan para V3 y sus casos, BLOCKED.</p>
-  <div class="notes">Escribimos 37 historias y se implementaron 32. Las cinco que no llegaron se especificaron igual, con sus criterios de aceptación, y sus casos quedan bloqueados con la justificación. Cada decisión no obvia quedó como ADR: sumamos 18 en esta entrega.</div>
+<section class="slide" id="v2">
+  <div class="section-mark">Requerimientos de V2</div>
+  <h2>Seis funcionalidades para un MVP usable</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Funcionalidad</th><th>Qué resuelve</th><th>Historias</th></tr></thead>
+    <tbody>
+      <tr><td>Deudas y gastos compartidos</td><td>Quién me debe y a quién le debo; el gasto neto de reembolsos</td><td>US-30, US-34 a US-41, US-79</td></tr>
+      <tr><td>Suscripciones</td><td>Los gastos fijos se cargan solos cada mes, sin duplicar</td><td>US-52 a US-63, US-75</td></tr>
+      <tr><td>Exportar CSV</td><td>Llevarse los movimientos de un mes o un año</td><td>US-47</td></tr>
+      <tr><td>Importar Excel</td><td>Cargar muchos gastos de una vez, con revisión fila por fila</td><td>US-74, US-76 a US-78</td></tr>
+      <tr><td>Resumen por categoría</td><td>Torta del gasto y detalle de cada categoría</td><td>US-72, US-73</td></tr>
+      <tr><td>Navegación y guardado</td><td>Barra con las pantallas nuevas; reintentar sin perder lo cargado</td><td>US-69, US-70</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">37 historias, 32 implementadas. No llegaron US-80 a US-84: quedan para V3 y sus casos, BLOCKED.</p>
+  <div class="notes">Este es el resumen de los requerimientos de V2; cada funcionalidad la mostramos en vivo en la demo. Escribimos 37 historias y se implementaron 32. Las cinco que no llegaron (cuotas empezadas y guía en el Excel, varias personas por gasto, deudas sueltas en el balance y editar un movimiento) quedaron especificadas, con sus casos bloqueados.</div>
 </section>
 
-<section class="slide" id="deudas">
-  <div class="section-mark">Deudas y gastos compartidos</div>
-  <div class="row">
-    <div style="display:grid;gap:18px">
-      <h2>Quién me debe y a quién le debo</h2>
-      <ul class="points">
-        <li>Marcar un gasto como compartido al registrarlo (US-34)</li>
-        <li>Cargar una deuda suelta, sin gasto (US-36)</li>
-        <li>Saldar en un toque, con Deshacer (US-39, US-40)</li>
-        <li>El Resumen muestra el gasto neto de reembolsos (US-30)</li>
-      </ul>
-    </div>
-    <figure class="board"><img src="mocks-png/deudas-registrar-compartido.png" alt="Mock de Registrar con el interruptor Gasto compartido"></figure>
-  </div>
-  <div class="notes">Si pago una cena de 120.000 y Sofía me debe la mitad, lo marco como compartido al registrarlo: se guardan el gasto y la deuda en una sola llamada a la base. En Deudas veo lo que me deben y lo que debo, filtro por pendientes o saldadas y salgo de una deuda en un toque.</div>
-</section>
-
-<section class="slide" id="suscripciones">
-  <div class="section-mark">Suscripciones</div>
-  <div class="row">
-    <div style="display:grid;gap:18px">
-      <h2>Los gastos fijos se cargan solos</h2>
-      <ul class="points">
-        <li>Alta con vista previa del calendario (US-52, US-75)</li>
-        <li>Los meses vencidos se cargan al entrar, sin duplicar (US-53)</li>
-        <li>Pausar, reanudar, cancelar y editar (US-56 a US-59)</li>
-        <li>Total mensual comprometido (US-63)</li>
-      </ul>
-    </div>
-    <figure class="board"><img src="mocks-png/suscripciones-alta.png" alt="Mock del alta de una suscripción con la vista previa"></figure>
-  </div>
-  <div class="notes">Netflix, el gimnasio o el alquiler: se cargan una vez y Biyu genera el gasto de cada mes. Si no entraste en tres meses, al volver se cargan los tres, una sola vez aunque recargues. El día 31 se cobra el último día del mes. Es la feature más grande de V2: 13 historias.</div>
-</section>
-
-<section class="slide" id="datos">
-  <div class="section-mark">Exportar e importar</div>
-  <div class="row">
-    <div style="display:grid;gap:18px">
-      <h2>Los datos entran y salen</h2>
-      <ul class="points">
-        <li>Exportar un mes o un año a CSV (US-47)</li>
-        <li>Importar gastos desde un Excel, con revisión fila por fila (US-74, US-76)</li>
-        <li>Importa solo las filas válidas, sin duplicar al reintentar (US-77, US-78)</li>
-      </ul>
-    </div>
-    <figure class="board"><img src="mocks-png/export-csv.png" alt="Mock de la hoja Exportar movimientos"></figure>
-  </div>
-  <div class="notes">El CSV respeta los montos como texto decimal y neutraliza fórmulas. La importación valida cada fila con su mensaje exacto antes de guardar, y todo el lote se guarda en una sola llamada. Si se corta la conexión y reintentás, no se duplica nada.</div>
-</section>
-
-<section class="slide" id="resumen-nav">
-  <div class="section-mark">Resumen y navegación</div>
-  <div class="row">
-    <div style="display:grid;gap:18px">
-      <h2>En qué se fue la plata, a un toque</h2>
-      <ul class="points">
-        <li>Torta del gasto por categoría en el Resumen (US-72)</li>
-        <li>Detalle de cada categoría (US-73)</li>
-        <li>Barra con Registrar, Resumen, Deudas y Suscripciones (US-69)</li>
-        <li>Aviso de guardado y reintento que no pierde lo cargado (US-70)</li>
-      </ul>
-    </div>
-    <figure class="board"><img src="mocks-png/dashboard-categorias-resumen.png" alt="Mock del Resumen con la torta por categoría"></figure>
-  </div>
-  <div class="notes">En V1 había barras; en V2 volvimos a la torta que pedía la pre-entrega, con la lista de montos al lado. La barra de navegación suma las dos pantallas nuevas. Y si falla el guardado, el formulario conserva lo que escribiste y reintentar no duplica el gasto.</div>
-</section>
-
-<!-- ============ 2) EQUIPO Y REQUERIMIENTOS ============ -->
-<section class="slide divider" id="sec-req">
-  <div class="kicker">Parte 2 de 5</div>
-  <h2>Equipo y requerimientos</h2>
-  <p>Cómo nos repartimos y cómo escribimos las historias de V2.</p>
+<section class="slide" id="requerimientos">
+  <div class="section-mark">Requerimientos de V2</div>
+  <h2>Cada historia, lista para implementar y para probar</h2>
+  <ul class="points">
+    <li><b>Pantalla:</b> ruta, estructura y cada botón con su texto</li>
+    <li><b>Campos:</b> tipo, obligatorio, rango, máximo de caracteres</li>
+    <li><b>Mensajes exactos</b> de error, vacío y carga</li>
+    <li><b>Criterios CA-k</b> verificables, con <b>data-testid</b> y mock</li>
+  </ul>
+  <p class="muted">Ejemplo: US-36 «Cargar una deuda suelta» en <span class="path">entrega-2/01-historias-de-usuario-v2.md</span></p>
+  <div class="notes">La consigna pide requerimientos lo más detallados posible, y así los escribimos: cada historia dice qué pantalla es, qué campos tiene, qué acepta cada uno, qué mensaje sale y cómo se verifica. El agente spec-critic atacó cada historia buscando ambigüedades antes de congelarla.</div>
 </section>
 
 <section class="slide" id="equipo">
@@ -257,31 +198,6 @@ body.show-notes .notes { display: block; }
   <div class="notes">Separamos desarrollo de testing. Joaquín escribió las historias y se las pasó a la IA; Santiago corrigió los defectos de V1; las testers diseñaron los casos desde las historias, no desde el código. Quién ejecutó cada caso está en el reporte de ejecución, sección 3.</div>
 </section>
 
-<section class="slide" id="requerimientos">
-  <div class="section-mark">Requerimientos de V2</div>
-  <div class="row">
-    <div style="display:grid;gap:18px">
-      <h2>Cada historia, lista para implementar y para probar</h2>
-      <ul class="points">
-        <li><b>Pantalla:</b> ruta, estructura y cada botón con su texto</li>
-        <li><b>Campos:</b> tipo, obligatorio, rango, máximo de caracteres</li>
-        <li><b>Mensajes exactos</b> de error, vacío y carga</li>
-        <li><b>Criterios CA-k</b> verificables, con <b>data-testid</b> y mock</li>
-      </ul>
-      <p class="muted">Ejemplo: US-36 «Cargar una deuda suelta» en <span class="path">entrega-2/01-historias-de-usuario-v2.md</span></p>
-    </div>
-    <figure class="board"><img src="mocks-png/deudas-nueva.png" alt="Mock de Nueva deuda"></figure>
-  </div>
-  <div class="notes">La consigna pide requerimientos lo más detallados posible, y así los escribimos: cada historia dice qué pantalla es, qué campos tiene, qué acepta cada uno, qué mensaje sale y cómo se verifica. El agente spec-critic atacó cada historia buscando ambigüedades antes de congelarla.</div>
-</section>
-
-<!-- ============ 3) IA ============ -->
-<section class="slide divider" id="sec-ia">
-  <div class="kicker">Parte 3 de 5</div>
-  <h2>La IA como equipo de desarrollo</h2>
-  <p>Los mismos requerimientos para la IA y para Testing.</p>
-</section>
-
 <section class="slide" id="ia-flujo">
   <div class="section-mark">Implementación con IA</div>
   <h2>La IA implementa leyendo solo el issue</h2>
@@ -293,7 +209,8 @@ body.show-notes .notes { display: block; }
     <li>Las testers diseñan los casos desde ese mismo issue</li>
     <li>La IA que implementa no diseña ni ejecuta casos CP-*</li>
   </ul>
-  <div class="notes">La consigna dice que la IA recibe los mismos requerimientos que el resto del equipo, sin cambios funcionales. Por eso la sesión que escribe la historia no es la que la implementa: la que implementa es nueva y solo tiene el texto del issue, igual que las testers.</div>
+  <p class="muted">Claude Code (escritorio y web), casi todo con Claude Opus 5.5. Los 22 defectos de V1 también se le pasaron a la IA: 7 PRs de fix, cada uno con su test.</p>
+  <div class="notes">La consigna dice que la IA recibe los mismos requerimientos que el resto del equipo, sin cambios funcionales. Por eso la sesión que escribe la historia no es la que la implementa: la que implementa es nueva y solo tiene el texto del issue, igual que las testers. Lo mismo con los defectos de V1: Santiago le pasó cada reporte con la consigna de escribir primero el test que lo reproduce y después el fix.</div>
 </section>
 
 <section class="slide" id="ia-prompts">
@@ -325,21 +242,8 @@ la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
   <div class="notes">Estos son extractos. El documento 07 tiene los seis prompts de especificación, las plantillas de implementación, las sesiones de Suscripciones, Navegación, Resumen y Excel, y un registro de qué prompt y qué herramienta produjo cada PR.</div>
 </section>
 
-<section class="slide" id="ia-herramientas">
-  <div class="section-mark">Agentes, IDEs y defectos</div>
-  <h2>Herramientas y corrección de defectos</h2>
-  <div class="stats">
-    <div class="stat hero"><span class="n">Claude Code</span><span class="l">escritorio y web</span></div>
-    <div class="stat"><span class="n">22</span><span class="l">defectos de V1 corregidos por la IA</span></div>
-    <div class="stat"><span class="n">7</span><span class="l">PRs de fix, cada uno con su test</span></div>
-  </div>
-  <p class="muted">Modelos: Claude Opus 5.5 en casi toda la implementación; Sonnet 5.5 y Haiku 4.5 en parte de las specs. Antigravity y Codex leen las mismas reglas: AGENTS.md y la carpeta <b>.agents/</b>.</p>
-  <div class="notes">La consigna pide pasarle a la IA los reportes de defectos. Santiago le dio cada defecto de V1 con una plantilla: primero el test que reproduce el defecto y falla, después el fix. Los 22 se corrigieron en 7 PRs, y la confirmación sobre V2 está en la selección de regresión, sección 5.</div>
-</section>
-
-<!-- ============ 4) CASOS ============ -->
-<section class="slide divider" id="sec-casos">
-  <div class="kicker">Parte 4 de 5</div>
+<section class="slide divider" id="sec-2">
+  <div class="kicker">Parte 2 de 3</div>
   <h2>Los casos de prueba</h2>
   <p>212 casos de V2 y 60 de V1 elegidos para la regresión.</p>
 </section>
@@ -379,11 +283,10 @@ la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
   <div class="notes">No ejecutamos todo V1 de nuevo: elegimos por riesgo. Entra todo lo de prioridad Alta, lo de los módulos que V2 modifica, lo que confirma un defecto corregido y lo que había fallado. Los 14 excluidos conservan su resultado; si aparece un defecto en un módulo excluido, se amplía la selección.</div>
 </section>
 
-<!-- ============ 5) RESULTADOS ============ -->
-<section class="slide divider" id="sec-res">
-  <div class="kicker">Parte 5 de 5</div>
+<section class="slide divider" id="sec-3">
+  <div class="kicker">Parte 3 de 3</div>
   <h2>Qué pasó al ejecutarlos</h2>
-  <p>Casos de V2, regresión de V1 y confirmación de defectos.</p>
+  <p>Resultados, cambios de estado y defectos.</p>
 </section>
 
 <section class="slide" id="res-total">
@@ -400,7 +303,7 @@ la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
     <div style="width:93.1%;background:var(--green)"></div><div style="width:4.4%;background:var(--bad)"></div><div style="width:0.5%;background:var(--gold)"></div><div style="width:2%;background:#8c8c8c"></div>
   </div>
   <div class="legend"><span><b style="background:var(--green)"></b>PASSED 189</span><span><b style="background:var(--bad)"></b>FAILED 9</span><span><b style="background:var(--gold)"></b>DUDA 1</span><span><b style="background:#8c8c8c"></b>BLOCKED 4</span></div>
-  <p class="muted">Los 4 BLOCKED dependen de US-82 (varias personas), que no se implementó. 9 casos de Deudas los informó el equipo como OK sin registrar el resultado.</p>
+  <p class="muted">Los 4 BLOCKED dependen de US-82 (varias personas), que no se implementó. 9 casos de Deudas los informó el equipo como OK sin registrar el resultado. Ejecución: 21 casos a mano, 21 informados por el equipo y 161 con IA supervisada (Playwright).</p>
   <div class="notes">De los 212 casos, 203 tienen resultado registrado. Pasan 189. Los 9 FAILED abrieron 8 defectos. El caso en DUDA se cumple, pero con otros parámetros porque US-82 no existe. Sobre los ejecutados, el 95 % pasa.</div>
 </section>
 
@@ -409,13 +312,6 @@ la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
   <h2>Cómo evolucionaron los resultados</h2>
   <figure class="board chart"><img src="graficos/resultados-por-entrega.svg" alt="Gráfico de barras apiladas con PASSED, FAILED, DUDA y BLOCKED por ejecución: Entrega 1 ejecución 1, 90,5 % PASSED; Entrega 1 ejecución 2, 97,3 %; Entrega 2 casos de V2, 93,1 %; Entrega 2 regresión de V1, 100 %"></figure>
   <div class="notes">En la Entrega 1 la primera ejecución dio 90,5 % porque US-68 no existía; implementada, la segunda dio 97 %. En V2 el 93 % de los casos nuevos pasa, y la regresión de V1 pasa entera: V2 no rompió nada de lo que ya andaba.</div>
-</section>
-
-<section class="slide" id="res-modulo">
-  <div class="section-mark">Por módulo</div>
-  <h2>Dónde falla V2</h2>
-  <figure class="board chart"><img src="graficos/resultados-v2-por-modulo.svg" alt="Gráfico de barras apiladas por módulo de V2: Deudas 86,5 % PASSED, Navegación 100 %, Exportar CSV 90,3 %, Importar Excel 97,6 %, Suscripciones 93,8 %, Resumen por categoría 100 %"></figure>
-  <div class="notes">Navegación y el Resumen por categoría pasan enteros. Exportar CSV y Suscripciones tienen 3 fallas cada uno; Deudas tiene 2 fallas, la duda y los 4 bloqueados por US-82.</div>
 </section>
 
 <section class="slide" id="res-cambios">
@@ -480,19 +376,6 @@ la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
   <div class="notes">No escondemos el criterio 3: cuatro casos de prioridad Alta no se pueden ejecutar porque la función de varias personas no se implementó; quedan para V3. El 5 tiene salvedades porque la regresión se ejecutó con IA y el equipo está repasando a mano los 39 casos de prioridad Alta.</div>
 </section>
 
-<section class="slide" id="ejecucion">
-  <div class="section-mark">Quién ejecutó</div>
-  <h2>Ejecución manual y con IA supervisada</h2>
-  <div class="stats">
-    <div class="stat"><span class="n">21</span><span class="l">casos de V2 a mano</span></div>
-    <div class="stat"><span class="n">21</span><span class="l">de Suscripciones informados por el equipo</span></div>
-    <div class="stat hero"><span class="n">161</span><span class="l">de V2 con IA, supervisados</span></div>
-    <div class="stat"><span class="n">60</span><span class="l">de regresión con IA</span></div>
-  </div>
-  <p class="muted">La IA ejecutó con Playwright y pedidos directos a la API, sin cambiar ningún resultado a mano. El equipo repasa a mano los 39 casos de prioridad Alta de la regresión.</p>
-  <div class="notes">Lo declaramos tal cual. La IA ejecutó los pasos escritos, contra la app local, y dejó lo observado en cada caso. La supervisaron Santiago y Joaquín. Cada defecto tiene sus pasos de reproducción en el reporte de defectos.</div>
-</section>
-
 <section class="slide" id="mapa-repo">
   <div class="section-mark">Dónde está cada cosa</div>
   <h2>Todo en <span class="path" style="font-size:inherit">entrega-2/</span></h2>
@@ -535,7 +418,6 @@ la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
   <div class="notes">Si quieren ver un caso real, abrimos el 02 o la planilla y buscamos su ID. La guía de la defensa tiene una lista de casos para mostrar: uno que pasa, uno que falla con su defecto, uno bloqueado y uno de regresión.</div>
 </section>
 
-<!-- ============ DEMO ============ -->
 <section class="slide cover" id="demo">
   <div class="eyebrow">Demo</div>
   <h2>Biyu V2, en vivo</h2>
@@ -547,7 +429,6 @@ la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
   <p><a class="link cta" href="https://biyu-rust.vercel.app" target="_blank" rel="noopener">Abrir biyu-rust.vercel.app</a></p>
   <div class="notes">Recorremos una pantalla por cada funcionalidad nueva. El Excel de ejemplo está en entrega-2/mocks/importar-excel-ejemplo.xlsx.</div>
 </section>
-
 <script>
 (() => {
   const slides = [...document.querySelectorAll('.slide')];
