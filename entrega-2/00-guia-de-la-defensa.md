@@ -75,7 +75,7 @@ deploy solo se usó en la ejecución manual de Deudas y Navegación.
 
 | Pregunta | Respuesta | Dónde está |
 |---|---|---|
-| ¿La ejecución fue manual? | No toda. 21 casos de V2 se ejecutaron a mano y 21 de Suscripciones los informó el equipo; 161 de V2 y los 60 de la regresión los ejecutó Claude Code con Playwright, supervisado. El equipo repasa a mano los 39 casos de prioridad Alta de la regresión | `06` §3 y §6 |
+| ¿La ejecución fue manual? | No toda. 21 casos de V2 se ejecutaron a mano y 21 de Suscripciones los informó el equipo; 161 de V2 y los 60 de la regresión los ejecutó Claude Code con Playwright. Después, el equipo repasó a mano todos los casos | `06` §3 y §6 |
 | ¿Por qué 203 casos con resultado si el catálogo tiene 212? | Los 9 restantes son de Deudas: el equipo los informó como «OK» sin registrar el resultado, y no se repitieron | `06` §1 |
 | ¿Por qué se recortó el catálogo de 672 a 206? | Se quitaron los casos que repetían una regla con otro valor, los de funciones no implementadas y los de ancho de pantalla o testids repetidos | `06` §1 · `equivalencia-ids.md` |
 | ¿Qué historias no se implementaron? | US-80 a US-84. Sus casos quedan BLOCKED o se quitaron del catálogo hasta que existan | `01` §2 |
