@@ -71,8 +71,8 @@ apunta a CLAUDE.md para las IA que no son Claude Code. `.agents/` es una copia d
 | Implementación de V2 | Joaquín y Santiago | Todo el código, migraciones y tests (Vitest y pgTAP) | Revisión y merge de cada PR |
 | Fix de los defectos de V1 | Santiago | Fix y test de regresión de cada defecto | Revisión y merge |
 | Diseño de casos de V2 | Micaela, Valentina y Mariana | — | Los casos de `casos/*.md` (PR #287 a #291) |
-| Ejecución de V2 | El equipo (repaso manual: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones) | 161 casos con Claude Code | 21 casos a mano y 21 de Suscripciones informados por el equipo; después, repaso manual de todos los casos |
-| Regresión de V1 | El equipo | 60 casos con Claude Code | Repaso manual de los 60 casos |
+| Ejecución de V2 | El equipo (repaso manual: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones) | 161 casos con Claude Code | 21 casos a mano y 21 de Suscripciones informados por el equipo; después, repaso manual de todos los casos en el deploy |
+| Regresión de V1 | Joaquín | 60 casos con Claude Code | Los 60 casos a mano en el deploy de Vercel, después de la IA |
 
 ## 4. Prompts para especificar las features
 
@@ -489,8 +489,8 @@ La consigna no pide IA en Testing, pero se usó y se declara:
   cambiar un resultado a mano. Quién ejecutó cada caso está en `06-reporte-de-ejecucion.md` §3.
 - **Reportes:** el agente `docs-writer` redactó los reportes de ejecución y de defectos con el formato
   de la Entrega 1. Los números se verificaron contra las planillas.
-- **Repaso manual:** después de la ejecución con Claude Code, el equipo repasó a mano todos los casos de V2
-  y los 60 de la regresión.
+- **Repaso manual:** después de la ejecución con Claude Code, el equipo repasó a mano en el deploy de Vercel todos los casos de V2
+  y Joaquín ejecutó a mano los 60 de la regresión.
 
 ## 8. Registro de sesiones de implementación
 
