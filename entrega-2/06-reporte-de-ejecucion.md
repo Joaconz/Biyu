@@ -153,19 +153,19 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
-| Módulo | Casos | A mano por el equipo | Con IA (Claude Code) | Informados «ok» por el equipo, sin repetir |
-|---|---|---|---|---|
-| Deudas (DEU) | 52 | 6 (CP-DEU-005, 006, 007, 008, 009 y 010) | 46 | 0 |
-| Navegación (NAV) | 25 | 15 | 10 | 0 |
-| Exportar CSV (EXP) | 31 | 0 | 31 | 0 |
-| Importar Excel (IMP) | 41 | 0 | 41 | 0 |
-| Suscripciones (SUS) | 48 | 0 | 27 | 21 |
-| Resumen por categoría (CAT) | 6 | 0 | 6 | 0 |
-| **Total** | **203** | **21** | **161** | **21** |
+| Módulo | Casos | A mano por el equipo | Con IA (Claude Code) | Informados «ok» por el equipo, sin repetir | Repaso manual posterior (después de Claude Code) |
+|---|---|---|---|---|---|
+| Deudas (DEU) | 52 | 6 (CP-DEU-005, 006, 007, 008, 009 y 010) | 46 | 0 | Mariana |
+| Navegación (NAV) | 25 | 15 | 10 | 0 | Santiago |
+| Exportar CSV (EXP) | 31 | 0 | 31 | 0 | Joaquín |
+| Importar Excel (IMP) | 41 | 0 | 41 | 0 | Valentina |
+| Suscripciones (SUS) | 48 | 0 | 27 | 21 | Micaela |
+| Resumen por categoría (CAT) | 6 | 0 | 6 | 0 | El equipo |
+| **Total** | **203** | **21** | **161** | **21** | — |
 
 Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en §6; los de SUS informados como «ok» por el equipo son los 21 que no figuran como ejecutados con IA (lista en `04-ejecucion`).
 
-La regresión de V1 (60 casos, aparte de los 203) la ejecutó entera Claude Code (IA): 0 a mano y 60 con IA. El equipo repasó a mano los casos de V2 y los 60 de la regresión después de la ejecución con IA.
+La regresión de V1 (60 casos, aparte de los 203) la ejecutó entera Claude Code (IA): 0 a mano y 60 con IA. El equipo repasó a mano los casos de V2 y los 60 de la regresión después de la ejecución con IA: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones. Los de Resumen por categoría y la regresión de V1 los repasó el equipo, sin responsable por módulo.
 
 ## 4. Defectos por severidad
 
