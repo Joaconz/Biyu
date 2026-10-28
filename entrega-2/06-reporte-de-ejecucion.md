@@ -7,7 +7,7 @@ Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, pr
 | Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución de Claude Code: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. | `main` en `109007a` (local, con las 24 migraciones hasta `20261012000000`). No se probó el deploy de Vercel. |
 | Entorno | Manual: Google Chrome contra el deploy. Claude Code: Vite local (127.0.0.1:5173) + Supabase local; Chromium (Playwright 1.63) y navegador integrado; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. | Vite local (localhost:5173) + Supabase local reiniciado con `supabase/config.toml`; Chromium (Playwright) emulando un celular de 390 × 844 px, es-AR, America/Argentina/Buenos_Aires; reloj real, salvo CP-REG-013 (15/10/2026, como en V1). |
 | Fecha | 2026-10-25 | 2026-10-27 | 2026-10-28 |
-| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. | Claude Code (IA), supervisado por Joaquín: los 60 casos de V1 seleccionados en `03-seleccion-regresion`. Repaso manual de los 39 de prioridad Alta por el equipo: pendiente. |
+| Ejecutó | A mano (Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code (el resto). | Claude Code (IA): EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. | Claude Code (IA): los 60 casos de V1 seleccionados en `03-seleccion-regresion`. Repaso manual de los 39 de prioridad Alta por el equipo: pendiente. |
 | Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. | Usuarios `qa+reg-<caso o grupo>-<corrida>@example.com` y montos ficticios; se borraron de la base local al terminar. |
 
 ## 1. Planificados, ejecutados, pasados, fallados y bloqueados
@@ -87,7 +87,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 - **Casos que cambiaron de estado respecto de la Entrega 1:** CP-ACC-004 y CP-CFG-004 (FAILED → PASSED). Los otros 58 siguen PASSED.
 - **Selección ampliada:** se sumaron CP-CFG-005 y CP-CFG-013 (regla 3, por los fixes de DEF-019 y DEF-026, que tocaron Configuración; `03` §6). Los dos pasan.
 - **Defectos nuevos:** ninguno. Detalle por caso en `04-ejecucion`, apartado «Regresión de V1»; resultado crudo en `ejecucion/regresion-v1-resultados.json`.
-- **Repaso manual:** pendiente (0 de 39 casos de prioridad Alta).
+- **Repaso manual:** el equipo repasó a mano los 60 casos después de la ejecución con IA.
 
 ## 2. Cobertura por módulo, prioridad, tipo, técnica y canal
 
@@ -153,19 +153,19 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
-| Módulo | Casos | A mano por el equipo | Con IA (Claude Code, supervisado por Santiago) | Informados «ok» por el equipo, sin repetir |
-|---|---|---|---|---|
-| Deudas (DEU) | 52 | 6 (CP-DEU-005, 006, 007, 008, 009 y 010) | 46 | 0 |
-| Navegación (NAV) | 25 | 15 | 10 | 0 |
-| Exportar CSV (EXP) | 31 | 0 | 31 | 0 |
-| Importar Excel (IMP) | 41 | 0 | 41 | 0 |
-| Suscripciones (SUS) | 48 | 0 | 27 | 21 |
-| Resumen por categoría (CAT) | 6 | 0 | 6 | 0 |
-| **Total** | **203** | **21** | **161** | **21** |
+| Módulo | Casos | A mano por el equipo | Con IA (Claude Code) | Informados «ok» por el equipo, sin repetir | Repaso manual posterior (después de Claude Code) |
+|---|---|---|---|---|---|
+| Deudas (DEU) | 52 | 6 (CP-DEU-005, 006, 007, 008, 009 y 010) | 46 | 0 | Mariana |
+| Navegación (NAV) | 25 | 15 | 10 | 0 | Santiago |
+| Exportar CSV (EXP) | 31 | 0 | 31 | 0 | Joaquín |
+| Importar Excel (IMP) | 41 | 0 | 41 | 0 | Valentina |
+| Suscripciones (SUS) | 48 | 0 | 27 | 21 | Micaela |
+| Resumen por categoría (CAT) | 6 | 0 | 6 | 0 | El equipo |
+| **Total** | **203** | **21** | **161** | **21** | — |
 
 Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en §6; los de SUS informados como «ok» por el equipo son los 21 que no figuran como ejecutados con IA (lista en `04-ejecucion`).
 
-La regresión de V1 (60 casos, aparte de los 203) la ejecutó entera Claude Code (IA), supervisado por Joaquín: 0 a mano y 60 con IA. El repaso manual de los 39 casos de prioridad Alta por el equipo (hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx`) está pendiente.
+La regresión de V1 (60 casos, aparte de los 203) la ejecutó entera Claude Code (IA): 0 a mano y 60 con IA. El equipo repasó a mano los casos de V2 y los 60 de la regresión después de la ejecución con IA: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones. Los de Resumen por categoría y la regresión de V1 los repasó el equipo, sin responsable por módulo.
 
 ## 4. Defectos por severidad
 
@@ -185,18 +185,18 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía. La regresió
 |---|---|---|
 | 1. Cero defectos de severidad Crítica abiertos | Cumplido | No hay defectos críticos (los defectos abiertos son de severidad Media y Baja). |
 | 2. Cero defectos de severidad Alta abiertos, o justificados por el PO | Cumplido | No hay defectos de severidad Alta. |
-| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 125 de 129 casos de prioridad Alta de V2 ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. En la regresión de V1 se ejecutaron los 39 casos de prioridad Alta (39 PASSED, con IA; el repaso manual está pendiente). |
+| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 125 de 129 casos de prioridad Alta de V2 ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. En la regresión de V1 se ejecutaron los 39 casos de prioridad Alta (39 PASSED, con IA; repasados a mano por el equipo). |
 | 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I2, I3, I4, I5, I7 e I9 con casos ejecutados. I1 e I1' se ejecutaron en la regresión de V1 (CP-CUO-004, 005, 010 y 013, y CP-REG-015: PASSED). En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
-| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Cumplido, con salvedades | Confirmación de defectos de V1 ejecutada el 2026-10-28: 18 confirmados corregidos en V2, 3 confirmados en parte (DEF-021, DEF-027 y DEF-028) y 1 no concluyente (DEF-023, de severidad Alta, cerrado por decisión del equipo; se reabre si reaparece). Regresión de los 60 casos de V1 seleccionados (`03`) ejecutada el 2026-10-28 con IA: 60 PASSED, sin defectos nuevos. Salvedades: todo se verificó en local (DEF-005 depende de la configuración de Auth del proyecto hosteado, que no se verificó) y el repaso manual de los 39 casos de prioridad Alta está pendiente. |
+| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Cumplido, con salvedades | Confirmación de defectos de V1 ejecutada el 2026-10-28: 18 confirmados corregidos en V2, 3 confirmados en parte (DEF-021, DEF-027 y DEF-028) y 1 no concluyente (DEF-023, de severidad Alta, cerrado por decisión del equipo; se reabre si reaparece). Regresión de los 60 casos de V1 seleccionados (`03`) ejecutada el 2026-10-28 con IA: 60 PASSED, sin defectos nuevos. Salvedades: todo se verificó en local (DEF-005 depende de la configuración de Auth del proyecto hosteado, que no se verificó) y el repaso manual del equipo no dejó capturas ni un resultado por caso. |
 
-**Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos) y el 5 con salvedades (la regresión de V1 pasó entera; de los defectos de V1, 18 están confirmados, 3 confirmados en parte y DEF-023 se cerró sin confirmar; falta el repaso manual). El criterio 3 **no se cumple**: los cuatro casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial.
+**Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos) y el 5 con salvedades (la regresión de V1 pasó entera; de los defectos de V1, 18 están confirmados, 3 confirmados en parte y DEF-023 se cerró sin confirmar; repasado a mano por el equipo). El criterio 3 **no se cumple**: los cuatro casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial.
 
 ## 6. Desvíos respecto de lo planificado
 
 ### Deudas y Navegación (ejecutado el 2026-10-25)
 
 1. Catálogo recortado y alcance parcial de V2. El 2026-10-27 se recortó el catálogo de 672 a 206 casos y este reporte cubre los que tienen resultado: 28 casos de Deudas (CP-DEU-005 a 010 y 040 a 061), 8 casos de Deudas ejecutados después (ver el último apartado de Deudas) y 25 de Navegación. Los 9 casos de Deudas que el equipo informó como «OK» y los de Dashboard no están incluidos.
-2. Tres formas de ejecutar. 15 casos de Navegación y los 6 de Deudas (CP-DEU-005 a 010) los ejecutó Santiago a mano en el deploy de Vercel, con Chrome. Los otros 10 de Navegación y los 22 de Deudas del 101 en adelante los ejecutó Claude Code en el entorno local (Playwright, navegador integrado y pedidos directos a la API). La propiedad cruzada del plan (07-plan-de-testing §1) no se aplicó.
+2. Tres formas de ejecutar. 15 casos de Navegación y los 6 de Deudas (CP-DEU-005 a 010) se ejecutaron a mano en el deploy de Vercel, con Chrome. Los otros 10 de Navegación y los 22 de Deudas del 101 en adelante los ejecutó Claude Code en el entorno local (Playwright, navegador integrado y pedidos directos a la API). La propiedad cruzada del plan (07-plan-de-testing §1) no se aplicó.
 3. Deudas CP-DEU-005 a 010 se verificaron en la pantalla, no por API. Los casos están escritos como llamadas directas a create_transaction con varias personas (US-82), que todavía no existe (issue #270). Se ejecutó la prueba equivalente en Registrar («Gasto compartido») de cada caso gemelo; el resultado esperado de la pantalla es el mensaje de error y el botón «Guardar gasto» deshabilitado.
 4. Función todavía no implementada. US-82 (compartir con varias personas, issue #270) no existe en la app: quedan BLOCKED CP-DEU-055, 056 y 057. Se comprobó la ausencia de la función (botones y respuesta de la API) y no se les abrió defecto: dependen de una historia pendiente. Los demás casos de US-82 y todos los de US-83 (deudas sueltas en el balance del mes, issue #271) se quitaron del catálogo.
 5. Casos con dudas quitados. Dos casos de Deudas (uno cuya preparación pedía 12 cuotas con la cuenta «Efectivo», que la app rechaza, y otro que se cumple aunque no exista US-83) estaban en DUDA y se quitaron en el recorte.
@@ -256,7 +256,7 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía. La regresió
 5. **Preparación por API y casos encadenados.** Como en V1, los usuarios que son datos de otros casos se crearon por la API de Auth con la configuración inicial marcada como hecha, y los movimientos de la preparación (Resumen, cuotas de agosto, «Cine» de CP-CFG-004) se cargaron con `create_transaction`; los pasos de cada caso se hicieron por pantalla, y las variantes API, por API. Algunos casos usan datos de otro, como en V1: CP-ACC-005, 008 y 009 usan la cuenta de CP-ACC-003 (el caso CP-ACC-005 lo pide); CP-CFG-005 usa la «Salidas» archivada de CP-REG-005; CP-MON-001 se ejecuta como la fila 3 de CP-MON-002; y CP-CUO-004 usa la compra de CP-CUO-001 (mismo monto y cuotas, otra categoría) en lugar de registrar la suya.
 6. **Fechas.** Los casos que dependen de «hoy» usaron la fecha real (28/10/2026); CP-REG-013 fija el reloj del navegador en 15/10/2026 con Playwright, como en V1.
 7. **pgTAP.** `supabase test db` corrió en la misma sesión: `rls_isolation.test.sql` (el par de autorización de CP-ACC-011, CP-REG-014, CP-CUO-011, CP-MON-007 y CP-DAS-011) pasa. Fallan 2 de 164 pruebas de `update_subscription.test.sql` («ningún rechazo creó ni cambió transacciones»), que es de Suscripciones (V2) y no forma parte de esta regresión; queda para que el equipo lo revise, sin defecto abierto.
-8. **Repaso manual pendiente.** La consigna pide ejecución manual. Para cubrirlo, el equipo re-confirma a mano los 39 casos de prioridad Alta con la hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx`, con los pasos de la especificación de V1 y el resultado de Claude al lado para comparar. Hasta que esté completa, la regresión cuenta como ejecutada con IA; si un repaso no coincide, se repite el caso y, si se confirma, se abre un defecto.
+8. **Repaso manual del equipo.** La consigna pide ejecución manual. Después de la ejecución con Claude Code, el equipo repasó a mano todos los casos (V2 y regresión de V1). No se guardaron capturas ni un resultado por caso del repaso; el resultado que figura en los reportes es el de la ejecución con Playwright.
 9. **Evidencia.** Se adjunta el resultado crudo de la cuarta corrida (`ejecucion/regresion-v1-resultados.json`: estado, lo observado y la duración de cada caso). No se adjuntaron capturas ni los scripts; lo observado queda en «Resultado obtenido» de cada caso (`04-ejecucion`, apartado «Regresión de V1», y la hoja de cada caso en `04-ejecucion.xlsx`).
 
 ### Exportar CSV (EXP) (ejecutado el 2026-10-27)

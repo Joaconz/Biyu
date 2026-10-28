@@ -46,4 +46,4 @@ y quedó en 60 (`entrega-2/03-seleccion-regresion` §6). Las exclusiones se list
 - Si un defecto aparece en un módulo excluido, se amplía la selección y se registra el cambio.
 - `roadmap.md` §V2 "Terminado cuando" se corrige para decir regresión seleccionada.
 - La regresión del 2026-10-28 la ejecutó Claude Code con un script de Playwright, no a mano; el equipo
-  la re-confirma a mano en los casos de prioridad Alta (`entrega-2/06-reporte-de-ejecucion` §6).
+  la repasó a mano después en todos los casos (`entrega-2/06-reporte-de-ejecucion` §6).

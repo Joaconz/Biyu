@@ -21,7 +21,7 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 
 - **Casos de V1:** 74. **Incluidos en la regresión:** 60 (58 de la selección inicial y 2 sumados el 2026-10-28, CP-CFG-005 y CP-CFG-013: ver §6). **Excluidos:** 14.
 - Resultado de V1 de los incluidos: 58 PASSED y 2 FAILED (CP-ACC-004 y CP-CFG-004).
-- **Resultado de la regresión en V2 (ejecutada el 2026-10-28):** 60 PASSED, 0 FAILED y 0 BLOCKED, con IA. El repaso manual de los 39 casos de prioridad Alta por el equipo está pendiente. Los dos que habían fallado en V1 pasan. Detalle por caso en `04-ejecucion` (apartado «Regresión de V1») y resumen en `06-reporte-de-ejecucion`.
+- **Resultado de la regresión en V2 (ejecutada el 2026-10-28):** 60 PASSED, 0 FAILED y 0 BLOCKED, con IA. El equipo repasó a mano los 60 casos después de la ejecución con IA. Los dos que habían fallado en V1 pasan. Detalle por caso en `04-ejecucion` (apartado «Regresión de V1») y resumen en `06-reporte-de-ejecucion`.
 
 | Módulo | Casos | Incluidos | Excluidos |
 |---|---|---|---|

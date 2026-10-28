@@ -7,15 +7,16 @@ Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 
 Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos que repetían una regla con otro valor, los de funciones todavía no implementadas y los de ancho de pantalla o testids repetidos). A esos 206 casos se suman los 6 de Resumen por categoría (CAT), escritos el 2026-10-27: 212 en total. Acá figuran los 203 que tienen resultado; los 9 de Deudas restantes (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no figuran porque el equipo los informó como «OK» y no se repitieron.
 
 - **Fecha:** 2026-10-25.
-- **Ejecutó a mano (Santiago):** CP-DEU-005, 006, 007, 008, 009 y 010, y 15 casos de Navegación (CP-NAV-001, 002, 003, 004, 008, 009, 010, 011, 012, 013, 019, 021, 023, 024 y 025), en el **deploy de Vercel** (https://biyu-rust.vercel.app), con **Google Chrome**.
-- **Ejecutó Claude Code, supervisado por Santiago (10 casos de Navegación):** CP-NAV-005, 006, 007, 014, 015, 016, 017, 018, 020 y 022. Entorno local: Vite (`http://127.0.0.1:5173`) + Supabase local con todas las migraciones, `main` en `f096e22`, Chromium (Playwright 1.63) y navegador integrado de Claude Code.
-- **Ejecutó Claude Code, supervisado por Santiago (Deudas):** los casos CP-DEU-040 a 061 que quedaron en el catálogo (CP-DEU-040, 041, 042, 043 a 046, 047 a 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060 y 061), en el mismo entorno local. La preparación (deudas, gastos y tipos de cambio) se cargó por API, como en los casos originales con PR-04.
+- **Ejecutó a mano:** CP-DEU-005, 006, 007, 008, 009 y 010, y 15 casos de Navegación (CP-NAV-001, 002, 003, 004, 008, 009, 010, 011, 012, 013, 019, 021, 023, 024 y 025), en el **deploy de Vercel** (https://biyu-rust.vercel.app), con **Google Chrome**.
+- **Ejecutó Claude Code (10 casos de Navegación):** CP-NAV-005, 006, 007, 014, 015, 016, 017, 018, 020 y 022. Entorno local: Vite (`http://127.0.0.1:5173`) + Supabase local con todas las migraciones, `main` en `f096e22`, Chromium (Playwright 1.63) y navegador integrado de Claude Code.
+- **Ejecutó Claude Code (Deudas):** los casos CP-DEU-040 a 061 que quedaron en el catálogo (CP-DEU-040, 041, 042, 043 a 046, 047 a 050, 051, 052, 053, 054, 055, 056, 057, 058, 059, 060 y 061), en el mismo entorno local. La preparación (deudas, gastos y tipos de cambio) se cargó por API, como en los casos originales con PR-04.
 - **Datos:** usuarios y montos ficticios, uno por caso.
-- **Exportar CSV (31 casos), Importar Excel (41 casos) y Suscripciones (48 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** los 31 de EXP, los 41 de IMP y 27 de los 48 de SUS (los que el equipo no pudo probar o informó con una observación). Los otros 21 casos de SUS los ejecutó el equipo y los informó como «ok» en un mensaje; no se repitieron. Detalle del entorno y de lo sustituido en `06-reporte-de-ejecucion`, §6.
-- **Deudas, casos CP-DEU-015 a 035 (16 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright, reloj real), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** CP-DEU-015, 016, 017, 019, 023, 024, 026, 027, 028, 029, 030, 031, 032, 033, 034 y 035. Los que el equipo informó como «OK» (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no se repitieron y no figuran en este reporte.
-- **Deudas, 8 casos pendientes (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, reloj real), sobre `main` en `deac2c7`. **Ejecutó Claude Code (IA), supervisado por Santiago.** Usuario nuevo por caso (`qa+cp-deu-<id>-001@example.com`); la pantalla se manejó con la interfaz y, donde el caso lo pide, la base se consultó por API con el token del usuario de prueba. Los casos 001, 003 y 011 se corrigieron el mismo día (paso de elegir la cuenta «Efectivo» y, en el 003, volver a cargar el tipo de cambio después de cambiar la fecha) y se volvieron a ejecutar.
-- **Resumen por categoría (CAT, 6 casos: CP-CAT-001 a 006):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, es-AR, hora de Argentina), sobre `main` en `15e3c4b`. **Ejecutó Claude Code (IA), supervisado por Santiago.** Usuario nuevo por caso (`qa+cp-cat-<nnn>-001@example.com`); los movimientos de cada caso se cargaron por la API con `create_transaction` (y `delete_transaction` en el 002), y todo lo demás se hizo por pantalla.
-- **Regresión de V1 (60 casos de `03-seleccion-regresion`):** ejecutada el **2026-10-28** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 390 × 844 px), sobre `main` en `109007a`. **Ejecutó Claude Code (IA), supervisado por Joaquín.** Resultado: 60 PASSED; el repaso manual de los 39 de prioridad Alta está pendiente. No suma a los casos de V2; condiciones y detalle en el apartado «Regresión de V1», al final.
+- **Exportar CSV (31 casos), Importar Excel (41 casos) y Suscripciones (48 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA):** los 31 de EXP, los 41 de IMP y 27 de los 48 de SUS (los que el equipo no pudo probar o informó con una observación). Los otros 21 casos de SUS los ejecutó el equipo y los informó como «ok» en un mensaje; no se repitieron. Detalle del entorno y de lo sustituido en `06-reporte-de-ejecucion`, §6.
+- **Deudas, casos CP-DEU-015 a 035 (16 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright, reloj real), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA):** CP-DEU-015, 016, 017, 019, 023, 024, 026, 027, 028, 029, 030, 031, 032, 033, 034 y 035. Los que el equipo informó como «OK» (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no se repitieron y no figuran en este reporte.
+- **Deudas, 8 casos pendientes (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, reloj real), sobre `main` en `deac2c7`. **Ejecutó Claude Code (IA).** Usuario nuevo por caso (`qa+cp-deu-<id>-001@example.com`); la pantalla se manejó con la interfaz y, donde el caso lo pide, la base se consultó por API con el token del usuario de prueba. Los casos 001, 003 y 011 se corrigieron el mismo día (paso de elegir la cuenta «Efectivo» y, en el 003, volver a cargar el tipo de cambio después de cambiar la fecha) y se volvieron a ejecutar.
+- **Resumen por categoría (CAT, 6 casos: CP-CAT-001 a 006):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, es-AR, hora de Argentina), sobre `main` en `15e3c4b`. **Ejecutó Claude Code (IA).** Usuario nuevo por caso (`qa+cp-cat-<nnn>-001@example.com`); los movimientos de cada caso se cargaron por la API con `create_transaction` (y `delete_transaction` en el 002), y todo lo demás se hizo por pantalla.
+- **Regresión de V1 (60 casos de `03-seleccion-regresion`):** ejecutada el **2026-10-28** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 390 × 844 px), sobre `main` en `109007a`. **Ejecutó Claude Code (IA).** Resultado: 60 PASSED; después, el equipo los repasó a mano. No suma a los casos de V2; condiciones y detalle en el apartado «Regresión de V1», al final.
+- **Repaso manual del equipo:** después de la ejecución con Claude Code, el equipo repasó a mano todos los casos de V2. Por módulo: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones. No se guardaron capturas ni un resultado por caso del repaso; el resultado que figura en los reportes es el de la ejecución con Playwright.
 - **Criterio para BLOCKED:** un caso que no se puede ejecutar porque falta una funcionalidad o un botón queda BLOCKED para V3.
 
 ## Resultado por caso
@@ -26,12 +27,12 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 | CP-DEU-002 | Alta | Gasto compartido de $120.000,00 en 12 cuotas: se guarda el gasto y la deuda vinculada de Sofía | **DUDA** | Claude Code | — |
 | CP-DEU-003 | Alta | Gasto compartido en dólares (US$100 a tipo de cambio 1250): avisa en dólares y congela el tipo de cambio | **PASSED** | Claude Code | — |
 | CP-DEU-004 | Media | El monto adeudado vacío muestra «Ingresá cuánto te debe» y no deja guardar | **PASSED** | Claude Code | — |
-| CP-DEU-005 | Alta | No se puede compartir un gasto si falta cuánto te deben | **PASSED** | Santiago | — |
-| CP-DEU-006 | Alta | No se puede compartir un gasto si falta con quién | **PASSED** | Santiago | — |
-| CP-DEU-007 | Alta | Un ingreso no se puede compartir | **PASSED** | Santiago | — |
-| CP-DEU-008 | Alta | El nombre hecho solo de espacios no cuenta como nombre | **PASSED** | Santiago | — |
-| CP-DEU-009 | Media | El nombre admite hasta 60 caracteres, no 61 | **PASSED** | Santiago | — |
-| CP-DEU-010 | Alta | No se puede deber 0 pesos | **PASSED** | Santiago | — |
+| CP-DEU-005 | Alta | No se puede compartir un gasto si falta cuánto te deben | **PASSED** | A mano | — |
+| CP-DEU-006 | Alta | No se puede compartir un gasto si falta con quién | **PASSED** | A mano | — |
+| CP-DEU-007 | Alta | Un ingreso no se puede compartir | **PASSED** | A mano | — |
+| CP-DEU-008 | Alta | El nombre hecho solo de espacios no cuenta como nombre | **PASSED** | A mano | — |
+| CP-DEU-009 | Media | El nombre admite hasta 60 caracteres, no 61 | **PASSED** | A mano | — |
+| CP-DEU-010 | Alta | No se puede deber 0 pesos | **PASSED** | A mano | — |
 | CP-DEU-011 | Alta | Una deuda igual al gasto se acepta: «Tu parte» queda en $0,00 | **PASSED** | Claude Code | — |
 | CP-DEU-012 | Alta | Una deuda un centavo mayor que el gasto no se puede guardar | **PASSED** | Claude Code | — |
 | CP-DEU-013 | Alta | Por API, una deuda mayor que el gasto se rechaza y no se guarda nada | **BLOCKED** | Claude Code | — |
@@ -74,31 +75,31 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 | CP-DEU-059 | Alta | Resumen: el neto no cambia al saldar la deuda | **PASSED** | Claude Code | — |
 | CP-DEU-060 | Alta | Resumen: una deuda suelta «Me deben» no cambia el neto | **PASSED** | Claude Code | — |
 | CP-DEU-061 | Alta | Resumen: el neto en dólares no cambia si cambia el tipo de cambio | **PASSED** | Claude Code | — |
-| CP-NAV-001 | Media | La barra tiene cuatro secciones en el orden correcto | **PASSED** | Santiago | — |
-| CP-NAV-002 | Media | «Deudas» lleva a Deudas | **PASSED** | Santiago | — |
-| CP-NAV-003 | Media | En el Resumen la barra marca «Resumen» | **PASSED** | Santiago | — |
-| CP-NAV-004 | Media | En Ajustes no se marca ninguna de las cuatro secciones | **PASSED** | Santiago | — |
+| CP-NAV-001 | Media | La barra tiene cuatro secciones en el orden correcto | **PASSED** | A mano | — |
+| CP-NAV-002 | Media | «Deudas» lleva a Deudas | **PASSED** | A mano | — |
+| CP-NAV-003 | Media | En el Resumen la barra marca «Resumen» | **PASSED** | A mano | — |
+| CP-NAV-004 | Media | En Ajustes no se marca ninguna de las cuatro secciones | **PASSED** | A mano | — |
 | CP-NAV-005 | Media | Ancho 1023 px: barra abajo y engranaje de Ajustes | **PASSED** | Claude Code | — |
 | CP-NAV-006 | Media | Ancho 1024 px: barra lateral con Ajustes al pie | **PASSED** | Claude Code | — |
 | CP-NAV-007 | Media | Identificadores únicos en Registrar (375 px) | **PASSED** | Claude Code | — |
-| CP-NAV-008 | Media | «Ver todos» y «‹ Resumen» mantienen el mes | **PASSED** | Santiago | — |
-| CP-NAV-009 | Media | Deudas no arrastra el mes del Resumen | **PASSED** | Santiago | — |
-| CP-NAV-010 | Alta | Tocar «Registrar» estando en Registrar no pierde lo cargado | **PASSED** | Santiago | — |
-| CP-NAV-011 | Media | Guardar $12.500 muestra la confirmación completa | **PASSED** | Santiago | — |
-| CP-NAV-012 | Alta | Sin internet el gasto no se pierde y aparece «Reintentar» | **PASSED** | Santiago | — |
-| CP-NAV-013 | Alta | Reintentar al volver internet guarda una sola vez | **PASSED** | Santiago | — |
+| CP-NAV-008 | Media | «Ver todos» y «‹ Resumen» mantienen el mes | **PASSED** | A mano | — |
+| CP-NAV-009 | Media | Deudas no arrastra el mes del Resumen | **PASSED** | A mano | — |
+| CP-NAV-010 | Alta | Tocar «Registrar» estando en Registrar no pierde lo cargado | **PASSED** | A mano | — |
+| CP-NAV-011 | Media | Guardar $12.500 muestra la confirmación completa | **PASSED** | A mano | — |
+| CP-NAV-012 | Alta | Sin internet el gasto no se pierde y aparece «Reintentar» | **PASSED** | A mano | — |
+| CP-NAV-013 | Alta | Reintentar al volver internet guarda una sola vez | **PASSED** | A mano | — |
 | CP-NAV-014 | Alta | Con internet muy lenta, a los 15 segundos avisa que falló | **PASSED** | Claude Code | — |
 | CP-NAV-015 | Alta | Reintentar no duplica un gasto que ya se había guardado | **PASSED** | Claude Code | — |
 | CP-NAV-016 | Alta | La misma clave dos veces seguidas devuelve el mismo gasto | **PASSED** | Claude Code | — |
 | CP-NAV-017 | Alta | Dos pedidos simultáneos con la misma clave crean un solo gasto | **PASSED** | Claude Code | — |
 | CP-NAV-018 | Alta | La misma clave en dos usuarios distintos no se pisa | **PASSED** | Claude Code | — |
-| CP-NAV-019 | Alta | Si se archiva la categoría antes de guardar, el gasto se rechaza con aviso | **PASSED** | Santiago | — |
+| CP-NAV-019 | Alta | Si se archiva la categoría antes de guardar, el gasto se rechaza con aviso | **PASSED** | A mano | — |
 | CP-NAV-020 | Alta | La API rechaza un gasto con una categoría archivada | **PASSED** | Claude Code | — |
-| CP-NAV-021 | Alta | Al volver a Registrar aparece el gasto pendiente | **PASSED** | Santiago | — |
+| CP-NAV-021 | Alta | Al volver a Registrar aparece el gasto pendiente | **PASSED** | A mano | — |
 | CP-NAV-022 | Alta | Recuperar un gasto que en realidad ya estaba guardado | **PASSED** | Claude Code | — |
-| CP-NAV-023 | Alta | Descartar borra el pendiente, incluso al recargar | **PASSED** | Santiago | — |
-| CP-NAV-024 | Alta | Cerrar sesión borra los pendientes | **PASSED** | Santiago | — |
-| CP-NAV-025 | Alta | Tocar dos veces «Guardar» guarda una sola vez | **PASSED** | Santiago | — |
+| CP-NAV-023 | Alta | Descartar borra el pendiente, incluso al recargar | **PASSED** | A mano | — |
+| CP-NAV-024 | Alta | Cerrar sesión borra los pendientes | **PASSED** | A mano | — |
+| CP-NAV-025 | Alta | Tocar dos veces «Guardar» guarda una sola vez | **PASSED** | A mano | — |
 | CP-EXP-001 | Media | Una URL válida fija septiembre 2026 | **PASSED** | Claude Code | — |
 | CP-EXP-002 | Alta | El mes siguiente está bloqueado | **PASSED** | Claude Code | — |
 | CP-EXP-003 | Alta | El alcance mensual propone el nombre 2026-09 | **PASSED** | Claude Code | — |
@@ -561,10 +562,10 @@ Casos de V1 elegidos en `03-seleccion-regresion` (criterio de ADR-027: 58 de la 
 - **Fecha:** 2026-10-28.
 - **Versión probada:** `main` en `109007a` (local, con las 24 migraciones hasta `20261012000000`). No se probó el deploy de Vercel.
 - **Entorno:** Vite (`http://localhost:5173`) + Supabase local reiniciado con la configuración del repositorio (`supabase/config.toml`); Chromium (Playwright) emulando un celular de 390 × 844 px, es-AR, hora de Argentina; reloj real (28/10/2026), salvo CP-REG-013, que fija el reloj del navegador en 15/10/2026 como en V1.
-- **Ejecutó Claude Code (IA), supervisado por Joaquín:** los 60 casos, con el script de la ejecución de V1 (`entrega-1/ejecucion/`) adaptado a las pantallas de V2, y pedidos directos a la API con el token de cada usuario de prueba para las variantes API y los pares de autorización. Las adaptaciones están en `06-reporte-de-ejecucion`, §6.
+- **Ejecutó Claude Code (IA):** los 60 casos, con el script de la ejecución de V1 (`entrega-1/ejecucion/`) adaptado a las pantallas de V2, y pedidos directos a la API con el token de cada usuario de prueba para las variantes API y los pares de autorización. Las adaptaciones están en `06-reporte-de-ejecucion`, §6.
 - **Datos:** usuarios `qa+reg-<caso o grupo>-<corrida>@example.com`, contraseña `Prueba-Biyu-2026!` (los de alta por pantalla, `Clave123!`); son cuentas de Supabase local, que no existen en ningún otro entorno. Montos ficticios. Se borraron de la base local al terminar.
 - **Corridas:** cuatro corridas completas. La que vale es la cuarta (60 casos, 60 PASSED). Las dos primeras fallaron por el script y por la configuración de Supabase local, no por la aplicación; la tercera (58 PASSED) es anterior a la ampliación de la selección y a dos verificaciones que se sumaron al script (detalle en `06`, §6). El resultado crudo de la cuarta corrida está en `ejecucion/regresion-v1-resultados.json`.
-- **Repaso manual (pendiente):** los 39 casos de prioridad Alta se re-confirman a mano por el equipo con la hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx` (13 casos por persona: Micaela, Valentina y Mariana). Hasta que esté completa, el resultado de la regresión es el de la ejecución con IA.
+- **Repaso manual del equipo:** después de la ejecución con Claude Code, el equipo repasó a mano los 60 casos de la regresión (y los casos de V2, ver «Condiciones de la ejecución»). No se guardaron capturas ni un resultado por caso del repaso; el resultado que figura en los reportes es el de la ejecución con Playwright. La hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx` quedó como plantilla.
 
 | ID | Prioridad | Título | Resultado en V1 | Status | Ejecutó | Defectos |
 |---|---|---|---|---|---|---|
