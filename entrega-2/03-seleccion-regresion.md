@@ -125,34 +125,34 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 
 ## 5. Defectos de V1 a confirmar en V2 (22)
 
-Testeo de confirmación: cada defecto "corregido, falta confirmación" se verifica sobre V2. Si tiene un caso de V1 relacionado, se confirma con ese caso (incluido arriba); si no, se repite el paso que lo reveló, descrito en su reporte (`entrega-1/04-reportes-de-defectos.md`).
+Testeo de confirmación, ejecutado el **2026-10-28**: cada defecto de V1 "corregido, falta confirmación" se verificó sobre V2 repitiendo los pasos de su reporte (`entrega-1/04-reportes-de-defectos.md`). Resultado: **21 confirmados corregidos y 1 no concluyente** (DEF-023, un defecto intermitente, que el equipo decidió cerrar igual: se reabre si reaparece). Se ejecutó con Playwright contra la aplicación y Supabase locales, no a mano (ver `06-reporte-de-ejecucion`, apartado de desvíos).
 
-| Defecto | Título | Severidad | Estado en V1 | Se confirma con |
-|---|---|---|---|---|
-| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | Corregido · falta confirmación | CP-ACC-004 |
-| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | Corregido · falta confirmación | CP-CFG-004 |
-| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | Corregido · falta confirmación | CP-REG-012 |
-| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | Corregido · falta confirmación | CP-ACC-002 |
-| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | Corregido en #183 · falta confirmación | CP-CUO-003 |
-| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | Corregido · falta confirmación | CP-CFG-006 |
-| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | Corregido · falta confirmación | CP-REG-010 |
-| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | Corregido · falta confirmación | CP-REG-011 |
-| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | Corregido · falta confirmación | CP-DAS-003 |
-| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | Corregido en #183 · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | Corregido · falta confirmación | CP-CFG-010 |
-| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | Corregido en #183 · falta confirmación | CP-CFG-003 |
-| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | Corregido · falta confirmación | CP-MON-003 |
-| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | Corregido · falta confirmación | CP-CFG-003 |
-| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
-| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) |
+| Defecto | Título | Severidad | Estado en V1 | Se confirma con | Resultado en V2 | Evidencia |
+|---|---|---|---|---|---|---|
+| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | Corregido · falta confirmación | CP-ACC-004 | **Confirmado** | Contra Supabase Auth local: crear una cuenta con «abc1234» y con «abcdefgh» responde HTTP 422 (weak_password) en las dos. |
+| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | Corregido · falta confirmación | CP-CFG-004 | **Confirmado** | El movimiento muestra: «Entretenimiento archivada Efectivo -$8.000,00» |
+| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | Corregido · falta confirmación | CP-REG-012 | **Confirmado** | Activos tras eliminar: 0. En «Eliminados» se ve «Martes 20 de octubre Indumentaria eliminada Efectivo -$50.000,00» con botón «Restaurar» |
+| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | Corregido · falta confirmación | CP-ACC-002 | **Confirmado** | Sin sesión redirige a /login?next=%2Fdashboard%3Fperiod%3D2026-06; después de entrar termina en /dashboard?period=2026-06 |
+| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | Corregido en #183 · falta confirmación | CP-CUO-003 | **Confirmado** | Con una compra en 3 cuotas, cambiar la cuenta «Tarjeta de crédito» a efectivo por API responde HTTP 400 (I6: la cuenta tiene compras en cuotas, no puede dejar de ser tarjeta de crédito) y la cuenta sigue siendo tarjeta de crédito. |
+| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Tras archivar las 8 y abrir Registrar (dos veces): 0 categorías activas, 8 en total |
+| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | Corregido · falta confirmación | CP-CFG-006 | **Confirmado** | La lista de cuentas tiene 5 botones «Editar» y 5 «Archivar» (una por cuenta) |
+| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | Corregido · falta confirmación | CP-REG-010 | **Confirmado** | Con 1.000.000.000.000 «Siguiente» queda deshabilitado y aparece el aviso «El monto máximo es $999.999.999.999,99». |
+| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | Corregido · falta confirmación | CP-REG-011 | **Confirmado** | Con US$0,01 a tipo de cambio 0,01 «Siguiente» queda deshabilitado y se ve «En pesos daría menos de $0,01.». |
+| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | Corregido · falta confirmación | CP-DAS-003 | **Confirmado** | Con ?period=0000-01 no hay error; la dirección pasa a /dashboard?period=2026-10 y el mes es Octubre 2026 |
+| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | 10 botones de color con data-testid; 8 botones «Editar» con identificador distinto en cada fila |
+| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | Corregido en #183 · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Gasto de $1.000 con deuda de $400: HTTP 200 (se crea). Con deuda de $1.500: HTTP 400 I7: la deuda no puede superar el monto del gasto |
+| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | Corregido · falta confirmación | CP-CFG-010 | **Confirmado** | Con tipo de cambio 1250,55555 «Siguiente» queda deshabilitado y se ve «Usá hasta 4 decimales». |
+| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | Corregido en #183 · falta confirmación | CP-CFG-003 | **Confirmado** | Crear «salud» con «Salud» activa: «Ya existe una categoría activa con ese nombre»; en la lista queda una sola |
+| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | Corregido · falta confirmación | CP-MON-003 | **Confirmado** | El tipo de cambio sugerido se muestra como «1.250,00» |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | En Chromium a 390 px de ancho, los montos entran en su casillero ($2.165.003.118,50, $81.818.491.500,00 y $79.653.488.381,50) y no hay scroll horizontal. No se probó en un iPhone con Safari. |
+| DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **No concluyente** (cerrado por decisión del equipo) | Chromium: 8 de 8 altas llegan a la configuración inicial; WebKit: 8 de 8 altas llegan a la configuración inicial. El defecto era intermitente (2 de 12 en producción con WebKit, 1 de ~80 en local): 16 altas sin fallas no alcanzan para descartarlo |
+| DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | El foco entra al diálogo (true), 6 Tab seguidos no salen de él (true), Escape lo cierra (true) y el foco queda en «settings-accounts-delete» |
+| DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | Corregido · falta confirmación | CP-CFG-003 | **Confirmado** | El aviso «Esta cuenta tiene compras en cuotas: tiene que seguir siendo tarjeta de crédito» aparece junto a la fila que se edita (a 100 px; pantalla de 812 px) |
+| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con las 8 categorías archivadas, Registrar dice «No tenés categorías activas. Creá una o reactivá una archivada en Ajustes.» con enlace a Ajustes, y Ajustes muestra «Archivadas» con un botón para reactivar cada una (8). No se revisó el paso «Tus categorías» de la configuración inicial. |
+| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con un 429 simulado la pantalla dice: «Demasiados intentos. Esperá unos minutos antes de volver a intentar» |
+| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con la siembra demorada (cuentas 4 s, categorías 1,5 s) Registrar muestra 5 cuentas |
 
-Los defectos de V1 que ya figuran como cerrados (DEF-001, 002, 003, 004, 017 y 022) no se repiten.
+Los defectos de V1 que ya figuraban como cerrados (DEF-001, 002, 003, 004, 017 y 022) no se repitieron.
 
 ## 6. Cambios a la selección
 
