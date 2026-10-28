@@ -198,8 +198,9 @@ Procedimientos reutilizables: [`docs/12-procedimientos-de-prueba.md`](../../docs
 | 11 | En la sección "Fecha", hacer click en el botón "Otra". | "Otra" queda marcada y el campo de fecha (`data-testid="transaction-form-date"`) se habilita. |
 | 12 | Escribir `15/08/2026` en el campo de fecha (`data-testid="transaction-form-date"`). | El campo de fecha muestra `15/08/2026`. |
 | 13 | Hacer click en el interruptor "Gasto compartido" (`data-testid="transaction-form-shared-toggle"`). | El interruptor queda apagado (`aria-checked="false"`) y los campos "¿Con quién?", "¿Cuánto te debe?" y el resumen desaparecen. |
-| 14 | Hacer click en el botón "Guardar gasto" (`data-testid="transaction-form-submit"`). | Aparece el aviso `"Gasto guardado"` (`data-testid="transaction-form-saved"`) sin mención de deuda. |
-| 15 | Escribir `<APP>/debts?status=all` en la barra de direcciones y presionar Enter. | Se abre la pantalla "Deudas" con el estado vacío `"No cargaste ninguna deuda todavía."` (`data-testid="debts-empty"`): no se creó ninguna deuda. |
+| 14 | En la sección "Cuenta", hacer click en "Efectivo". | "Efectivo" queda marcada y el botón "Guardar gasto" queda habilitado. |
+| 15 | Hacer click en el botón "Guardar gasto" (`data-testid="transaction-form-submit"`). | Aparece el aviso `"Gasto guardado"` (`data-testid="transaction-form-saved"`) sin mención de deuda. |
+| 16 | Escribir `<APP>/debts?status=all` en la barra de direcciones y presionar Enter. | Se abre la pantalla "Deudas" con el estado vacío `"No cargaste ninguna deuda todavía."` (`data-testid="debts-empty"`): no se creó ninguna deuda. |
 
 **Post-condición:** 1 transacción de `$50.000,00` y 0 filas en `debts`.
 
@@ -254,7 +255,7 @@ Procedimientos reutilizables: [`docs/12-procedimientos-de-prueba.md`](../../docs
 | Prioridad · Camino feliz · Automatizable | Alta · Sí · Sí |
 
 **Pre-requisitos:** S 1: usuario `qa+cp-deu-003-001@example.com` con contraseña `Clave123!`, creado con PR-01. S 2: `<TOKEN>` obtenido con PR-04 (Paso 1).
-**Datos de prueba:** D 1: monto `100` USD. D 2: TC `1250`. D 3: categoría `"Otros"`. D 4: fecha `15/08/2026`. D 5: persona `"Sofía"`, monto adeudado `40`.
+**Datos de prueba:** D 1: monto `100` USD. D 2: TC `1250`. D 3: categoría `"Otros"`. D 4: fecha `15/08/2026`. D 5: persona `"Sofía"`, monto adeudado `40`. D 6: cuenta `"Efectivo"`.
 
 | # | Paso | Resultado esperado |
 |---|---|---|
@@ -272,8 +273,13 @@ Procedimientos reutilizables: [`docs/12-procedimientos-de-prueba.md`](../../docs
 | 12 | Hacer click en el interruptor "Gasto compartido" (`data-testid="transaction-form-shared-toggle"`). | Aparecen "¿Con quién?" y "¿Cuánto te debe?" con el prefijo `US$`. |
 | 13 | Hacer click en "¿Con quién?" y escribir `Sofía`. | El campo "¿Con quién?" muestra `Sofía`. |
 | 14 | Hacer click en "¿Cuánto te debe?" y escribir `40`. | El resumen `data-testid="transaction-form-shared-summary"` muestra `"Sofía te va a deber US$40,00 · Tu parte: US$60,00"`. |
-| 15 | Hacer click en el botón "Guardar gasto". | Aparece el aviso `"Gasto guardado"` (`data-testid="transaction-form-saved"`) con la descripción `"Sofía te debe US$40,00"`. |
-| 16 | Ejecutar con PR-08 un `GET <SUPABASE_URL>/rest/v1/debts?select=person,currency,amount_text:amount::text,fx_rate_text:fx_rate::text,amount_ars_text:amount_ars::text`. | Devuelve 1 fila con `person = "Sofía"`, `currency = "USD"`, `amount_text = "40.00"`, `fx_rate_text = "1250.0000"` y `amount_ars_text = "50000.00"`. |
+| 15 | En la sección "Cuenta", hacer click en "Efectivo". | "Efectivo" queda marcada. Debajo aparece el aviso "Completá tipo de cambio para guardar" y "Guardar gasto" queda deshabilitado (al cambiar el mes de la fecha, la app descarta el tipo de cambio escrito). |
+| 16 | Hacer click en el monto `US$100,00` ("cambiar monto") de la parte de arriba. | Se abre el paso 1 de 3, "¿Cuánto?", con "US$" marcado, el monto `100` y el campo "Tipo de cambio (ARS por US$)" (`data-testid="transaction-form-fx-rate"`) vacío, con el aviso "Falta el tipo de cambio". |
+| 17 | Hacer click en "Tipo de cambio (ARS por US$)" y escribir `1250`. | El campo muestra `1250`. |
+| 18 | Hacer click en el botón "Siguiente". | Se abre el paso 2 de 3, "¿En qué?", con el resumen `US$100,00` y `TC 1.250,00`. |
+| 19 | Hacer click en la categoría "Otros". | Se abre el paso 3 de 3 con la fecha `15/08/2026`, la cuenta "Efectivo", el interruptor "Gasto compartido" encendido con `Sofía` y `40`, y "Guardar gasto" habilitado. |
+| 20 | Hacer click en el botón "Guardar gasto". | Aparece el aviso `"Gasto guardado"` (`data-testid="transaction-form-saved"`) con la descripción `"Sofía te debe US$40,00"`. |
+| 21 | Ejecutar con PR-08 un `GET <SUPABASE_URL>/rest/v1/debts?select=person,currency,amount_text:amount::text,fx_rate_text:fx_rate::text,amount_ars_text:amount_ars::text`. | Devuelve 1 fila con `person = "Sofía"`, `currency = "USD"`, `amount_text = "40.00"`, `fx_rate_text = "1250.0000"` y `amount_ars_text = "50000.00"`. |
 
 **Post-condición:** 1 transacción en USD y 1 deuda vinculada en USD con `fx_rate = 1250.0000` y `amount_ars = 50000.00`.
 
@@ -450,7 +456,7 @@ Procedimientos reutilizables: [`docs/12-procedimientos-de-prueba.md`](../../docs
 | Prioridad · Camino feliz · Automatizable | Alta · Sí · Sí |
 
 **Pre-requisitos:** S 1: usuario `qa+cp-deu-011-001@example.com` con contraseña `Clave123!`, creado con PR-01.
-**Datos de prueba:** D 1: monto del gasto `10000` ARS. D 2: persona `"Sofía"`. D 3: monto adeudado `10000`. D 4: fecha `15/08/2026`.
+**Datos de prueba:** D 1: monto del gasto `10000` ARS. D 2: persona `"Sofía"`. D 3: monto adeudado `10000`. D 4: fecha `15/08/2026`. D 5: cuenta `"Efectivo"`.
 
 | # | Paso | Resultado esperado |
 |---|---|---|
@@ -461,9 +467,10 @@ Procedimientos reutilizables: [`docs/12-procedimientos-de-prueba.md`](../../docs
 | 5 | Escribir `10000` en el campo del monto y hacer click en "Siguiente". | Se abre el paso 2, "¿En qué?". |
 | 6 | Hacer click en la categoría "Otros". | Se abre el paso 3, "Revisá y guardá". |
 | 7 | En la sección "Fecha", hacer click en "Otra" y escribir `15/08/2026`. | El campo de fecha muestra `15/08/2026`. |
-| 8 | Hacer click en el interruptor "Gasto compartido", escribir `Sofía` en "¿Con quién?" y `10000` en "¿Cuánto te debe?". | El resumen `data-testid="transaction-form-shared-summary"` muestra `"Sofía te va a deber $10.000,00 · Tu parte: $0,00"` y "Guardar gasto" está habilitado. |
-| 9 | Hacer click en "Guardar gasto". | Aparece el aviso `"Gasto guardado"` con `"Sofía te debe $10.000,00"`. |
-| 10 | Escribir `<APP>/debts?status=all` en la barra de direcciones y presionar Enter. | Aparece la fila de `"Sofía"` con `data-testid="debts-item-amount"` igual a `"$10.000,00"`. |
+| 8 | En la sección "Cuenta", hacer click en "Efectivo". | "Efectivo" queda marcada. |
+| 9 | Hacer click en el interruptor "Gasto compartido", escribir `Sofía` en "¿Con quién?" y `10000` en "¿Cuánto te debe?". | El resumen `data-testid="transaction-form-shared-summary"` muestra `"Sofía te va a deber $10.000,00 · Tu parte: $0,00"` y "Guardar gasto" está habilitado. |
+| 10 | Hacer click en "Guardar gasto". | Aparece el aviso `"Gasto guardado"` con `"Sofía te debe $10.000,00"`. |
+| 11 | Escribir `<APP>/debts?status=all` en la barra de direcciones y presionar Enter. | Aparece la fila de `"Sofía"` con `data-testid="debts-item-amount"` igual a `"$10.000,00"`. |
 
 **Post-condición:** 1 gasto de `$10.000,00` y 1 deuda de `$10.000,00`.
 
