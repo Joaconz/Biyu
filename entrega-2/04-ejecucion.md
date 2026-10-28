@@ -1,6 +1,6 @@
-# Entrega 2 · Ejecución de casos de prueba (V2) · Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones
+# Entrega 2 · Ejecución de casos de prueba (V2) · Deudas, Navegación, Exportar CSV, Importar Excel, Suscripciones y Resumen por categoría, y regresión de V1
 
-Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 1», el resultado obtenido, la evidencia y los defectos). Casos: ver `02-especificacion-casos-v2` (Deudas y Navegación) y `casos/exp.md`, `casos/imp.md` y `casos/sus.md` (Exportar, Importar y Suscripciones; sus pasos también están en la hoja de cada caso de la planilla).
+Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 1», el resultado obtenido, la evidencia y los defectos). Casos: ver `02-especificacion-casos-v2` (Deudas y Navegación) y `casos/exp.md`, `casos/imp.md` y `casos/sus.md` (Exportar, Importar y Suscripciones; sus pasos también están en la hoja de cada caso de la planilla). Los 60 casos de V1 de la regresión tienen su hoja (ACC-001 a DAS-011) con la ejecución de V1 como «Reporte de ejecución 1» y la regresión como «Reporte de ejecución 2» (3 en CP-CFG-011 y CP-CFG-013), en un bloque nuevo al pie de la hoja; la hoja «Repaso manual (Alta)» es la plantilla del repaso a mano del equipo; su detalle está en el último apartado, «Regresión de V1».
 
 ## Condiciones de la ejecución
 
@@ -15,6 +15,7 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 - **Deudas, casos CP-DEU-015 a 035 (16 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright, reloj real), sobre `main` en `1c72d0f`. **Ejecutó Claude Code (IA), supervisado por Santiago:** CP-DEU-015, 016, 017, 019, 023, 024, 026, 027, 028, 029, 030, 031, 032, 033, 034 y 035. Los que el equipo informó como «OK» (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no se repitieron y no figuran en este reporte.
 - **Deudas, 8 casos pendientes (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, reloj real), sobre `main` en `deac2c7`. **Ejecutó Claude Code (IA), supervisado por Santiago.** Usuario nuevo por caso (`qa+cp-deu-<id>-001@example.com`); la pantalla se manejó con la interfaz y, donde el caso lo pide, la base se consultó por API con el token del usuario de prueba. Los casos 001, 003 y 011 se corrigieron el mismo día (paso de elegir la cuenta «Efectivo» y, en el 003, volver a cargar el tipo de cambio después de cambiar la fecha) y se volvieron a ejecutar.
 - **Resumen por categoría (CAT, 6 casos: CP-CAT-001 a 006):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 375 × 812 px, es-AR, hora de Argentina), sobre `main` en `15e3c4b`. **Ejecutó Claude Code (IA), supervisado por Santiago.** Usuario nuevo por caso (`qa+cp-cat-<nnn>-001@example.com`); los movimientos de cada caso se cargaron por la API con `create_transaction` (y `delete_transaction` en el 002), y todo lo demás se hizo por pantalla.
+- **Regresión de V1 (60 casos de `03-seleccion-regresion`):** ejecutada el **2026-10-28** en el entorno local (Vite + Supabase local, Chromium con Playwright emulando un celular de 390 × 844 px), sobre `main` en `109007a`. **Ejecutó Claude Code (IA), supervisado por Joaquín.** Resultado: 60 PASSED; el repaso manual de los 39 de prioridad Alta está pendiente. No suma a los casos de V2; condiciones y detalle en el apartado «Regresión de V1», al final.
 - **Criterio para BLOCKED:** un caso que no se puede ejecutar porque falta una funcionalidad o un botón queda BLOCKED para V3.
 
 ## Resultado por caso
@@ -552,3 +553,164 @@ Los 78 casos de Suscripciones informados como «ok» por el equipo no se repitie
 | CP-CAT-004 | PASSED | Coincide con el resultado esperado. Se verificó: al tocar «Comida y supermercado» se abre /dashboard/categories/<id>?period=2026-09 con el título «Comida y supermercado», $40.000,00, «80,0 % del gasto de septiembre» y «Cuotas de meses anteriores $0,00»; la lista tiene 2 filas («28 sep · Tarjeta de débito» -$15.000,00 y «14 sep · Efectivo» -$25.000,00) y las barras muestran agosto $20,0 mil, septiembre $40,0 mil y $0 en los meses anteriores. |
 | CP-CAT-005 | PASSED | Coincide con el resultado esperado. Se verificó: en el detalle de septiembre 2026 ($40.000,00), «Mes anterior» pasa a Agosto 2026 (?period=2026-08) con la misma categoría, $20.000,00 y «100,0 % del gasto de agosto»; «‹ Resumen» abre /dashboard?period=2026-08 con el Resumen de Agosto 2026. |
 | CP-CAT-006 | PASSED | Coincide con el resultado esperado. Se verificó: la dirección con una categoría inexistente muestra «No encontramos esta categoría.» y «Volver al Resumen», sin nombre ni montos; «Volver al Resumen» abre /dashboard?period=2026-09. |
+
+## Regresión de V1 (60 casos, ejecutada el 2026-10-28)
+
+Casos de V1 elegidos en `03-seleccion-regresion` (criterio de ADR-027: 58 de la selección inicial y 2 sumados el mismo día, CP-CFG-005 y CP-CFG-013, ver `03` §6), ejecutados sobre V2 con los pasos de `entrega-1/02-especificacion-casos-de-prueba`. Es el «Reporte de ejecución 2» de cada caso de V1 (el 1 es el de la Entrega 1; en CP-CFG-011 y CP-CFG-013 es el 3, porque en V1 se ejecutaron dos veces) y **no suma** a los 203 casos de V2 de arriba. Los 14 casos excluidos de la selección conservan el resultado de V1 y no se ejecutaron.
+
+- **Fecha:** 2026-10-28.
+- **Versión probada:** `main` en `109007a` (local, con las 24 migraciones hasta `20261012000000`). No se probó el deploy de Vercel.
+- **Entorno:** Vite (`http://localhost:5173`) + Supabase local reiniciado con la configuración del repositorio (`supabase/config.toml`); Chromium (Playwright) emulando un celular de 390 × 844 px, es-AR, hora de Argentina; reloj real (28/10/2026), salvo CP-REG-013, que fija el reloj del navegador en 15/10/2026 como en V1.
+- **Ejecutó Claude Code (IA), supervisado por Joaquín:** los 60 casos, con el script de la ejecución de V1 (`entrega-1/ejecucion/`) adaptado a las pantallas de V2, y pedidos directos a la API con el token de cada usuario de prueba para las variantes API y los pares de autorización. Las adaptaciones están en `06-reporte-de-ejecucion`, §6.
+- **Datos:** usuarios `qa+reg-<caso o grupo>-<corrida>@example.com`, contraseña `Prueba-Biyu-2026!` (los de alta por pantalla, `Clave123!`); son cuentas de Supabase local, que no existen en ningún otro entorno. Montos ficticios. Se borraron de la base local al terminar.
+- **Corridas:** cuatro corridas completas. La que vale es la cuarta (60 casos, 60 PASSED). Las dos primeras fallaron por el script y por la configuración de Supabase local, no por la aplicación; la tercera (58 PASSED) es anterior a la ampliación de la selección y a dos verificaciones que se sumaron al script (detalle en `06`, §6). El resultado crudo de la cuarta corrida está en `ejecucion/regresion-v1-resultados.json`.
+- **Repaso manual (pendiente):** los 39 casos de prioridad Alta se re-confirman a mano por el equipo con la hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx` (13 casos por persona: Micaela, Valentina y Mariana). Hasta que esté completa, el resultado de la regresión es el de la ejecución con IA.
+
+| ID | Prioridad | Título | Resultado en V1 | Status | Ejecutó | Defectos |
+|---|---|---|---|---|---|---|
+| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | PASSED · DEF-008 | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | FAILED · DEF-005 | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-001 | Alta | Crear una categoría con nombre y color | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-004 | Alta | Archivar una categoría con historia | FAILED · DEF-006 | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-011 | Media | Monto con tres decimales | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | PASSED · DEF-007 | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-REG-016 | Media | El monto toma el foco con teclado numérico | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | **PASSED** | **PASSED** | Claude Code | — |
+| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-005 | Media | Gasto por cuenta | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | **PASSED** | **PASSED** | Claude Code | — |
+
+### Resumen de la regresión
+
+| Status | Casos |
+|---|---|
+| PASSED | 60 |
+| FAILED | 0 |
+| BLOCKED | 0 |
+| No ejecutados | 0 |
+| **Total** | **60** |
+
+| Módulo de V1 | Casos | PASSED | FAILED | BLOCKED |
+|---|---|---|---|---|
+| Acceso (ACC) | 9 | 9 | 0 | 0 |
+| Configuración (CFG) | 11 | 11 | 0 | 0 |
+| Registro (REG) | 13 | 13 | 0 | 0 |
+| Cuotas (CUO) | 12 | 12 | 0 | 0 |
+| Monedas (MON) | 6 | 6 | 0 | 0 |
+| Resumen (DAS) | 9 | 9 | 0 | 0 |
+
+**Casos que cambiaron de estado respecto de la Entrega 1:** CP-ACC-004 (FAILED → PASSED, DEF-005) y CP-CFG-004 (FAILED → PASSED, DEF-006). Los otros 58 estaban PASSED en V1 y siguen PASSED. No apareció ningún defecto nuevo.
+
+### Resultado obtenido de la regresión
+
+| Caso | Status | Obtenido |
+|---|---|---|
+| CP-ACC-001 | PASSED | Sin sesión, abrir «/» termina en /login?next=%2Fregister con el formulario «Entrar»; no se renderiza nada de Registrar. |
+| CP-ACC-002 | PASSED | Sin sesión, abrir /settings redirige a /login?next=%2Fsettings. Además, al iniciar sesión desde ahí la app vuelve a /settings?period=2026-10: el destino original se respeta (DEF-008 sigue corregido). |
+| CP-ACC-003 | PASSED | La cuenta se crea con sesión activa y sin confirmar el email; se abre /setup («Configuración inicial»). Salteados los 4 pasos, la app queda en /register y la sesión está guardada en el navegador. |
+| CP-ACC-004 | PASSED | (a) abc1234, (b) abcdefgh, (c) 12345678 y (d) abcd1234 se rechazan con «Falta que la contraseña cumpla: …» y los criterios que faltan (por ejemplo, para (d): «una mayúscula, un carácter especial»); ninguna crea la cuenta. (e) Abcd123! crea la cuenta. Variante API: POST /auth/v1/signup con abcd1234 responde HTTP 422 weak_password (DEF-005 sigue corregido). Nota: La primera corrida dio la variante API como aceptada porque Supabase local estaba levantado con una configuración de Auth vieja (mínimo 6 caracteres, sin requisitos). Se reinició con la configuración del repositorio (supabase/config.toml: 8 caracteres, mayúscula, minúscula, número y símbolo) y se repitió: rechazada. |
+| CP-ACC-005 | PASSED | Con el email de CP-ACC-003 aparece «Ya existe una cuenta con ese email» y la pantalla sigue en «Crear cuenta»; en la base hay 1 sola cuenta con ese email. Variante API: user_already_exists. |
+| CP-ACC-008 | PASSED | Ajustes muestra las 8 categorías (Comida y supermercado, Transporte, Servicios, Entretenimiento, Salud, Educación, Indumentaria y Otros) y las 5 cuentas; en la base hay 8 y 5. |
+| CP-ACC-009 | PASSED | Desde Registrar, Resumen y Movimientos: Ajustes → «Cerrar sesión» lleva a /login y «atrás» vuelve a caer en /login (con el next de la pantalla anterior); la sesión ya no está en el navegador. Nota: «Cerrar sesión» está en Ajustes, que se abre con el engranaje de cada pantalla. |
+| CP-ACC-011 | PASSED | Con el token de B, filtrando por el id de A: 0 filas en categories, accounts, fx_rates, transactions, ledger_entries, debts y subscriptions. Solo con la anon key: 42501 (permission denied) en las 7 tablas. Nota: Ejecutado por API con dos sesiones reales. pgTAP rls_isolation.test.sql también pasa en esta corrida. |
+| CP-ACC-012 | PASSED | Con «Clave123!» y «Clave123?» aparece «Las contraseñas no son iguales»; los dos campos están enmascarados y no se crea la cuenta. |
+| CP-CFG-001 | PASSED | «Mascotas» aparece en el listado activo con el color elegido; en la base: Mascotas, #4a7a6d. |
+| CP-CFG-003 | PASSED | Crear «Salud» con «Salud» activa muestra «Ya existe una categoría activa con ese nombre» y la lista no cambia. Variante API: insert directo a categories → 23505. |
+| CP-CFG-004 | PASSED | Al archivar «Entretenimiento» desaparece del listado activo y de la grilla de Registrar. En Movimientos, el gasto «Cine» de $8.000 conserva su categoría con la marca «archivada» (DEF-006 sigue corregido); en la base mantiene el category_id. Nota: La transacción «Cine» de la preparación se cargó por API (create_transaction), no por Registrar. |
+| CP-CFG-005 | PASSED | Con «Salidas» archivada (la de CP-REG-005), crear «Salidas» en «Nueva categoría» se acepta sin error: queda 1 «Salidas» activa y 1 archivada. Nota: Sumado a la selección el 2026-10-28 (regla 3, por el cambio de unicidad de DEF-019; ver 03, §6). Depende de la preparación de CP-REG-005, como en V1. |
+| CP-CFG-006 | PASSED | «Visa BBVA» aparece en la lista como «Tarjeta de crédito» (en la base: credit_card, ARS). En Registrar, al elegir «Visa BBVA» aparece «Cuotas» con los números 1 a 12. La lista de cuentas tiene «Editar» y «Archivar» en cada fila (DEF-011 sigue corregido). Nota: «Tarjeta de crédito» ya viene elegida en «Tipo»; no hizo falta abrir el desplegable. |
+| CP-CFG-007 | PASSED | Crear «Efectivo» con «Efectivo» activa muestra «Ya existe una cuenta activa con ese nombre» y la lista no cambia. Variante API: insert directo a accounts → 23505 (accounts_user_name_active_uq). |
+| CP-CFG-008 | PASSED | Con una cuenta creada por API y sin sembrar, las dos pestañas abiertas a la vez cargan (las dos llevan a /setup, porque la cuenta nueva tiene pendiente la configuración inicial). En la base quedan exactamente 8 categorías y 5 cuentas, sin duplicados. Nota: En V2 una cuenta nueva pasa primero por la configuración inicial (US-68), así que las pestañas muestran el setup en lugar del formulario de Registrar. La siembra ocurre igual. |
+| CP-CFG-009 | PASSED | Con 1250 se crea la referencia de octubre 2026 (1250.0000 en la base). Con 1300 para el mismo mes se actualiza: 1 sola fila, 1300.0000; la lista muestra «octubre 2026 $ 1.300,00». |
+| CP-CFG-010 | PASSED | 0 y -100 se rechazan con «El tipo de cambio debe ser mayor a cero»; 0,01 se acepta (0.0100 en la base). Variante API: el upsert directo a fx_rates responde 42501 y la RPC upsert_fx_rate responde 23514 «el tipo de cambio debe ser mayor a cero», con 0 y con -100. |
+| CP-CFG-011 | PASSED | Después de crear la cuenta se abre /setup: paso 1 de 4, «¿Para qué vas a usar Biyu?», con 3 opciones, «Continuar» y «Saltear». |
+| CP-CFG-013 | PASSED | «Continuar» en «¿Para qué vas a usar Biyu?» pasa a «Tus categorías» con las 8 categorías tildadas; al destildar «Educación» desaparece de la lista y «Continuar» lleva a «Tus cuentas». En la base, «Educación» sigue existiendo con archived_at completado (archivada, no borrada). Nota: Sumado a la selección el 2026-10-28 (regla 3, por el cambio del paso «Tus categorías» de DEF-026; ver 03, §6). |
+| CP-REG-001 | PASSED | Con sesión, abrir «/» termina en /register con el paso del monto visible. |
+| CP-REG-002 | PASSED | En el paso 3/3 la fecha viene con 2026-10-28, el día de la corrida. |
+| CP-REG-004 | PASSED | El paso 2/3 muestra la grilla de chips, sin desplegables; tocar «Transporte» avanza solo al paso 3/3 y el gasto se guarda con la categoría Transporte. |
+| CP-REG-005 | PASSED | Con «Salidas» archivada, el chip no aparece en la grilla de Registrar. Variante API: create_transaction con esa categoría se rechaza con «la categoría no existe, no es tuya o está archivada». |
+| CP-REG-008 | PASSED | Con «Ayer» (2026-10-27) el gasto se guarda. Con mañana (2026-10-29) aparece «La fecha no puede ser futura» y «Guardar gasto» queda deshabilitado. Variante API: «FR-06: la fecha no puede ser posterior a hoy». |
+| CP-REG-009 | PASSED | Al guardar aparece «Gasto guardado», el formulario vuelve al paso del monto vacío y el siguiente gasto conserva la última cuenta («Tarjeta de débito»). |
+| CP-REG-010 | PASSED | Vacío, 0 y -500 dejan «Siguiente» deshabilitado; 0,01 se guarda (amount 0.01). Variante API: p_amount 0 y -5 → 23514 «I4: el monto debe ser mayor a cero». |
+| CP-REG-011 | PASSED | Con 100,999 aparece «El monto admite hasta 2 decimales» y «Siguiente» queda deshabilitado. Variante API: «I4: el monto admite hasta 2 decimales». |
+| CP-REG-012 | PASSED | Al confirmar se cierra el diálogo y aparece «Transacción eliminada». Con el gasto «Campera» de $50.000, el total del mes baja de $65.799,01 a $15.799,01 y la transacción queda con deleted_at. En Movimientos ya no está en «Activos» y aparece en «Eliminados» con la marca «eliminada» (DEF-007 sigue corregido). |
+| CP-REG-013 | PASSED | Con hoy fijado en 15/10/2026, el diálogo avisa «Esta transacción tiene imputaciones en meses ya cerrados…» y lista 2026-08 (cuota 1) y 2026-09 (cuota 2), -$10.000,00 cada una. Después de confirmar, el Resumen de agosto y de septiembre queda vacío y no queda ninguna imputación que cuente. Nota: Como en V1, el reloj del navegador se fijó en 15/10/2026 con Playwright; el servidor usa la fecha real, que no interviene en el borrado. |
+| CP-REG-014 | PASSED | Con la sesión de B, leer la transacción de A devuelve 0 filas y borrarla se rechaza con «la transacción no existe, ya fue eliminada o no te pertenece»; para A sigue activa. Nota: Ejecutado por API con dos sesiones reales. |
+| CP-REG-015 | PASSED | Insert directo a transactions → 42501 «permission denied for table transactions»; a ledger_entries → 42501. |
+| CP-REG-016 | PASSED | Al abrir Registrar el foco está en el monto (transaction-form-amount), con inputmode="decimal". Nota: Chromium emulando un celular: que se abra el teclado numérico no se puede ver en un navegador emulado; se verificó lo que lo provoca (foco y inputmode). |
+| CP-CUO-001 | PASSED | Una compra de $120.000 en 12 cuotas con «Visa BBVA» genera 12 imputaciones, numeradas de 1 a 12, en meses consecutivos de 2026-10 a 2027-09. |
+| CP-CUO-002 | PASSED | Antes de guardar, el recuadro dice «12 cuotas de $10.000,00 · de ago 2026 a jul 2027»; no hay ninguna transacción guardada con esa fecha. |
+| CP-CUO-003 | PASSED | Con 6 cuotas, al cambiar a «Efectivo» el selector de cuotas desaparece y aparece «Las cuotas volvieron a 1»; al volver a «Visa BBVA» queda en 1. Variante API: 6 cuotas con una cuenta de efectivo → «I6: las cuotas solo aplican a gastos con cuenta credit_card». |
+| CP-CUO-004 | PASSED | Las 12 imputaciones de la compra de $120.000 en 12 cuotas con «Visa BBVA» son de 10000.00; la suma de amount y de amount_ars es 120000.00 (I1). Nota: Desvío: en lugar de registrar su propia compra (categoría «Otros»), el caso usó la de CP-CUO-001 (mismo monto y cuotas, categoría «Indumentaria»), como en V1. La categoría no interviene en el reparto. |
+| CP-CUO-005 | PASSED | $100.000 en 3 cuotas: 33333.33 + 33333.33 + 33333.34 = 100000.00 (la última absorbe el resto). |
+| CP-CUO-006 | PASSED | La pantalla ofrece de 1 a 12 cuotas (no hay forma de elegir 0 ni 13). Variante API: 0 y 13 se rechazan con «las cuotas van de 1 a 12»; 1, 2 y 12 se aceptan. |
+| CP-CUO-007 | PASSED | En el Resumen de 2026-09 (solo la compra de agosto en 12 cuotas de $10.000): «Gastado» $10.000,00 y «Cuotas de meses anteriores» $10.000,00. |
+| CP-CUO-009 | PASSED | Borrar la compra en 12 cuotas: antes cuentan 12 imputaciones, después 0, y la cuota de 2027-04 ya no aparece en Movimientos. Nota: No hay forma de borrar una cuota sola: el botón elimina la compra entera. |
+| CP-CUO-010 | PASSED | US$100 a 1250,5555 en 3 cuotas: amount_ars de la transacción 125055.55; imputaciones 41685.18 + 41685.18 + 41685.19 = 125055.55. |
+| CP-CUO-011 | PASSED | Con la sesión de B, las imputaciones de la compra en cuotas de A devuelven 0 filas. Nota: Ejecutado por API con dos sesiones reales. |
+| CP-CUO-012 | PASSED | Un ingreso con «Visa BBVA» no muestra el selector de cuotas. Variante API: ingreso en 3 cuotas → «I6: las cuotas solo aplican a gastos con cuenta credit_card». |
+| CP-CUO-013 | PASSED | create_transaction con $0,02 en 3 cuotas inserta la transacción y falla en «I4: cada cuota debe ser al menos 0,01»; las filas de transactions y ledger_entries son las mismas antes y después (11 y 36): no queda nada a medias. Nota: El fallo a mitad de la función se fuerza con datos que pasan las primeras validaciones, como en V1. |
+| CP-MON-001 | PASSED | US$100 guardado sin tocar el tipo de cambio sugerido: fx_rate 1250.0000 y amount_ars 125000.00. Nota: Se ejecuta dentro de la secuencia de CP-MON-002 (fila 3), con la referencia del mes en 1250, como en V1. |
+| CP-MON-002 | PASSED | Fila 5 (USD, sin referencia ni TC): aviso «No tenés un tipo de cambio configurado» y «Siguiente» deshabilitado; por API, «I5: fx_rate es obligatorio si y solo si la moneda es USD». Fila 6 (USD, TC 1300 sin referencia): fx_rate 1300.0000. Fila 1 (ARS): fx_rate vacío. Fila 2 (ARS con TC): la pantalla no ofrece el campo y la API lo rechaza con I5. Fila 3 (referencia 1250): fx_rate 1250.0000, amount_ars 125000.00. Fila 4 (TC propio 1300): fx_rate 1300.0000. |
+| CP-MON-003 | PASSED | Al tocar «US$» el campo sugiere «1.250,00» (DEF-020 sigue corregido). Al escribir 1300 aparece «Estás usando un valor distinto al de referencia. Se aplica solo a esta transacción.» y el gasto se guarda con fx_rate 1300.0000. Nota: En la segunda corrida el script leyó el campo antes de que llegara la sugerencia y lo dio vacío. La sugerencia aparece unos 10 ms después de tocar «US$»: se corrigió la espera del script; se repitió dos veces aparte (PASSED) y pasó en las corridas completas siguientes. |
+| CP-MON-004 | PASSED | Al cambiar la referencia del mes a 1400, la transacción de US$100 sigue con fx_rate 1250.0000 y amount_ars 125000.00, y el total del Resumen no cambia ($606.685,18 antes y después). |
+| CP-MON-005 | PASSED | Con $50.000 en pesos y US$100 a 1250 en el mes, el total del Resumen es $175.000,00. |
+| CP-MON-007 | PASSED | Con la sesión de B: 0 filas de fx_rates de A y un update que afecta 0 filas; la referencia de A sigue en 1300.0000. Nota: Ejecutado por API con dos sesiones reales. |
+| CP-DAS-001 | PASSED | Sin tocar el selector, el Resumen abre en 2026-10 (/dashboard?period=2026-10) con el total $175.000,00. |
+| CP-DAS-002 | PASSED | Desde septiembre 2026, dos toques en «Mes siguiente» dejan la dirección en /dashboard?period=2026-11. |
+| CP-DAS-003 | PASSED | ?period=fecha-invalida y la dirección sin período terminan en /dashboard?period=2026-10, sin mensaje de error. |
+| CP-DAS-004 | PASSED | Las barras por categoría muestran Salud $70.000,00 (46,7 %), Comida y supermercado $50.000,00 (33,3 %) y Transporte $30.000,00 (20,0 %), en ese orden. Nota: En V2 la lista lleva además la torta (US-72) y cada fila abre el detalle de la categoría (US-73). |
+| CP-DAS-005 | PASSED | Por cuenta: Efectivo $120.000,00 (80,0 %) y Tarjeta de débito $30.000,00 (20,0 %). |
+| CP-DAS-006 | PASSED | Ingresos $200.000,00 y balance $50.000,00, con la etiqueta «Superávit». |
+| CP-DAS-008 | PASSED | Con 15 movimientos en el mes, el Resumen muestra 10; «Ver todos» lleva a /transactions?period=2026-10 con los 15. |
+| CP-DAS-010 | PASSED | Mayo 2026 sin datos: «No tenés movimientos registrados en mayo.» con un botón que lleva a /register, sin los totales. |
+| CP-DAS-011 | PASSED | Con la sesión de B, las imputaciones de A del mes devuelven 0 filas, y sin filtro no aparece ninguna fila ajena. Nota: Ejecutado por API con dos sesiones reales. |

@@ -1,6 +1,6 @@
 # Entrega 2 · Selección de casos de regresión (V1 sobre V2)
 
-Planilla: `03-seleccion-regresion.xlsx` (una hoja con los 74 casos de V1 y la decisión, y otra con los defectos de V1 a confirmar). Criterio: [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md).
+Planilla: `03-seleccion-regresion.xlsx` (una hoja con los 74 casos de V1, la decisión y el resultado de la regresión en V2, y otra con los defectos de V1 a confirmar). Criterio: [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md).
 
 La consigna pide **seleccionar** los casos de V1 que se ejecutan sobre V2 para comprobar que lo que ya funcionaba sigue funcionando. Esta selección es por riesgo: cada caso figura como incluido o excluido, con su motivo.
 
@@ -12,97 +12,102 @@ Entra a la regresión un caso de V1 si cumple **alguna** de estas reglas:
 |---|---|---|
 | 1 | Todos los casos de prioridad **Alta** | Son los que cubren lo que no puede romperse. |
 | 2 | Los casos de prioridad **Alta o Media** de los módulos que V2 toca: Registro, Cuotas, Resumen y Monedas, y los de Ajustes que V2 usa (cuentas y tipo de cambio de referencia: CP-CFG-006, 007, 009 y 010) | V2 modifica esas pantallas o escribe en las mismas tablas (el Resumen lee lo que crea cualquier transacción, incluidas las de suscripciones y deudas). |
-| 3 | Los casos ligados a un defecto de V1 **corregido y sin confirmar** | Sirven de testeo de confirmación. |
+| 3 | Los casos ligados a un defecto de V1 **corregido y sin confirmar**, o que ejercitan una pantalla o regla que su fix modificó | Sirven de testeo de confirmación y cubren lo que el fix pudo romper. |
 | 4 | Los casos que **fallaron** en V1 | Hay que verificar que se arreglaron. |
 
 Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acceso y Configuración) y los de prioridad Baja de los módulos que sí toca, salvo que los incluya otra regla (por ejemplo, que confirmen un defecto). Conservan el resultado de su última ejecución. Si aparece un defecto en un módulo excluido, se amplía la selección y se registra acá.
 
 ## 2. Resumen
 
-- **Casos de V1:** 74. **Incluidos en la regresión:** 58. **Excluidos:** 16.
-- Resultado de V1 de los incluidos: 56 PASSED y 2 FAILED (CP-ACC-004 y CP-CFG-004).
+- **Casos de V1:** 74. **Incluidos en la regresión:** 60 (58 de la selección inicial y 2 sumados el 2026-10-28, CP-CFG-005 y CP-CFG-013: ver §6). **Excluidos:** 14.
+- Resultado de V1 de los incluidos: 58 PASSED y 2 FAILED (CP-ACC-004 y CP-CFG-004).
+- **Resultado de la regresión en V2 (ejecutada el 2026-10-28):** 60 PASSED, 0 FAILED y 0 BLOCKED, con IA. El repaso manual de los 39 casos de prioridad Alta por el equipo está pendiente. Los dos que habían fallado en V1 pasan. Detalle por caso en `04-ejecucion` (apartado «Regresión de V1») y resumen en `06-reporte-de-ejecucion`.
 
 | Módulo | Casos | Incluidos | Excluidos |
 |---|---|---|---|
 | Acceso | 12 | 9 | 3 |
-| Configuración | 15 | 9 | 6 |
+| Configuración | 15 | 11 | 4 |
 | Registro | 16 | 13 | 3 |
 | Cuotas | 13 | 12 | 1 |
 | Monedas | 7 | 6 | 1 |
 | Resumen | 11 | 9 | 2 |
-| **Total** | **74** | **58** | **16** |
+| **Total** | **74** | **60** | **14** |
 
 | Prioridad | Casos | Incluidos | Excluidos |
 |---|---|---|---|
 | Alta | 39 | 39 | 0 |
-| Media | 26 | 19 | 7 |
-| Baja | 9 | 0 | 9 |
-| **Total** | **74** | **58** | **16** |
+| Media | 26 | 20 | 6 |
+| Baja | 9 | 1 | 8 |
+| **Total** | **74** | **60** | **14** |
 
-## 3. Casos incluidos (58)
+## 3. Casos incluidos (60)
 
-| ID | Prioridad | Título | Resultado en V1 | Reglas | Motivo |
-|---|---|---|---|---|---|
-| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | PASSED | 1 | prioridad Alta |
-| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | PASSED · DEF-008 | 1, 3 | prioridad Alta; confirma DEF-008 (corregido, falta confirmación) |
-| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | PASSED | 1 | prioridad Alta |
-| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | FAILED · DEF-005 | 1, 3, 4 | prioridad Alta; confirma DEF-005 (corregido, falta confirmación); falló en V1 |
-| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | PASSED | 1 | prioridad Alta |
-| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | PASSED | 1 | prioridad Alta |
-| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | PASSED | 1 | prioridad Alta |
-| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | PASSED | 1 | prioridad Alta |
-| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | PASSED | 1 | prioridad Alta |
-| CP-CFG-001 | Alta | Crear una categoría con nombre y color | PASSED | 1 | prioridad Alta |
-| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | PASSED | 3 | confirma DEF-019 y DEF-025 (corregido, falta confirmación) |
-| CP-CFG-004 | Alta | Archivar una categoría con historia | FAILED · DEF-006 | 1, 3, 4 | prioridad Alta; confirma DEF-006 (corregido, falta confirmación); falló en V1 |
-| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | PASSED | 1, 2, 3 | prioridad Alta; V2 lo usa: cuentas de Ajustes (las usan suscripciones y registro); confirma DEF-011 (corregido, falta confirmación) |
-| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | PASSED | 2 | V2 lo usa: cuentas de Ajustes (las usan suscripciones y registro) |
-| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | PASSED | 1 | prioridad Alta |
-| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | PASSED | 1, 2 | prioridad Alta; V2 lo usa: tipo de cambio de referencia (lo usan suscripciones y deudas en USD) |
-| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | PASSED | 2, 3 | V2 lo usa: tipo de cambio de referencia (lo usan suscripciones y deudas en USD); confirma DEF-018 (corregido, falta confirmación) |
-| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | 1 | prioridad Alta |
-| CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-012 (corregido, falta confirmación) |
-| CP-REG-011 | Media | Monto con tres decimales | PASSED | 2, 3 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-013 (corregido, falta confirmación) |
-| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | PASSED · DEF-007 | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-007 (corregido, falta confirmación) |
-| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-REG-016 | Media | El monto toma el foco con teclado numérico | PASSED | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
-| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | PASSED | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva); confirma DEF-009 (corregido, falta confirmación) |
-| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
-| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
-| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
-| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | 2, 3 | módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio); confirma DEF-020 (corregido, falta confirmación) |
-| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
-| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
-| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
-| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | PASSED | 2, 3 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría); confirma DEF-014 (corregido, falta confirmación) |
-| CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-005 | Media | Gasto por cuenta | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
-| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+La columna «Motivo» describe el estado de cada defecto al armar la selección («corregido, falta confirmación»); el resultado de la confirmación está en §5.
 
-## 4. Casos excluidos (16)
+| ID | Prioridad | Título | Resultado en V1 | Resultado en V2 (2026-10-28) | Reglas | Motivo |
+|---|---|---|---|---|---|---|
+| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | PASSED · DEF-008 | **PASSED** | 1, 3 | prioridad Alta; confirma DEF-008 (corregido, falta confirmación) |
+| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | FAILED · DEF-005 | **PASSED** | 1, 3, 4 | prioridad Alta; confirma DEF-005 (corregido, falta confirmación); falló en V1 |
+| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-CFG-001 | Alta | Crear una categoría con nombre y color | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | PASSED | **PASSED** | 3 | confirma DEF-019 y DEF-025 (corregido, falta confirmación) |
+| CP-CFG-004 | Alta | Archivar una categoría con historia | FAILED · DEF-006 | **PASSED** | 1, 3, 4 | prioridad Alta; confirma DEF-006 (corregido, falta confirmación); falló en V1 |
+| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | PASSED | **PASSED** | 3 | sumado el 2026-10-28 (§6): ejercita la unicidad de nombres de categoría, que cambió con DEF-019 (sin distinguir mayúsculas) |
+| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | PASSED | **PASSED** | 1, 2, 3 | prioridad Alta; V2 lo usa: cuentas de Ajustes (las usan suscripciones y registro); confirma DEF-011 (corregido, falta confirmación) |
+| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | PASSED | **PASSED** | 2 | V2 lo usa: cuentas de Ajustes (las usan suscripciones y registro) |
+| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | PASSED | **PASSED** | 1 | prioridad Alta |
+| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | PASSED | **PASSED** | 1, 2 | prioridad Alta; V2 lo usa: tipo de cambio de referencia (lo usan suscripciones y deudas en USD) |
+| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | PASSED | **PASSED** | 2, 3 | V2 lo usa: tipo de cambio de referencia (lo usan suscripciones y deudas en USD); confirma DEF-018 (corregido, falta confirmación) |
+| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | **PASSED** | 1 | prioridad Alta |
+| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | **PASSED** | 3 | sumado el 2026-10-28 (§6): el paso «Tus categorías» de la configuración inicial cambió con DEF-026 |
+| CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | **PASSED** | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | **PASSED** | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | **PASSED** | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | **PASSED** | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | **PASSED** | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | **PASSED** | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-012 (corregido, falta confirmación) |
+| CP-REG-011 | Media | Monto con tres decimales | PASSED | **PASSED** | 2, 3 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-013 (corregido, falta confirmación) |
+| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | PASSED · DEF-007 | **PASSED** | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-007 (corregido, falta confirmación) |
+| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-016 | Media | El monto toma el foco con teclado numérico | PASSED | **PASSED** | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | PASSED | **PASSED** | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva); confirma DEF-009 (corregido, falta confirmación) |
+| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | **PASSED** | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | **PASSED** | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | **PASSED** | 2, 3 | módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio); confirma DEF-020 (corregido, falta confirmación) |
+| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | PASSED | **PASSED** | 2, 3 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría); confirma DEF-014 (corregido, falta confirmación) |
+| CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | **PASSED** | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-005 | Media | Gasto por cuenta | PASSED | **PASSED** | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | **PASSED** | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | **PASSED** | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | **PASSED** | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | **PASSED** | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+
+## 4. Casos excluidos (14)
 
 | ID | Prioridad | Título | Resultado en V1 | Motivo |
 |---|---|---|---|---|
@@ -110,9 +115,7 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 | CP-ACC-007 | Media | Alta sin sesión (confirmación de email activa) no entra a la app | PASSED | prioridad Media en el módulo Acceso, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-ACC-010 | Media | La sesión persiste al recargar y al reabrir el navegador | PASSED | prioridad Media en el módulo Acceso, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-CFG-002 | Media | Renombrar una categoría y cambiarle el color | PASSED | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
-| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | PASSED | prioridad Baja en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-CFG-012 | Media | Saltear todo el setup deja la siembra de siempre | PASSED (ejecución 2) · DEF-017 | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
-| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-CFG-014 | Media | La cuenta elegida como predeterminada viene preseleccionada | PASSED (ejecución 2) · DEF-017 | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-CFG-015 | Baja | El setup no reaparece y se puede reabrir desde Ajustes | PASSED (ejecución 2) · DEF-017 | prioridad Baja en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
 | CP-REG-003 | Baja | Tipo "gasto" y moneda ARS por defecto | PASSED | prioridad Baja en el módulo Registro, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
@@ -125,11 +128,11 @@ Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acce
 
 ## 5. Defectos de V1 a confirmar en V2 (22)
 
-Testeo de confirmación, ejecutado el **2026-10-28**: cada defecto de V1 "corregido, falta confirmación" se verificó sobre V2 repitiendo los pasos de su reporte (`entrega-1/04-reportes-de-defectos.md`). Resultado: **21 confirmados corregidos y 1 no concluyente** (DEF-023, un defecto intermitente, que el equipo decidió cerrar igual: se reabre si reaparece). Se ejecutó con Playwright contra la aplicación y Supabase locales, no a mano (ver `06-reporte-de-ejecucion`, apartado de desvíos).
+Testeo de confirmación, ejecutado el **2026-10-28**: cada defecto de V1 "corregido, falta confirmación" se verificó sobre V2 repitiendo los pasos de su reporte (`entrega-1/04-reportes-de-defectos.md`). Resultado: **18 confirmados corregidos, 3 confirmados en parte y 1 no concluyente**. En parte: DEF-021 (se probó en WebKit con el viewport de un iPhone, no en un iPhone real) y DEF-027 y DEF-028 (el límite de altas y la siembra lenta se simularon). No concluyente: DEF-023, un defecto intermitente, que el equipo decidió cerrar igual (se reabre si reaparece). En `entrega-1/04-reportes-de-defectos.md` los 22 figuran cerrados; los parciales se pueden completar en el repaso manual (por ejemplo, DEF-021 en un iPhone). Se ejecutó con Playwright contra la aplicación y Supabase locales, no a mano (ver `06-reporte-de-ejecucion`, apartado de desvíos).
 
 | Defecto | Título | Severidad | Estado en V1 | Se confirma con | Resultado en V2 | Evidencia |
 |---|---|---|---|---|---|---|
-| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | Corregido · falta confirmación | CP-ACC-004 | **Confirmado** | Contra Supabase Auth local: crear una cuenta con «abc1234» y con «abcdefgh» responde HTTP 422 (weak_password) en las dos. |
+| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | Corregido · falta confirmación | CP-ACC-004 | **Confirmado** | Contra Supabase Auth local con la configuración del repositorio (8 caracteres, mayúscula, minúscula, número y símbolo): «abc1234», «abcdefgh» y «abcd1234» responden HTTP 422 (weak_password); «Abcd123!» crea la cuenta. Repetido el 2026-10-28 después de reiniciar Supabase local, que estaba levantado con una configuración vieja de Auth (ver `06`, §6, regresión). En el proyecto hosteado no se verificó. |
 | DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | Corregido · falta confirmación | CP-CFG-004 | **Confirmado** | El movimiento muestra: «Entretenimiento archivada Efectivo -$8.000,00» |
 | DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | Corregido · falta confirmación | CP-REG-012 | **Confirmado** | Activos tras eliminar: 0. En «Eliminados» se ve «Martes 20 de octubre Indumentaria eliminada Efectivo -$50.000,00» con botón «Restaurar» |
 | DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | Corregido · falta confirmación | CP-ACC-002 | **Confirmado** | Sin sesión redirige a /login?next=%2Fdashboard%3Fperiod%3D2026-06; después de entrar termina en /dashboard?period=2026-06 |
@@ -144,16 +147,20 @@ Testeo de confirmación, ejecutado el **2026-10-28**: cada defecto de V1 "correg
 | DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | Corregido · falta confirmación | CP-CFG-010 | **Confirmado** | Con tipo de cambio 1250,55555 «Siguiente» queda deshabilitado y se ve «Usá hasta 4 decimales». |
 | DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | Corregido en #183 · falta confirmación | CP-CFG-003 | **Confirmado** | Crear «salud» con «Salud» activa: «Ya existe una categoría activa con ese nombre»; en la lista queda una sola |
 | DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | Corregido · falta confirmación | CP-MON-003 | **Confirmado** | El tipo de cambio sugerido se muestra como «1.250,00» |
-| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | En Chromium a 390 px de ancho, los montos entran en su casillero ($2.165.003.118,50, $81.818.491.500,00 y $79.653.488.381,50) y no hay scroll horizontal. No se probó en un iPhone con Safari. |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado parcial** | En WebKit (el motor de Safari) con el viewport de iPhone 13 (390 px), los montos entran en su casillero ($2.165.003.118,00, $81.818.491.500,00 y $79.653.488.382,00), el porcentaje no baja de línea y no hay scroll horizontal; antes, igual en Chromium a 390 px. Falta probarlo en un iPhone real. |
 | DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **No concluyente** (cerrado por decisión del equipo) | Chromium: 8 de 8 altas llegan a la configuración inicial; WebKit: 8 de 8 altas llegan a la configuración inicial. El defecto era intermitente (2 de 12 en producción con WebKit, 1 de ~80 en local): 16 altas sin fallas no alcanzan para descartarlo |
 | DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | El foco entra al diálogo (true), 6 Tab seguidos no salen de él (true), Escape lo cierra (true) y el foco queda en «settings-accounts-delete» |
 | DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | Corregido · falta confirmación | CP-CFG-003 | **Confirmado** | El aviso «Esta cuenta tiene compras en cuotas: tiene que seguir siendo tarjeta de crédito» aparece junto a la fila que se edita (a 100 px; pantalla de 812 px) |
-| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con las 8 categorías archivadas, Registrar dice «No tenés categorías activas. Creá una o reactivá una archivada en Ajustes.» con enlace a Ajustes, y Ajustes muestra «Archivadas» con un botón para reactivar cada una (8). No se revisó el paso «Tus categorías» de la configuración inicial. |
-| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con un 429 simulado la pantalla dice: «Demasiados intentos. Esperá unos minutos antes de volver a intentar» |
-| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con la siembra demorada (cuentas 4 s, categorías 1,5 s) Registrar muestra 5 cuentas |
+| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con las 8 categorías archivadas, Registrar dice «No tenés categorías activas. Creá una o reactivá una archivada en Ajustes.» con enlace a Ajustes, y Ajustes muestra «Archivadas» con un botón para reactivar cada una (8). Al reabrir la configuración inicial, «Tus categorías» dice «No tenés categorías activas. Cuando termines, podés crearlas o reactivar las archivadas desde Ajustes.» y deja continuar, y «Registrá tu primer gasto» muestra el aviso con enlace a Ajustes y deja saltear (completado el 2026-10-28). |
+| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado parcial** | Con un 429 simulado (respuesta interceptada) la pantalla dice: «Demasiados intentos. Esperá unos minutos antes de volver a intentar». No se llegó al límite real de altas. |
+| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado parcial** | Con la siembra demorada a propósito (cuentas 4 s, categorías 1,5 s) Registrar muestra 5 cuentas. No se reprodujo una demora real. |
 
 Los defectos de V1 que ya figuraban como cerrados (DEF-001, 002, 003, 004, 017 y 022) no se repitieron.
 
 ## 6. Cambios a la selección
 
-Ninguno todavía. Si un defecto aparece en un módulo excluido, se agrega acá el caso que se suma y el motivo.
+**2026-10-28: se suman CP-CFG-005 y CP-CFG-013 (regla 3).** La revisión de la selección marcó que la regla «módulo que V2 no toca» dejaba afuera casos de Configuración que los fixes de V1 sí tocaron: CP-CFG-005 ejercita la unicidad de nombres de categoría, que cambió con DEF-019, y CP-CFG-013 el paso «Tus categorías» de la configuración inicial, que cambió con DEF-026. Se ejecutaron con los otros 58: PASSED. CP-ACC-006 (credenciales inválidas) se evaluó por DEF-027 y no se sumó: DEF-027 es el mensaje del límite de altas, que no es lo que ese caso ejercita, y se confirmó con sus propios pasos (§5).
+
+**Mantenimiento de los casos de V1 para V2.** Un caso cambió lo que se espera ver: en **CP-CFG-008**, el paso 1 dice «Las dos cargan el formulario», pero en V2 una cuenta nueva pasa primero por la configuración inicial (US-68), así que las dos pestañas muestran el setup; la siembra (8 categorías y 5 cuentas, sin duplicados) se verifica igual. Para el repaso manual, leer el paso 1 como «Las dos cargan (el formulario o la configuración inicial)». En los demás casos lo que cambió es la pantalla y no el resultado esperado: «Cerrar sesión» está en Ajustes (CP-ACC-009), las bajas se ven en Movimientos → «Eliminados» (CP-REG-012) y la lista de categorías del Resumen lleva la torta y enlaces al detalle (CP-DAS-004). `entrega-1/02-especificacion-casos-de-prueba.md` no se modificó: es el documento de la Entrega 1.
+
+Si más adelante aparece un defecto en un módulo excluido, se agrega acá el caso que se suma y el motivo.
