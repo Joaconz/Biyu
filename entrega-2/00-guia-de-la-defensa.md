@@ -21,6 +21,7 @@ el caso sin el `CP-` (por ejemplo, la hoja `EXP-027` es CP-EXP-027).
 | **Parte B** · Casos que cambiaron de estado en cada entrega | Sección 3 de esta guía · [`06-reporte-de-ejecucion.md`](06-reporte-de-ejecucion.md) §1 | La tabla de cambios |
 | **Parte B** · Defectos de V2 y a qué funcionalidad afectan | [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md) · [`.xlsx`](05-reportes-de-defectos.xlsx) | Tabla «Resumen»: columna «Historia». Una hoja por defecto en la planilla |
 | **Parte B** · Agentes de IA, IDEs y prompts | [`07-ia-agentes-y-prompts.md`](07-ia-agentes-y-prompts.md) | §2: herramientas y modelos |
+| **Parte B** · Presentación de 15 minutos | [`08-presentacion.html`](08-presentacion.html) | Abrila en el navegador. Flechas para avanzar y N para ver las notas del orador |
 | **Parte B** · Demo de V2 | https://biyu-rust.vercel.app | Sección 5 de esta guía |
 
 ## 2. Gráficos

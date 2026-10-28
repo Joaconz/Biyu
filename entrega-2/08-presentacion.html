@@ -1,0 +1,603 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biyu · Entrega 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/*
+  Plan (frontend-design): base ecru, verde cazador de apoyo, espresso para texto (60/30/10, ADR-023).
+  Playfair Display es el elemento activo: títulos y cifras. Inter para leer, con números tabulares.
+  Lectura editorial alineada a la izquierda. La audacia está en un solo lugar: los separadores de
+  sección en verde a pantalla completa. Todo lo demás queda quieto: filetes, nada de cajas repetidas.
+*/
+:root {
+  --bg: #f9f6f0; --paper: #fdfbf7; --linen: #f1ebe0; --ink: #2b1e19; --muted: #6e625a; --hair: #e6dfd3;
+  --green: #1b4d3e; --green-ink: #f9f6f0; --gold: #d4af37; --bad: #8b2e2e; --warn: #7a5c12; --warn-bg: #f3ebd6;
+  --display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --body: "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.slide { position: relative; min-height: 100vh; min-height: 100dvh; scroll-snap-align: start; padding-block: clamp(64px, 11vh, 110px) clamp(40px, 8vh, 80px); padding-inline: max(16px, 7vw, calc((100vw - 1160px) / 2)); display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+.slide > * { max-width: 100%; }
+.slide + .slide { border-top: 1px solid var(--hair); }
+.section-mark { font-size: 15px; color: var(--green); font-weight: 500; }
+.eyebrow { font-size: 16px; color: inherit; opacity: .85; }
+h1, h2 { font-family: var(--display); margin: 0; text-wrap: balance; color: var(--green); font-weight: 600; letter-spacing: -0.005em; }
+h1 { font-size: clamp(76px, 13vw, 168px); line-height: .95; font-weight: 700; color: var(--ink); }
+h2 { font-size: clamp(34px, 4.6vw, 58px); line-height: 1.08; max-width: 20ch; }
+.lead { font-size: clamp(20px, 2vw, 24px); color: var(--muted); max-width: 44ch; margin: 0; }
+p { margin: 0; }
+.muted { color: var(--muted); max-width: 70ch; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
+.row > * { min-width: 0; }
+/* Capturas: el panel verde es el 30 % de la slide, los teléfonos van enteros. */
+.phones { display: flex; gap: clamp(16px, 2.4vw, 28px); justify-content: center; align-items: flex-start; background: var(--green); border-radius: 8px; padding: clamp(20px, 3vw, 40px); }
+.phones figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
+.phone img { display: block; height: min(60vh, 560px); width: auto; max-width: 100%; border: 6px solid var(--bg); border-radius: 8px; background: var(--bg); }
+.phones figcaption { font-size: 14px; color: var(--green-ink); }
+ul.points { list-style: none; padding: 0; margin: 0; display: grid; }
+ul.points li { padding: 14px 0; border-top: 1px solid var(--hair); font-size: clamp(18px, 1.7vw, 21px); max-width: 60ch; }
+ul.points li:last-child { border-bottom: 1px solid var(--hair); }
+ul.points b { font-weight: 600; }
+/* Cifras: números grandes en Playfair, separados por filetes, sin cajas. */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border-top: 1px solid var(--hair); }
+.stat { padding: 22px 24px 22px 0; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--hair); }
+.stat .n { font-family: var(--display); font-size: clamp(44px, 5.6vw, 76px); font-weight: 600; font-variant-numeric: lining-nums tabular-nums; line-height: 1; color: var(--ink); }
+.stat .l { font-size: 15px; color: var(--muted); }
+.stat.hero .n { color: var(--green); }
+.n.bad { color: var(--bad); } .n.warn { color: var(--warn); }
+table { border-collapse: collapse; width: 100%; font-size: 16px; font-variant-numeric: tabular-nums; }
+.tbl { overflow-x: auto; }
+th, td { text-align: left; padding: 12px 16px 12px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+th { font-size: 14px; color: var(--green); font-weight: 600; border-bottom: 2px solid var(--green); }
+td.num, th.num { text-align: right; padding-right: 0; padding-left: 16px; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 8px; font-size: 14px; font-weight: 500; background: var(--linen); }
+.pill.ok { color: var(--green); } .pill.bad { color: var(--bad); } .pill.warn { color: var(--warn); background: var(--warn-bg); }
+pre.prompt { font-family: var(--body); font-size: clamp(14px, 1.25vw, 16.5px); line-height: 1.65; background: var(--paper); border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; padding: 22px 26px; margin: 0; white-space: pre-wrap; overflow-x: auto; color: var(--ink); max-width: 90ch; }
+pre.prompt mark { background: none; color: var(--green); font-weight: 600; }
+.flow { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; font-family: var(--display); font-size: clamp(20px, 2.1vw, 27px); color: var(--ink); }
+.flow span { white-space: nowrap; }
+.flow i { font-style: normal; color: var(--gold); }
+.bar { display: flex; height: 10px; border-radius: 8px; overflow: hidden; background: var(--linen); }
+.bar div { height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 20px; font-size: 15px; color: var(--muted); }
+.legend b { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; }
+/* Pares título/descripción: lista con filetes, no tarjetas. */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 4vw, 64px); border-top: 1px solid var(--hair); }
+.card { padding: 20px 0; border-bottom: 1px solid var(--hair); display: grid; gap: 4px; }
+.card h3 { margin: 0; font-size: 24px; font-family: var(--display); font-weight: 600; color: var(--green); }
+.card p { color: var(--muted); font-size: 16px; max-width: 48ch; }
+.card .tag { font-size: 14px; color: var(--muted); order: 3; }
+.board { margin: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--hair); }
+.board img { display: block; width: 100%; max-height: 64vh; object-fit: contain; background: var(--bg); }
+.notes { display: none; background: var(--warn-bg); border-radius: 8px; padding: 16px 20px; font-size: 16px; color: var(--ink); max-width: 80ch; }
+.notes::before { content: "Notas del orador"; display: block; font-size: 14px; color: var(--warn); margin-bottom: 6px; font-weight: 600; }
+body.show-notes .notes { display: block; }
+.dot { color: var(--gold); }
+/* Portada y demo: ecru, con la marca grande. */
+.cover h2 { color: var(--green); }
+/* Separadores de sección: el único momento fuerte del deck. */
+.divider { background: var(--green); color: var(--green-ink); border-top: 0 !important; justify-content: flex-end; }
+.divider .kicker { font-size: 17px; opacity: .8; }
+.divider h2 { color: var(--green-ink); font-size: clamp(48px, 7.4vw, 104px); max-width: 14ch; line-height: 1; }
+.divider p { font-size: clamp(18px, 1.8vw, 22px); max-width: 52ch; opacity: .85; }
+.divider + .slide { border-top: 0; }
+.slide-meta { position: absolute; top: clamp(18px, 3.4vh, 32px); left: max(16px, 7vw, calc((100vw - 1160px) / 2)); right: max(16px, 7vw, calc((100vw - 1160px) / 2)); width: auto; max-width: none; margin: 0; display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.slide-meta .brand { font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--ink); }
+.slide-meta .pg { font-variant-numeric: tabular-nums; }
+.divider .slide-meta, .divider .slide-meta .brand { color: var(--green-ink); }
+.toolbar { position: fixed; right: max(16px, 2vw); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 8px; z-index: 10; }
+.toolbar button { font: 500 14px var(--body); min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--hair); background: var(--paper); color: var(--ink); cursor: pointer; }
+.toolbar button[aria-pressed="true"] { background: var(--green); color: var(--green-ink); border-color: var(--green); }
+.toolbar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.counter { display: none; }
+@media (max-width: 820px) {
+  .row, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .slide { min-height: auto; padding-block: 72px 48px; }
+  .divider { min-height: 70vh; }
+  html { scroll-snap-type: none; }
+  .phone img { height: auto; width: min(34vw, 190px); }
+}
+.path { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; color: var(--green); white-space: nowrap; }
+.map { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--green); }
+.zone { padding: 18px 20px 18px 0; display: grid; align-content: start; gap: 12px; min-width: 0; }
+.zone + .zone { padding-left: 20px; border-left: 1px solid var(--hair); }
+.zone h3 { margin: 0; font-family: var(--display); font-size: 24px; font-weight: 600; color: var(--green); }
+.zone > p { font-size: 15px; color: var(--muted); }
+.zone ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.zone li { display: grid; gap: 1px; }
+.zone li span:last-child { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.zone.hl { background: var(--green); color: var(--green-ink); padding-left: 20px; border-radius: 0 0 8px 8px; }
+.zone.hl h3, .zone.hl .path { color: var(--green-ink); }
+.zone.hl > p, .zone.hl li span:last-child { color: var(--green-ink); opacity: .82; }
+@media (max-width: 980px) { .map { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zone:nth-child(3) { border-left: 0; padding-left: 0; } .zone.hl { padding-left: 20px; } }
+@media (max-width: 560px) { .map { grid-template-columns: minmax(0, 1fr); } .zone + .zone { border-left: 0; padding-left: 0; border-top: 1px solid var(--hair); } .zone.hl { padding-left: 20px; } .path { white-space: normal; word-break: break-all; } }
+.link { color: var(--green); font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+.cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; margin-right: 14px; background: var(--green); color: var(--green-ink); border-radius: 8px; text-decoration: none; }
+/* Modo presentación (pantallas de compu): cada slide ocupa exactamente la ventana y su contenido
+   se achica solo si no entra, así se ve igual en una MacBook que en un monitor grande. */
+.fit { display: flex; flex-direction: column; justify-content: center; gap: 28px; min-width: 0; }
+.divider .fit { justify-content: flex-end; }
+@media (min-width: 821px) {
+  .slide { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; padding-block: clamp(64px, 9vh, 88px) clamp(68px, 9vh, 88px); }
+  .fit { flex: 1 1 auto; min-height: 0; }
+  body.show-notes .notes { display: none; }
+  body.show-notes .slide.current .notes { display: block; position: fixed; left: max(16px, 2vw); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: min(72ch, calc(100vw - 280px)); max-height: 40vh; overflow-y: auto; z-index: 9; border: 1px solid var(--hair); }
+}
+.chart img { max-height: 66vh; background: #fff; }
+.board img { max-height: 58vh; }
+</style>
+
+<nav class="toolbar" aria-label="Controles">
+  <span class="counter" id="counter">1 / 28</span>
+  <button id="prev" type="button" aria-label="Slide anterior">←</button>
+  <button id="next" type="button" aria-label="Slide siguiente">→</button>
+  <button id="toggle-notes" type="button" aria-pressed="false">Notas (N)</button>
+</nav>
+
+<!-- ============ PORTADA ============ -->
+<section class="slide cover" id="portada">
+  <div class="eyebrow">Testing de Aplicaciones, proyecto integrador. Entrega 02</div>
+  <h1>biyu<span class="dot">.</span></h1>
+  <p class="lead">V2: de la app que registra gastos al MVP que se puede usar todos los días.</p>
+  <p class="muted">Valentina Giampieri, Santiago Pazos, Joaquin Nuñez, Mariana Caceres y Micaela Dopazo</p>
+  <div class="notes">Presentamos la Entrega 2: qué trae V2, cómo nos organizamos, cómo escribimos los requerimientos y se los dimos a la IA, los casos de prueba de V2 y de regresión, y qué salió de ejecutarlos. La demo va al final.</div>
+</section>
+
+<!-- ============ 1) QUÉ TRAE V2 ============ -->
+<section class="slide divider" id="sec-v2">
+  <div class="kicker">Parte 1 de 5</div>
+  <h2>Qué trae la V2</h2>
+  <p>Seis funcionalidades nuevas para que Biyu sea un MVP usable.</p>
+</section>
+
+<section class="slide" id="v2-numeros">
+  <div class="section-mark">Avances de la V2</div>
+  <h2>La V2, en números</h2>
+  <div class="stats">
+    <div class="stat hero"><span class="n">37</span><span class="l">historias de usuario de V2</span></div>
+    <div class="stat"><span class="n">32</span><span class="l">implementadas</span></div>
+    <div class="stat"><span class="n">6</span><span class="l">funcionalidades nuevas</span></div>
+    <div class="stat"><span class="n">212</span><span class="l">casos de prueba de V2</span></div>
+    <div class="stat"><span class="n">18</span><span class="l">ADR nuevos (43 en total)</span></div>
+  </div>
+  <p class="muted">No llegaron US-80 a US-84 (cuotas empezadas y guía en el Excel, varias personas por gasto, deudas sueltas en el balance y editar un movimiento): quedan para V3 y sus casos, BLOCKED.</p>
+  <div class="notes">Escribimos 37 historias y se implementaron 32. Las cinco que no llegaron se especificaron igual, con sus criterios de aceptación, y sus casos quedan bloqueados con la justificación. Cada decisión no obvia quedó como ADR: sumamos 18 en esta entrega.</div>
+</section>
+
+<section class="slide" id="deudas">
+  <div class="section-mark">Deudas y gastos compartidos</div>
+  <div class="row">
+    <div style="display:grid;gap:18px">
+      <h2>Quién me debe y a quién le debo</h2>
+      <ul class="points">
+        <li>Marcar un gasto como compartido al registrarlo (US-34)</li>
+        <li>Cargar una deuda suelta, sin gasto (US-36)</li>
+        <li>Saldar en un toque, con Deshacer (US-39, US-40)</li>
+        <li>El Resumen muestra el gasto neto de reembolsos (US-30)</li>
+      </ul>
+    </div>
+    <figure class="board"><img src="mocks-png/deudas-registrar-compartido.png" alt="Mock de Registrar con el interruptor Gasto compartido"></figure>
+  </div>
+  <div class="notes">Si pago una cena de 120.000 y Sofía me debe la mitad, lo marco como compartido al registrarlo: se guardan el gasto y la deuda en una sola llamada a la base. En Deudas veo lo que me deben y lo que debo, filtro por pendientes o saldadas y salgo de una deuda en un toque.</div>
+</section>
+
+<section class="slide" id="suscripciones">
+  <div class="section-mark">Suscripciones</div>
+  <div class="row">
+    <div style="display:grid;gap:18px">
+      <h2>Los gastos fijos se cargan solos</h2>
+      <ul class="points">
+        <li>Alta con vista previa del calendario (US-52, US-75)</li>
+        <li>Los meses vencidos se cargan al entrar, sin duplicar (US-53)</li>
+        <li>Pausar, reanudar, cancelar y editar (US-56 a US-59)</li>
+        <li>Total mensual comprometido (US-63)</li>
+      </ul>
+    </div>
+    <figure class="board"><img src="mocks-png/suscripciones-alta.png" alt="Mock del alta de una suscripción con la vista previa"></figure>
+  </div>
+  <div class="notes">Netflix, el gimnasio o el alquiler: se cargan una vez y Biyu genera el gasto de cada mes. Si no entraste en tres meses, al volver se cargan los tres, una sola vez aunque recargues. El día 31 se cobra el último día del mes. Es la feature más grande de V2: 13 historias.</div>
+</section>
+
+<section class="slide" id="datos">
+  <div class="section-mark">Exportar e importar</div>
+  <div class="row">
+    <div style="display:grid;gap:18px">
+      <h2>Los datos entran y salen</h2>
+      <ul class="points">
+        <li>Exportar un mes o un año a CSV (US-47)</li>
+        <li>Importar gastos desde un Excel, con revisión fila por fila (US-74, US-76)</li>
+        <li>Importa solo las filas válidas, sin duplicar al reintentar (US-77, US-78)</li>
+      </ul>
+    </div>
+    <figure class="board"><img src="mocks-png/export-csv.png" alt="Mock de la hoja Exportar movimientos"></figure>
+  </div>
+  <div class="notes">El CSV respeta los montos como texto decimal y neutraliza fórmulas. La importación valida cada fila con su mensaje exacto antes de guardar, y todo el lote se guarda en una sola llamada. Si se corta la conexión y reintentás, no se duplica nada.</div>
+</section>
+
+<section class="slide" id="resumen-nav">
+  <div class="section-mark">Resumen y navegación</div>
+  <div class="row">
+    <div style="display:grid;gap:18px">
+      <h2>En qué se fue la plata, a un toque</h2>
+      <ul class="points">
+        <li>Torta del gasto por categoría en el Resumen (US-72)</li>
+        <li>Detalle de cada categoría (US-73)</li>
+        <li>Barra con Registrar, Resumen, Deudas y Suscripciones (US-69)</li>
+        <li>Aviso de guardado y reintento que no pierde lo cargado (US-70)</li>
+      </ul>
+    </div>
+    <figure class="board"><img src="mocks-png/dashboard-categorias-resumen.png" alt="Mock del Resumen con la torta por categoría"></figure>
+  </div>
+  <div class="notes">En V1 había barras; en V2 volvimos a la torta que pedía la pre-entrega, con la lista de montos al lado. La barra de navegación suma las dos pantallas nuevas. Y si falla el guardado, el formulario conserva lo que escribiste y reintentar no duplica el gasto.</div>
+</section>
+
+<!-- ============ 2) EQUIPO Y REQUERIMIENTOS ============ -->
+<section class="slide divider" id="sec-req">
+  <div class="kicker">Parte 2 de 5</div>
+  <h2>Equipo y requerimientos</h2>
+  <p>Cómo nos repartimos y cómo escribimos las historias de V2.</p>
+</section>
+
+<section class="slide" id="equipo">
+  <div class="section-mark">Organización del equipo</div>
+  <h2>Tres frentes, nadie prueba lo que implementó</h2>
+  <div class="grid2">
+    <div class="card"><span class="tag">Joaquín</span><h3>Features de V2</h3><p>Historias, mocks e implementación con IA.</p></div>
+    <div class="card"><span class="tag">Santiago</span><h3>Defectos</h3><p>Fix de los 22 defectos de V1, cada uno con su test de regresión. Supervisó la ejecución con IA.</p></div>
+    <div class="card"><span class="tag">Micaela, Valentina y Mariana</span><h3>Testing</h3><p>Diseño de los casos de V2 y ejecución, con propiedad cruzada.</p></div>
+    <div class="card"><span class="tag">Tablero de GitHub</span><h3>Cómo se coordina</h3><p>Una historia, un issue y un PR. «Hecho» incluye los casos ejecutados.</p></div>
+  </div>
+  <div class="notes">Separamos desarrollo de testing. Joaquín escribió las historias y se las pasó a la IA; Santiago corrigió los defectos de V1; las testers diseñaron los casos desde las historias, no desde el código. Quién ejecutó cada caso está en el reporte de ejecución, sección 3.</div>
+</section>
+
+<section class="slide" id="requerimientos">
+  <div class="section-mark">Requerimientos de V2</div>
+  <div class="row">
+    <div style="display:grid;gap:18px">
+      <h2>Cada historia, lista para implementar y para probar</h2>
+      <ul class="points">
+        <li><b>Pantalla:</b> ruta, estructura y cada botón con su texto</li>
+        <li><b>Campos:</b> tipo, obligatorio, rango, máximo de caracteres</li>
+        <li><b>Mensajes exactos</b> de error, vacío y carga</li>
+        <li><b>Criterios CA-k</b> verificables, con <b>data-testid</b> y mock</li>
+      </ul>
+      <p class="muted">Ejemplo: US-36 «Cargar una deuda suelta» en <span class="path">entrega-2/01-historias-de-usuario-v2.md</span></p>
+    </div>
+    <figure class="board"><img src="mocks-png/deudas-nueva.png" alt="Mock de Nueva deuda"></figure>
+  </div>
+  <div class="notes">La consigna pide requerimientos lo más detallados posible, y así los escribimos: cada historia dice qué pantalla es, qué campos tiene, qué acepta cada uno, qué mensaje sale y cómo se verifica. El agente spec-critic atacó cada historia buscando ambigüedades antes de congelarla.</div>
+</section>
+
+<!-- ============ 3) IA ============ -->
+<section class="slide divider" id="sec-ia">
+  <div class="kicker">Parte 3 de 5</div>
+  <h2>La IA como equipo de desarrollo</h2>
+  <p>Los mismos requerimientos para la IA y para Testing.</p>
+</section>
+
+<section class="slide" id="ia-flujo">
+  <div class="section-mark">Implementación con IA</div>
+  <h2>La IA implementa leyendo solo el issue</h2>
+  <div class="flow">
+    <span>Sesión 1 escribe la historia</span><i>→</i><span>Issue congelado</span><i>→</i><span>Sesión 2, nueva, implementa</span><i>→</i><span>PR con Closes #n</span><i>→</i><span>CI y merge</span>
+  </div>
+  <ul class="points">
+    <li>El prompt no agrega requisitos: si el issue es ambiguo, la IA para y pregunta</li>
+    <li>Las testers diseñan los casos desde ese mismo issue</li>
+    <li>La IA que implementa no diseña ni ejecuta casos CP-*</li>
+  </ul>
+  <div class="notes">La consigna dice que la IA recibe los mismos requerimientos que el resto del equipo, sin cambios funcionales. Por eso la sesión que escribe la historia no es la que la implementa: la que implementa es nueva y solo tiene el texto del issue, igual que las testers.</div>
+</section>
+
+<section class="slide" id="ia-prompts">
+  <div class="section-mark">Prompts utilizados</div>
+  <h2>Un prompt para especificar, otro para implementar</h2>
+  <div class="grid2">
+    <pre class="prompt">Escribí las historias de usuario de V2 para
+la feature <mark>Deudas</mark>: US-30 y US-34 a US-41.
+1. Leé AGENTS.md, CLAUDE.md y el formato de
+   las historias de la Entrega 1.
+2. Cada historia lleva: pantalla, cada botón,
+   cada campo con tipo, rango y máximo,
+   <mark>mensajes exactos</mark>, data-testid y CA-k.
+3. Un mock por pantalla.
+5. Pasalo por <mark>spec-critic</mark>.
+<mark>No implementes nada.</mark></pre>
+    <pre class="prompt">Implementá el issue <mark>#NN</mark>. Solo este issue.
+1. Leé AGENTS.md, CLAUDE.md, el issue y solo
+   los docs que cita. <mark>El issue es el
+   requerimiento congelado: no lo
+   reinterpretes.</mark> Si es ambiguo, pará.
+3. Solo los criterios de aceptación.
+4. Migraciones: rls-migration-reviewer y
+   pgtap-writer. NO a producción.
+6. npm test, test:db y build en verde.
+<mark>No diseñes ni ejecutes casos CP-*.</mark></pre>
+  </div>
+  <p class="muted">Todos los prompts, tal cual se usaron: <span class="path">entrega-2/07-ia-agentes-y-prompts.md</span></p>
+  <div class="notes">Estos son extractos. El documento 07 tiene los seis prompts de especificación, las plantillas de implementación, las sesiones de Suscripciones, Navegación, Resumen y Excel, y un registro de qué prompt y qué herramienta produjo cada PR.</div>
+</section>
+
+<section class="slide" id="ia-herramientas">
+  <div class="section-mark">Agentes, IDEs y defectos</div>
+  <h2>Herramientas y corrección de defectos</h2>
+  <div class="stats">
+    <div class="stat hero"><span class="n">Claude Code</span><span class="l">escritorio y web</span></div>
+    <div class="stat"><span class="n">22</span><span class="l">defectos de V1 corregidos por la IA</span></div>
+    <div class="stat"><span class="n">7</span><span class="l">PRs de fix, cada uno con su test</span></div>
+  </div>
+  <p class="muted">Modelos: Claude Opus 5.5 en casi toda la implementación; Sonnet 5.5 y Haiku 4.5 en parte de las specs. Antigravity y Codex leen las mismas reglas: AGENTS.md y la carpeta <b>.agents/</b>.</p>
+  <div class="notes">La consigna pide pasarle a la IA los reportes de defectos. Santiago le dio cada defecto de V1 con una plantilla: primero el test que reproduce el defecto y falla, después el fix. Los 22 se corrigieron en 7 PRs, y la confirmación sobre V2 está en la selección de regresión, sección 5.</div>
+</section>
+
+<!-- ============ 4) CASOS ============ -->
+<section class="slide divider" id="sec-casos">
+  <div class="kicker">Parte 4 de 5</div>
+  <h2>Los casos de prueba</h2>
+  <p>212 casos de V2 y 60 de V1 elegidos para la regresión.</p>
+</section>
+
+<section class="slide" id="casos-v2">
+  <div class="section-mark">Casos de V2</div>
+  <h2>212 casos, derivados de las historias</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Módulo</th><th>Historias</th><th class="num">Casos</th></tr></thead>
+    <tbody>
+      <tr><td>Deudas y gastos compartidos</td><td>US-30, US-34 a US-41, US-79, US-82, US-83</td><td class="num">61</td></tr>
+      <tr><td>Suscripciones</td><td>US-52 a US-63, US-75</td><td class="num">48</td></tr>
+      <tr><td>Importar Excel</td><td>US-74, US-76 a US-78</td><td class="num">41</td></tr>
+      <tr><td>Exportar CSV</td><td>US-47</td><td class="num">31</td></tr>
+      <tr><td>Navegación e interfaz</td><td>US-69, US-70</td><td class="num">25</td></tr>
+      <tr><td>Resumen por categoría</td><td>US-72, US-73</td><td class="num">6</td></tr>
+      <tr><td><b>Total</b></td><td></td><td class="num"><b>212</b></td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Particiones de equivalencia, valores límite, transición de estados y adivinación de errores. Cada negativo se prueba por la UI y directo contra la API. Catálogo recortado de 672 a 206 casos (más 6 de Resumen) quitando repeticiones.</p>
+  <div class="notes">El primer catálogo tenía 672 casos: muchos repetían la misma regla con otro valor. Lo recortamos a 206 y sumamos 6 del Resumen por categoría. Cada caso usa su propio usuario de prueba, así ninguno depende de otro. Están todos en el documento 02, con una hoja por caso en la planilla.</div>
+</section>
+
+<section class="slide" id="regresion-seleccion">
+  <div class="section-mark">Casos de regresión</div>
+  <h2>60 de los 74 casos de V1, elegidos por riesgo</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Regla</th><th>Qué entra</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Todos los casos de prioridad Alta (39)</td></tr>
+      <tr><td>2</td><td>Alta y Media de los módulos que V2 toca: Registro, Cuotas, Resumen y Monedas</td></tr>
+      <tr><td>3</td><td>Los ligados a un defecto de V1 corregido, o a una pantalla que su fix modificó</td></tr>
+      <tr><td>4</td><td>Los que fallaron en V1</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Quedan afuera 14: Media o Baja de Acceso y Configuración, que V2 no toca, y las Baja del resto. Criterio en ADR-027.</p>
+  <div class="notes">No ejecutamos todo V1 de nuevo: elegimos por riesgo. Entra todo lo de prioridad Alta, lo de los módulos que V2 modifica, lo que confirma un defecto corregido y lo que había fallado. Los 14 excluidos conservan su resultado; si aparece un defecto en un módulo excluido, se amplía la selección.</div>
+</section>
+
+<!-- ============ 5) RESULTADOS ============ -->
+<section class="slide divider" id="sec-res">
+  <div class="kicker">Parte 5 de 5</div>
+  <h2>Qué pasó al ejecutarlos</h2>
+  <p>Casos de V2, regresión de V1 y confirmación de defectos.</p>
+</section>
+
+<section class="slide" id="res-total">
+  <div class="section-mark">Resultado general de V2</div>
+  <h2>189 de 203 casos pasan</h2>
+  <div class="stats">
+    <div class="stat"><span class="n">203</span><span class="l">casos con resultado</span></div>
+    <div class="stat hero"><span class="n">189</span><span class="l">PASSED, 93 %</span></div>
+    <div class="stat"><span class="n bad">9</span><span class="l">FAILED, 4 %</span></div>
+    <div class="stat"><span class="n warn">1</span><span class="l">DUDA</span></div>
+    <div class="stat"><span class="n">4</span><span class="l">BLOCKED, 2 %</span></div>
+  </div>
+  <div class="bar" role="img" aria-label="189 PASSED, 9 FAILED, 1 DUDA y 4 BLOCKED sobre 203">
+    <div style="width:93.1%;background:var(--green)"></div><div style="width:4.4%;background:var(--bad)"></div><div style="width:0.5%;background:var(--gold)"></div><div style="width:2%;background:#8c8c8c"></div>
+  </div>
+  <div class="legend"><span><b style="background:var(--green)"></b>PASSED 189</span><span><b style="background:var(--bad)"></b>FAILED 9</span><span><b style="background:var(--gold)"></b>DUDA 1</span><span><b style="background:#8c8c8c"></b>BLOCKED 4</span></div>
+  <p class="muted">Los 4 BLOCKED dependen de US-82 (varias personas), que no se implementó. 9 casos de Deudas los informó el equipo como OK sin registrar el resultado.</p>
+  <div class="notes">De los 212 casos, 203 tienen resultado registrado. Pasan 189. Los 9 FAILED abrieron 8 defectos. El caso en DUDA se cumple, pero con otros parámetros porque US-82 no existe. Sobre los ejecutados, el 95 % pasa.</div>
+</section>
+
+<section class="slide" id="res-grafico">
+  <div class="section-mark">Gráfico por entrega</div>
+  <h2>Cómo evolucionaron los resultados</h2>
+  <figure class="board chart"><img src="graficos/resultados-por-entrega.svg" alt="Gráfico de barras apiladas con PASSED, FAILED, DUDA y BLOCKED por ejecución: Entrega 1 ejecución 1, 90,5 % PASSED; Entrega 1 ejecución 2, 97,3 %; Entrega 2 casos de V2, 93,1 %; Entrega 2 regresión de V1, 100 %"></figure>
+  <div class="notes">En la Entrega 1 la primera ejecución dio 90,5 % porque US-68 no existía; implementada, la segunda dio 97 %. En V2 el 93 % de los casos nuevos pasa, y la regresión de V1 pasa entera: V2 no rompió nada de lo que ya andaba.</div>
+</section>
+
+<section class="slide" id="res-modulo">
+  <div class="section-mark">Por módulo</div>
+  <h2>Dónde falla V2</h2>
+  <figure class="board chart"><img src="graficos/resultados-v2-por-modulo.svg" alt="Gráfico de barras apiladas por módulo de V2: Deudas 86,5 % PASSED, Navegación 100 %, Exportar CSV 90,3 %, Importar Excel 97,6 %, Suscripciones 93,8 %, Resumen por categoría 100 %"></figure>
+  <div class="notes">Navegación y el Resumen por categoría pasan enteros. Exportar CSV y Suscripciones tienen 3 fallas cada uno; Deudas tiene 2 fallas, la duda y los 4 bloqueados por US-82.</div>
+</section>
+
+<section class="slide" id="res-cambios">
+  <div class="section-mark">Cambios de estado</div>
+  <h2>Qué casos cambiaron de estado en cada entrega</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Cuándo</th><th>Caso</th><th>Cambio</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>E1, ejecución 1 → 2</td><td>CP-CFG-011</td><td><span class="pill bad">FAILED</span> → <span class="pill ok">PASSED</span></td><td>Se implementó US-68 (DEF-017)</td></tr>
+      <tr><td>E1, ejecución 1 → 2</td><td>CP-CFG-012 a 015</td><td><span class="pill warn">BLOCKED</span> → <span class="pill ok">PASSED</span></td><td>Dependían de US-68</td></tr>
+      <tr><td>E1 → E2 (regresión)</td><td>CP-ACC-004</td><td><span class="pill bad">FAILED</span> → <span class="pill ok">PASSED</span></td><td>DEF-005 corregido</td></tr>
+      <tr><td>E1 → E2 (regresión)</td><td>CP-CFG-004</td><td><span class="pill bad">FAILED</span> → <span class="pill ok">PASSED</span></td><td>DEF-006 corregido</td></tr>
+      <tr><td>E1 → E2 (regresión)</td><td>Otros 58</td><td><span class="pill ok">PASSED</span> → <span class="pill ok">PASSED</span></td><td>Sin cambios</td></tr>
+      <tr><td>E2</td><td>CP-DEU-001, 003, 011</td><td><span class="pill warn">DUDA</span> → <span class="pill ok">PASSED</span></td><td>Se corrigieron los casos</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notes">Los dos casos que fallaban en la Entrega 1 pasan en V2 porque se corrigieron sus defectos. Y tres casos de Deudas quedaron en duda por pasos mal escritos: los corregimos y los volvimos a ejecutar. Los casos de V2 se ejecutaron por primera vez en esta entrega.</div>
+</section>
+
+<section class="slide" id="res-regresion">
+  <div class="section-mark">Regresión y confirmación</div>
+  <h2>V2 no rompió V1, y los defectos de V1 están resueltos</h2>
+  <div class="stats">
+    <div class="stat hero"><span class="n">60/60</span><span class="l">casos de regresión PASSED</span></div>
+    <div class="stat"><span class="n">18</span><span class="l">defectos de V1 confirmados corregidos</span></div>
+    <div class="stat"><span class="n warn">3</span><span class="l">confirmados en parte</span></div>
+    <div class="stat"><span class="n">1</span><span class="l">no concluyente (DEF-023)</span></div>
+  </div>
+  <p class="muted">Detalle de cada defecto repetido sobre V2: <span class="path">entrega-2/03-seleccion-regresion.md</span> §5.</p>
+  <div class="notes">Repetimos los pasos de los 22 defectos de V1 sobre V2. 18 quedaron confirmados como corregidos. Tres se confirmaron en parte: se probaron con WebKit emulado o con una simulación, no en un iPhone real. DEF-023 dio un resultado no concluyente y se cerró por decisión del equipo; se reabre si reaparece.</div>
+</section>
+
+<section class="slide" id="res-defectos">
+  <div class="section-mark">Defectos de V2</div>
+  <h2>8 defectos, ninguno crítico ni alto</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Funcionalidad</th><th>Defectos</th><th>Severidad</th></tr></thead>
+    <tbody>
+      <tr><td>Exportar CSV (US-47)</td><td>DEF-030, 031, 032: tocar afuera, Atrás y Atrás durante la exportación no cierran la hoja</td><td>Media</td></tr>
+      <tr><td>Deudas (US-36)</td><td>DEF-037: el primer clic en «US$» de Nueva deuda se pierde</td><td>Media</td></tr>
+      <tr><td>Importar Excel (US-76)</td><td>DEF-033: la fila muestra el texto del archivo y no el nombre en Biyu</td><td>Baja</td></tr>
+      <tr><td>Suscripciones (US-52 a 59, US-75)</td><td>DEF-034, 035, 036: códigos HTTP y un atributo de automatización</td><td>Baja</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">4 Medios y 4 Bajos. DEF-035 y DEF-036 pueden ser errores del caso: quedan abiertos hasta que decida el PO.</p>
+  <div class="notes">Ningún defecto bloquea el uso. Los tres de Exportar son de cómo se cierra la hoja. El de Deudas es de interacción: el mensaje de error corre los botones y el primer clic se pierde. Los de Suscripciones son por API: un 500 donde se esperaba 404, y un 401 donde el caso esperaba 403.</div>
+</section>
+
+<section class="slide" id="res-salida">
+  <div class="section-mark">Criterios de salida</div>
+  <h2>Dos cumplidos, dos parciales y uno no</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Criterio</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>1. Cero defectos críticos abiertos</td><td><span class="pill ok">Cumplido</span></td></tr>
+      <tr><td>2. Cero defectos altos abiertos</td><td><span class="pill ok">Cumplido</span></td></tr>
+      <tr><td>3. Todos los casos de prioridad Alta ejecutados</td><td><span class="pill bad">No cumplido</span> 125 de 129: 4 BLOCKED por US-82</td></tr>
+      <tr><td>4. Toda invariante con al menos un caso</td><td><span class="pill warn">Parcial</span></td></tr>
+      <tr><td>5. Regresión ejecutada y defectos confirmados</td><td><span class="pill warn">Con salvedades</span> falta el repaso manual</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notes">No escondemos el criterio 3: cuatro casos de prioridad Alta no se pueden ejecutar porque la función de varias personas no se implementó; quedan para V3. El 5 tiene salvedades porque la regresión se ejecutó con IA y el equipo está repasando a mano los 39 casos de prioridad Alta.</div>
+</section>
+
+<section class="slide" id="ejecucion">
+  <div class="section-mark">Quién ejecutó</div>
+  <h2>Ejecución manual y con IA supervisada</h2>
+  <div class="stats">
+    <div class="stat"><span class="n">21</span><span class="l">casos de V2 a mano</span></div>
+    <div class="stat"><span class="n">21</span><span class="l">de Suscripciones informados por el equipo</span></div>
+    <div class="stat hero"><span class="n">161</span><span class="l">de V2 con IA, supervisados</span></div>
+    <div class="stat"><span class="n">60</span><span class="l">de regresión con IA</span></div>
+  </div>
+  <p class="muted">La IA ejecutó con Playwright y pedidos directos a la API, sin cambiar ningún resultado a mano. El equipo repasa a mano los 39 casos de prioridad Alta de la regresión.</p>
+  <div class="notes">Lo declaramos tal cual. La IA ejecutó los pasos escritos, contra la app local, y dejó lo observado en cada caso. La supervisaron Santiago y Joaquín. Cada defecto tiene sus pasos de reproducción en el reporte de defectos.</div>
+</section>
+
+<section class="slide" id="mapa-repo">
+  <div class="section-mark">Dónde está cada cosa</div>
+  <h2>Todo en <span class="path" style="font-size:inherit">entrega-2/</span></h2>
+  <div class="map">
+    <div class="zone">
+      <h3>Parte A</h3>
+      <p>Requerimientos y casos.</p>
+      <ul>
+        <li><span class="path">01-historias-de-usuario-v2</span><span>37 historias y mocks</span></li>
+        <li><span class="path">02-especificacion-casos-v2</span><span>212 casos, md y xlsx</span></li>
+        <li><span class="path">03-seleccion-regresion</span><span>60 casos de V1 y 22 defectos</span></li>
+      </ul>
+    </div>
+    <div class="zone">
+      <h3>Ejecución</h3>
+      <p>Resultados y defectos.</p>
+      <ul>
+        <li><span class="path">04-ejecucion</span><span>Resultado por caso</span></li>
+        <li><span class="path">05-reportes-de-defectos</span><span>DEF-030 a DEF-037</span></li>
+        <li><span class="path">06-reporte-de-ejecucion</span><span>Métricas y criterios de salida</span></li>
+      </ul>
+    </div>
+    <div class="zone">
+      <h3>IA</h3>
+      <p>Cómo se implementó.</p>
+      <ul>
+        <li><span class="path">07-ia-agentes-y-prompts</span><span>Herramientas y prompts</span></li>
+        <li><span class="path">graficos/</span><span>Los gráficos de esta presentación</span></li>
+      </ul>
+    </div>
+    <div class="zone hl">
+      <h3>Para la defensa</h3>
+      <p>El mapa de la consigna.</p>
+      <ul>
+        <li><span class="path">00-guia-de-la-defensa</span><span>Qué archivo y qué caso abrir para cada tema</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="muted">Para buscar un caso, Ctrl+F con su ID. En las planillas, la hoja <span class="path">EXP-027</span> es CP-EXP-027.</p>
+  <div class="notes">Si quieren ver un caso real, abrimos el 02 o la planilla y buscamos su ID. La guía de la defensa tiene una lista de casos para mostrar: uno que pasa, uno que falla con su defecto, uno bloqueado y uno de regresión.</div>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section class="slide cover" id="demo">
+  <div class="eyebrow">Demo</div>
+  <h2>Biyu V2, en vivo</h2>
+  <ul class="points">
+    <li>Barra de navegación → gasto compartido → Deudas: cargar, saldar y deshacer</li>
+    <li>Alta de una suscripción con la vista previa → pausar</li>
+    <li>Torta por categoría → exportar un mes → importar el Excel de ejemplo</li>
+  </ul>
+  <p><a class="link cta" href="https://biyu-rust.vercel.app" target="_blank" rel="noopener">Abrir biyu-rust.vercel.app</a></p>
+  <div class="notes">Recorremos una pantalla por cada funcionalidad nueva. El Excel de ejemplo está en entrega-2/mocks/importar-excel-ejemplo.xlsx.</div>
+</section>
+
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const counter = document.getElementById('counter');
+  const notesBtn = document.getElementById('toggle-notes');
+  let current = 0;
+  const update = () => { counter.textContent = `${current + 1} / ${slides.length}`; slides.forEach((s, i) => s.classList.toggle('current', i === current)); };
+  const go = (i) => { current = Math.max(0, Math.min(slides.length - 1, i)); slides[current].scrollIntoView({ block: 'start' }); update(); };
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting && e.intersectionRatio > 0.5) { current = slides.indexOf(e.target); update(); } });
+  }, { threshold: [0.5] });
+  slides.forEach((s) => io.observe(s));
+  const toggleNotes = () => {
+    const on = document.body.classList.toggle('show-notes');
+    notesBtn.setAttribute('aria-pressed', String(on));
+    try { localStorage.setItem('biyu-notes', on ? '1' : '0'); } catch (e) {}
+  };
+  try { if (localStorage.getItem('biyu-notes') === '1') toggleNotes(); } catch (e) {}
+  document.getElementById('prev').addEventListener('click', () => go(current - 1));
+  document.getElementById('next').addEventListener('click', () => go(current + 1));
+  notesBtn.addEventListener('click', toggleNotes);
+  document.addEventListener('keydown', (e) => {
+    if (e.target.closest('input, textarea')) return;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(current + 1); }
+    if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); go(current - 1); }
+    if (e.key.toLowerCase() === 'n') toggleNotes();
+  });
+  slides.forEach((sl) => {
+    const f = document.createElement('div'); f.className = 'fit';
+    [...sl.children].forEach((c) => { if (!c.classList.contains('notes')) f.appendChild(c); });
+    sl.prepend(f);
+  });
+  const fit = () => {
+    slides.forEach((sl) => {
+      const f = sl.querySelector('.fit');
+      f.style.zoom = ''; if (window.innerWidth <= 820) return;
+      f.style.flex = 'none'; const need = f.offsetHeight; f.style.flex = '';
+      const cs = getComputedStyle(sl);
+      const avail = sl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (need > avail) f.style.zoom = String(avail / need);
+    });
+  };
+  fit(); window.addEventListener('resize', fit);
+  if (document.fonts) document.fonts.ready.then(fit);
+  window.addEventListener('load', fit);
+  slides.forEach((sl, i) => {
+    const m = document.createElement('div'); m.className = 'slide-meta';
+    m.innerHTML = '<span class="brand">biyu<span class="dot">.</span></span><span class="pg">' + (i + 1) + ' de ' + slides.length + '</span>';
+    sl.prepend(m);
+  });
+  update();
+})();
+</script>

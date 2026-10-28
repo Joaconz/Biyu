@@ -18,7 +18,7 @@ cambiaron de estado y qué caso abrir para cada tema.
 | B | `06-reporte-de-ejecucion.md` / `.xlsx` | % PASSED / FAILED / BLOCKED por módulo y gráficos (`graficos/`), quién ejecutó cada caso (IA o equipo), criterios de salida y desvíos | **Parcial**: Deudas, Navegación, Exportar CSV, Importar Excel, Suscripciones y Resumen por categoría, y regresión de V1 (60 PASSED con IA; criterio de salida 5 cumplido con salvedades; repaso manual de los 39 de prioridad Alta pendiente) |
 | Adicional | `equivalencia-ids.md` | Tabla con el ID anterior y el ID nuevo de cada caso de V2 (recorte y renumeración del 2026-10-27) | Hecho |
 | Adicional | `07-ia-agentes-y-prompts.md` | Agentes de IA, IDEs y prompts usados | **Hecho**: herramientas y modelos, prompts de especificación, de implementación y de corrección de defectos tal cual se usaron, y el registro de qué prompt y qué herramienta produjo cada PR |
-| B | `08-presentacion.html` | Presentación de 15 minutos con la demo | Pendiente |
+| B | `08-presentacion.html` | Presentación de 15 minutos con la demo | **Hecho**: 28 slides con el diseño de la Entrega 1, los gráficos y notas del orador (tecla N) |
 | Estudio | `09-resumen-de-estudio.md` | Para explicar todo oralmente | Pendiente |
 
 **Antes de V2:** corregir la especificación de la Entrega 1 (el profesor pidió casos mejor especificados).
