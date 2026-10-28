@@ -1,14 +1,14 @@
-# Entrega 2 · Reporte de ejecución de casos de prueba (V2) · Deudas, Navegación, Exportar CSV, Importar Excel y Suscripciones
+# Entrega 2 · Reporte de ejecución de casos de prueba (V2) · Deudas, Navegación, Exportar CSV, Importar Excel, Suscripciones y Resumen por categoría, y regresión de V1
 
 Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, prioridad, título, historia, camino feliz, status y defectos, más el resumen, el gráfico y los criterios de salida). Formato del contenido: `docs/07-plan-de-testing.md` §6. Registro por caso en [`04-ejecucion.md`](04-ejecucion.md); defectos en [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md).
 
-| Dato | Deudas y Navegación | Exportar CSV, Importar Excel y Suscripciones |
-|---|---|---|
-| Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución de Claude Code: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. |
-| Entorno | Manual: Google Chrome contra el deploy. Claude Code: Vite local (127.0.0.1:5173) + Supabase local; Chromium (Playwright 1.63) y navegador integrado; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. |
-| Fecha | 2026-10-25 | 2026-10-27 |
-| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. |
-| Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. |
+| Dato | Deudas y Navegación | Exportar CSV, Importar Excel y Suscripciones | Regresión de V1 |
+|---|---|---|---|
+| Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución de Claude Code: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. | `main` en `109007a` (local, con las 24 migraciones hasta `20261012000000`). No se probó el deploy de Vercel. |
+| Entorno | Manual: Google Chrome contra el deploy. Claude Code: Vite local (127.0.0.1:5173) + Supabase local; Chromium (Playwright 1.63) y navegador integrado; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium (Playwright 1.63), es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. | Vite local (localhost:5173) + Supabase local reiniciado con `supabase/config.toml`; Chromium (Playwright) emulando un celular de 390 × 844 px, es-AR, America/Argentina/Buenos_Aires; reloj real, salvo CP-REG-013 (15/10/2026, como en V1). |
+| Fecha | 2026-10-25 | 2026-10-27 | 2026-10-28 |
+| Ejecutó | Santiago (a mano: Deudas CP-DEU-005 a 010 y 15 casos de Navegación) y Claude Code, supervisado por Santiago (el resto). | Claude Code (IA), supervisado por Santiago: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. | Claude Code (IA), supervisado por Joaquín: los 60 casos de V1 seleccionados en `03-seleccion-regresion`. Repaso manual de los 39 de prioridad Alta por el equipo: pendiente. |
+| Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. | Usuarios `qa+reg-<caso o grupo>-<corrida>@example.com` y montos ficticios; se borraron de la base local al terminar. |
 
 ## 1. Planificados, ejecutados, pasados, fallados y bloqueados
 
@@ -67,8 +67,27 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 **Confirmación de defectos de V1 (22 defectos, ejecutada el 2026-10-28; no suma a los casos de arriba):**
 
-- **Confirmados corregidos en V2 (21):** DEF-005, DEF-006, DEF-007, DEF-008, DEF-009, DEF-010, DEF-011, DEF-012, DEF-013, DEF-014, DEF-015, DEF-016, DEF-018, DEF-019, DEF-020, DEF-021, DEF-024, DEF-025, DEF-026, DEF-027, DEF-028. Cada uno se repitió con los pasos de su reporte y el comportamiento es el esperado (detalle en `03-seleccion-regresion`, sección 5).
+- **Confirmados corregidos en V2 (18):** DEF-005, DEF-006, DEF-007, DEF-008, DEF-009, DEF-010, DEF-011, DEF-012, DEF-013, DEF-014, DEF-015, DEF-016, DEF-018, DEF-019, DEF-020, DEF-024, DEF-025, DEF-026. Cada uno se repitió con los pasos de su reporte y el comportamiento es el esperado (detalle en `03-seleccion-regresion`, sección 5). DEF-005 se repitió el 2026-10-28 después de reiniciar Supabase local con la configuración del repositorio, y a DEF-026 se le completó el paso «Tus categorías» de la configuración inicial, que la primera confirmación no había revisado.
+- **Confirmados en parte (3):** DEF-021 (se probó en WebKit con el viewport de un iPhone 13, no en un iPhone real), DEF-027 (el límite de altas se simuló con una respuesta 429) y DEF-028 (la siembra lenta se simuló con demoras). El comportamiento corregido se ve, pero no en las condiciones del reporte original.
 - **No concluyente (1):** DEF-023 (la pantalla en blanco después de crear la cuenta). El defecto era intermitente; en 16 altas (8 en Chromium y 8 en WebKit) no se reprodujo, pero no alcanzan para descartarlo. El equipo decidió cerrarlo igual; se reabre si reaparece.
+
+**Regresión de V1 (60 casos, ejecutada el 2026-10-28; no suma a los casos de arriba):**
+
+| Métrica | Casos | % |
+|---|---|---|
+| Planificados (seleccionados en `03`) | 60 | 100 % |
+| Ejecutados | 60 | 100 % de avance |
+| PASSED | 60 | 100 % de los ejecutados |
+| FAILED | 0 | 0 % |
+| BLOCKED | 0 | 0 % |
+| No ejecutados | 0 | — |
+
+- **PASSED (60):** lo que funcionaba en V1 sigue funcionando en V2 en Acceso (9), Configuración (11), Registro (13), Cuotas (12), Monedas (6) y Resumen (9), incluidas las variantes API y los pares de autorización (otro usuario → 0 filas, rol anon → 42501).
+- **Los dos casos que fallaron en V1 pasan:** CP-ACC-004 (la API rechaza `abcd1234` con HTTP 422 weak_password, DEF-005) y CP-CFG-004 (el movimiento de una categoría archivada lleva la marca «archivada», DEF-006).
+- **Casos que cambiaron de estado respecto de la Entrega 1:** CP-ACC-004 y CP-CFG-004 (FAILED → PASSED). Los otros 58 siguen PASSED.
+- **Selección ampliada:** se sumaron CP-CFG-005 y CP-CFG-013 (regla 3, por los fixes de DEF-019 y DEF-026, que tocaron Configuración; `03` §6). Los dos pasan.
+- **Defectos nuevos:** ninguno. Detalle por caso en `04-ejecucion`, apartado «Regresión de V1»; resultado crudo en `ejecucion/regresion-v1-resultados.json`.
+- **Repaso manual:** pendiente (0 de 39 casos de prioridad Alta).
 
 ## 2. Cobertura por módulo, prioridad, tipo, técnica y canal
 
@@ -115,6 +134,23 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 | API | 52 | 48 | 2 | 0 | 2 | 0 |
 | UI | 151 | 141 | 7 | 1 | 2 | 0 |
 
+**Regresión de V1 (60 casos):**
+
+| Módulo de V1 | Casos | PASSED | FAILED | BLOCKED | No ejecutados |
+|---|---|---|---|---|---|
+| ACC · Acceso y autorización | 9 | 9 | 0 | 0 | 0 |
+| CFG · Configuración | 11 | 11 | 0 | 0 | 0 |
+| REG · Registro y baja | 13 | 13 | 0 | 0 | 0 |
+| CUO · Cuotas | 12 | 12 | 0 | 0 | 0 |
+| MON · Monedas | 6 | 6 | 0 | 0 | 0 |
+| DAS · Resumen | 9 | 9 | 0 | 0 | 0 |
+
+| Prioridad | Casos | PASSED | FAILED | BLOCKED | No ejecutados |
+|---|---|---|---|---|---|
+| Alta | 39 | 39 | 0 | 0 | 0 |
+| Media | 20 | 20 | 0 | 0 | 0 |
+| Baja | 1 | 1 | 0 | 0 | 0 |
+
 ## 3. Quién ejecutó cada caso: con IA y sin IA
 
 | Módulo | Casos | A mano por el equipo | Con IA (Claude Code, supervisado por Santiago) | Informados «ok» por el equipo, sin repetir |
@@ -129,6 +165,8 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en §6; los de SUS informados como «ok» por el equipo son los 21 que no figuran como ejecutados con IA (lista en `04-ejecucion`).
 
+La regresión de V1 (60 casos, aparte de los 203) la ejecutó entera Claude Code (IA), supervisado por Joaquín: 0 a mano y 60 con IA. El repaso manual de los 39 casos de prioridad Alta por el equipo (hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx`) está pendiente.
+
 ## 4. Defectos por severidad
 
 | Severidad | Abiertos | IDs |
@@ -139,7 +177,7 @@ Los casos de EXP, IMP y SUS que ejecutó la IA y el detalle de lo que se sustitu
 | Baja | 4 | DEF-033, DEF-034, DEF-035, DEF-036 |
 | **Total abiertos** | **8** | DEF-030, DEF-031, DEF-032, DEF-033, DEF-034, DEF-035, DEF-036, DEF-037 |
 
-Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
+Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía. La regresión de V1 no encontró defectos nuevos.
 
 ## 5. Criterios de salida (docs/07-plan-de-testing.md §6)
 
@@ -147,11 +185,11 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 |---|---|---|
 | 1. Cero defectos de severidad Crítica abiertos | Cumplido | No hay defectos críticos (los defectos abiertos son de severidad Media y Baja). |
 | 2. Cero defectos de severidad Alta abiertos, o justificados por el PO | Cumplido | No hay defectos de severidad Alta. |
-| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 125 de 129 casos de prioridad Alta ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. |
-| 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I2, I3, I4, I5, I7 e I9 con casos ejecutados; I1 ya no tiene caso en este alcance después del recorte y queda para la regresión de V1. En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
-| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Parcial | Confirmación de defectos de V1 ejecutada el 2026-10-28: 21 de 22 confirmados corregidos en V2 y 1 no concluyente (DEF-023, cerrado igual por decisión del equipo). La regresión de los casos de V1 seleccionados (`03`) todavía no se ejecutó. |
+| 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 125 de 129 casos de prioridad Alta de V2 ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. En la regresión de V1 se ejecutaron los 39 casos de prioridad Alta (39 PASSED, con IA; el repaso manual está pendiente). |
+| 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I2, I3, I4, I5, I7 e I9 con casos ejecutados. I1 e I1' se ejecutaron en la regresión de V1 (CP-CUO-004, 005, 010 y 013, y CP-REG-015: PASSED). En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
+| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Cumplido, con salvedades | Confirmación de defectos de V1 ejecutada el 2026-10-28: 18 confirmados corregidos en V2, 3 confirmados en parte (DEF-021, DEF-027 y DEF-028) y 1 no concluyente (DEF-023, de severidad Alta, cerrado por decisión del equipo; se reabre si reaparece). Regresión de los 60 casos de V1 seleccionados (`03`) ejecutada el 2026-10-28 con IA: 60 PASSED, sin defectos nuevos. Salvedades: todo se verificó en local (DEF-005 depende de la configuración de Auth del proyecto hosteado, que no se verificó) y el repaso manual de los 39 casos de prioridad Alta está pendiente. |
 
-**Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos). El criterio 3 **no se cumple**: los cuatro casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial, y el 5 se cumple en parte: los defectos de V1 están confirmados, pero falta ejecutar la regresión de V1.
+**Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos) y el 5 con salvedades (la regresión de V1 pasó entera; de los defectos de V1, 18 están confirmados, 3 confirmados en parte y DEF-023 se cerró sin confirmar; falta el repaso manual). El criterio 3 **no se cumple**: los cuatro casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial.
 
 ## 6. Desvíos respecto de lo planificado
 
@@ -198,12 +236,28 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 ### Confirmación de defectos de V1 (ejecutada el 2026-10-28)
 
 1. Ejecución con scripts de Playwright (Chromium emulando un celular de 375 × 812 px, es-AR; WebKit para DEF-023) y llamadas directas a la API, no a mano; la propiedad cruzada del plan no se aplicó. Entorno local (Vite + Supabase local), sobre `main` en `ee62a2d`, reloj real; no se probó el deploy de Vercel. Un usuario nuevo por defecto (`qa+v1-def<nnn>-001@example.com`), borrados al terminar.
-2. DEF-005 se verificó contra la política de contraseñas de Supabase local; en el proyecto hosteado la configuración puede ser otra.
-3. DEF-021 se verificó en Chromium a 390 px de ancho; el defecto original era de un iPhone con Safari, que no se probó.
+2. DEF-005 se verificó contra la política de contraseñas de Supabase local; en el proyecto hosteado la configuración puede ser otra. Se repitió el 2026-10-28 después de reiniciar Supabase local con la configuración del repositorio (ver la regresión, punto 3).
+3. DEF-021 se verificó en Chromium a 390 px de ancho y, el 2026-10-28, en WebKit (el motor de Safari) con el viewport de iPhone 13; el defecto original era de un iPhone con Safari, y falta probarlo en uno real: queda «Confirmado parcial».
 4. DEF-023 es intermitente: 16 altas sin falla (8 en Chromium y 8 en WebKit) no lo descartan; queda como no concluyente y el equipo decidió cerrarlo igual (se reabre si reaparece).
-5. DEF-026: se comprobó Registrar y Ajustes; no se recorrió el paso «Tus categorías» de la configuración inicial.
+5. DEF-026: se comprobó Registrar y Ajustes; el paso «Tus categorías» de la configuración inicial, que la primera confirmación no recorrió, se completó el 2026-10-28.
 6. DEF-027 y DEF-028 se simularon: el límite de altas con una respuesta 429 interceptada y la siembra lenta con demoras de 4 s (cuentas) y 1,5 s (categorías).
 7. No se adjuntaron capturas ni los scripts; la evidencia de cada defecto está en `03-seleccion-regresion` (sección 5).
+
+### Regresión de V1 (ejecutada el 2026-10-28)
+
+1. **Ejecución con script, no a mano.** Los 60 casos los ejecutó Claude Code con el script de la ejecución de V1 (`entrega-1/ejecucion/`), copiado fuera del repositorio y adaptado a V2; la propiedad cruzada del plan (`docs/07-plan-de-testing.md` §1) no se aplicó. Entorno local (Vite + Supabase local), sobre `main` en `109007a`, solo Chromium emulando un celular; no se probó el deploy de Vercel.
+2. **Adaptaciones del script a V2.** Salvo en CP-CFG-008, cambian cómo se llega y no lo que se verifica: CP-ACC-003 saltea los 4 pasos de la configuración inicial antes de llegar a Registrar, como dice el caso (el script de V1 es anterior a US-68); en CP-CFG-008 la cuenta nueva abre /setup en las dos pestañas, no el formulario de Registrar que dice el paso 1, y se contó la siembra igual (es el único caso cuyo resultado esperado cambió en V2: `03` §6); CP-REG-012 busca el gasto borrado en Movimientos → «Eliminados» (FR-08, corregido por DEF-007); CP-DAS-004 lee las filas de la lista de categorías, que en V2 son enlaces al detalle (US-73); CP-MON-003 espera a que llegue el tipo de cambio sugerido; CP-CFG-004 acepta `true` como valor booleano de la base. Además, en la cuarta corrida el script verifica dos pasos que el de V1 no miraba: el aviso «Transacción eliminada» de CP-REG-012 y, en CP-CFG-013, las 8 categorías tildadas y que «Educación» desaparezca de la lista.
+3. **Supabase local con una configuración vieja.** La primera corrida encontró la API de Auth aceptando `abcd1234` (CP-ACC-004): el stack local estaba levantado con una configuración anterior (mínimo 6 caracteres, sin requisitos). Se reinició Supabase con la configuración del repositorio (`supabase/config.toml`: 8 caracteres, mayúscula, minúscula, número y símbolo; los datos se conservaron) y se repitió: HTTP 422 weak_password. En el proyecto hosteado la configuración de Auth puede ser otra y no se verificó.
+4. **Cuatro corridas completas.** No se cambió a mano el resultado de ningún caso; el resultado crudo de la cuarta está en `ejecucion/regresion-v1-resultados.json`.
+   - **Primera (58 casos):** 51 PASSED, 4 FAILED y 3 errores, ninguno de la aplicación. CP-ACC-003 FAILED porque el script esperaba Registrar después del alta y la app abre la configuración inicial, como dice el caso. CP-ACC-008 y CP-ACC-009 dieron error porque dependen del usuario de CP-ACC-003. CP-ACC-004 FAILED por la configuración vieja de Supabase (punto 3). CP-CFG-004 FAILED porque el script comparaba el booleano con `t` y la base devuelve `true` (en la pantalla y en la base estaba todo bien). CP-CFG-008 dio error porque esperaba el formulario de Registrar. CP-DAS-004 FAILED porque el script no encontraba las filas de la lista, que en V2 tienen otro marcado.
+   - **Segunda (58 casos):** 57 PASSED y 1 FAILED. CP-MON-003 falló porque el script leyó el tipo de cambio antes de que llegara la sugerencia, que aparece unos 10 ms después de tocar «US$»; repetido dos veces aparte: PASSED.
+   - **Tercera (58 casos):** 58 PASSED.
+   - **Cuarta (60 casos, la que vale):** con la selección ampliada (CP-CFG-005 y CP-CFG-013) y las dos verificaciones que se sumaron (punto 2): 60 PASSED.
+5. **Preparación por API y casos encadenados.** Como en V1, los usuarios que son datos de otros casos se crearon por la API de Auth con la configuración inicial marcada como hecha, y los movimientos de la preparación (Resumen, cuotas de agosto, «Cine» de CP-CFG-004) se cargaron con `create_transaction`; los pasos de cada caso se hicieron por pantalla, y las variantes API, por API. Algunos casos usan datos de otro, como en V1: CP-ACC-005, 008 y 009 usan la cuenta de CP-ACC-003 (el caso CP-ACC-005 lo pide); CP-CFG-005 usa la «Salidas» archivada de CP-REG-005; CP-MON-001 se ejecuta como la fila 3 de CP-MON-002; y CP-CUO-004 usa la compra de CP-CUO-001 (mismo monto y cuotas, otra categoría) en lugar de registrar la suya.
+6. **Fechas.** Los casos que dependen de «hoy» usaron la fecha real (28/10/2026); CP-REG-013 fija el reloj del navegador en 15/10/2026 con Playwright, como en V1.
+7. **pgTAP.** `supabase test db` corrió en la misma sesión: `rls_isolation.test.sql` (el par de autorización de CP-ACC-011, CP-REG-014, CP-CUO-011, CP-MON-007 y CP-DAS-011) pasa. Fallan 2 de 164 pruebas de `update_subscription.test.sql` («ningún rechazo creó ni cambió transacciones»), que es de Suscripciones (V2) y no forma parte de esta regresión; queda para que el equipo lo revise, sin defecto abierto.
+8. **Repaso manual pendiente.** La consigna pide ejecución manual. Para cubrirlo, el equipo re-confirma a mano los 39 casos de prioridad Alta con la hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx`, con los pasos de la especificación de V1 y el resultado de Claude al lado para comparar. Hasta que esté completa, la regresión cuenta como ejecutada con IA; si un repaso no coincide, se repite el caso y, si se confirma, se abre un defecto.
+9. **Evidencia.** Se adjunta el resultado crudo de la cuarta corrida (`ejecucion/regresion-v1-resultados.json`: estado, lo observado y la duración de cada caso). No se adjuntaron capturas ni los scripts; lo observado queda en «Resultado obtenido» de cada caso (`04-ejecucion`, apartado «Regresión de V1», y la hoja de cada caso en `04-ejecucion.xlsx`).
 
 ### Exportar CSV (EXP) (ejecutado el 2026-10-27)
 
@@ -248,3 +302,5 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 Usuarios `qa+<id del caso>-001@example.com` con contraseña `Clave123!` y montos ficticios (C14), uno por caso. En el entorno local se borran con `supabase db reset`; en el deploy de Vercel quedan las cuentas de prueba creadas por la ejecución manual.
 
 Exportar, Importar y Suscripciones: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (los de aislamiento, `-A` y `-B`) con contraseña `Clave123!` y montos ficticios (C14), en Supabase local; `supabase db reset` los borra. En producción no se creó nada.
+
+Regresión de V1: usuarios `qa+reg-<caso o grupo>-<corrida>@example.com` con contraseña `Prueba-Biyu-2026!` (los que se dan de alta por pantalla, `Clave123!`) y montos ficticios (C14), en Supabase local: son contraseñas de prueba que no existen en ningún otro entorno. Se borraron al terminar. En producción no se creó nada.
