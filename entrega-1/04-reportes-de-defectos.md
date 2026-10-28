@@ -12,30 +12,30 @@ Escala de severidad y flujo de estados: `docs/07-plan-de-testing.md` §5. Severi
 | DEF-002 | <html lang="en"> y título de pestaña "scaffold" en toda la app | Baja | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre) | Transversal (NFR-06, accesibilidad) |
 | DEF-003 | US-66 (confirmar contraseña) nunca llegó a producción por un error de merge | Media | A definir por el PO | Cerrado · no se reproduce el 2026-09-28, issue cerrado el 2026-09-29 | — (ataque libre; US-66 no tenía caso propio en el catálogo) | US-66 · Confirmar contraseña al registrarse |
 | DEF-004 | NaN como monto se guarda y rompe el dashboard ("$NaN,undefined") | Crítica | A definir por el PO (sugerida: Alta dado que integridad de datos es I4) | Cerrado · confirmado corregido el 2026-09-28 | — (ataque libre) | US-11 · No se puede guardar monto cero o negativo |
-| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
-| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Corregido · falta confirmación | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
-| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Corregido · falta confirmación | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
-| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Corregido · falta confirmación | CP-ACC-002 | US-48 · La app pide login |
-| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
-| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Corregido · falta confirmación | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
-| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Corregido · falta confirmación | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
-| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite, I4/C6) | US-11 · Validación del monto |
-| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Corregido · falta confirmación | — (valores límite) | US-19 · Registrar un gasto en USD |
-| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
-| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Corregido · falta confirmación | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
-| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Corregido en #183 · falta confirmación | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
+| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | CP-ACC-004, variante servidor | US-67 · Criterios de contraseña (FR-01) |
+| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | CP-CFG-004 | US-44 · Archivar una categoría sin perder historia |
+| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | CP-REG-012 | US-65 · Eliminar una transacción (FR-08) |
+| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | CP-ACC-002 | US-48 · La app pide login |
+| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | A definir por el PO | Cerrado · corregido en #183; confirmado corregido el 2026-10-28 en V2 | — (derivado de CP-CUO-003, I6) | US-45 · Crear cuentas indicando su tipo (I6) |
+| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (FR-04/FR-05) | US-43 · Set inicial de categorías y cuentas |
+| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (FR-05, relacionado con CP-CFG-006) | US-45 · Cuentas (FR-05) |
+| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (valores límite, I4/C6) | US-11 · Validación del monto |
+| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (valores límite) | US-19 · Registrar un gasto en USD |
+| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (relacionado con CP-DAS-003, Media) | US-26 · Cambiar de mes con un selector |
+| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (07-plan-de-testing.md §2) | Transversal (data-testid, plan de testing §2) |
+| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | A definir por el PO | Cerrado · corregido en #183; confirmado corregido el 2026-10-28 en V2 | — (I7; latente, deudas no son de V1 pero el trigger ya existe en el schema) | V2 · Deudas (I7), latente en el schema |
 | DEF-017 | Después de crear la cuenta no aparece la configuración inicial (US-68 sin implementar) | Alta | A definir por el PO (sugerida: Alta, US-68 está en el alcance de la Entrega 1) | Cerrado · corregido en #173; CP-CFG-011 a CP-CFG-015 pasan en el re-test del 2026-09-29 | CP-CFG-011 (bloquea CP-CFG-012 a CP-CFG-015) | US-68 · Configuración inicial al crear la cuenta |
-| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Corregido · falta confirmación | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
-| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Corregido en #183 · falta confirmación | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
-| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Corregido · falta confirmación | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
-| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Corregido · falta confirmación | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
+| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (exploración, relacionado con CP-CUO-010 y CP-CFG-010) | US-21 · Pisar el tipo de cambio sugerido |
+| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | A definir por el PO | Cerrado · corregido en #183; confirmado corregido el 2026-10-28 en V2 | — (exploración, variante de CP-CFG-003) | US-42 · Crear, renombrar y elegir color de categorías |
+| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | CP-MON-003 (PASSED: el valor sugerido es correcto) | US-20 · Sugerir el tipo de cambio de referencia del mes |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (uso manual; relacionado con DEF-012, montos extremos) | US-25 · Total gastado del mes actual al entrar; US-29 · Ingresos y balance del mes; US-27 · Gasto por categoría en barras |
 | DEF-022 | El setup de US-68 deja afuera de la app a cuentas existentes y a quien no puede guardarlo | Crítica | A definir por el PO | Cerrado · corregido en #176 el 2026-09-29; migraciones aplicadas y verificado en producción el 2026-09-29 | — (no había caso; se agregaron los tests de regresión de e2e/setup.spec.ts) | US-68 · Configuración inicial al crear la cuenta |
-| DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | A definir por el PO | Corregido · falta confirmación | — (aparece en e2e/setup.spec.ts, "una cuenta nueva ve el setup…") | US-68 · Configuración inicial al crear la cuenta; US-51 · Entrar directo tras registrarse |
-| DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | A definir por el PO | Corregido · falta confirmación | — (NFR-06, WCAG 2.1 AA en flujos críticos) | US-65 · Eliminar una transacción; DEF-011 · Eliminar una cuenta |
-| DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con CP-CFG-003 y DEF-009) | US-42 · Categorías; DEF-011 · Editar cuentas |
-| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | A definir por el PO | Corregido · falta confirmación | — (derivado de DEF-010) | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
-| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | A definir por el PO | Corregido · falta confirmación | — (relacionado con US-50 · Traducir errores de Auth) | US-50 · Traducir errores de Auth y evitar doble submit |
-| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | A definir por el PO | Corregido · falta confirmación | — (derivado de DEF-010 y DEF-023) | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
+| DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | A definir por el PO | Cerrado · no se reprodujo en 16 altas el 2026-10-28 en V2 (era intermitente); el equipo lo cierra y se reabre si reaparece | — (aparece en e2e/setup.spec.ts, "una cuenta nueva ve el setup…") | US-68 · Configuración inicial al crear la cuenta; US-51 · Entrar directo tras registrarse |
+| DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (NFR-06, WCAG 2.1 AA en flujos críticos) | US-65 · Eliminar una transacción; DEF-011 · Eliminar una cuenta |
+| DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (relacionado con CP-CFG-003 y DEF-009) | US-42 · Categorías; DEF-011 · Editar cuentas |
+| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (derivado de DEF-010) | US-44 · Archivar una categoría; US-68 · Configuración inicial; US-01 · Registrar un gasto |
+| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (relacionado con US-50 · Traducir errores de Auth) | US-50 · Traducir errores de Auth y evitar doble submit |
+| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | A definir por el PO | Cerrado · confirmado corregido el 2026-10-28 en V2 | — (derivado de DEF-010 y DEF-023) | US-43 · Set inicial de categorías y cuentas; US-01 · Registrar un gasto |
 
 **Abiertos por severidad:** Crítica: 0 · Alta: 0 · Media: 0 · Baja: 0 · Total abiertos: 0 (22 corregidos que esperan confirmación).
 
@@ -162,7 +162,7 @@ NaN como monto se guarda y rompe el dashboard ("$NaN,undefined").
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, variante servidor de CP-ACC-004. |
@@ -193,7 +193,7 @@ El servidor acepta contraseñas que no cumplen FR-01/US-67.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-CFG-004 (#75). |
@@ -225,7 +225,7 @@ Transacción de una categoría archivada no muestra marca de archivada en /trans
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-REG-012 (#75) — el caso "pasa" contra la base (soft delete correcto, KPIs excluyen la fila), pero contradice FR-08 en la UI. |
@@ -257,7 +257,7 @@ Una transacción eliminada desaparece del historial en vez de quedar marcada com
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución completa de CP-ACC-002 (#75) — el guard en sí funciona (redirige a /login?next=... correctamente), pero el recorrido completo (login → destino original) falla. |
@@ -287,7 +287,7 @@ Tras iniciar sesión se ignora el destino original (next) y siempre entra a /reg
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
+| Estado | Cerrado · corregido en #183; confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, derivado de CP-CUO-003. |
@@ -320,7 +320,7 @@ Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes vi
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75 (ataque libre). |
@@ -352,7 +352,7 @@ Archivar todas las categorías hace que se resiembren las 8 por defecto.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución de CP-CFG-006 y ataque libre (#75). |
@@ -382,7 +382,7 @@ No se pueden editar ni archivar cuentas (medios de pago) desde la UI.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75 (valores límite no escritos). |
@@ -414,7 +414,7 @@ Un monto extremo pasa la validación del cliente y termina en un error técnico 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75 (valores límite no escritos). |
@@ -446,7 +446,7 @@ Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75, relacionado con CP-DAS-003. |
@@ -476,7 +476,7 @@ El período 0000-01 en el dashboard muestra un error de base de datos crudo.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ataque libre de #75. |
@@ -508,7 +508,7 @@ Los botones de la paleta de color en /settings no tienen data-testid.
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
+| Estado | Cerrado · corregido en #183; confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | ejecución adversarial de #75, intentando verificar I7. |
@@ -573,7 +573,7 @@ La historia US-68 entra en el alcance de la Entrega 1 pero no tiene implementaci
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-01) |
@@ -606,7 +606,7 @@ En Ajustes el tipo de cambio de referencia se valida a 4 decimales ("Usá hasta 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido en #183 · migración aplicada y verificada en producción el 2026-10-02; falta la confirmación de quien lo reportó |
+| Estado | Cerrado · corregido en #183; confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Exploración negativa y de borde de la Entrega 1 (EXP-02) |
@@ -639,7 +639,7 @@ La regla de CP-CFG-003 (no dos categorías activas con el mismo nombre) compara 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | Ejecución de la Entrega 1, caso CP-MON-003 |
@@ -672,7 +672,7 @@ El valor sugerido es el correcto, pero el campo lo muestra tal como lo devuelve 
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | uso manual en producción desde un iPhone, fuera del catálogo escrito. |
@@ -738,7 +738,7 @@ Después del merge de US-68, las cuentas creadas antes de esa historia tenían q
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · no se reprodujo en 16 altas el 2026-10-28 en V2 (era intermitente); el equipo lo cierra y se reabre si reaparece |
 | Severidad | Alta |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | testeo completo del 2026-10-05: dos fallos intermitentes de e2e (setup.spec.ts y dashboard-amounts.spec.ts) contra producción. |
@@ -770,7 +770,7 @@ Justo después de crear la cuenta, la app a veces se queda con la pantalla vací
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | testeo exploratorio del 2026-10-05 (accesibilidad). |
@@ -802,7 +802,7 @@ Al abrir "¿Estás seguro de que querés eliminar esta transacción?" o "¿Segur
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | testeo exploratorio del 2026-10-05. |
@@ -834,7 +834,7 @@ Si guardar la edición de una cuenta o de una categoría falla, el mensaje se mu
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | testeo exploratorio del 2026-10-05, combinando DEF-010 con la configuración inicial. |
@@ -866,7 +866,7 @@ Desde DEF-010, archivar todas las categorías ya no las vuelve a sembrar. Pero e
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Baja |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | testeo completo del 2026-10-05: la suite e2e llegó al límite de altas de Supabase Auth en producción. |
@@ -896,7 +896,7 @@ Cuando Supabase Auth corta por demasiadas altas desde la misma IP (429, over_req
 
 | Campo | Contenido |
 |---|---|
-| Estado | Corregido · falta la confirmación de quien lo reportó |
+| Estado | Cerrado · confirmado corregido el 2026-10-28 en V2 |
 | Severidad | Media |
 | Prioridad (sugerida) | A definir por el PO |
 | Encontrado en | revisando un fallo del Preview de #198 el 2026-10-05; la causa viene del arreglo de DEF-010 (#191). |

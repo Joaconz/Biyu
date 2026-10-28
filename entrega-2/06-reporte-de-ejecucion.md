@@ -68,7 +68,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 **Confirmación de defectos de V1 (22 defectos, ejecutada el 2026-10-28; no suma a los casos de arriba):**
 
 - **Confirmados corregidos en V2 (21):** DEF-005, DEF-006, DEF-007, DEF-008, DEF-009, DEF-010, DEF-011, DEF-012, DEF-013, DEF-014, DEF-015, DEF-016, DEF-018, DEF-019, DEF-020, DEF-021, DEF-024, DEF-025, DEF-026, DEF-027, DEF-028. Cada uno se repitió con los pasos de su reporte y el comportamiento es el esperado (detalle en `03-seleccion-regresion`, sección 5).
-- **No concluyente (1):** DEF-023 (la pantalla en blanco después de crear la cuenta). El defecto era intermitente; en 16 altas (8 en Chromium y 8 en WebKit) no se reprodujo, pero no alcanzan para descartarlo.
+- **No concluyente (1):** DEF-023 (la pantalla en blanco después de crear la cuenta). El defecto era intermitente; en 16 altas (8 en Chromium y 8 en WebKit) no se reprodujo, pero no alcanzan para descartarlo. El equipo decidió cerrarlo igual; se reabre si reaparece.
 
 ## 2. Cobertura por módulo, prioridad, tipo, técnica y canal
 
@@ -149,7 +149,7 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 | 2. Cero defectos de severidad Alta abiertos, o justificados por el PO | Cumplido | No hay defectos de severidad Alta. |
 | 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 125 de 129 casos de prioridad Alta ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. |
 | 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I2, I3, I4, I5, I7 e I9 con casos ejecutados; I1 ya no tiene caso en este alcance después del recorte y queda para la regresión de V1. En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
-| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Parcial | Confirmación de defectos de V1 ejecutada el 2026-10-28: 21 de 22 confirmados corregidos en V2 y 1 no concluyente (DEF-023). La regresión de los casos de V1 seleccionados (`03`) todavía no se ejecutó. |
+| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Parcial | Confirmación de defectos de V1 ejecutada el 2026-10-28: 21 de 22 confirmados corregidos en V2 y 1 no concluyente (DEF-023, cerrado igual por decisión del equipo). La regresión de los casos de V1 seleccionados (`03`) todavía no se ejecutó. |
 
 **Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos). El criterio 3 **no se cumple**: los cuatro casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial, y el 5 se cumple en parte: los defectos de V1 están confirmados, pero falta ejecutar la regresión de V1.
 
@@ -200,7 +200,7 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía.
 1. Ejecución con scripts de Playwright (Chromium emulando un celular de 375 × 812 px, es-AR; WebKit para DEF-023) y llamadas directas a la API, no a mano; la propiedad cruzada del plan no se aplicó. Entorno local (Vite + Supabase local), sobre `main` en `ee62a2d`, reloj real; no se probó el deploy de Vercel. Un usuario nuevo por defecto (`qa+v1-def<nnn>-001@example.com`), borrados al terminar.
 2. DEF-005 se verificó contra la política de contraseñas de Supabase local; en el proyecto hosteado la configuración puede ser otra.
 3. DEF-021 se verificó en Chromium a 390 px de ancho; el defecto original era de un iPhone con Safari, que no se probó.
-4. DEF-023 es intermitente: 16 altas sin falla (8 en Chromium y 8 en WebKit) no lo descartan; queda como no concluyente.
+4. DEF-023 es intermitente: 16 altas sin falla (8 en Chromium y 8 en WebKit) no lo descartan; queda como no concluyente y el equipo decidió cerrarlo igual (se reabre si reaparece).
 5. DEF-026: se comprobó Registrar y Ajustes; no se recorrió el paso «Tus categorías» de la configuración inicial.
 6. DEF-027 y DEF-028 se simularon: el límite de altas con una respuesta 429 interceptada y la siembra lenta con demoras de 4 s (cuentas) y 1,5 s (categorías).
 7. No se adjuntaron capturas ni los scripts; la evidencia de cada defecto está en `03-seleccion-regresion` (sección 5).
