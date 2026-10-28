@@ -68,14 +68,14 @@ Deploy: https://biyu-rust.vercel.app. Recorrido sugerido, una pantalla por featu
 5. **Resumen por categoría** (US-72 y US-73): la torta y el detalle de una categoría.
 6. **Exportar CSV** (US-47) e **Importar Excel** (US-74 a US-78): exportar un mes e importar `mocks/importar-excel-ejemplo.xlsx`.
 
-Antes de la demo, probá el recorrido en el deploy: casi toda la ejecución se hizo en local, y el
-deploy solo se usó en la ejecución manual de Deudas y Navegación.
+Antes de la demo, probá el recorrido en el deploy: la ejecución con IA se hizo en local, y el repaso
+manual del equipo se hizo en el deploy.
 
 ## 6. Preguntas probables y qué responder
 
 | Pregunta | Respuesta | Dónde está |
 |---|---|---|
-| ¿La ejecución fue manual? | No toda. 21 casos de V2 se ejecutaron a mano y 21 de Suscripciones los informó el equipo; 161 de V2 y los 60 de la regresión los ejecutó Claude Code con Playwright. Después, el equipo repasó a mano todos los casos (Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones) | `06` §3 y §6 |
+| ¿La ejecución fue manual? | No toda. 21 casos de V2 se ejecutaron a mano y 21 de Suscripciones los informó el equipo; 161 de V2 y los 60 de la regresión los ejecutó Claude Code con Playwright. Después, el equipo repasó a mano todos los casos en el deploy de Vercel (Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones), y Joaquín ejecutó a mano los 60 de la regresión | `06` §3 y §6 |
 | ¿Por qué 203 casos con resultado si el catálogo tiene 212? | Los 9 restantes son de Deudas: el equipo los informó como «OK» sin registrar el resultado, y no se repitieron | `06` §1 |
 | ¿Por qué se recortó el catálogo de 672 a 206? | Se quitaron los casos que repetían una regla con otro valor, los de funciones no implementadas y los de ancho de pantalla o testids repetidos | `06` §1 · `equivalencia-ids.md` |
 | ¿Qué historias no se implementaron? | US-80 a US-84. Sus casos quedan BLOCKED o se quitaron del catálogo hasta que existan | `01` §2 |
