@@ -1,6 +1,6 @@
 # Entrega 2 · Reporte de ejecución de casos de prueba (V2) · Deudas, Navegación, Exportar CSV, Importar Excel, Suscripciones y Resumen por categoría, y regresión de V1
 
-Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, prioridad, título, historia, camino feliz, status y defectos, más el resumen, el gráfico y los criterios de salida). Formato del contenido: `docs/07-plan-de-testing.md` §6. Registro por caso en [`04-ejecucion.md`](04-ejecucion.md); defectos en [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md).
+Planilla: `06-reporte-de-ejecucion.xlsx` (mismo formato que la Entrega 1: ID, prioridad, título, historia, camino feliz, status y defectos, más el resumen y los criterios de salida). Gráficos de los porcentajes: [`graficos/resultados-por-entrega.svg`](graficos/resultados-por-entrega.svg) y [`graficos/resultados-v2-por-modulo.svg`](graficos/resultados-v2-por-modulo.svg). Formato del contenido: `docs/07-plan-de-testing.md` §6. Registro por caso en [`04-ejecucion.md`](04-ejecucion.md); defectos en [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md).
 
 | Dato | Deudas y Navegación | Exportar CSV, Importar Excel y Suscripciones | Regresión de V1 |
 |---|---|---|---|
@@ -103,7 +103,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 | NAV-69 · Barra de navegación (US-69) | 10 | 10 | 0 | 0 | 0 | 0 |
 | NAV-70 · Aviso de guardado y reintento (US-70) | 15 | 15 | 0 | 0 | 0 | 0 |
 | EXP · Exportar CSV (US-47, 31 casos) | 31 | 28 | 3 | 0 | 0 | 0 |
-| IMP · Importar Excel (US-74 a US-79, 41 casos) | 41 | 40 | 1 | 0 | 0 | 0 |
+| IMP · Importar Excel (US-74, US-76, US-77 y US-78, 41 casos) | 41 | 40 | 1 | 0 | 0 | 0 |
 | SUS · Suscripciones (US-52 a US-63 y US-75, 48 casos) | 48 | 45 | 3 | 0 | 0 | 0 |
 | CAT · Resumen por categoría (US-72 y US-73, 6 casos) | 6 | 6 | 0 | 0 | 0 | 0 |
 
