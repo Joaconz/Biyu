@@ -1,6 +1,6 @@
 # Entrega 2 · Ejecución de casos de prueba (V2) · Deudas, Navegación, Exportar CSV, Importar Excel, Suscripciones y Resumen por categoría, y regresión de V1
 
-Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 1», el resultado obtenido, la evidencia y los defectos). Casos: ver `02-especificacion-casos-v2` (Deudas y Navegación) y `casos/exp.md`, `casos/imp.md` y `casos/sus.md` (Exportar, Importar y Suscripciones; sus pasos también están en la hoja de cada caso de la planilla). Los 60 casos de V1 de la regresión tienen su hoja (ACC-001 a DAS-011) con la ejecución de V1 como «Reporte de ejecución 1» y la regresión como «Reporte de ejecución 2» (3 en CP-CFG-011 y CP-CFG-013), en un bloque nuevo al pie de la hoja; la hoja «Repaso manual (Alta)» es la plantilla del repaso a mano del equipo; su detalle está en el último apartado, «Regresión de V1». Al final del documento, «Reporte de ejecución» reúne el resumen, la cobertura, los defectos abiertos, los criterios de salida y los desvíos; la planilla lo trae al pie de la hoja «Índice».
+Planilla: `04-ejecucion.xlsx` (una hoja por caso con el «Reporte de ejecución 1», el resultado obtenido, la evidencia y los defectos). Casos: ver `02-especificacion-casos-v2` (Deudas y Navegación) y `casos/exp.md`, `casos/imp.md` y `casos/sus.md` (Exportar, Importar y Suscripciones; sus pasos también están en la hoja de cada caso de la planilla). Los 60 casos de V1 de la regresión tienen su hoja (ACC-001 a DAS-011) con la ejecución de V1 como «Reporte de ejecución 1» y la regresión como «Reporte de ejecución 2» (3 en CP-CFG-011 y CP-CFG-013), en un bloque nuevo al pie de la hoja; en el «Índice» y en «Resultado por caso» figuran junto con los de V2, con la columna «Test regresivo» en «Sí» (los de V2, en «No»); la hoja «Repaso manual (Alta)» es la plantilla del repaso a mano del equipo; su detalle está en el último apartado, «Regresión de V1». Al final del documento, «Reporte de ejecución» reúne el resumen, la cobertura, los defectos abiertos, los criterios de salida y los desvíos; la planilla lo trae al pie de la hoja «Índice».
 
 ## Condiciones de la ejecución
 
@@ -15,217 +15,277 @@ Catálogo reducido a 206 casos (recorte del 2026-10-27: se quitaron los casos qu
 - **Deudas, casos CP-DEU-015 a 035 (16 casos):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium, reloj real), sobre `main` en `1c72d0f`. Casos ejecutados: CP-DEU-015, 016, 017, 019, 023, 024, 026, 027, 028, 029, 030, 031, 032, 033, 034 y 035. Los que el equipo informó como «OK» (CP-DEU-014, 018, 020, 021, 022, 036, 037, 038 y 039) no se repitieron y no figuran en este reporte.
 - **Deudas, 8 casos pendientes (CP-DEU-001, 002, 003, 004, 011, 012, 013 y 025):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium emulando un celular de 375 × 812 px, reloj real), sobre `main` en `deac2c7`. Usuario nuevo por caso (`qa+cp-deu-<id>-001@example.com`); la pantalla se manejó con la interfaz y, donde el caso lo pide, la base se consultó por API con el token del usuario de prueba. Los casos 001, 003 y 011 se corrigieron el mismo día (paso de elegir la cuenta «Efectivo» y, en el 003, volver a cargar el tipo de cambio después de cambiar la fecha) y se volvieron a ejecutar.
 - **Resumen por categoría (CAT, 6 casos: CP-CAT-001 a 006):** ejecutados el **2026-10-27** en el entorno local (Vite + Supabase local, Chromium emulando un celular de 375 × 812 px, es-AR, hora de Argentina), sobre `main` en `15e3c4b`. Usuario nuevo por caso (`qa+cp-cat-<nnn>-001@example.com`); los movimientos de cada caso se cargaron por la API con `create_transaction` (y `delete_transaction` en el 002), y todo lo demás se hizo por pantalla.
-- **Regresión de V1 (60 casos de `03-seleccion-regresion`):** ejecutada el **2026-10-28** en el entorno local (Vite + Supabase local, Chromium emulando un celular de 390 × 844 px), sobre `main` en `109007a`. Resultado: 60 PASSED; después, Joaquín los ejecutó a mano en el deploy de Vercel. No suma a los casos de V2; condiciones y detalle en el apartado «Regresión de V1», al final.
+- **Regresión de V1 (60 casos elegidos de V1, columna «Test regresivo» = Sí):** ejecutada el **2026-10-28** en el entorno local (Vite + Supabase local, Chromium emulando un celular de 390 × 844 px), sobre `main` en `109007a`. Resultado: 60 PASSED; después, Joaquín los ejecutó a mano en el deploy de Vercel. Figuran en la tabla «Resultado por caso» con «Test regresivo = Sí» y no suman a los 203 casos de V2; el criterio de selección y el detalle están en el apartado «Regresión de V1».
 - **Repaso manual del equipo:** el equipo repasó a mano todos los casos de V2 en el deploy de Vercel (no en local). Por módulo: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones.
 - **Criterio para BLOCKED:** un caso que no se puede ejecutar porque falta una funcionalidad o un botón queda BLOCKED para V3.
 
 ## Resultado por caso
 
-| ID | Prioridad | Título | Status | Defectos |
-|---|---|---|---|---|
-| CP-DEU-001 | Alta | El interruptor «Gasto compartido» se enciende y se apaga, y el gasto se guarda sin deuda | **PASSED** | — |
-| CP-DEU-002 | Alta | Gasto compartido de $120.000,00 en 12 cuotas: se guarda el gasto y la deuda vinculada de Sofía | **DUDA** | — |
-| CP-DEU-003 | Alta | Gasto compartido en dólares (US$100 a tipo de cambio 1250): avisa en dólares y congela el tipo de cambio | **PASSED** | — |
-| CP-DEU-004 | Media | El monto adeudado vacío muestra «Ingresá cuánto te debe» y no deja guardar | **PASSED** | — |
-| CP-DEU-005 | Alta | No se puede compartir un gasto si falta cuánto te deben | **PASSED** | — |
-| CP-DEU-006 | Alta | No se puede compartir un gasto si falta con quién | **PASSED** | — |
-| CP-DEU-007 | Alta | Un ingreso no se puede compartir | **PASSED** | — |
-| CP-DEU-008 | Alta | El nombre hecho solo de espacios no cuenta como nombre | **PASSED** | — |
-| CP-DEU-009 | Media | El nombre admite hasta 60 caracteres, no 61 | **PASSED** | — |
-| CP-DEU-010 | Alta | No se puede deber 0 pesos | **PASSED** | — |
-| CP-DEU-011 | Alta | Una deuda igual al gasto se acepta: «Tu parte» queda en $0,00 | **PASSED** | — |
-| CP-DEU-012 | Alta | Una deuda un centavo mayor que el gasto no se puede guardar | **PASSED** | — |
-| CP-DEU-013 | Alta | Por API, una deuda mayor que el gasto se rechaza y no se guarda nada | **BLOCKED** | — |
-| CP-DEU-015 | Alta | Eliminar el gasto vinculado oculta la deuda de /debts, deja de sumarla en "Te deben" y en el neto del Resumen, y conserva intacta su fila en debts | **PASSED** | — |
-| CP-DEU-016 | Alta | Al restaurar desde Movimientos → Eliminados un gasto cuya deuda vinculada estaba saldada, la deuda vuelve a /debts con estado saldada y la misma fecha settled_at | **PASSED** | — |
-| CP-DEU-017 | Alta | Estado inicial de /debts/new y guardado de una deuda "Me deben" en ARS por $20.000,00 crea una fila pendiente con transaction_id = null en una sola llamada a create_debt | **PASSED** | — |
-| CP-DEU-019 | Alta | En /debts/new, elegir "US$" con TC de referencia de 1250 precompleta "1.250,00", muestra "≈ $50.000,00" para US$40 y guarda fx_rate = 1250.0000 y amount_ars = 50000.00 | **PASSED** | — |
-| CP-DEU-023 | Media | En /debts/new, un "Monto" con más de 2 decimales ("0,001") muestra "El monto admite hasta 2 decimales" | **PASSED** | — |
-| CP-DEU-024 | Alta | En /debts/new con US$, Monto = 0,01 y TC = 0,5 se acepta (redondeo half-up a $0,01) y guarda amount_ars = "0.01" | **FAILED** | DEF-037 |
-| CP-DEU-025 | Alta | En «Nueva deuda» con US$, un tipo de cambio de 0 muestra «El tipo de cambio debe ser mayor a cero» | **FAILED** | DEF-037 |
-| CP-DEU-026 | Alta | En /debts/new, una fecha posterior a hoy (<MAÑANA>) muestra "La fecha no puede ser futura" y deshabilita "Guardar deuda" | **PASSED** | — |
-| CP-DEU-027 | Alta | Directo contra create_debt, p_person = "" se rechaza con "Ingresá el nombre de la persona" | **PASSED** | — |
-| CP-DEU-028 | Media | Directo contra create_debt, p_person de 61 caracteres se rechaza con "La persona admite hasta 60 caracteres" | **PASSED** | — |
-| CP-DEU-029 | Alta | Directo contra create_debt, p_amount = 0 se rechaza con "I4: el monto debe ser mayor a cero" | **PASSED** | — |
-| CP-DEU-030 | Media | Directo contra create_debt, p_amount = 1.001 (literal JSON) se rechaza con "I4: el monto admite hasta 2 decimales" | **PASSED** | — |
-| CP-DEU-031 | Alta | Directo contra create_debt, p_currency = "USD" con p_fx_rate = null se rechaza con "I5: fx_rate es obligatorio si y solo si la moneda es USD" | **PASSED** | — |
-| CP-DEU-032 | Media | Directo contra create_debt, p_currency = "ARS" con p_fx_rate = "1250.0000" se rechaza con "I5: fx_rate es obligatorio si y solo si la moneda es USD" | **PASSED** | — |
-| CP-DEU-033 | Alta | Directo contra create_debt, p_incurred_on = "<MAÑANA>" se rechaza con "La fecha no puede ser posterior a hoy" | **PASSED** | — |
-| CP-DEU-034 | Alta | Directo contra create_debt con el rol anon (sin Authorization) responde 42501 (permission denied) | **PASSED** | — |
-| CP-DEU-035 | Alta | Un POST /rest/v1/debts directo con sesión autenticada responde 42501 (permission denied) y no crea filas | **PASSED** | — |
-| CP-DEU-040 | Baja | Un filtro inválido en la dirección se trata como «Pendientes» | **PASSED** | — |
-| CP-DEU-041 | Media | Deudas pendientes: la de fecha más nueva va primero | **PASSED** | — |
-| CP-DEU-042 | Media | Sin deudas pendientes: mensaje y botón «Cargar una deuda» | **PASSED** | — |
-| CP-DEU-043 | Alta | Otro usuario no ve las deudas de alguien más | **PASSED** | — |
-| CP-DEU-044 | Alta | Por API, otro usuario no recibe las deudas de alguien más | **PASSED** | — |
-| CP-DEU-045 | Alta | Por API, sin sesión no se pueden leer las deudas | **PASSED** | — |
-| CP-DEU-046 | Alta | Marcar una deuda como saldada desde «Pendientes» | **PASSED** | — |
-| CP-DEU-047 | Alta | «Deshacer» devuelve la deuda a pendiente | **PASSED** | — |
-| CP-DEU-048 | Media | Saldar una deuda que ya se saldó en otra pestaña muestra un error | **PASSED** | — |
-| CP-DEU-049 | Alta | Por API, saldar una deuda ya saldada se rechaza | **PASSED** | — |
-| CP-DEU-050 | Alta | Por API, un usuario no puede saldar la deuda de otro | **PASSED** | — |
-| CP-DEU-051 | Alta | Por API, no se puede modificar una deuda directamente | **PASSED** | — |
-| CP-DEU-052 | Alta | «Volver a pendiente» desde «Saldadas» | **PASSED** | — |
-| CP-DEU-053 | Media | Saldar y reabrir tres veces seguidas deja la deuda pendiente | **PASSED** | — |
-| CP-DEU-054 | Alta | Filtro por dirección: «Todas», «Te deben» y «Debés» | **PASSED** | — |
-| CP-DEU-055 | Alta | Gasto compartido con varias personas: agregar, quitar y guardar | **BLOCKED** | — |
-| CP-DEU-056 | Alta | Se puede compartir con hasta 10 personas | **BLOCKED** | — |
-| CP-DEU-057 | Alta | Por API, deudas que suman más que el gasto se rechazan | **BLOCKED** | — |
-| CP-DEU-058 | Alta | Resumen: gasto bruto y neto de reembolsos | **PASSED** | — |
-| CP-DEU-059 | Alta | Resumen: el neto no cambia al saldar la deuda | **PASSED** | — |
-| CP-DEU-060 | Alta | Resumen: una deuda suelta «Me deben» no cambia el neto | **PASSED** | — |
-| CP-DEU-061 | Alta | Resumen: el neto en dólares no cambia si cambia el tipo de cambio | **PASSED** | — |
-| CP-NAV-001 | Media | La barra tiene cuatro secciones en el orden correcto | **PASSED** | — |
-| CP-NAV-002 | Media | «Deudas» lleva a Deudas | **PASSED** | — |
-| CP-NAV-003 | Media | En el Resumen la barra marca «Resumen» | **PASSED** | — |
-| CP-NAV-004 | Media | En Ajustes no se marca ninguna de las cuatro secciones | **PASSED** | — |
-| CP-NAV-005 | Media | Ancho 1023 px: barra abajo y engranaje de Ajustes | **PASSED** | — |
-| CP-NAV-006 | Media | Ancho 1024 px: barra lateral con Ajustes al pie | **PASSED** | — |
-| CP-NAV-007 | Media | Identificadores únicos en Registrar (375 px) | **PASSED** | — |
-| CP-NAV-008 | Media | «Ver todos» y «‹ Resumen» mantienen el mes | **PASSED** | — |
-| CP-NAV-009 | Media | Deudas no arrastra el mes del Resumen | **PASSED** | — |
-| CP-NAV-010 | Alta | Tocar «Registrar» estando en Registrar no pierde lo cargado | **PASSED** | — |
-| CP-NAV-011 | Media | Guardar $12.500 muestra la confirmación completa | **PASSED** | — |
-| CP-NAV-012 | Alta | Sin internet el gasto no se pierde y aparece «Reintentar» | **PASSED** | — |
-| CP-NAV-013 | Alta | Reintentar al volver internet guarda una sola vez | **PASSED** | — |
-| CP-NAV-014 | Alta | Con internet muy lenta, a los 15 segundos avisa que falló | **PASSED** | — |
-| CP-NAV-015 | Alta | Reintentar no duplica un gasto que ya se había guardado | **PASSED** | — |
-| CP-NAV-016 | Alta | La misma clave dos veces seguidas devuelve el mismo gasto | **PASSED** | — |
-| CP-NAV-017 | Alta | Dos pedidos simultáneos con la misma clave crean un solo gasto | **PASSED** | — |
-| CP-NAV-018 | Alta | La misma clave en dos usuarios distintos no se pisa | **PASSED** | — |
-| CP-NAV-019 | Alta | Si se archiva la categoría antes de guardar, el gasto se rechaza con aviso | **PASSED** | — |
-| CP-NAV-020 | Alta | La API rechaza un gasto con una categoría archivada | **PASSED** | — |
-| CP-NAV-021 | Alta | Al volver a Registrar aparece el gasto pendiente | **PASSED** | — |
-| CP-NAV-022 | Alta | Recuperar un gasto que en realidad ya estaba guardado | **PASSED** | — |
-| CP-NAV-023 | Alta | Descartar borra el pendiente, incluso al recargar | **PASSED** | — |
-| CP-NAV-024 | Alta | Cerrar sesión borra los pendientes | **PASSED** | — |
-| CP-NAV-025 | Alta | Tocar dos veces «Guardar» guarda una sola vez | **PASSED** | — |
-| CP-EXP-001 | Media | Una URL válida fija septiembre 2026 | **PASSED** | — |
-| CP-EXP-002 | Alta | El mes siguiente está bloqueado | **PASSED** | — |
-| CP-EXP-003 | Alta | El alcance mensual propone el nombre 2026-09 | **PASSED** | — |
-| CP-EXP-004 | Alta | El primer día del mes se incluye | **PASSED** | — |
-| CP-EXP-005 | Alta | El día posterior al mes se excluye | **PASSED** | — |
-| CP-EXP-006 | Alta | El 1 de enero se incluye en el año | **PASSED** | — |
-| CP-EXP-007 | Alta | El día posterior al año se excluye | **PASSED** | — |
-| CP-EXP-008 | Alta | Una transacción eliminada queda fuera | **PASSED** | — |
-| CP-EXP-009 | Alta | El archivo comienza con BOM UTF-8 | **PASSED** | — |
-| CP-EXP-010 | Alta | El encabezado tiene doce columnas exactas | **PASSED** | — |
-| CP-EXP-011 | Alta | Doce cuotas salen en una sola fila por el total | **PASSED** | — |
-| CP-EXP-012 | Alta | ARS se escribe con dos decimales exactos | **PASSED** | — |
-| CP-EXP-013 | Alta | USD conserva cuatro decimales de TC | **PASSED** | — |
-| CP-EXP-014 | Alta | Una coma obliga a entrecomillar la descripción | **PASSED** | — |
-| CP-EXP-015 | Alta | Las comillas internas se duplican | **PASSED** | — |
-| CP-EXP-016 | Alta | Descripción con igual se neutraliza | **PASSED** | — |
-| CP-EXP-017 | Alta | Una categoría que empieza con igual se neutraliza | **PASSED** | — |
-| CP-EXP-018 | Alta | 1.500 transacciones se exportan sin faltantes | **PASSED** | — |
-| CP-EXP-019 | Alta | El CSV de A no contiene movimientos de B | **PASSED** | — |
-| CP-EXP-020 | Alta | La API con token de A devuelve cero filas de B | **PASSED** | — |
-| CP-EXP-021 | Media | Categoría archivada sale con el nombre actual | **PASSED** | — |
-| CP-EXP-022 | Media | Un ingreso exporta categoría vacía | **PASSED** | — |
-| CP-EXP-023 | Alta | Un doble click inicia una sola descarga | **PASSED** | — |
-| CP-EXP-024 | Media | Un mes sin transacciones muestra Vacío | **PASSED** | — |
-| CP-EXP-025 | Alta | Offline muestra el error exacto | **PASSED** | — |
-| CP-EXP-026 | Alta | El reintento después de Offline descarga completo | **PASSED** | — |
-| CP-EXP-027 | Baja | Tocar fuera cierra sin descargar | **FAILED** | DEF-030 |
-| CP-EXP-028 | Media | Atrás cierra la hoja inicial | **FAILED** | DEF-031 |
-| CP-EXP-029 | Alta | Atrás durante Exportando cancela la descarga | **FAILED** | DEF-032 |
-| CP-EXP-030 | Alta | Una alta concurrente impide descargar un año incompleto | **PASSED** | — |
-| CP-EXP-031 | Alta | HTTP 500 muestra Error y no descarga | **PASSED** | — |
-| CP-IMP-001 | Media | El acceso desde Registrar abre el paso Archivo | **PASSED** | — |
-| CP-IMP-002 | Media | A1 rechaza la extensión .xls | **PASSED** | — |
-| CP-IMP-003 | Media | A2 rechaza 1.048.577 bytes | **PASSED** | — |
-| CP-IMP-004 | Media | A3 rechaza un archivo dañado con extensión xlsx | **PASSED** | — |
-| CP-IMP-005 | Media | A4 enumera tres encabezados obligatorios faltantes | **PASSED** | — |
-| CP-IMP-006 | Media | A7 rechaza 501 filas con datos | **PASSED** | — |
-| CP-IMP-007 | Media | El límite de filas acepta exactamente 500 | **PASSED** | — |
-| CP-IMP-008 | Media | Los encabezados aceptan orden, mayúsculas, espacios y tildes distintos | **PASSED** | — |
-| CP-IMP-009 | Media | F1: fecha vacía | **PASSED** | — |
-| CP-IMP-010 | Media | F2: fecha inexistente | **PASSED** | — |
-| CP-IMP-011 | Media | F3: fecha futura fija | **PASSED** | — |
-| CP-IMP-012 | Media | F5: tipo inválido | **PASSED** | — |
-| CP-IMP-013 | Media | F7: monto no numérico | **PASSED** | — |
-| CP-IMP-014 | Alta | F8: monto cero | **PASSED** | — |
-| CP-IMP-015 | Media | F9: monto con tres decimales | **PASSED** | — |
-| CP-IMP-016 | Media | F12: moneda EUR | **PASSED** | — |
-| CP-IMP-017 | Media | F13a: USD sin tipo de cambio | **PASSED** | — |
-| CP-IMP-018 | Media | F13b: ARS con tipo de cambio | **PASSED** | — |
-| CP-IMP-019 | Media | F14b: categoría inexistente | **PASSED** | — |
-| CP-IMP-020 | Media | F14d: cuenta inexistente | **PASSED** | — |
-| CP-IMP-021 | Media | F14e: trece cuotas | **PASSED** | — |
-| CP-IMP-022 | Media | F15: cuotas en cuenta no crédito | **PASSED** | — |
-| CP-IMP-023 | Media | Errores de varias columnas conservan el orden de reglas | **PASSED** | — |
-| CP-IMP-024 | Media | Nombres, tipo y moneda aceptan espacios y mayúsculas | **FAILED** | DEF-033 |
-| CP-IMP-025 | Media | Categoría archivada no se acepta aunque el nombre coincida | **PASSED** | — |
-| CP-IMP-026 | Media | El texto 1.500 se interpreta como mil quinientos | **PASSED** | — |
-| CP-IMP-027 | Alta | El resumen del archivo de ejemplo suma solo las siete filas listas | **PASSED** | — |
-| CP-IMP-028 | Media | El filtro muestra solo las cuatro filas con error | **PASSED** | — |
-| CP-IMP-029 | Media | Cero filas listas deshabilita Importar 0 movimientos | **PASSED** | — |
-| CP-IMP-030 | Alta | Confirmar importa solo las filas listas con todos sus campos | **PASSED** | — |
-| CP-IMP-031 | Alta | La compra de 240.000 en seis cuotas crea seis imputaciones exactas | **PASSED** | — |
-| CP-IMP-032 | Alta | Un rechazo tardío de categoría no impide las otras filas | **PASSED** | — |
-| CP-IMP-033 | Alta | Quinientas filas de doce cuotas terminan en menos de diez segundos | **PASSED** | — |
-| CP-IMP-034 | Alta | La RPC procesa una válida y rechaza tres inválidas | **PASSED** | — |
-| CP-IMP-035 | Alta | La RPC rechaza un lote de 501 elementos | **PASSED** | — |
-| CP-IMP-036 | Alta | El rol anon no puede ejecutar import_transactions | **PASSED** | — |
-| CP-IMP-037 | Alta | Otro usuario no ve transacciones ni imports ajenos | **PASSED** | — |
-| CP-IMP-038 | Alta | Reintento tras respuesta perdida reconoce lo guardado | **PASSED** | — |
-| CP-IMP-039 | Alta | Dos llamadas API con el mismo import_id son idempotentes | **PASSED** | — |
-| CP-IMP-040 | Alta | Sin respuesta conserva Revisión | **PASSED** | — |
-| CP-IMP-041 | Alta | Sesión vencida ofrece volver a entrar | **PASSED** | — |
-| CP-SUS-001 | Alta | Dar de alta una suscripción en ARS desde hace 2 meses con día de cobro 10 genera los 2 gastos vencidos al guardar | **PASSED** | — |
-| CP-SUS-002 | Media | Dar de alta una suscripción en ARS desde el mes siguiente no genera gastos al guardar | **PASSED** | — |
-| CP-SUS-003 | Media | Dar de alta una suscripción con el mismo nombre que una suscripción cancelada se acepta | **PASSED** | — |
-| CP-SUS-004 | Media | Rechazar en UI el alta de suscripción con Nombre vacío o solo espacios | **PASSED** | — |
-| CP-SUS-005 | Media | Rechazar en API `create_subscription` con Nombre vacío o solo espacios | **PASSED** | — |
-| CP-SUS-006 | Alta | Rechazar en UI el alta de suscripción con Nombre igual al de otra activa sin distinguir mayúsculas ni espacios (`" netflix "`) | **PASSED** | — |
-| CP-SUS-007 | Alta | Rechazar en API `create_subscription` con Nombre igual al de otra activa (`" netflix "`) | **PASSED** | — |
-| CP-SUS-008 | Alta | Rechazar en UI el alta de suscripción con Monto igual a `"0"` | **PASSED** | — |
-| CP-SUS-009 | Alta | Rechazar en API `create_subscription` con `p_amount = "0.00"` | **PASSED** | — |
-| CP-SUS-010 | Media | Rechazar en API `create_subscription` en ARS con Monto mayor al máximo (`"1000000000000.00"`) | **PASSED** | — |
-| CP-SUS-011 | Media | Rechazar en API `create_subscription` con `p_category_id = null` | **PASSED** | — |
-| CP-SUS-012 | Media | Rechazar en API `create_subscription` con `p_billing_day = 32` | **PASSED** | — |
-| CP-SUS-013 | Media | Rechazar en API `create_subscription` con Mes de inicio anterior al límite inferior (`-25` meses) | **PASSED** | — |
-| CP-SUS-014 | Media | Rechazar en API `create_subscription` con `p_end_period < p_start_period` | **PASSED** | — |
-| CP-SUS-015 | Baja | Rechazar en API `create_subscription` con Descripción de 201 caracteres | **PASSED** | — |
-| CP-SUS-016 | Media | Rechazar en API `create_subscription` con `p_category_id` propia archivada | **PASSED** | — |
-| CP-SUS-017 | Alta | Rechazar en API `create_subscription` usando `p_category_id` de otro usuario | **PASSED** | — |
-| CP-SUS-018 | Alta | Rechazar en API un `INSERT` directo sobre `/rest/v1/subscriptions` con la sesión del usuario | **PASSED** | — |
-| CP-SUS-019 | Media | Dos toques seguidos en `"Guardar suscripción"` deshabilitan el botón y crean una sola suscripción | **PASSED** | — |
-| CP-SUS-020 | Alta | Rechazar en UI ver el detalle de una suscripción de otro usuario mostrando `subscription-detail-not-found` | **PASSED** | — |
-| CP-SUS-021 | Alta | Rechazar en API leer una suscripción de otro usuario (`GET /rest/v1/subscriptions` devuelve `[]`) | **PASSED** | — |
-| CP-SUS-022 | Alta | Rechazar en API `create_subscription` sin sesión autenticada (rol `anon`) | **FAILED** | DEF-035 |
-| CP-SUS-023 | Baja | Mostrar estado vacío `subscriptions-empty` y ocultar la tarjeta del total comprometido cuando el usuario no tiene suscripciones | **PASSED** | — |
-| CP-SUS-024 | Alta | Puesta al día automática al entrar a la app genera 2 períodos vencidos pendientes y muestra el aviso `app-catchup-generated` | **PASSED** | — |
-| CP-SUS-025 | Alta | Dos llamadas consecutivas por API a `run_subscription_catchup` responden `200 OK` sin error y dejan exactamente 1 transacción por período | **PASSED** | — |
-| CP-SUS-026 | Alta | Suscripción en estado `paused` no genera ocurrencias al ejecutar `run_subscription_catchup` | **PASSED** | — |
-| CP-SUS-027 | Alta | Suscripción con día de cobro `31` entre `2026-01` y `2026-04` genera ocurrencias con fechas `31/01/2026`, `28/02/2026`, `31/03/2026` y `30/04/2026` | **PASSED** | — |
-| CP-SUS-028 | Alta | Suscripción con día de cobro `<DIA_MAÑANA>` no genera la ocurrencia del mes corriente | **PASSED** | — |
-| CP-SUS-029 | Alta | Suscripción con día de cobro igual a `<DIA_HOY>` genera la ocurrencia del mes corriente | **PASSED** | — |
-| CP-SUS-030 | Alta | Pausar suscripción activa con día de cobro `28` (`> <DIA_HOY>`) muestra advertencia de este mes y pasa a `"Pausada desde <HOY>"` con piso en `<MES_SIGUIENTE>` | **PASSED** | — |
-| CP-SUS-031 | Alta | `pause_subscription` por API ejecuta primero la puesta al día y genera los meses vencidos pendientes antes de pausar | **PASSED** | — |
-| CP-SUS-032 | Alta | Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 P0002`) | **FAILED** | DEF-034 |
-| CP-SUS-033 | Alta | Reanudar suscripción pausada abre `resume-subscription-dialog`, pasa a `"Activa"`, limpia `paused_at`, conserva `generate_from_period = '<MES_SIGUIENTE>-01'` y no genera el mes actual | **PASSED** | — |
-| CP-SUS-034 | Alta | Cancelar suscripción activa con 4 gastos cargados mantiene el historial en el Detalle y en el Resumen y oculta los botones de acción | **PASSED** | — |
-| CP-SUS-035 | Alta | Editar el monto de una suscripción activa de `$5.000,00` a `$7.000,00` conserva las 4 ocurrencias ya generadas en `$5.000,00` y muestra Moneda y Mes de inicio como solo lectura | **PASSED** | — |
-| CP-SUS-036 | Media | Rechazar en API `update_subscription` con `p_end_period` anterior al período corriente (`<MES_ANTERIOR>-01`) | **PASSED** | — |
-| CP-SUS-037 | Alta | Rechazar en UI renombrar una suscripción poniéndole el nombre de otra suscripción activa del mismo usuario | **PASSED** | — |
-| CP-SUS-038 | Media | Rechazar en UI editar una suscripción cancelada al navegar directo a `/subscriptions/<SUB_ID>/edit` | **PASSED** | — |
-| CP-SUS-039 | Media | Rechazar en API cambiar `p_category_id` en `update_subscription` a otra categoría archivada distinta de la actual | **PASSED** | — |
-| CP-SUS-040 | Alta | Eliminar desde Movimientos la ocurrencia de `<MES_ANTERIOR>` muestra `delete-transaction-subscription-note`, figura con `"Eliminado"` en el Detalle y no vuelve a crearse al recargar | **PASSED** | — |
-| CP-SUS-041 | Alta | Mostrar la marca de suscripción en Movimientos y en `"Últimos movimientos"` del Resumen (y no en un gasto manual) y navegar al Detalle al tocarla | **PASSED** | — |
-| CP-SUS-042 | Alta | La ocurrencia generada de una suscripción suma en `"Gastado en <mes corto>"` y resta en `"Balance"` del Resumen de V1 | **PASSED** | — |
-| CP-SUS-043 | Alta | Suscripción activa en USD con tipo de cambio en `<MES_HACE_2>` y sin tipo de cambio en `<MES_ANTERIOR>` genera solo `<MES_HACE_2>`, muestra `"Falta tipo de cambio"` y el botón `"Cargar tipo de cambio"` navega a `/settings?period=<MES_ANTERIOR>` | **PASSED** | — |
-| CP-SUS-044 | Alta | Con dos suscripciones activas en ARS (`$5.000,00` y `$2.500,00`), el total mensual comprometido muestra `"$7.500,00"` y `"2 suscripciones activas este mes"` | **PASSED** | — |
-| CP-SUS-045 | Alta | Suscripción activa en `USD 10,00` con tipo de cambio del período corriente `1.250,00` suma `"$12.500,00"` al total mensual comprometido | **PASSED** | — |
-| CP-SUS-046 | Media | Una suscripción en estado `paused` no suma al total mensual comprometido (`"$0,00"` y `"No tenés suscripciones activas este mes"`) | **PASSED** | — |
-| CP-SUS-047 | Alta | Vista previa en `/subscriptions/new` con `$5.000,00` ARS, día `28` (`> <DIA_HOY>`), desde `<MES_HACE_2>` y sin fin muestra 2 meses en `"Se cargan al guardar"`, 3 en `"Próximos cobros"`, resumen de `"$10.000,00"` y al guardar crea exactamente esas 2 transacciones | **PASSED** | — |
-| CP-SUS-048 | Alta | Vista previa en `/subscriptions/new` en USD con tipo de cambio en `<MES_HACE_2>` y sin tipo de cambio en `<MES_ANTERIOR>` marca `<MES_ANTERIOR>` con `data-blocked="true"` y no lo cuenta en el resumen | **FAILED** | DEF-036 |
-| CP-CAT-001 | Alta | La torta muestra una porción por categoría, con su monto y su porcentaje | **PASSED** | — |
-| CP-CAT-002 | Alta | Los ingresos y los gastos eliminados no entran en la torta | **PASSED** | — |
-| CP-CAT-003 | Media | Con 7 categorías, las dos más chicas se agrupan en «Resto» en la torta | **PASSED** | — |
-| CP-CAT-004 | Alta | Tocar una categoría del Resumen abre su detalle del mes | **PASSED** | — |
-| CP-CAT-005 | Media | En el detalle, «Mes anterior» y «‹ Resumen» conservan la categoría y el mes | **PASSED** | — |
-| CP-CAT-006 | Media | Una categoría que no existe muestra un aviso con salida al Resumen | **PASSED** | — |
+| ID | Prioridad | Título | Status | Defectos | Test regresivo |
+|---|---|---|---|---|---|
+| CP-DEU-001 | Alta | El interruptor «Gasto compartido» se enciende y se apaga, y el gasto se guarda sin deuda | **PASSED** | — | No |
+| CP-DEU-002 | Alta | Gasto compartido de $120.000,00 en 12 cuotas: se guarda el gasto y la deuda vinculada de Sofía | **DUDA** | — | No |
+| CP-DEU-003 | Alta | Gasto compartido en dólares (US$100 a tipo de cambio 1250): avisa en dólares y congela el tipo de cambio | **PASSED** | — | No |
+| CP-DEU-004 | Media | El monto adeudado vacío muestra «Ingresá cuánto te debe» y no deja guardar | **PASSED** | — | No |
+| CP-DEU-005 | Alta | No se puede compartir un gasto si falta cuánto te deben | **PASSED** | — | No |
+| CP-DEU-006 | Alta | No se puede compartir un gasto si falta con quién | **PASSED** | — | No |
+| CP-DEU-007 | Alta | Un ingreso no se puede compartir | **PASSED** | — | No |
+| CP-DEU-008 | Alta | El nombre hecho solo de espacios no cuenta como nombre | **PASSED** | — | No |
+| CP-DEU-009 | Media | El nombre admite hasta 60 caracteres, no 61 | **PASSED** | — | No |
+| CP-DEU-010 | Alta | No se puede deber 0 pesos | **PASSED** | — | No |
+| CP-DEU-011 | Alta | Una deuda igual al gasto se acepta: «Tu parte» queda en $0,00 | **PASSED** | — | No |
+| CP-DEU-012 | Alta | Una deuda un centavo mayor que el gasto no se puede guardar | **PASSED** | — | No |
+| CP-DEU-013 | Alta | Por API, una deuda mayor que el gasto se rechaza y no se guarda nada | **BLOCKED** | — | No |
+| CP-DEU-015 | Alta | Eliminar el gasto vinculado oculta la deuda de /debts, deja de sumarla en "Te deben" y en el neto del Resumen, y conserva intacta su fila en debts | **PASSED** | — | No |
+| CP-DEU-016 | Alta | Al restaurar desde Movimientos → Eliminados un gasto cuya deuda vinculada estaba saldada, la deuda vuelve a /debts con estado saldada y la misma fecha settled_at | **PASSED** | — | No |
+| CP-DEU-017 | Alta | Estado inicial de /debts/new y guardado de una deuda "Me deben" en ARS por $20.000,00 crea una fila pendiente con transaction_id = null en una sola llamada a create_debt | **PASSED** | — | No |
+| CP-DEU-019 | Alta | En /debts/new, elegir "US$" con TC de referencia de 1250 precompleta "1.250,00", muestra "≈ $50.000,00" para US$40 y guarda fx_rate = 1250.0000 y amount_ars = 50000.00 | **PASSED** | — | No |
+| CP-DEU-023 | Media | En /debts/new, un "Monto" con más de 2 decimales ("0,001") muestra "El monto admite hasta 2 decimales" | **PASSED** | — | No |
+| CP-DEU-024 | Alta | En /debts/new con US$, Monto = 0,01 y TC = 0,5 se acepta (redondeo half-up a $0,01) y guarda amount_ars = "0.01" | **FAILED** | DEF-037 | No |
+| CP-DEU-025 | Alta | En «Nueva deuda» con US$, un tipo de cambio de 0 muestra «El tipo de cambio debe ser mayor a cero» | **FAILED** | DEF-037 | No |
+| CP-DEU-026 | Alta | En /debts/new, una fecha posterior a hoy (<MAÑANA>) muestra "La fecha no puede ser futura" y deshabilita "Guardar deuda" | **PASSED** | — | No |
+| CP-DEU-027 | Alta | Directo contra create_debt, p_person = "" se rechaza con "Ingresá el nombre de la persona" | **PASSED** | — | No |
+| CP-DEU-028 | Media | Directo contra create_debt, p_person de 61 caracteres se rechaza con "La persona admite hasta 60 caracteres" | **PASSED** | — | No |
+| CP-DEU-029 | Alta | Directo contra create_debt, p_amount = 0 se rechaza con "I4: el monto debe ser mayor a cero" | **PASSED** | — | No |
+| CP-DEU-030 | Media | Directo contra create_debt, p_amount = 1.001 (literal JSON) se rechaza con "I4: el monto admite hasta 2 decimales" | **PASSED** | — | No |
+| CP-DEU-031 | Alta | Directo contra create_debt, p_currency = "USD" con p_fx_rate = null se rechaza con "I5: fx_rate es obligatorio si y solo si la moneda es USD" | **PASSED** | — | No |
+| CP-DEU-032 | Media | Directo contra create_debt, p_currency = "ARS" con p_fx_rate = "1250.0000" se rechaza con "I5: fx_rate es obligatorio si y solo si la moneda es USD" | **PASSED** | — | No |
+| CP-DEU-033 | Alta | Directo contra create_debt, p_incurred_on = "<MAÑANA>" se rechaza con "La fecha no puede ser posterior a hoy" | **PASSED** | — | No |
+| CP-DEU-034 | Alta | Directo contra create_debt con el rol anon (sin Authorization) responde 42501 (permission denied) | **PASSED** | — | No |
+| CP-DEU-035 | Alta | Un POST /rest/v1/debts directo con sesión autenticada responde 42501 (permission denied) y no crea filas | **PASSED** | — | No |
+| CP-DEU-040 | Baja | Un filtro inválido en la dirección se trata como «Pendientes» | **PASSED** | — | No |
+| CP-DEU-041 | Media | Deudas pendientes: la de fecha más nueva va primero | **PASSED** | — | No |
+| CP-DEU-042 | Media | Sin deudas pendientes: mensaje y botón «Cargar una deuda» | **PASSED** | — | No |
+| CP-DEU-043 | Alta | Otro usuario no ve las deudas de alguien más | **PASSED** | — | No |
+| CP-DEU-044 | Alta | Por API, otro usuario no recibe las deudas de alguien más | **PASSED** | — | No |
+| CP-DEU-045 | Alta | Por API, sin sesión no se pueden leer las deudas | **PASSED** | — | No |
+| CP-DEU-046 | Alta | Marcar una deuda como saldada desde «Pendientes» | **PASSED** | — | No |
+| CP-DEU-047 | Alta | «Deshacer» devuelve la deuda a pendiente | **PASSED** | — | No |
+| CP-DEU-048 | Media | Saldar una deuda que ya se saldó en otra pestaña muestra un error | **PASSED** | — | No |
+| CP-DEU-049 | Alta | Por API, saldar una deuda ya saldada se rechaza | **PASSED** | — | No |
+| CP-DEU-050 | Alta | Por API, un usuario no puede saldar la deuda de otro | **PASSED** | — | No |
+| CP-DEU-051 | Alta | Por API, no se puede modificar una deuda directamente | **PASSED** | — | No |
+| CP-DEU-052 | Alta | «Volver a pendiente» desde «Saldadas» | **PASSED** | — | No |
+| CP-DEU-053 | Media | Saldar y reabrir tres veces seguidas deja la deuda pendiente | **PASSED** | — | No |
+| CP-DEU-054 | Alta | Filtro por dirección: «Todas», «Te deben» y «Debés» | **PASSED** | — | No |
+| CP-DEU-055 | Alta | Gasto compartido con varias personas: agregar, quitar y guardar | **BLOCKED** | — | No |
+| CP-DEU-056 | Alta | Se puede compartir con hasta 10 personas | **BLOCKED** | — | No |
+| CP-DEU-057 | Alta | Por API, deudas que suman más que el gasto se rechazan | **BLOCKED** | — | No |
+| CP-DEU-058 | Alta | Resumen: gasto bruto y neto de reembolsos | **PASSED** | — | No |
+| CP-DEU-059 | Alta | Resumen: el neto no cambia al saldar la deuda | **PASSED** | — | No |
+| CP-DEU-060 | Alta | Resumen: una deuda suelta «Me deben» no cambia el neto | **PASSED** | — | No |
+| CP-DEU-061 | Alta | Resumen: el neto en dólares no cambia si cambia el tipo de cambio | **PASSED** | — | No |
+| CP-NAV-001 | Media | La barra tiene cuatro secciones en el orden correcto | **PASSED** | — | No |
+| CP-NAV-002 | Media | «Deudas» lleva a Deudas | **PASSED** | — | No |
+| CP-NAV-003 | Media | En el Resumen la barra marca «Resumen» | **PASSED** | — | No |
+| CP-NAV-004 | Media | En Ajustes no se marca ninguna de las cuatro secciones | **PASSED** | — | No |
+| CP-NAV-005 | Media | Ancho 1023 px: barra abajo y engranaje de Ajustes | **PASSED** | — | No |
+| CP-NAV-006 | Media | Ancho 1024 px: barra lateral con Ajustes al pie | **PASSED** | — | No |
+| CP-NAV-007 | Media | Identificadores únicos en Registrar (375 px) | **PASSED** | — | No |
+| CP-NAV-008 | Media | «Ver todos» y «‹ Resumen» mantienen el mes | **PASSED** | — | No |
+| CP-NAV-009 | Media | Deudas no arrastra el mes del Resumen | **PASSED** | — | No |
+| CP-NAV-010 | Alta | Tocar «Registrar» estando en Registrar no pierde lo cargado | **PASSED** | — | No |
+| CP-NAV-011 | Media | Guardar $12.500 muestra la confirmación completa | **PASSED** | — | No |
+| CP-NAV-012 | Alta | Sin internet el gasto no se pierde y aparece «Reintentar» | **PASSED** | — | No |
+| CP-NAV-013 | Alta | Reintentar al volver internet guarda una sola vez | **PASSED** | — | No |
+| CP-NAV-014 | Alta | Con internet muy lenta, a los 15 segundos avisa que falló | **PASSED** | — | No |
+| CP-NAV-015 | Alta | Reintentar no duplica un gasto que ya se había guardado | **PASSED** | — | No |
+| CP-NAV-016 | Alta | La misma clave dos veces seguidas devuelve el mismo gasto | **PASSED** | — | No |
+| CP-NAV-017 | Alta | Dos pedidos simultáneos con la misma clave crean un solo gasto | **PASSED** | — | No |
+| CP-NAV-018 | Alta | La misma clave en dos usuarios distintos no se pisa | **PASSED** | — | No |
+| CP-NAV-019 | Alta | Si se archiva la categoría antes de guardar, el gasto se rechaza con aviso | **PASSED** | — | No |
+| CP-NAV-020 | Alta | La API rechaza un gasto con una categoría archivada | **PASSED** | — | No |
+| CP-NAV-021 | Alta | Al volver a Registrar aparece el gasto pendiente | **PASSED** | — | No |
+| CP-NAV-022 | Alta | Recuperar un gasto que en realidad ya estaba guardado | **PASSED** | — | No |
+| CP-NAV-023 | Alta | Descartar borra el pendiente, incluso al recargar | **PASSED** | — | No |
+| CP-NAV-024 | Alta | Cerrar sesión borra los pendientes | **PASSED** | — | No |
+| CP-NAV-025 | Alta | Tocar dos veces «Guardar» guarda una sola vez | **PASSED** | — | No |
+| CP-EXP-001 | Media | Una URL válida fija septiembre 2026 | **PASSED** | — | No |
+| CP-EXP-002 | Alta | El mes siguiente está bloqueado | **PASSED** | — | No |
+| CP-EXP-003 | Alta | El alcance mensual propone el nombre 2026-09 | **PASSED** | — | No |
+| CP-EXP-004 | Alta | El primer día del mes se incluye | **PASSED** | — | No |
+| CP-EXP-005 | Alta | El día posterior al mes se excluye | **PASSED** | — | No |
+| CP-EXP-006 | Alta | El 1 de enero se incluye en el año | **PASSED** | — | No |
+| CP-EXP-007 | Alta | El día posterior al año se excluye | **PASSED** | — | No |
+| CP-EXP-008 | Alta | Una transacción eliminada queda fuera | **PASSED** | — | No |
+| CP-EXP-009 | Alta | El archivo comienza con BOM UTF-8 | **PASSED** | — | No |
+| CP-EXP-010 | Alta | El encabezado tiene doce columnas exactas | **PASSED** | — | No |
+| CP-EXP-011 | Alta | Doce cuotas salen en una sola fila por el total | **PASSED** | — | No |
+| CP-EXP-012 | Alta | ARS se escribe con dos decimales exactos | **PASSED** | — | No |
+| CP-EXP-013 | Alta | USD conserva cuatro decimales de TC | **PASSED** | — | No |
+| CP-EXP-014 | Alta | Una coma obliga a entrecomillar la descripción | **PASSED** | — | No |
+| CP-EXP-015 | Alta | Las comillas internas se duplican | **PASSED** | — | No |
+| CP-EXP-016 | Alta | Descripción con igual se neutraliza | **PASSED** | — | No |
+| CP-EXP-017 | Alta | Una categoría que empieza con igual se neutraliza | **PASSED** | — | No |
+| CP-EXP-018 | Alta | 1.500 transacciones se exportan sin faltantes | **PASSED** | — | No |
+| CP-EXP-019 | Alta | El CSV de A no contiene movimientos de B | **PASSED** | — | No |
+| CP-EXP-020 | Alta | La API con token de A devuelve cero filas de B | **PASSED** | — | No |
+| CP-EXP-021 | Media | Categoría archivada sale con el nombre actual | **PASSED** | — | No |
+| CP-EXP-022 | Media | Un ingreso exporta categoría vacía | **PASSED** | — | No |
+| CP-EXP-023 | Alta | Un doble click inicia una sola descarga | **PASSED** | — | No |
+| CP-EXP-024 | Media | Un mes sin transacciones muestra Vacío | **PASSED** | — | No |
+| CP-EXP-025 | Alta | Offline muestra el error exacto | **PASSED** | — | No |
+| CP-EXP-026 | Alta | El reintento después de Offline descarga completo | **PASSED** | — | No |
+| CP-EXP-027 | Baja | Tocar fuera cierra sin descargar | **FAILED** | DEF-030 | No |
+| CP-EXP-028 | Media | Atrás cierra la hoja inicial | **FAILED** | DEF-031 | No |
+| CP-EXP-029 | Alta | Atrás durante Exportando cancela la descarga | **FAILED** | DEF-032 | No |
+| CP-EXP-030 | Alta | Una alta concurrente impide descargar un año incompleto | **PASSED** | — | No |
+| CP-EXP-031 | Alta | HTTP 500 muestra Error y no descarga | **PASSED** | — | No |
+| CP-IMP-001 | Media | El acceso desde Registrar abre el paso Archivo | **PASSED** | — | No |
+| CP-IMP-002 | Media | A1 rechaza la extensión .xls | **PASSED** | — | No |
+| CP-IMP-003 | Media | A2 rechaza 1.048.577 bytes | **PASSED** | — | No |
+| CP-IMP-004 | Media | A3 rechaza un archivo dañado con extensión xlsx | **PASSED** | — | No |
+| CP-IMP-005 | Media | A4 enumera tres encabezados obligatorios faltantes | **PASSED** | — | No |
+| CP-IMP-006 | Media | A7 rechaza 501 filas con datos | **PASSED** | — | No |
+| CP-IMP-007 | Media | El límite de filas acepta exactamente 500 | **PASSED** | — | No |
+| CP-IMP-008 | Media | Los encabezados aceptan orden, mayúsculas, espacios y tildes distintos | **PASSED** | — | No |
+| CP-IMP-009 | Media | F1: fecha vacía | **PASSED** | — | No |
+| CP-IMP-010 | Media | F2: fecha inexistente | **PASSED** | — | No |
+| CP-IMP-011 | Media | F3: fecha futura fija | **PASSED** | — | No |
+| CP-IMP-012 | Media | F5: tipo inválido | **PASSED** | — | No |
+| CP-IMP-013 | Media | F7: monto no numérico | **PASSED** | — | No |
+| CP-IMP-014 | Alta | F8: monto cero | **PASSED** | — | No |
+| CP-IMP-015 | Media | F9: monto con tres decimales | **PASSED** | — | No |
+| CP-IMP-016 | Media | F12: moneda EUR | **PASSED** | — | No |
+| CP-IMP-017 | Media | F13a: USD sin tipo de cambio | **PASSED** | — | No |
+| CP-IMP-018 | Media | F13b: ARS con tipo de cambio | **PASSED** | — | No |
+| CP-IMP-019 | Media | F14b: categoría inexistente | **PASSED** | — | No |
+| CP-IMP-020 | Media | F14d: cuenta inexistente | **PASSED** | — | No |
+| CP-IMP-021 | Media | F14e: trece cuotas | **PASSED** | — | No |
+| CP-IMP-022 | Media | F15: cuotas en cuenta no crédito | **PASSED** | — | No |
+| CP-IMP-023 | Media | Errores de varias columnas conservan el orden de reglas | **PASSED** | — | No |
+| CP-IMP-024 | Media | Nombres, tipo y moneda aceptan espacios y mayúsculas | **FAILED** | DEF-033 | No |
+| CP-IMP-025 | Media | Categoría archivada no se acepta aunque el nombre coincida | **PASSED** | — | No |
+| CP-IMP-026 | Media | El texto 1.500 se interpreta como mil quinientos | **PASSED** | — | No |
+| CP-IMP-027 | Alta | El resumen del archivo de ejemplo suma solo las siete filas listas | **PASSED** | — | No |
+| CP-IMP-028 | Media | El filtro muestra solo las cuatro filas con error | **PASSED** | — | No |
+| CP-IMP-029 | Media | Cero filas listas deshabilita Importar 0 movimientos | **PASSED** | — | No |
+| CP-IMP-030 | Alta | Confirmar importa solo las filas listas con todos sus campos | **PASSED** | — | No |
+| CP-IMP-031 | Alta | La compra de 240.000 en seis cuotas crea seis imputaciones exactas | **PASSED** | — | No |
+| CP-IMP-032 | Alta | Un rechazo tardío de categoría no impide las otras filas | **PASSED** | — | No |
+| CP-IMP-033 | Alta | Quinientas filas de doce cuotas terminan en menos de diez segundos | **PASSED** | — | No |
+| CP-IMP-034 | Alta | La RPC procesa una válida y rechaza tres inválidas | **PASSED** | — | No |
+| CP-IMP-035 | Alta | La RPC rechaza un lote de 501 elementos | **PASSED** | — | No |
+| CP-IMP-036 | Alta | El rol anon no puede ejecutar import_transactions | **PASSED** | — | No |
+| CP-IMP-037 | Alta | Otro usuario no ve transacciones ni imports ajenos | **PASSED** | — | No |
+| CP-IMP-038 | Alta | Reintento tras respuesta perdida reconoce lo guardado | **PASSED** | — | No |
+| CP-IMP-039 | Alta | Dos llamadas API con el mismo import_id son idempotentes | **PASSED** | — | No |
+| CP-IMP-040 | Alta | Sin respuesta conserva Revisión | **PASSED** | — | No |
+| CP-IMP-041 | Alta | Sesión vencida ofrece volver a entrar | **PASSED** | — | No |
+| CP-SUS-001 | Alta | Dar de alta una suscripción en ARS desde hace 2 meses con día de cobro 10 genera los 2 gastos vencidos al guardar | **PASSED** | — | No |
+| CP-SUS-002 | Media | Dar de alta una suscripción en ARS desde el mes siguiente no genera gastos al guardar | **PASSED** | — | No |
+| CP-SUS-003 | Media | Dar de alta una suscripción con el mismo nombre que una suscripción cancelada se acepta | **PASSED** | — | No |
+| CP-SUS-004 | Media | Rechazar en UI el alta de suscripción con Nombre vacío o solo espacios | **PASSED** | — | No |
+| CP-SUS-005 | Media | Rechazar en API `create_subscription` con Nombre vacío o solo espacios | **PASSED** | — | No |
+| CP-SUS-006 | Alta | Rechazar en UI el alta de suscripción con Nombre igual al de otra activa sin distinguir mayúsculas ni espacios (`" netflix "`) | **PASSED** | — | No |
+| CP-SUS-007 | Alta | Rechazar en API `create_subscription` con Nombre igual al de otra activa (`" netflix "`) | **PASSED** | — | No |
+| CP-SUS-008 | Alta | Rechazar en UI el alta de suscripción con Monto igual a `"0"` | **PASSED** | — | No |
+| CP-SUS-009 | Alta | Rechazar en API `create_subscription` con `p_amount = "0.00"` | **PASSED** | — | No |
+| CP-SUS-010 | Media | Rechazar en API `create_subscription` en ARS con Monto mayor al máximo (`"1000000000000.00"`) | **PASSED** | — | No |
+| CP-SUS-011 | Media | Rechazar en API `create_subscription` con `p_category_id = null` | **PASSED** | — | No |
+| CP-SUS-012 | Media | Rechazar en API `create_subscription` con `p_billing_day = 32` | **PASSED** | — | No |
+| CP-SUS-013 | Media | Rechazar en API `create_subscription` con Mes de inicio anterior al límite inferior (`-25` meses) | **PASSED** | — | No |
+| CP-SUS-014 | Media | Rechazar en API `create_subscription` con `p_end_period < p_start_period` | **PASSED** | — | No |
+| CP-SUS-015 | Baja | Rechazar en API `create_subscription` con Descripción de 201 caracteres | **PASSED** | — | No |
+| CP-SUS-016 | Media | Rechazar en API `create_subscription` con `p_category_id` propia archivada | **PASSED** | — | No |
+| CP-SUS-017 | Alta | Rechazar en API `create_subscription` usando `p_category_id` de otro usuario | **PASSED** | — | No |
+| CP-SUS-018 | Alta | Rechazar en API un `INSERT` directo sobre `/rest/v1/subscriptions` con la sesión del usuario | **PASSED** | — | No |
+| CP-SUS-019 | Media | Dos toques seguidos en `"Guardar suscripción"` deshabilitan el botón y crean una sola suscripción | **PASSED** | — | No |
+| CP-SUS-020 | Alta | Rechazar en UI ver el detalle de una suscripción de otro usuario mostrando `subscription-detail-not-found` | **PASSED** | — | No |
+| CP-SUS-021 | Alta | Rechazar en API leer una suscripción de otro usuario (`GET /rest/v1/subscriptions` devuelve `[]`) | **PASSED** | — | No |
+| CP-SUS-022 | Alta | Rechazar en API `create_subscription` sin sesión autenticada (rol `anon`) | **FAILED** | DEF-035 | No |
+| CP-SUS-023 | Baja | Mostrar estado vacío `subscriptions-empty` y ocultar la tarjeta del total comprometido cuando el usuario no tiene suscripciones | **PASSED** | — | No |
+| CP-SUS-024 | Alta | Puesta al día automática al entrar a la app genera 2 períodos vencidos pendientes y muestra el aviso `app-catchup-generated` | **PASSED** | — | No |
+| CP-SUS-025 | Alta | Dos llamadas consecutivas por API a `run_subscription_catchup` responden `200 OK` sin error y dejan exactamente 1 transacción por período | **PASSED** | — | No |
+| CP-SUS-026 | Alta | Suscripción en estado `paused` no genera ocurrencias al ejecutar `run_subscription_catchup` | **PASSED** | — | No |
+| CP-SUS-027 | Alta | Suscripción con día de cobro `31` entre `2026-01` y `2026-04` genera ocurrencias con fechas `31/01/2026`, `28/02/2026`, `31/03/2026` y `30/04/2026` | **PASSED** | — | No |
+| CP-SUS-028 | Alta | Suscripción con día de cobro `<DIA_MAÑANA>` no genera la ocurrencia del mes corriente | **PASSED** | — | No |
+| CP-SUS-029 | Alta | Suscripción con día de cobro igual a `<DIA_HOY>` genera la ocurrencia del mes corriente | **PASSED** | — | No |
+| CP-SUS-030 | Alta | Pausar suscripción activa con día de cobro `28` (`> <DIA_HOY>`) muestra advertencia de este mes y pasa a `"Pausada desde <HOY>"` con piso en `<MES_SIGUIENTE>` | **PASSED** | — | No |
+| CP-SUS-031 | Alta | `pause_subscription` por API ejecuta primero la puesta al día y genera los meses vencidos pendientes antes de pausar | **PASSED** | — | No |
+| CP-SUS-032 | Alta | Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 P0002`) | **FAILED** | DEF-034 | No |
+| CP-SUS-033 | Alta | Reanudar suscripción pausada abre `resume-subscription-dialog`, pasa a `"Activa"`, limpia `paused_at`, conserva `generate_from_period = '<MES_SIGUIENTE>-01'` y no genera el mes actual | **PASSED** | — | No |
+| CP-SUS-034 | Alta | Cancelar suscripción activa con 4 gastos cargados mantiene el historial en el Detalle y en el Resumen y oculta los botones de acción | **PASSED** | — | No |
+| CP-SUS-035 | Alta | Editar el monto de una suscripción activa de `$5.000,00` a `$7.000,00` conserva las 4 ocurrencias ya generadas en `$5.000,00` y muestra Moneda y Mes de inicio como solo lectura | **PASSED** | — | No |
+| CP-SUS-036 | Media | Rechazar en API `update_subscription` con `p_end_period` anterior al período corriente (`<MES_ANTERIOR>-01`) | **PASSED** | — | No |
+| CP-SUS-037 | Alta | Rechazar en UI renombrar una suscripción poniéndole el nombre de otra suscripción activa del mismo usuario | **PASSED** | — | No |
+| CP-SUS-038 | Media | Rechazar en UI editar una suscripción cancelada al navegar directo a `/subscriptions/<SUB_ID>/edit` | **PASSED** | — | No |
+| CP-SUS-039 | Media | Rechazar en API cambiar `p_category_id` en `update_subscription` a otra categoría archivada distinta de la actual | **PASSED** | — | No |
+| CP-SUS-040 | Alta | Eliminar desde Movimientos la ocurrencia de `<MES_ANTERIOR>` muestra `delete-transaction-subscription-note`, figura con `"Eliminado"` en el Detalle y no vuelve a crearse al recargar | **PASSED** | — | No |
+| CP-SUS-041 | Alta | Mostrar la marca de suscripción en Movimientos y en `"Últimos movimientos"` del Resumen (y no en un gasto manual) y navegar al Detalle al tocarla | **PASSED** | — | No |
+| CP-SUS-042 | Alta | La ocurrencia generada de una suscripción suma en `"Gastado en <mes corto>"` y resta en `"Balance"` del Resumen de V1 | **PASSED** | — | No |
+| CP-SUS-043 | Alta | Suscripción activa en USD con tipo de cambio en `<MES_HACE_2>` y sin tipo de cambio en `<MES_ANTERIOR>` genera solo `<MES_HACE_2>`, muestra `"Falta tipo de cambio"` y el botón `"Cargar tipo de cambio"` navega a `/settings?period=<MES_ANTERIOR>` | **PASSED** | — | No |
+| CP-SUS-044 | Alta | Con dos suscripciones activas en ARS (`$5.000,00` y `$2.500,00`), el total mensual comprometido muestra `"$7.500,00"` y `"2 suscripciones activas este mes"` | **PASSED** | — | No |
+| CP-SUS-045 | Alta | Suscripción activa en `USD 10,00` con tipo de cambio del período corriente `1.250,00` suma `"$12.500,00"` al total mensual comprometido | **PASSED** | — | No |
+| CP-SUS-046 | Media | Una suscripción en estado `paused` no suma al total mensual comprometido (`"$0,00"` y `"No tenés suscripciones activas este mes"`) | **PASSED** | — | No |
+| CP-SUS-047 | Alta | Vista previa en `/subscriptions/new` con `$5.000,00` ARS, día `28` (`> <DIA_HOY>`), desde `<MES_HACE_2>` y sin fin muestra 2 meses en `"Se cargan al guardar"`, 3 en `"Próximos cobros"`, resumen de `"$10.000,00"` y al guardar crea exactamente esas 2 transacciones | **PASSED** | — | No |
+| CP-SUS-048 | Alta | Vista previa en `/subscriptions/new` en USD con tipo de cambio en `<MES_HACE_2>` y sin tipo de cambio en `<MES_ANTERIOR>` marca `<MES_ANTERIOR>` con `data-blocked="true"` y no lo cuenta en el resumen | **FAILED** | DEF-036 | No |
+| CP-CAT-001 | Alta | La torta muestra una porción por categoría, con su monto y su porcentaje | **PASSED** | — | No |
+| CP-CAT-002 | Alta | Los ingresos y los gastos eliminados no entran en la torta | **PASSED** | — | No |
+| CP-CAT-003 | Media | Con 7 categorías, las dos más chicas se agrupan en «Resto» en la torta | **PASSED** | — | No |
+| CP-CAT-004 | Alta | Tocar una categoría del Resumen abre su detalle del mes | **PASSED** | — | No |
+| CP-CAT-005 | Media | En el detalle, «Mes anterior» y «‹ Resumen» conservan la categoría y el mes | **PASSED** | — | No |
+| CP-CAT-006 | Media | Una categoría que no existe muestra un aviso con salida al Resumen | **PASSED** | — | No |
+| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | **PASSED** | — | Sí |
+| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | **PASSED** | DEF-008 | Sí |
+| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | **PASSED** | — | Sí |
+| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | **PASSED** | DEF-005 | Sí |
+| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | **PASSED** | — | Sí |
+| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | **PASSED** | — | Sí |
+| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | **PASSED** | — | Sí |
+| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | **PASSED** | — | Sí |
+| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | **PASSED** | — | Sí |
+| CP-CFG-001 | Alta | Crear una categoría con nombre y color | **PASSED** | — | Sí |
+| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | **PASSED** | DEF-019, DEF-025 | Sí |
+| CP-CFG-004 | Alta | Archivar una categoría con historia | **PASSED** | DEF-006 | Sí |
+| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | **PASSED** | DEF-019 | Sí |
+| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | **PASSED** | DEF-011 | Sí |
+| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | **PASSED** | — | Sí |
+| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | **PASSED** | — | Sí |
+| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | **PASSED** | — | Sí |
+| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | **PASSED** | DEF-018 | Sí |
+| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | **PASSED** | DEF-017 | Sí |
+| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | **PASSED** | DEF-017, DEF-026 | Sí |
+| CP-REG-001 | Alta | El registro es la pantalla de inicio | **PASSED** | — | Sí |
+| CP-REG-002 | Media | La fecha viene precargada con hoy | **PASSED** | — | Sí |
+| CP-REG-004 | Media | Elegir la categoría tocando un chip | **PASSED** | — | Sí |
+| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | **PASSED** | — | Sí |
+| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | **PASSED** | — | Sí |
+| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | **PASSED** | — | Sí |
+| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | **PASSED** | DEF-012 | Sí |
+| CP-REG-011 | Media | Monto con tres decimales | **PASSED** | DEF-013 | Sí |
+| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | **PASSED** | DEF-007 | Sí |
+| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | **PASSED** | — | Sí |
+| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | **PASSED** | — | Sí |
+| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | **PASSED** | — | Sí |
+| CP-REG-016 | Media | El monto toma el foco con teclado numérico | **PASSED** | — | Sí |
+| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | **PASSED** | — | Sí |
+| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | **PASSED** | — | Sí |
+| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | **PASSED** | DEF-009 | Sí |
+| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | **PASSED** | — | Sí |
+| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | **PASSED** | — | Sí |
+| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | **PASSED** | — | Sí |
+| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | **PASSED** | — | Sí |
+| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | **PASSED** | — | Sí |
+| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | **PASSED** | — | Sí |
+| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | **PASSED** | — | Sí |
+| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | **PASSED** | — | Sí |
+| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | **PASSED** | — | Sí |
+| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | **PASSED** | — | Sí |
+| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | **PASSED** | — | Sí |
+| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | **PASSED** | DEF-020 | Sí |
+| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | **PASSED** | — | Sí |
+| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | **PASSED** | — | Sí |
+| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | **PASSED** | — | Sí |
+| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | **PASSED** | — | Sí |
+| CP-DAS-002 | Alta | El mes elegido vive en la URL | **PASSED** | — | Sí |
+| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | **PASSED** | DEF-014 | Sí |
+| CP-DAS-004 | Media | Gasto por categoría en barras | **PASSED** | — | Sí |
+| CP-DAS-005 | Media | Gasto por cuenta | **PASSED** | — | Sí |
+| CP-DAS-006 | Media | Ingresos y balance positivo | **PASSED** | — | Sí |
+| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | **PASSED** | — | Sí |
+| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | **PASSED** | — | Sí |
+| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | **PASSED** | — | Sí |
 
 ## Resumen
 
@@ -557,7 +617,7 @@ Los 78 casos de Suscripciones informados como «ok» por el equipo no se repitie
 
 ## Regresión de V1 (60 casos, ejecutada el 2026-10-28)
 
-Casos de V1 elegidos en `03-seleccion-regresion` (criterio de ADR-027: 58 de la selección inicial y 2 sumados el mismo día, CP-CFG-005 y CP-CFG-013, ver `03` §6), ejecutados sobre V2 con los pasos de `entrega-1/02-especificacion-casos-de-prueba`. Es el «Reporte de ejecución 2» de cada caso de V1 (el 1 es el de la Entrega 1; en CP-CFG-011 y CP-CFG-013 es el 3, porque en V1 se ejecutaron dos veces) y **no suma** a los 203 casos de V2 de arriba. Los 14 casos excluidos de la selección conservan el resultado de V1 y no se ejecutaron.
+Casos de V1 elegidos por riesgo (criterio de ADR-027, ver «Criterio de selección» al final de este apartado: 58 de la selección inicial y 2 sumados el mismo día, CP-CFG-005 y CP-CFG-013, ver «Cambios a la selección»), ejecutados sobre V2 con los pasos de `entrega-1/02-especificacion-casos-de-prueba`. Es el «Reporte de ejecución 2» de cada caso de V1 (el 1 es el de la Entrega 1; en CP-CFG-011 y CP-CFG-013 es el 3, porque en V1 se ejecutaron dos veces) y **no suma** a los 203 casos de V2 de arriba. Los 14 casos excluidos de la selección conservan el resultado de V1 y no se ejecutaron.
 
 - **Fecha:** 2026-10-28.
 - **Versión probada:** `main` en `109007a` (local, con las 24 migraciones hasta `20261012000000`). No se probó el deploy de Vercel.
@@ -567,68 +627,68 @@ Casos de V1 elegidos en `03-seleccion-regresion` (criterio de ADR-027: 58 de la 
 - **Corridas:** cuatro corridas completas. La que vale es la cuarta (60 casos, 60 PASSED). Las dos primeras fallaron por la preparación de la corrida y por la configuración de Supabase local, no por la aplicación; la tercera (58 PASSED) es anterior a la ampliación de la selección y a dos verificaciones que se sumaron (detalle en «Reporte de ejecución», §6). El resultado crudo de la cuarta corrida está en `ejecucion/regresion-v1-resultados.json`.
 - **Repaso manual del equipo:** Joaquín ejecutó a mano los 60 casos de la regresión en el deploy de Vercel (el equipo hizo lo mismo con los casos de V2, ver «Condiciones de la ejecución»). La hoja «Repaso manual (Alta)» de `04-ejecucion.xlsx` quedó como plantilla.
 
-| ID | Prioridad | Título | Resultado en V1 | Status | Defectos |
-|---|---|---|---|---|---|
-| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | PASSED | **PASSED** | — |
-| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | PASSED · DEF-008 | **PASSED** | — |
-| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | PASSED | **PASSED** | — |
-| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | FAILED · DEF-005 | **PASSED** | — |
-| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | PASSED | **PASSED** | — |
-| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | PASSED | **PASSED** | — |
-| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | PASSED | **PASSED** | — |
-| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | PASSED | **PASSED** | — |
-| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | PASSED | **PASSED** | — |
-| CP-CFG-001 | Alta | Crear una categoría con nombre y color | PASSED | **PASSED** | — |
-| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | PASSED | **PASSED** | — |
-| CP-CFG-004 | Alta | Archivar una categoría con historia | FAILED · DEF-006 | **PASSED** | — |
-| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | PASSED | **PASSED** | — |
-| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | PASSED | **PASSED** | — |
-| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | PASSED | **PASSED** | — |
-| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | PASSED | **PASSED** | — |
-| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | PASSED | **PASSED** | — |
-| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | PASSED | **PASSED** | — |
-| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | **PASSED** | — |
-| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | **PASSED** | — |
-| CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | **PASSED** | — |
-| CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | **PASSED** | — |
-| CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | **PASSED** | — |
-| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | **PASSED** | — |
-| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | **PASSED** | — |
-| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | **PASSED** | — |
-| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | **PASSED** | — |
-| CP-REG-011 | Media | Monto con tres decimales | PASSED | **PASSED** | — |
-| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | PASSED · DEF-007 | **PASSED** | — |
-| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | PASSED | **PASSED** | — |
-| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | PASSED | **PASSED** | — |
-| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | PASSED | **PASSED** | — |
-| CP-REG-016 | Media | El monto toma el foco con teclado numérico | PASSED | **PASSED** | — |
-| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | PASSED | **PASSED** | — |
-| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | PASSED | **PASSED** | — |
-| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | PASSED | **PASSED** | — |
-| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | PASSED | **PASSED** | — |
-| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | **PASSED** | — |
-| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | **PASSED** | — |
-| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | **PASSED** | — |
-| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | **PASSED** | — |
-| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | **PASSED** | — |
-| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | **PASSED** | — |
-| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | PASSED | **PASSED** | — |
-| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | PASSED | **PASSED** | — |
-| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | PASSED | **PASSED** | — |
-| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | PASSED | **PASSED** | — |
-| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | **PASSED** | — |
-| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | **PASSED** | — |
-| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | **PASSED** | — |
-| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | **PASSED** | — |
-| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | **PASSED** | — |
-| CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | **PASSED** | — |
-| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | PASSED | **PASSED** | — |
-| CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | **PASSED** | — |
-| CP-DAS-005 | Media | Gasto por cuenta | PASSED | **PASSED** | — |
-| CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | **PASSED** | — |
-| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | **PASSED** | — |
-| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | **PASSED** | — |
-| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | **PASSED** | — |
+| ID | Prioridad | Título | Resultado en V1 | Status | Defectos | Reglas | Motivo |
+|---|---|---|---|---|---|---|---|
+| CP-ACC-001 | Alta | Sin sesión, la app redirige al login | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-ACC-002 | Alta | Una ruta privada abierta sin sesión conserva el destino | PASSED · DEF-008 | **PASSED** | DEF-008 | 1, 3 | prioridad Alta; confirma DEF-008 (corregido, falta confirmación) |
+| CP-ACC-003 | Alta | Crear una cuenta con email y contraseña válidos | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-ACC-004 | Alta | Contraseñas que no cumplen los criterios se rechazan | FAILED · DEF-005 | **PASSED** | DEF-005 | 1, 3, 4 | prioridad Alta; confirma DEF-005 (corregido, falta confirmación); falló en V1 |
+| CP-ACC-005 | Alta | No se puede crear una cuenta con un email ya registrado | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-ACC-008 | Alta | Una cuenta nueva tiene el catálogo inicial sembrado | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-ACC-009 | Alta | Cerrar sesión y no poder volver con "atrás" | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-ACC-011 | Alta | Aislamiento entre usuarios en todas las tablas (par de autorización) | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-ACC-012 | Alta | Contraseña y confirmación distintas bloquean el alta | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-CFG-001 | Alta | Crear una categoría con nombre y color | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-CFG-003 | Media | No se permiten dos categorías activas con el mismo nombre | PASSED | **PASSED** | DEF-019, DEF-025 | 3 | confirma DEF-019 y DEF-025 (corregido, falta confirmación) |
+| CP-CFG-004 | Alta | Archivar una categoría con historia | FAILED · DEF-006 | **PASSED** | DEF-006 | 1, 3, 4 | prioridad Alta; confirma DEF-006 (corregido, falta confirmación); falló en V1 |
+| CP-CFG-005 | Baja | Reusar el nombre de una categoría archivada | PASSED | **PASSED** | DEF-019 | 3 | sumado el 2026-10-28 (§6): ejercita la unicidad de nombres de categoría, que cambió con DEF-019 (sin distinguir mayúsculas) |
+| CP-CFG-006 | Alta | Crear una cuenta de tarjeta de crédito | PASSED | **PASSED** | DEF-011 | 1, 2, 3 | prioridad Alta; V2 lo usa: cuentas de Ajustes (las usan suscripciones y registro); confirma DEF-011 (corregido, falta confirmación) |
+| CP-CFG-007 | Media | No se permiten dos cuentas activas con el mismo nombre | PASSED | **PASSED** | — | 2 | V2 lo usa: cuentas de Ajustes (las usan suscripciones y registro) |
+| CP-CFG-008 | Alta | La siembra concurrente no duplica el catálogo | PASSED | **PASSED** | — | 1 | prioridad Alta |
+| CP-CFG-009 | Alta | Cargar y actualizar el tipo de cambio de referencia del mes | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; V2 lo usa: tipo de cambio de referencia (lo usan suscripciones y deudas en USD) |
+| CP-CFG-010 | Media | Tipo de cambio de referencia en cero o negativo | PASSED | **PASSED** | DEF-018 | 2, 3 | V2 lo usa: tipo de cambio de referencia (lo usan suscripciones y deudas en USD); confirma DEF-018 (corregido, falta confirmación) |
+| CP-CFG-011 | Alta | Después de crear la cuenta aparece la configuración inicial | PASSED (ejecución 2) · DEF-017 | **PASSED** | DEF-017 | 1 | prioridad Alta |
+| CP-CFG-013 | Media | Destildar una categoría en el setup la archiva | PASSED (ejecución 2) · DEF-017 | **PASSED** | DEF-017, DEF-026 | 3 | sumado el 2026-10-28 (§6): el paso «Tus categorías» de la configuración inicial cambió con DEF-026 |
+| CP-REG-001 | Alta | El registro es la pantalla de inicio | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-002 | Media | La fecha viene precargada con hoy | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-004 | Media | Elegir la categoría tocando un chip | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-005 | Media | Una categoría archivada no se ofrece ni se acepta por API | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-008 | Media | Fecha de ayer sí, fecha de mañana no | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-009 | Media | Confirmación y formulario limpio después de guardar | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-010 | Alta | Monto vacío, cero o negativo no se guarda | PASSED | **PASSED** | DEF-012 | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-012 (corregido, falta confirmación) |
+| CP-REG-011 | Media | Monto con tres decimales | PASSED | **PASSED** | DEF-013 | 2, 3 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-013 (corregido, falta confirmación) |
+| CP-REG-012 | Alta | Eliminar una transacción la saca del total del mes | PASSED · DEF-007 | **PASSED** | DEF-007 | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado); confirma DEF-007 (corregido, falta confirmación) |
+| CP-REG-013 | Alta | Eliminar una compra con cuotas en meses cerrados avisa y es retroactivo | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-014 | Alta | Otro usuario no puede leer ni borrar una transacción ajena | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-015 | Alta | No se puede escribir en transactions salteando la RPC | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-REG-016 | Media | El monto toma el foco con teclado numérico | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Registro (V2 suma gasto compartido, aviso de guardado y confirmación de borrado) |
+| CP-CUO-001 | Alta | Compra en 12 cuotas genera 12 imputaciones consecutivas | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-002 | Alta | Previsualización del impacto mensual antes de guardar | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-003 | Alta | Cambiar a una cuenta que no es crédito resetea las cuotas | PASSED | **PASSED** | DEF-009 | 1, 2, 3 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva); confirma DEF-009 (corregido, falta confirmación) |
+| CP-CUO-004 | Alta | División exacta: 12 cuotas iguales | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-005 | Alta | El resto lo absorbe la última cuota | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-006 | Alta | Cantidad de cuotas: 0, 1, 2, 12 y 13 | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-007 | Media | El Resumen separa las cuotas de meses anteriores | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-009 | Alta | Borrar una compra en cuotas saca todas sus cuotas | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-010 | Media | En USD, la suma en pesos de las cuotas es exacta | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-011 | Alta | Otro usuario no ve las cuotas de una compra ajena | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-012 | Alta | Un ingreso no admite cuotas aunque la cuenta sea crédito | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-CUO-013 | Alta | Un fallo a mitad de create_transaction no deja datos parciales | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Cuotas (V2 suma la compra en cuotas empezada y la confirmación destructiva) |
+| CP-MON-001 | Alta | Gasto en USD con el tipo de cambio sugerido | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-002 | Alta | Tabla de decisión de moneda y tipo de cambio (6 filas) | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-003 | Media | Pisar el tipo de cambio sugerido | PASSED · DEF-020 | **PASSED** | DEF-020 | 2, 3 | módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio); confirma DEF-020 (corregido, falta confirmación) |
+| CP-MON-004 | Alta | Cambiar la referencia no altera lo ya guardado | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-005 | Alta | El total del mes en pesos incluye lo gastado en dólares | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-MON-007 | Alta | Otro usuario no lee ni modifica el tipo de cambio ajeno | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Monedas (las suscripciones y las deudas en USD usan el tipo de cambio) |
+| CP-DAS-001 | Alta | El Resumen abre en el mes actual con su total | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-002 | Alta | El mes elegido vive en la URL | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-003 | Media | Período inválido o ausente cae al mes actual | PASSED | **PASSED** | DEF-014 | 2, 3 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría); confirma DEF-014 (corregido, falta confirmación) |
+| CP-DAS-004 | Media | Gasto por categoría en barras | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-005 | Media | Gasto por cuenta | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-006 | Media | Ingresos y balance positivo | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-008 | Media | Últimos 10 movimientos con acceso a la lista completa | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-010 | Media | Mes sin datos: estado vacío con acceso al registro | PASSED | **PASSED** | — | 2 | módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
+| CP-DAS-011 | Alta | El Resumen de un usuario nunca muestra datos de otro | PASSED | **PASSED** | — | 1, 2 | prioridad Alta; módulo que V2 toca: Resumen (V2 suma el neto de reembolsos, la torta y el detalle de categoría) |
 
 ### Resumen de la regresión
 
@@ -667,14 +727,14 @@ Casos de V1 elegidos en `03-seleccion-regresion` (criterio de ADR-027: 58 de la 
 | CP-CFG-001 | PASSED | «Mascotas» aparece en el listado activo con el color elegido; en la base: Mascotas, #4a7a6d. |
 | CP-CFG-003 | PASSED | Crear «Salud» con «Salud» activa muestra «Ya existe una categoría activa con ese nombre» y la lista no cambia. Variante API: insert directo a categories → 23505. |
 | CP-CFG-004 | PASSED | Al archivar «Entretenimiento» desaparece del listado activo y de la grilla de Registrar. En Movimientos, el gasto «Cine» de $8.000 conserva su categoría con la marca «archivada» (DEF-006 sigue corregido); en la base mantiene el category_id. Nota: La transacción «Cine» de la preparación se cargó por API (create_transaction), no por Registrar. |
-| CP-CFG-005 | PASSED | Con «Salidas» archivada (la de CP-REG-005), crear «Salidas» en «Nueva categoría» se acepta sin error: queda 1 «Salidas» activa y 1 archivada. Nota: Sumado a la selección el 2026-10-28 (regla 3, por el cambio de unicidad de DEF-019; ver 03, §6). Depende de la preparación de CP-REG-005, como en V1. |
+| CP-CFG-005 | PASSED | Con «Salidas» archivada (la de CP-REG-005), crear «Salidas» en «Nueva categoría» se acepta sin error: queda 1 «Salidas» activa y 1 archivada. Nota: Sumado a la selección el 2026-10-28 (regla 3, por el cambio de unicidad de DEF-019; ver «Cambios a la selección»). Depende de la preparación de CP-REG-005, como en V1. |
 | CP-CFG-006 | PASSED | «Visa BBVA» aparece en la lista como «Tarjeta de crédito» (en la base: credit_card, ARS). En Registrar, al elegir «Visa BBVA» aparece «Cuotas» con los números 1 a 12. La lista de cuentas tiene «Editar» y «Archivar» en cada fila (DEF-011 sigue corregido). Nota: «Tarjeta de crédito» ya viene elegida en «Tipo»; no hizo falta abrir el desplegable. |
 | CP-CFG-007 | PASSED | Crear «Efectivo» con «Efectivo» activa muestra «Ya existe una cuenta activa con ese nombre» y la lista no cambia. Variante API: insert directo a accounts → 23505 (accounts_user_name_active_uq). |
 | CP-CFG-008 | PASSED | Con una cuenta creada por API y sin sembrar, las dos pestañas abiertas a la vez cargan (las dos llevan a /setup, porque la cuenta nueva tiene pendiente la configuración inicial). En la base quedan exactamente 8 categorías y 5 cuentas, sin duplicados. Nota: En V2 una cuenta nueva pasa primero por la configuración inicial (US-68), así que las pestañas muestran el setup en lugar del formulario de Registrar. La siembra ocurre igual. |
 | CP-CFG-009 | PASSED | Con 1250 se crea la referencia de octubre 2026 (1250.0000 en la base). Con 1300 para el mismo mes se actualiza: 1 sola fila, 1300.0000; la lista muestra «octubre 2026 $ 1.300,00». |
 | CP-CFG-010 | PASSED | 0 y -100 se rechazan con «El tipo de cambio debe ser mayor a cero»; 0,01 se acepta (0.0100 en la base). Variante API: el upsert directo a fx_rates responde 42501 y la RPC upsert_fx_rate responde 23514 «el tipo de cambio debe ser mayor a cero», con 0 y con -100. |
 | CP-CFG-011 | PASSED | Después de crear la cuenta se abre /setup: paso 1 de 4, «¿Para qué vas a usar Biyu?», con 3 opciones, «Continuar» y «Saltear». |
-| CP-CFG-013 | PASSED | «Continuar» en «¿Para qué vas a usar Biyu?» pasa a «Tus categorías» con las 8 categorías tildadas; al destildar «Educación» desaparece de la lista y «Continuar» lleva a «Tus cuentas». En la base, «Educación» sigue existiendo con archived_at completado (archivada, no borrada). Nota: Sumado a la selección el 2026-10-28 (regla 3, por el cambio del paso «Tus categorías» de DEF-026; ver 03, §6). |
+| CP-CFG-013 | PASSED | «Continuar» en «¿Para qué vas a usar Biyu?» pasa a «Tus categorías» con las 8 categorías tildadas; al destildar «Educación» desaparece de la lista y «Continuar» lleva a «Tus cuentas». En la base, «Educación» sigue existiendo con archived_at completado (archivada, no borrada). Nota: Sumado a la selección el 2026-10-28 (regla 3, por el cambio del paso «Tus categorías» de DEF-026; ver «Cambios a la selección»). |
 | CP-REG-001 | PASSED | Con sesión, abrir «/» termina en /register con el paso del monto visible. |
 | CP-REG-002 | PASSED | En el paso 3/3 la fecha viene con 2026-10-28, el día de la corrida. |
 | CP-REG-004 | PASSED | El paso 2/3 muestra la grilla de chips, sin desplegables; tocar «Transporte» avanza solo al paso 3/3 y el gasto se guarda con la categoría Transporte. |
@@ -716,6 +776,99 @@ Casos de V1 elegidos en `03-seleccion-regresion` (criterio de ADR-027: 58 de la 
 | CP-DAS-010 | PASSED | Mayo 2026 sin datos: «No tenés movimientos registrados en mayo.» con un botón que lleva a /register, sin los totales. |
 | CP-DAS-011 | PASSED | Con la sesión de B, las imputaciones de A del mes devuelven 0 filas, y sin filtro no aparece ninguna fila ajena. Nota: Ejecutado por API con dos sesiones reales. |
 
+### Criterio de selección
+
+Entra a la regresión un caso de V1 si cumple **alguna** de estas reglas:
+
+| Regla | Qué incluye | Por qué |
+|---|---|---|
+| 1 | Todos los casos de prioridad **Alta** | Son los que cubren lo que no puede romperse. |
+| 2 | Los casos de prioridad **Alta o Media** de los módulos que V2 toca: Registro, Cuotas, Resumen y Monedas, y los de Ajustes que V2 usa (cuentas y tipo de cambio de referencia: CP-CFG-006, 007, 009 y 010) | V2 modifica esas pantallas o escribe en las mismas tablas (el Resumen lee lo que crea cualquier transacción, incluidas las de suscripciones y deudas). |
+| 3 | Los casos ligados a un defecto de V1 **corregido y sin confirmar**, o que ejercitan una pantalla o regla que su fix modificó | Sirven de testeo de confirmación y cubren lo que el fix pudo romper. |
+| 4 | Los casos que **fallaron** en V1 | Hay que verificar que se arreglaron. |
+
+Se excluyen los casos de prioridad Media o Baja de módulos que V2 no toca (Acceso y Configuración) y los de prioridad Baja de los módulos que sí toca, salvo que los incluya otra regla (por ejemplo, que confirmen un defecto). Conservan el resultado de su última ejecución. Si aparece un defecto en un módulo excluido, se amplía la selección y se registra acá.
+
+### Resumen de la selección
+
+- **Casos de V1:** 74 (los 60 incluidos figuran en la tabla de este apartado y en «Resultado por caso» con «Test regresivo = Sí»; los 14 excluidos, abajo). **Incluidos en la regresión:** 60 (58 de la selección inicial y 2 sumados el 2026-10-28, CP-CFG-005 y CP-CFG-013: ver §6). **Excluidos:** 14.
+- Resultado de V1 de los incluidos: 58 PASSED y 2 FAILED (CP-ACC-004 y CP-CFG-004).
+
+| Módulo | Casos | Incluidos | Excluidos |
+|---|---|---|---|
+| Acceso | 12 | 9 | 3 |
+| Configuración | 15 | 11 | 4 |
+| Registro | 16 | 13 | 3 |
+| Cuotas | 13 | 12 | 1 |
+| Monedas | 7 | 6 | 1 |
+| Resumen | 11 | 9 | 2 |
+| **Total** | **74** | **60** | **14** |
+
+| Prioridad | Casos | Incluidos | Excluidos |
+|---|---|---|---|
+| Alta | 39 | 39 | 0 |
+| Media | 26 | 20 | 6 |
+| Baja | 9 | 1 | 8 |
+| **Total** | **74** | **60** | **14** |
+
+### Casos excluidos (14)
+
+| ID | Prioridad | Título | Resultado en V1 | Motivo |
+|---|---|---|---|---|
+| CP-ACC-006 | Media | Credenciales inválidas en el login, sin arrastrar el error al signup | PASSED | prioridad Media en el módulo Acceso, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-ACC-007 | Media | Alta sin sesión (confirmación de email activa) no entra a la app | PASSED | prioridad Media en el módulo Acceso, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-ACC-010 | Media | La sesión persiste al recargar y al reabrir el navegador | PASSED | prioridad Media en el módulo Acceso, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-CFG-002 | Media | Renombrar una categoría y cambiarle el color | PASSED | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-CFG-012 | Media | Saltear todo el setup deja la siembra de siempre | PASSED (ejecución 2) · DEF-017 | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-CFG-014 | Media | La cuenta elegida como predeterminada viene preseleccionada | PASSED (ejecución 2) · DEF-017 | prioridad Media en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-CFG-015 | Baja | El setup no reaparece y se puede reabrir desde Ajustes | PASSED (ejecución 2) · DEF-017 | prioridad Baja en el módulo Configuración, que V2 no toca; conserva el resultado de la ejecución de V1 |
+| CP-REG-003 | Baja | Tipo "gasto" y moneda ARS por defecto | PASSED | prioridad Baja en el módulo Registro, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-REG-006 | Baja | La cuenta viene precargada con la última usada | PASSED | prioridad Baja en el módulo Registro, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-REG-007 | Baja | Guardar sin nota | PASSED | prioridad Baja en el módulo Registro, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-CUO-008 | Baja | El listado muestra el número de cuota | PASSED | prioridad Baja en el módulo Cuotas, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-MON-006 | Baja | El gasto en dólares se ve por separado | PASSED | prioridad Baja en el módulo Monedas, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-DAS-007 | Baja | Balance negativo con signo explícito | PASSED | prioridad Baja en el módulo Resumen, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+| CP-DAS-009 | Baja | Una cuota heredada no cuenta como día con registro | PASSED | prioridad Baja en el módulo Resumen, que V2 toca: ninguna otra regla la incluye (no es Alta, no confirma un defecto y no falló en V1); conserva el resultado de la ejecución de V1 |
+
+### Defectos de V1 confirmados en V2 (22)
+
+Testeo de confirmación, ejecutado el **2026-10-28**: cada defecto de V1 "corregido, falta confirmación" se verificó sobre V2 repitiendo los pasos de su reporte (`entrega-1/04-reportes-de-defectos.md`). Resultado: **18 confirmados corregidos, 3 confirmados en parte y 1 no concluyente**. En parte: DEF-021 (se probó en WebKit con el viewport de un iPhone, no en un iPhone real) y DEF-027 y DEF-028 (el límite de altas y la siembra lenta se simularon). No concluyente: DEF-023, un defecto intermitente, que el equipo decidió cerrar igual (se reabre si reaparece). En `entrega-1/04-reportes-de-defectos.md` los 22 figuran cerrados; los parciales se pueden completar en el repaso manual (por ejemplo, DEF-021 en un iPhone). Se ejecutó contra la aplicación y Supabase locales (ver `04-ejecucion`, «Reporte de ejecución», apartado de desvíos).
+
+| Defecto | Título | Severidad | Estado en V1 | Se confirma con | Resultado en V2 | Evidencia |
+|---|---|---|---|---|---|---|
+| DEF-005 | El servidor acepta contraseñas que no cumplen FR-01/US-67 | Media | Corregido · falta confirmación | CP-ACC-004 | **Confirmado** | Contra Supabase Auth local con la configuración del repositorio (8 caracteres, mayúscula, minúscula, número y símbolo): «abc1234», «abcdefgh» y «abcd1234» responden HTTP 422 (weak_password); «Abcd123!» crea la cuenta. Repetido el 2026-10-28 después de reiniciar Supabase local, que estaba levantado con una configuración vieja de Auth (ver `04`, «Reporte de ejecución» §6, regresión). En el proyecto hosteado no se verificó. |
+| DEF-006 | Transacción de una categoría archivada no muestra marca de archivada en /transactions | Baja | Corregido · falta confirmación | CP-CFG-004 | **Confirmado** | El movimiento muestra: «Entretenimiento archivada Efectivo -$8.000,00» |
+| DEF-007 | Una transacción eliminada desaparece del historial en vez de quedar marcada como eliminada | Media | Corregido · falta confirmación | CP-REG-012 | **Confirmado** | Activos tras eliminar: 0. En «Eliminados» se ve «Martes 20 de octubre Indumentaria eliminada Efectivo -$50.000,00» con botón «Restaurar» |
+| DEF-008 | Tras iniciar sesión se ignora el destino original (next) y siempre entra a /register | Media | Corregido · falta confirmación | CP-ACC-002 | **Confirmado** | Sin sesión redirige a /login?next=%2Fdashboard%3Fperiod%3D2026-06; después de entrar termina en /dashboard?period=2026-06 |
+| DEF-009 | Cambiar el tipo de una cuenta a no-crédito deja compras en cuotas existentes violando I6 | Media | Corregido en #183 · falta confirmación | CP-CUO-003 | **Confirmado** | Con una compra en 3 cuotas, cambiar la cuenta «Tarjeta de crédito» a efectivo por API responde HTTP 400 (I6: la cuenta tiene compras en cuotas, no puede dejar de ser tarjeta de crédito) y la cuenta sigue siendo tarjeta de crédito. |
+| DEF-010 | Archivar todas las categorías hace que se resiembren las 8 por defecto | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Tras archivar las 8 y abrir Registrar (dos veces): 0 categorías activas, 8 en total |
+| DEF-011 | No se pueden editar ni archivar cuentas (medios de pago) desde la UI | Media | Corregido · falta confirmación | CP-CFG-006 | **Confirmado** | La lista de cuentas tiene 5 botones «Editar» y 5 «Archivar» (una por cuenta) |
+| DEF-012 | Un monto extremo pasa la validación del cliente y termina en un error técnico en inglés | Baja | Corregido · falta confirmación | CP-REG-010 | **Confirmado** | Con 1.000.000.000.000 «Siguiente» queda deshabilitado y aparece el aviso «El monto máximo es $999.999.999.999,99». |
+| DEF-013 | Con un monto USD muy chico, Guardar se deshabilita sin ningún mensaje visible | Baja | Corregido · falta confirmación | CP-REG-011 | **Confirmado** | Con US$0,01 a tipo de cambio 0,01 «Siguiente» queda deshabilitado y se ve «En pesos daría menos de $0,01.». |
+| DEF-014 | El período 0000-01 en el dashboard muestra un error de base de datos crudo | Baja | Corregido · falta confirmación | CP-DAS-003 | **Confirmado** | Con ?period=0000-01 no hay error; la dirección pasa a /dashboard?period=2026-10 y el mes es Octubre 2026 |
+| DEF-015 | Los botones de la paleta de color en /settings no tienen data-testid | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | 10 botones de color con data-testid; 8 botones «Editar» con identificador distinto en cada fila |
+| DEF-016 | No se puede crear ninguna deuda vinculada, ni siquiera una válida (falta SECURITY DEFINER) | Media | Corregido en #183 · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Gasto de $1.000 con deuda de $400: HTTP 200 (se crea). Con deuda de $1.500: HTTP 400 I7: la deuda no puede superar el monto del gasto |
+| DEF-018 | El registro acepta un tipo de cambio con más de 4 decimales y la base lo redondea sin avisar | Baja | Corregido · falta confirmación | CP-CFG-010 | **Confirmado** | Con tipo de cambio 1250,55555 «Siguiente» queda deshabilitado y se ve «Usá hasta 4 decimales». |
+| DEF-019 | Se pueden tener dos categorías activas que solo difieren en mayúsculas ("Salud" y "salud") | Baja | Corregido en #183 · falta confirmación | CP-CFG-003 | **Confirmado** | Crear «salud» con «Salud» activa: «Ya existe una categoría activa con ese nombre»; en la lista queda una sola |
+| DEF-020 | El tipo de cambio sugerido se muestra con el formato de la base ("1250.0000") | Baja | Corregido · falta confirmación | CP-MON-003 | **Confirmado** | El tipo de cambio sugerido se muestra como «1.250,00» |
+| DEF-021 | Los montos grandes se salen de sus casilleros en el Resumen (celular) | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado parcial** | En WebKit (el motor de Safari) con el viewport de iPhone 13 (390 px), los montos entran en su casillero ($2.165.003.118,00, $81.818.491.500,00 y $79.653.488.382,00), el porcentaje no baja de línea y no hay scroll horizontal; antes, igual en Chromium a 390 px. Falta probarlo en un iPhone real. |
+| DEF-023 | Después de crear la cuenta, a veces la pantalla queda en blanco en /register | Alta | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **No concluyente** (cerrado por decisión del equipo) | Chromium: 8 de 8 altas llegan a la configuración inicial; WebKit: 8 de 8 altas llegan a la configuración inicial. El defecto era intermitente (2 de 12 en producción con WebKit, 1 de ~80 en local): 16 altas sin fallas no alcanzan para descartarlo |
+| DEF-024 | Los diálogos de confirmación no toman el foco del teclado | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | El foco entra al diálogo (true), 6 Tab seguidos no salen de él (true), Escape lo cierra (true) y el foco queda en «settings-accounts-delete» |
+| DEF-025 | El error al editar una cuenta o una categoría aparece fuera de la pantalla | Baja | Corregido · falta confirmación | CP-CFG-003 | **Confirmado** | El aviso «Esta cuenta tiene compras en cuotas: tiene que seguir siendo tarjeta de crédito» aparece junto a la fila que se edita (a 100 px; pantalla de 812 px) |
+| DEF-026 | Sin categorías activas, el registro y el setup quedan sin salida | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado** | Con las 8 categorías archivadas, Registrar dice «No tenés categorías activas. Creá una o reactivá una archivada en Ajustes.» con enlace a Ajustes, y Ajustes muestra «Archivadas» con un botón para reactivar cada una (8). Al reabrir la configuración inicial, «Tus categorías» dice «No tenés categorías activas. Cuando termines, podés crearlas o reactivar las archivadas desde Ajustes.» y deja continuar, y «Registrá tu primer gasto» muestra el aviso con enlace a Ajustes y deja saltear (completado el 2026-10-28). |
+| DEF-027 | Al llegar al límite de altas, el mensaje dice "Probá de nuevo" | Baja | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado parcial** | Con un 429 simulado (respuesta interceptada) la pantalla dice: «Demasiados intentos. Esperá unos minutos antes de volver a intentar». No se llegó al límite real de altas. |
+| DEF-028 | Una cuenta nueva puede quedar sin cuentas (medios de pago) si la siembra tarda | Media | Corregido · falta confirmación | Repetir los pasos del reporte (sin caso propio) | **Confirmado parcial** | Con la siembra demorada a propósito (cuentas 4 s, categorías 1,5 s) Registrar muestra 5 cuentas. No se reprodujo una demora real. |
+
+Los defectos de V1 que ya figuraban como cerrados (DEF-001, 002, 003, 004, 017 y 022) no se repitieron.
+
+### Cambios a la selección
+
+**2026-10-28: se suman CP-CFG-005 y CP-CFG-013 (regla 3).** La revisión de la selección marcó que la regla «módulo que V2 no toca» dejaba afuera casos de Configuración que los fixes de V1 sí tocaron: CP-CFG-005 ejercita la unicidad de nombres de categoría, que cambió con DEF-019, y CP-CFG-013 el paso «Tus categorías» de la configuración inicial, que cambió con DEF-026. Se ejecutaron con los otros 58: PASSED. CP-ACC-006 (credenciales inválidas) se evaluó por DEF-027 y no se sumó: DEF-027 es el mensaje del límite de altas, que no es lo que ese caso ejercita, y se confirmó con sus propios pasos (ver «Defectos de V1 confirmados en V2»).
+
+**Mantenimiento de los casos de V1 para V2.** Un caso cambió lo que se espera ver: en **CP-CFG-008**, el paso 1 dice «Las dos cargan el formulario», pero en V2 una cuenta nueva pasa primero por la configuración inicial (US-68), así que las dos pestañas muestran el setup; la siembra (8 categorías y 5 cuentas, sin duplicados) se verifica igual. Para el repaso manual, leer el paso 1 como «Las dos cargan (el formulario o la configuración inicial)». En los demás casos lo que cambió es la pantalla y no el resultado esperado: «Cerrar sesión» está en Ajustes (CP-ACC-009), las bajas se ven en Movimientos → «Eliminados» (CP-REG-012) y la lista de categorías del Resumen lleva la torta y enlaces al detalle (CP-DAS-004). `entrega-1/02-especificacion-casos-de-prueba.md` no se modificó: es el documento de la Entrega 1.
+
+Si más adelante aparece un defecto en un módulo excluido, se agrega acá el caso que se suma y el motivo.
+
 ## Reporte de ejecución
 
 Resumen de la ejecución de V2 y de la regresión de V1: métricas por módulo, prioridad, tipo, técnica y canal, defectos abiertos, criterios de salida y desvíos. Gráficos de los porcentajes: [`graficos/resultados-por-entrega.svg`](graficos/resultados-por-entrega.svg) y [`graficos/resultados-v2-por-modulo.svg`](graficos/resultados-v2-por-modulo.svg). Formato del contenido: `docs/07-plan-de-testing.md` §6. El registro por caso está más arriba (y en `04-ejecucion.xlsx`); los defectos, en [`05-reportes-de-defectos.md`](05-reportes-de-defectos.md). La planilla `04-ejecucion.xlsx` trae este resumen al pie de la hoja «Índice». En las secciones de abajo, «§n» es el apartado n de este reporte.
@@ -725,7 +878,7 @@ Resumen de la ejecución de V2 y de la regresión de V1: métricas por módulo, 
 | Versión probada | Ejecución manual: deploy de Vercel (https://biyu-rust.vercel.app). Ejecución local: main en f096e22 (local, con todas las migraciones hasta 20261012000000). | `main` en `1c72d0f` (local; los commits posteriores solo tocan documentos). No se probó el deploy de Vercel. | `main` en `109007a` (local, con las 24 migraciones hasta `20261012000000`). No se probó el deploy de Vercel. |
 | Entorno | Manual: Google Chrome contra el deploy. Local: Vite local (127.0.0.1:5173) + Supabase local; Chromium; pedidos directos a la API con el token del usuario de prueba. | Vite local (127.0.0.1:5173) + Supabase local (y Edge Functions locales en SUS); Chromium, es-AR, America/Argentina/Buenos_Aires. Reloj del navegador fijado en 09/10/2026 (EXP) y 12/10/2026 (IMP); reloj real en SUS. | Vite local (localhost:5173) + Supabase local reiniciado con `supabase/config.toml`; Chromium emulando un celular de 390 × 844 px, es-AR, America/Argentina/Buenos_Aires; reloj real, salvo CP-REG-013 (15/10/2026, como en V1). |
 | Fecha | 2026-10-25 | 2026-10-27 | 2026-10-28 |
-| Casos | En el deploy, a mano (Deudas CP-DEU-005 a 010 y 15 casos de Navegación); el resto, en local. | En local: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. | En local: los 60 casos de V1 seleccionados en `03-seleccion-regresion`. Después, Joaquín los repasó a mano en el deploy de Vercel. |
+| Casos | En el deploy, a mano (Deudas CP-DEU-005 a 010 y 15 casos de Navegación); el resto, en local. | En local: EXP (31), IMP (41), 27 casos de SUS y 24 casos de Deudas (CP-DEU-015 a 035 y los 8 pendientes: 001 a 004, 011 a 013 y 025) y los 6 de Resumen por categoría. El equipo: 21 casos de SUS, informados como «ok» por mensaje. | En local: los 60 casos de V1 de la regresión («Test regresivo = Sí»). Después, Joaquín los repasó a mano en el deploy de Vercel. |
 | Datos | Usuarios qa+<id del caso>-001@example.com y montos ficticios, uno por caso; en local se pueden borrar con «supabase db reset». | Igual: usuarios `qa+cp-<módulo>-<nnn>-001@example.com` (con un sufijo de corrida) y montos ficticios. | Usuarios `qa+reg-<caso o grupo>-<corrida>@example.com` y montos ficticios; se borraron de la base local al terminar. |
 
 ### 1. Planificados, ejecutados, pasados, fallados y bloqueados
@@ -783,17 +936,17 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 - **PASSED (6):** la torta con una porción por categoría (CP-CAT-001), sin ingresos ni gastos eliminados (CP-CAT-002) y con «Resto» a partir de 7 categorías (CP-CAT-003); el detalle de una categoría (CP-CAT-004), su navegación por mes y hacia el Resumen (CP-CAT-005) y el aviso de una categoría que no existe (CP-CAT-006).
 - US-84 (editar un movimiento) no tiene casos porque la función todavía no existe en la aplicación.
 
-**Confirmación de defectos de V1 (22 defectos, ejecutada el 2026-10-28; no suma a los casos de arriba):**
+**Confirmación de defectos de V1 (22 defectos, ejecutada el 2026-10-28; no suma a los 203 casos de V2):**
 
-- **Confirmados corregidos en V2 (18):** DEF-005, DEF-006, DEF-007, DEF-008, DEF-009, DEF-010, DEF-011, DEF-012, DEF-013, DEF-014, DEF-015, DEF-016, DEF-018, DEF-019, DEF-020, DEF-024, DEF-025, DEF-026. Cada uno se repitió con los pasos de su reporte y el comportamiento es el esperado (detalle en `03-seleccion-regresion`, sección 5). DEF-005 se repitió el 2026-10-28 después de reiniciar Supabase local con la configuración del repositorio, y a DEF-026 se le completó el paso «Tus categorías» de la configuración inicial, que la primera confirmación no había revisado.
+- **Confirmados corregidos en V2 (18):** DEF-005, DEF-006, DEF-007, DEF-008, DEF-009, DEF-010, DEF-011, DEF-012, DEF-013, DEF-014, DEF-015, DEF-016, DEF-018, DEF-019, DEF-020, DEF-024, DEF-025, DEF-026. Cada uno se repitió con los pasos de su reporte y el comportamiento es el esperado (detalle en el apartado «Regresión de V1», «Defectos de V1 confirmados en V2»). DEF-005 se repitió el 2026-10-28 después de reiniciar Supabase local con la configuración del repositorio, y a DEF-026 se le completó el paso «Tus categorías» de la configuración inicial, que la primera confirmación no había revisado.
 - **Confirmados en parte (3):** DEF-021 (se probó en WebKit con el viewport de un iPhone 13, no en un iPhone real), DEF-027 (el límite de altas se simuló con una respuesta 429) y DEF-028 (la siembra lenta se simuló con demoras). El comportamiento corregido se ve, pero no en las condiciones del reporte original.
 - **No concluyente (1):** DEF-023 (la pantalla en blanco después de crear la cuenta). El defecto era intermitente; en 16 altas (8 en Chromium y 8 en WebKit) no se reprodujo, pero no alcanzan para descartarlo. El equipo decidió cerrarlo igual; se reabre si reaparece.
 
-**Regresión de V1 (60 casos, ejecutada el 2026-10-28; no suma a los casos de arriba):**
+**Regresión de V1 (60 casos, ejecutada el 2026-10-28; no suma a los 203 casos de V2):**
 
 | Métrica | Casos | % |
 |---|---|---|
-| Planificados (seleccionados en `03`) | 60 | 100 % |
+| Planificados (seleccionados por riesgo) | 60 | 100 % |
 | Ejecutados | 60 | 100 % de avance |
 | PASSED | 60 | 100 % de los ejecutados |
 | FAILED | 0 | 0 % |
@@ -803,7 +956,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 - **PASSED (60):** lo que funcionaba en V1 sigue funcionando en V2 en Acceso (9), Configuración (11), Registro (13), Cuotas (12), Monedas (6) y Resumen (9), incluidas las variantes API y los pares de autorización (otro usuario → 0 filas, rol anon → 42501).
 - **Los dos casos que fallaron en V1 pasan:** CP-ACC-004 (la API rechaza `abcd1234` con HTTP 422 weak_password, DEF-005) y CP-CFG-004 (el movimiento de una categoría archivada lleva la marca «archivada», DEF-006).
 - **Casos que cambiaron de estado respecto de la Entrega 1:** CP-ACC-004 y CP-CFG-004 (FAILED → PASSED). Los otros 58 siguen PASSED.
-- **Selección ampliada:** se sumaron CP-CFG-005 y CP-CFG-013 (regla 3, por los fixes de DEF-019 y DEF-026, que tocaron Configuración; `03` §6). Los dos pasan.
+- **Selección ampliada:** se sumaron CP-CFG-005 y CP-CFG-013 (regla 3, por los fixes de DEF-019 y DEF-026, que tocaron Configuración; ver «Cambios a la selección»). Los dos pasan.
 - **Defectos nuevos:** ninguno. Detalle por caso en el apartado «Regresión de V1» de este documento; resultado crudo en `ejecucion/regresion-v1-resultados.json`.
 - **Repaso manual:** Joaquín ejecutó a mano los 60 casos en el deploy de Vercel (https://biyu-rust.vercel.app).
 
@@ -883,7 +1036,7 @@ Catálogo recortado el 2026-10-27: de 672 a **206 casos** (se quitaron los que r
 
 Los casos de EXP, IMP y SUS ejecutados en local y el detalle de lo que se sustituyó (herramientas, oráculos y reloj) están en el apartado 6 de este reporte; los de SUS informados como «ok» por el equipo son los 21 que no se ejecutaron en local (lista en `04-ejecucion`).
 
-La regresión de V1 (60 casos, aparte de los 203) se ejecutó entera en local: 0 a mano y 60 en local. Después, el equipo repasó a mano en el deploy de Vercel los casos de V2: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones. Los de Resumen por categoría los repasó el equipo, sin responsable por módulo, y los 60 de la regresión de V1 los repasó Joaquín.
+La regresión de V1 (60 casos con «Test regresivo = Sí», aparte de los 203) se ejecutó entera en local: 0 a mano y 60 en local. Después, el equipo repasó a mano en el deploy de Vercel los casos de V2: Mariana en Deudas, Santiago en Navegación, Joaquín en Exportar CSV, Valentina en Importar Excel y Micaela en Suscripciones. Los de Resumen por categoría los repasó el equipo, sin responsable por módulo, y los 60 de la regresión de V1 los repasó Joaquín.
 
 ### 4. Defectos por severidad
 
@@ -905,7 +1058,7 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía. La regresió
 | 2. Cero defectos de severidad Alta abiertos, o justificados por el PO | Cumplido | No hay defectos de severidad Alta. |
 | 3. Todos los casos de prioridad Alta ejecutados | No cumplido | 125 de 129 casos de prioridad Alta de V2 ejecutados. No ejecutados: 4, todos BLOCKED porque dependen de una funcionalidad todavía no implementada: US-82 (issue #270), CP-DEU-055, 056, 057 y CP-DEU-013. Se ejecutan en V3. En la regresión de V1 se ejecutaron los 39 casos de prioridad Alta (39 PASSED; repasados a mano por Joaquín en el deploy). |
 | 4. Toda invariante del alcance con al menos un caso ejecutado | Parcial | Deudas y Navegación: I10, I18, I2, I3, I4, I5, I7 e I9 con casos ejecutados. I1 e I1' se ejecutaron en la regresión de V1 (CP-CUO-004, 005, 010 y 013, y CP-REG-015: PASSED). En Exportar, Importar y Suscripciones no se verificó invariante por invariante en este reporte. Las demás invariantes de V2 (dashboard, etc.) están en otros casos. |
-| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Cumplido, con salvedades | Confirmación de defectos de V1 ejecutada el 2026-10-28: 18 confirmados corregidos en V2, 3 confirmados en parte (DEF-021, DEF-027 y DEF-028) y 1 no concluyente (DEF-023, de severidad Alta, cerrado por decisión del equipo; se reabre si reaparece). Regresión de los 60 casos de V1 seleccionados (`03`) ejecutada el 2026-10-28: 60 PASSED, sin defectos nuevos. Salvedades: todo se verificó en local (DEF-005 depende de la configuración de Auth del proyecto hosteado, que no se verificó) y el repaso manual posterior se hizo en el deploy. |
+| 5. Regresión de V1 ejecutada y defectos corregidos confirmados | Cumplido, con salvedades | Confirmación de defectos de V1 ejecutada el 2026-10-28: 18 confirmados corregidos en V2, 3 confirmados en parte (DEF-021, DEF-027 y DEF-028) y 1 no concluyente (DEF-023, de severidad Alta, cerrado por decisión del equipo; se reabre si reaparece). Regresión de los 60 casos de V1 seleccionados por riesgo ejecutada el 2026-10-28: 60 PASSED, sin defectos nuevos. Salvedades: todo se verificó en local (DEF-005 depende de la configuración de Auth del proyecto hosteado, que no se verificó) y el repaso manual posterior se hizo en el deploy. |
 
 **Conclusión:** con este alcance se cumplen los criterios 1 y 2 (no hay defectos críticos ni altos) y el 5 con salvedades (la regresión de V1 pasó entera; de los defectos de V1, 18 están confirmados, 3 confirmados en parte y DEF-023 se cerró sin confirmar; repasado a mano por el equipo en el deploy). El criterio 3 **no se cumple**: los cuatro casos de prioridad Alta bloqueados por una funcionalidad inexistente (US-82) no se pueden ejecutar hasta que exista (quedan para V3). El 4 se cumple solo en parte porque el alcance es parcial.
 
@@ -959,12 +1112,12 @@ Detalle en `05-reportes-de-defectos`. Ninguno tiene issue todavía. La regresió
 4. DEF-023 es intermitente: 16 altas sin falla (8 en Chromium y 8 en WebKit) no lo descartan; queda como no concluyente y el equipo decidió cerrarlo igual (se reabre si reaparece).
 5. DEF-026: se comprobó Registrar y Ajustes; el paso «Tus categorías» de la configuración inicial, que la primera confirmación no recorrió, se completó el 2026-10-28.
 6. DEF-027 y DEF-028 se simularon: el límite de altas con una respuesta 429 interceptada y la siembra lenta con demoras de 4 s (cuentas) y 1,5 s (categorías).
-7. No se adjuntaron capturas; la evidencia de cada defecto está en `03-seleccion-regresion` (sección 5).
+7. No se adjuntaron capturas; la evidencia de cada defecto está en el apartado «Regresión de V1», «Defectos de V1 confirmados en V2».
 
 #### Regresión de V1 (ejecutada el 2026-10-28)
 
 1. **Ejecución en local.** Los 60 casos se ejecutaron con los pasos de la ejecución de V1, adaptados a V2; la propiedad cruzada del plan (`docs/07-plan-de-testing.md` §1) no se aplicó. Entorno local (Vite + Supabase local), sobre `main` en `109007a`, solo Chromium emulando un celular; no se probó el deploy de Vercel.
-2. **Adaptaciones a V2.** Salvo en CP-CFG-008, cambian cómo se llega y no lo que se verifica: CP-ACC-003 saltea los 4 pasos de la configuración inicial antes de llegar a Registrar, como dice el caso (la ejecución de V1 es anterior a US-68); en CP-CFG-008 la cuenta nueva abre /setup en las dos pestañas, no el formulario de Registrar que dice el paso 1, y se contó la siembra igual (es el único caso cuyo resultado esperado cambió en V2: `03` §6); CP-REG-012 busca el gasto borrado en Movimientos → «Eliminados» (FR-08, corregido por DEF-007); CP-DAS-004 lee las filas de la lista de categorías, que en V2 son enlaces al detalle (US-73); CP-MON-003 espera a que llegue el tipo de cambio sugerido; CP-CFG-004 acepta `true` como valor booleano de la base. Además, en la cuarta corrida se verifican dos pasos que en V1 no se miraban: el aviso «Transacción eliminada» de CP-REG-012 y, en CP-CFG-013, las 8 categorías tildadas y que «Educación» desaparezca de la lista.
+2. **Adaptaciones a V2.** Salvo en CP-CFG-008, cambian cómo se llega y no lo que se verifica: CP-ACC-003 saltea los 4 pasos de la configuración inicial antes de llegar a Registrar, como dice el caso (la ejecución de V1 es anterior a US-68); en CP-CFG-008 la cuenta nueva abre /setup en las dos pestañas, no el formulario de Registrar que dice el paso 1, y se contó la siembra igual (es el único caso cuyo resultado esperado cambió en V2: ver «Cambios a la selección»); CP-REG-012 busca el gasto borrado en Movimientos → «Eliminados» (FR-08, corregido por DEF-007); CP-DAS-004 lee las filas de la lista de categorías, que en V2 son enlaces al detalle (US-73); CP-MON-003 espera a que llegue el tipo de cambio sugerido; CP-CFG-004 acepta `true` como valor booleano de la base. Además, en la cuarta corrida se verifican dos pasos que en V1 no se miraban: el aviso «Transacción eliminada» de CP-REG-012 y, en CP-CFG-013, las 8 categorías tildadas y que «Educación» desaparezca de la lista.
 3. **Supabase local con una configuración vieja.** La primera corrida encontró la API de Auth aceptando `abcd1234` (CP-ACC-004): el stack local estaba levantado con una configuración anterior (mínimo 6 caracteres, sin requisitos). Se reinició Supabase con la configuración del repositorio (`supabase/config.toml`: 8 caracteres, mayúscula, minúscula, número y símbolo; los datos se conservaron) y se repitió: HTTP 422 weak_password. En el proyecto hosteado la configuración de Auth puede ser otra y no se verificó.
 4. **Cuatro corridas completas.** No se cambió a mano el resultado de ningún caso; el resultado crudo de la cuarta está en `ejecucion/regresion-v1-resultados.json`.
    - **Primera (58 casos):** 51 PASSED, 4 FAILED y 3 errores, ninguno de la aplicación. CP-ACC-003 FAILED porque se esperaba Registrar después del alta y la app abre la configuración inicial, como dice el caso. CP-ACC-008 y CP-ACC-009 dieron error porque dependen del usuario de CP-ACC-003. CP-ACC-004 FAILED por la configuración vieja de Supabase (punto 3). CP-CFG-004 FAILED porque se comparaba el booleano con `t` y la base devuelve `true` (en la pantalla y en la base estaba todo bien). CP-CFG-008 dio error porque esperaba el formulario de Registrar. CP-DAS-004 FAILED porque no se encontraban las filas de la lista, que en V2 tienen otro marcado.
