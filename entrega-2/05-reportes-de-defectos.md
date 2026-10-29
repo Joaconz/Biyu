@@ -8,7 +8,7 @@ DEF-029 se retiró el 2026-10-27: era un error de un caso de Navegación (CP-NAV
 
 **Los casos BLOCKED no tienen defecto:** dependen de funcionalidades todavía no implementadas (US-82, US-83, US-80 y US-81) y se vuelven a ejecutar en V3.
 
-**Regresión de V1 (2026-10-28):** los 60 casos de V1 seleccionados pasaron sobre V2; no se abrió ningún defecto nuevo (ver `06-reporte-de-ejecucion`).
+**Regresión de V1 (2026-10-28):** los 60 casos de V1 seleccionados pasaron sobre V2; no se abrió ningún defecto nuevo (ver `04-ejecucion`).
 
 ## Resumen
 

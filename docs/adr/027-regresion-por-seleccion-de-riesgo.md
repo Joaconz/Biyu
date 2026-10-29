@@ -28,7 +28,7 @@ Los casos de Prioridad Media o Baja de módulos que V2 no toca, y los de Priorid
 que sí toca (salvo que los incluya otra regla), se excluyen y conservan el resultado de su última
 ejecución. Con esa regla, la selección de V1 queda en 58 de los 74 casos (2026-10-27); el 2026-10-28 se
 sumaron CP-CFG-005 y CP-CFG-013 por la regla 3, porque los fixes de DEF-019 y DEF-026 tocaron Configuración,
-y quedó en 60 (`entrega-2/03-seleccion-regresion` §6). Las exclusiones se listan en ese mismo documento.
+y quedó en 60 (`entrega-2/04-ejecucion`, apartado «Regresión de V1», «Cambios a la selección»). Las exclusiones se listan en ese mismo apartado.
 
 ## Alternativas descartadas
 
@@ -46,4 +46,4 @@ y quedó en 60 (`entrega-2/03-seleccion-regresion` §6). Las exclusiones se list
 - Si un defecto aparece en un módulo excluido, se amplía la selección y se registra el cambio.
 - `roadmap.md` §V2 "Terminado cuando" se corrige para decir regresión seleccionada.
 - La regresión del 2026-10-28 la ejecutó Claude Code con un script de Playwright, no a mano; el equipo
-  la repasó a mano después en todos los casos (`entrega-2/06-reporte-de-ejecucion` §6).
+  la repasó a mano después en todos los casos (`entrega-2/04-ejecucion`, «Desvíos respecto de lo planificado»).

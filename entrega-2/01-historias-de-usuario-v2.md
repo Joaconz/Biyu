@@ -20,7 +20,7 @@ V1 dejó la base: registrar gastos e ingresos en pesos y dólares, compras en cu
 
 ## 2. Historias de V2 y su estado
 
-Estado al 2026-10-27, según lo implementado en la aplicación: **32 de 37 historias implementadas**. Las que no llegaron a V2 son US-80, US-81, US-82, US-83 y US-84; sus casos de prueba no están en el catálogo o quedan bloqueados (ver `06-reporte-de-ejecucion`).
+Estado al 2026-10-27, según lo implementado en la aplicación: **32 de 37 historias implementadas**. Las que no llegaron a V2 son US-80, US-81, US-82, US-83 y US-84; sus casos de prueba no están en el catálogo o quedan bloqueados (ver `04-ejecucion`).
 
 | Historia | Título | Issue | Parte | Estado | Casos de prueba |
 |---|---|---|---|---|---|

@@ -474,7 +474,7 @@ Entrega 1 (PR #173 y #176), igual que DEF-001 y DEF-004 (PR #163 y #162).
 | #192 | DEF-006, DEF-007 (eliminadas y categorías archivadas) | 2026-10-05 |
 | #198 | DEF-023 a DEF-028 | 2026-10-05 |
 
-La confirmación de que esos defectos quedaron resueltos en V2 está en `03-seleccion-regresion.md` §5.
+La confirmación de que esos defectos quedaron resueltos en V2 está en `04-ejecucion.md`, apartado «Regresión de V1», «Defectos de V1 confirmados en V2».
 Los defectos de V2 (DEF-030 a DEF-037) todavía no se le pasaron a la IA: no tienen issue.
 
 ## 7. IA en las actividades de Testing
@@ -486,7 +486,7 @@ La consigna no pide IA en Testing, pero se usó y se declara:
 - **Ejecución:** Claude Code ejecutó 161 casos de V2 y los 60 casos de la regresión de V1 con
   Playwright y pedidos directos a la API. Cada sesión partía de un
   plan con los casos a ejecutar, la regla para decidir PASSED, FAILED o BLOCKED y la prohibición de
-  cambiar un resultado a mano. Quién ejecutó cada caso está en `06-reporte-de-ejecucion.md` §3.
+  cambiar un resultado a mano. Quién ejecutó cada caso está en `04-ejecucion.md`, «Quién ejecutó cada caso».
 - **Reportes:** el agente `docs-writer` redactó los reportes de ejecución y de defectos con el formato
   de la Entrega 1. Los números se verificaron contra las planillas.
 - **Repaso manual:** después de la ejecución con Claude Code, el equipo repasó a mano en el deploy de Vercel todos los casos de V2
@@ -519,4 +519,4 @@ Claude, «Claude Code (web)» cuando el PR enlaza una sesión de claude.ai/code.
 | US-74, US-76, US-77, US-78 | #204 a #207 | #277, #278, #279, #280 | 5.5, sesión C | Claude Code (web) |
 
 US-80 a US-84 se especificaron pero no se implementaron: sus casos quedan fuera del catálogo o
-`BLOCKED` (`06-reporte-de-ejecucion.md`).
+`BLOCKED` (`04-ejecucion.md`).
