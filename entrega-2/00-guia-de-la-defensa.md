@@ -10,10 +10,10 @@ el caso sin el `CP-` (por ejemplo, la hoja `EXP-027` es CP-EXP-027).
 |---|---|---|
 | **Parte A** · Historias de usuario de V2, con estructura de pantalla, botones, campos y mocks | [`01-historias-de-usuario-v2.md`](01-historias-de-usuario-v2.md) · [`mocks-png/`](mocks-png/) · [`mocks/`](mocks/) | §2: las 37 historias con su estado. Ejemplo: US-36 «Cargar una deuda suelta» (buscar `US-36:`), con su mock `mocks-png/deudas-nueva.png` |
 | **Parte A** · Casos de prueba de V2 | [`02-especificacion-casos-v2.md`](02-especificacion-casos-v2.md) · [`.xlsx`](02-especificacion-casos-v2.xlsx) | 212 casos: índice al principio y una hoja por caso en la planilla |
-| **Parte A** · Casos de regresión elegidos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) · [`.xlsx`](03-seleccion-regresion.xlsx) · [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md) | §1: las reglas de selección por riesgo. §3 y §4: casos incluidos y excluidos, con el motivo de cada uno |
+| **Parte A** · Casos de regresión elegidos de V1 | [`04-ejecucion.md`](04-ejecucion.md) · [`.xlsx`](04-ejecucion.xlsx) · [ADR-027](../docs/adr/027-regresion-por-seleccion-de-riesgo.md) | Apartado «Regresión de V1»: criterio de selección por riesgo, motivo de cada caso incluido y los 14 excluidos. En la planilla, columna «Test regresivo» del «Índice» |
 | Ejecución de los casos de V2 | [`04-ejecucion.md`](04-ejecucion.md) · [`.xlsx`](04-ejecucion.xlsx) | Resultado por caso y detalle de cada caso que no es PASSED |
 | Ejecución de la regresión de V1 | [`04-ejecucion.md`](04-ejecucion.md), apartado «Regresión de V1» | Los 60 casos de V1 sobre V2 |
-| Confirmación de los defectos de V1 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) §5 | Los 22 defectos repetidos sobre V2 con su resultado |
+| Confirmación de los defectos de V1 | [`04-ejecucion.md`](04-ejecucion.md), «Regresión de V1», «Defectos de V1 confirmados en V2» | Los 22 defectos repetidos sobre V2 con su resultado |
 | **Parte B** · Organización del equipo | [`README.md`](README.md) «Equipo» | Quién hizo qué |
 | **Parte B** · % PASSED, FAILED y BLOCKED, con un gráfico | [`graficos/`](graficos/) · [`04-ejecucion.md`](04-ejecucion.md), «Reporte de ejecución» §1 y §2 | Los dos gráficos de abajo |
 | **Parte B** · Casos que cambiaron de estado en cada entrega | Sección 3 de esta guía · [`04-ejecucion.md`](04-ejecucion.md), «Reporte de ejecución» §1 | La tabla de cambios |
@@ -49,8 +49,8 @@ Los casos de V2 se ejecutaron por primera vez en esta entrega: no tienen un esta
 | Un caso bloqueado por una función no implementada | CP-DEU-055 · Gasto compartido con varias personas (US-82) | `02` y `04`: BLOCKED, con el motivo |
 | Un caso en DUDA | CP-DEU-002 · Gasto compartido de $120.000,00 en 12 cuotas | `04`: se cumple, pero el pedido usa otros parámetros porque US-82 no existe |
 | Un caso de API (negativo, sin sesión u otro usuario) | CP-SUS-032 → **DEF-034** (HTTP 500 en lugar de 404) | `02` y `04`, `05` |
-| Un caso de regresión que cambió de estado | CP-ACC-004 · Contraseñas que no cumplen los criterios (DEF-005) | `03` §3 (la regla por la que entró) y `04` «Regresión de V1» |
-| La confirmación de un defecto de V1 | DEF-005 o DEF-021 | `03` §5 |
+| Un caso de regresión que cambió de estado | CP-ACC-004 · Contraseñas que no cumplen los criterios (DEF-005) | `04` «Regresión de V1» (columna «Reglas» y «Motivo»: la regla por la que entró) |
+| La confirmación de un defecto de V1 | DEF-005 o DEF-021 | `04` «Regresión de V1», «Defectos de V1 confirmados en V2» |
 | La trazabilidad de una historia a sus casos | US-47 (Exportar CSV) | `casos/exp.md` §1 «Trazabilidad CA-k → casos» |
 
 ## 5. Demo de V2
