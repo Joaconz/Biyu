@@ -90,9 +90,9 @@ Los casos nuevos de suscripciones y deudas —que son los más ricos en bordes: 
 
 ---
 
-## V3 — Automatización
+## V3 — Automatización, CRUD completo y UX
 
-El foco es automatizar un subconjunto representativo de los casos de V1 y V2. No es una versión de features.
+El foco sigue siendo automatizar un subconjunto representativo de los casos de V1 y V2, pero la Entrega 3 también pide refinar requerimientos y sumar funcionalidad sobre la cual hacer regresión. El 2026-10-30 el equipo sumó a V3 los cambios funcionales de abajo (milestone V3).
 
 ### Qué se automatiza
 
@@ -107,12 +107,21 @@ El foco es automatizar un subconjunto representativo de los casos de V1 y V2. No
 
 Ejecución en GitHub Actions ante cada push y cada pull request, levantando el stack local de Supabase CLI para pgTAP y las Edge Functions. Reporte de ejecución publicado como artefacto de la corrida. Un cambio que rompe una invariante no llega a la rama principal.
 
-### Mejora funcional menor
+### Cambios funcionales
 
-**Edición de una transacción existente** (movida a V2 con US-84, ADR-043; el motivo de abajo sigue valiendo). Se elige a propósito y no por conveniencia: al cambiar el monto o la cantidad de cuotas hay que borrar y regenerar todas las imputaciones (ADR-009), y ese es el camino por el cual la invariante central del sistema se rompe en silencio. Es decir: es la feature más pequeña que produce el mejor material de regresión posible. La alternativa que se descartó —filtros y búsqueda en el listado— es más segura de construir y casi no genera casos interesantes.
+- **CRUD completo** ([#324](https://github.com/Joaconz/Biyu/issues/324)): editar un movimiento (US-84) y una deuda (US-86); borrado definitivo de movimientos, deudas, suscripciones y categorías (US-85, US-87 a US-89), con confirmación y un ADR nuevo porque contradice el soft delete de C10 (ADR-044, [#327](https://github.com/Joaconz/Biyu/issues/327)); reactivar una cuenta archivada (US-90).
+- **Deudas agrupadas por persona** (US-91, [#333](https://github.com/Joaconz/Biyu/issues/333)): el listado junta los nombres que solo difieren en mayúsculas, tildes o espacios y muestra el neto por persona. No cambia datos.
+- **Mejoras de UX** ([#325](https://github.com/Joaconz/Biyu/issues/325)): salen de la auditoría [#352](https://github.com/Joaconz/Biyu/issues/352) (US-92 a US-100).
+- **Lo que no llegó a V2**: US-80 a US-83 (importar compras empezadas, guía del archivo, compartir con varias personas, deudas sueltas en el balance).
+- **Defectos de V2**: DEF-030 a DEF-037 se corrigen y se confirman en V3 ([#326](https://github.com/Joaconz/Biyu/issues/326)).
+
+**Edición de una transacción existente** (US-84, ADR-043: estaba en V2 y no llegó; vuelve a V3. El motivo de abajo sigue valiendo). Se elige a propósito y no por conveniencia: al cambiar el monto o la cantidad de cuotas hay que borrar y regenerar todas las imputaciones (ADR-009), y ese es el camino por el cual la invariante central del sistema se rompe en silencio. Es decir: es la feature más pequeña que produce el mejor material de regresión posible. La alternativa que se descartó —filtros y búsqueda en el listado— es más segura de construir y casi no genera casos interesantes.
 
 ### Terminado cuando
 
+- Los cambios funcionales de V3 tienen sus casos diseñados y ejecutados, y los casos de V1 y V2 seleccionados se ejecutaron como regresión.
+- Los defectos de V2 están confirmados (re-testeados) y cerrados o justificados.
+- El reporte final muestra el % de casos PASSED, FAILED y BLOCKED y qué casos cambiaron de estado en cada entrega.
 - La suite automatizada corre en CI y falla el build cuando debe.
 - Existe el reporte de ejecución automatizada y se puede comparar contra el manual.
 - Está escrito el análisis de los defectos encontrados a lo largo del proyecto y el post-mortem de las actividades.
