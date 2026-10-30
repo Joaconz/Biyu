@@ -107,9 +107,11 @@ La `anon key` de Supabase es pública por diseño y viaja en el bundle del clien
 ### C9 — Los datos son exportables sin la aplicación
 Export a CSV. Si el proyecto se abandona, los datos siguen siendo utilizables. Cuándo se construye está en `roadmap.md` (V2); la restricción es que exista.
 
-### C10 — Ningún borrado es físico para las transacciones
-Soft delete con `deleted_at`. Los meses cerrados no cambian por un tap equivocado. Única excepción:
-eliminar una cuenta borra físicamente sus transacciones, con confirmación explícita (ADR-026).
+### C10 — La baja de una transacción es lógica primero
+Soft delete con `deleted_at`. Los meses cerrados no cambian por un tap equivocado. El borrado físico
+pide un segundo paso: desde Eliminados, «Eliminar definitivamente», salvo las ocurrencias de una
+suscripción, que nunca se borran físicamente (ADR-044). Eliminar una cuenta borra físicamente sus
+transacciones, con confirmación explícita (ADR-026).
 
 ### C11 — El estado de la vista vive en la URL
 El período seleccionado y los filtros son parámetros de URL (React Router), no estado de cliente. Un mes es enlazable y compartible, y el botón de atrás funciona como se espera.
