@@ -4,7 +4,7 @@ import { expect, type Page, test } from '@playwright/test'
 
 // DEF-021 (#167): en el celular, los montos grandes del Resumen se cortaban o desbordaban su
 // tarjeta, y el "100,0 %" de "Por categoría" bajaba de línea. Es de layout, así que no hay un
-// nivel más bajo que lo vea. Corre contra el deploy (SMOKE_URL), como smoke.spec.ts.
+// nivel más bajo que lo vea. Corre en local y contra el deploy (SMOKE_URL), como smoke.spec.ts.
 // El gasto es el máximo de una transacción (numeric(14,2)); sin ingresos, el balance es el mismo
 // monto en negativo: el texto más largo que entra en una sola transacción.
 const PASSWORD = 'Smoke-Test-2026'
@@ -26,7 +26,8 @@ async function layoutProblems(page: Page) {
     )
     for (const el of amounts) {
       const id = el.getAttribute('data-testid')!
-      const card = el.closest('[data-testid="dashboard-total"], [data-testid="dashboard-income"], [data-testid="dashboard-balance"], [role="listitem"]')!
+      // Las filas de categoría son <li> con un enlace adentro desde US-72; las de cuenta, role="listitem".
+      const card = el.closest('[data-testid="dashboard-total"], [data-testid="dashboard-income"], [data-testid="dashboard-balance"], [role="listitem"], li')!
       const box = el.getBoundingClientRect()
       const cardBox = card.getBoundingClientRect()
       if (box.right > cardBox.right + 0.5 || box.left < cardBox.left - 0.5 || box.right > viewport) problems.push(`${id} se sale de su tarjeta`)

@@ -2,7 +2,7 @@
 // (page.evaluate corre en el navegador: necesita los tipos del DOM)
 import { expect, type Page, test } from '@playwright/test'
 
-// Ajustes: DEF-015 (#156), DEF-010 (#151) y DEF-011 (#152). Corre contra el deploy (SMOKE_URL),
+// Ajustes: DEF-015 (#156), DEF-010 (#151) y DEF-011 (#152). Corre en local y contra el deploy (SMOKE_URL),
 // como smoke.spec.ts: la lógica de siembra también tiene su test en tests/lib/seedPlan.test.ts y el
 // borrado de cuentas el suyo en supabase/tests/database/delete_account.test.sql.
 const PASSWORD = 'Smoke-Test-2026'

@@ -76,18 +76,29 @@ jamás va en el cliente (C8).
 | `npm test` | Tests del dominio (Vitest). No necesita Docker |
 | `npm run test:db` | Tests de la base (pgTAP). Necesita `supabase start` |
 | `npm run build` | Lo mismo que corre Vercel; tiene que compilar sin errores |
-| `SMOKE_URL=<url> npm run test:e2e` | Prueba de humo (Playwright) contra un deploy. Ver abajo |
+| `npm run test:e2e` | Suite Playwright contra la app y la base locales. Ver abajo |
+| `SMOKE_URL=<url> npm run test:e2e` | La misma suite como prueba de humo contra un deploy. Ver abajo |
 
-Antes de abrir un PR: `npm test`, `npm run test:db` y `npm run build` en verde. La CI corre lo mismo.
+Antes de abrir un PR: `npm test`, `npm run test:db`, `npm run test:e2e` y `npm run build` en verde. La CI corre lo mismo.
+
+**La suite Playwright en local** (`e2e/`, #334) necesita `supabase start` y toma las claves de tu `.env`
+(o de `SUPABASE_URL` y `SUPABASE_ANON_KEY`); se niega a correr si apuntan a una base que no es local.
+Si ya tenés `npm run dev` andando en el puerto 5173 lo reusa; si no, levanta Vite solo. Corre en Chromium
+con el ancho de un celular (390 × 844), como las ejecuciones manuales. La primera vez:
+`npx playwright install chromium`. Los specs nuevos usan los helpers de `e2e/support/app.ts`
+(`signUpAndSkipSetup` es PR-01, `apiSession` es PR-04, `fixToday` fija el reloj en la hora de
+Argentina) y llevan el ID del caso al principio del título. En la CI corre en cada PR (job `e2e`) y el
+reporte HTML queda como artefacto `playwright-report` de la corrida.
 
 **El deploy.** Vercel despliega `main` en <https://biyu-joaconzs-projects.vercel.app> y arma un
 Preview por cada PR (la URL aparece en el PR). Los dos usan el proyecto de Supabase hosteado, cuyas
 `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` viven en las variables de entorno de Vercel, no en el
 repo ni en la CI (C8, C13). Tu `.env` sigue apuntando a la base local.
 
-**La prueba de humo** (`e2e/smoke.spec.ts`, nivel 4 de `02-behavior-spec.md` §Testing Decisions) crea
-un usuario nuevo, registra un gasto en 3 cuotas y mira el total del mes en el dashboard, en Chromium,
-WebKit y Firefox. No corre en la CI: se lanza a mano contra el Preview del PR o contra producción.
+**La prueba de humo** es la misma suite con `SMOKE_URL`: corre contra ese deploy en Chromium, WebKit y
+Firefox (`e2e/smoke.spec.ts`, nivel 4 de `02-behavior-spec.md` §Testing Decisions, crea un usuario
+nuevo, registra un gasto en 3 cuotas y mira el total del mes en el dashboard). No corre en la CI: se
+lanza a mano contra el Preview del PR o contra producción. Crea usuarios en el proyecto hosteado.
 La primera vez instalá los navegadores con `npx playwright install chromium webkit firefox`.
 
 ```bash
