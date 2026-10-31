@@ -575,8 +575,8 @@ Procedimientos reutilizables: [`docs/12-procedimientos-de-prueba.md`](../../docs
 | 3 | Hacer click en el campo "Contraseña" y escribir `Clave123!`. | El campo "Contraseña" muestra los caracteres ocultos. |
 | 4 | Hacer click en el botón "Entrar". | Se abre la app en Registrar. |
 | 5 | Escribir `<APP>/transactions?period=2026-08` en la barra de direcciones y presionar Enter. | Se abre Movimientos de agosto 2026 con la fila de `"Cena"`. |
-| 6 | Hacer click en el botón de papelera (`data-testid="transactions-item-delete"`) de la fila `"Cena"`. | Se abre el diálogo `"¿Eliminar transacción?"` con `"También deja de contar la deuda con Sofía por $60.000,00."`. |
-| 7 | Hacer click en el botón "Eliminar" (`data-testid="delete-transaction-confirm"`). | Aparece el aviso `"Transacción eliminada"` y la fila sale de Movimientos. |
+| 6 | Hacer click en el botón de papelera (`data-testid="transactions-item-delete"`) de la fila `"Cena"`. | Se abre el diálogo `"¿Eliminar movimiento?"` con `"También deja de contar la deuda con Sofía por $60.000,00."`. |
+| 7 | Hacer click en el botón "Eliminar" (`data-testid="delete-transaction-confirm"`). | Aparece el aviso `"Movimiento eliminado"` y la fila sale de Movimientos. |
 | 8 | Escribir `<APP>/debts?status=all` en la barra de direcciones y presionar Enter. | La deuda de `"Sofía"` no aparece en la lista (se ve `data-testid="debts-empty"` con `"No cargaste ninguna deuda todavía."`), `"Te deben"` (`data-testid="debts-total-owed-to-me"`) muestra `"$0,00"` y el neto (`data-testid="debts-net"`) muestra `"En cero"`. |
 | 9 | Hacer click en el filtro "Pendientes" (`data-testid="debts-filter-pending"`) y luego en "Saldadas" (`data-testid="debts-filter-settled"`). | En ambos filtros la lista sigue vacía (`data-testid="debts-empty"`). |
 | 10 | Escribir `<APP>/dashboard?period=2026-08` en la barra de direcciones y presionar Enter. | El elemento `data-testid="dashboard-net-reimbursements"` no está en el DOM (la deuda del gasto eliminado no cuenta en el neto). |

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeDeletionImpact, getTransactionDeletionImpact } from '@/domain/deletion'
+import { computeDeletionImpact, getTransactionDeletionImpact, transactionDeletionSummary } from '@/domain/deletion'
 import { Decimal, parseMoney } from '@/domain/money'
 import { isPeriodBefore } from '@/domain/period'
 
@@ -98,5 +98,35 @@ describe('deletion impact (US-65, C10, FR-08)', () => {
     expect(impact.affectedPeriods[0].period).toEqual({ year: 2026, month: 8 })
     expect(impact.affectedPeriods[0].amountArs.eq(parseMoney('62500'))).toBe(true)
     expect(impact.totalClosedAmountArs.eq(parseMoney('62500'))).toBe(true)
+  })
+})
+
+describe('transactionDeletionSummary (US-94)', () => {
+  const base = {
+    type: 'expense' as const,
+    amount: parseMoney('120000'),
+    currency: 'ARS' as const,
+    categoryName: 'Indumentaria',
+    accountName: 'Visa BBVA',
+    occurredOn: '2026-08-15',
+    installmentsCount: 1,
+  }
+
+  it('un gasto en pesos: tipo y monto, categoría, cuenta y fecha', () => {
+    expect(transactionDeletionSummary(base)).toEqual([
+      { label: 'Gasto', value: '$120.000,00' },
+      { label: 'Categoría', value: 'Indumentaria' },
+      { label: 'Cuenta', value: 'Visa BBVA' },
+      { label: 'Fecha', value: '15/08/2026' },
+    ])
+  })
+
+  it('una compra en cuotas dice cuántas; un gasto en dólares, el monto en US$', () => {
+    expect(transactionDeletionSummary({ ...base, installmentsCount: 12 }).at(-1)).toEqual({ label: 'Cuotas', value: '12 cuotas' })
+    expect(transactionDeletionSummary({ ...base, currency: 'USD', amount: parseMoney('40') })[0]).toEqual({ label: 'Gasto', value: 'US$40,00' })
+  })
+
+  it('un ingreso sin categoría no muestra la línea de categoría', () => {
+    expect(transactionDeletionSummary({ ...base, type: 'income', categoryName: null }).map((i) => i.label)).toEqual(['Ingreso', 'Cuenta', 'Fecha'])
   })
 })

@@ -913,8 +913,8 @@ Casos de camino feliz: 36.
 | # | Paso | Resultado esperado |
 |---|---|---|
 | 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual. |
-| 2 | En el movimiento "Campera", tocar el tacho ("Eliminar Campera"). | Se abre el diálogo "¿Eliminar transacción?". |
-| 3 | Tocar "Eliminar". | Se cierra el diálogo y aparece "Transacción eliminada". |
+| 2 | En el movimiento "Campera", tocar el tacho ("Eliminar Campera"). | Se abre el diálogo "¿Eliminar movimiento?". |
+| 3 | Tocar "Eliminar". | Se cierra el diálogo y aparece "Movimiento eliminado". |
 | 4 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen del mes actual. |
 | 5 | Comparar "Gastado en …" con el total anotado. | El total ya no la incluye (I10): bajó $50.000. |
 | 6 | En la base, ver la transacción "Campera" (select deleted_at from transactions where description = 'Campera'). | deleted_at completado: la transacción sigue existiendo, marcada como eliminada. |
@@ -936,7 +936,7 @@ Casos de camino feliz: 36.
 |---|---|---|
 | 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos de octubre 2026, con la cuota 3/12. |
 | 2 | Tocar el tacho del movimiento de la compra ("Eliminar …"). | Antes de confirmar, avisa que cambian los totales de meses cerrados (2026-08 y 2026-09): "Aviso: Esta transacción tiene imputaciones en meses ya cerrados…", con la lista de meses y el "Total meses cerrados". |
-| 3 | Tocar "Eliminar". | Aparece "Transacción eliminada". |
+| 3 | Tocar "Eliminar". | Aparece "Movimiento eliminado". |
 | 4 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Resumen". | Se abre el Resumen de octubre. |
 | 5 | Tocar "Mes anterior" (la flecha de la izquierda) hasta llegar a agosto 2026, y después pasar a septiembre 2026. | Todas las imputaciones dejan de contar, también las de meses cerrados: agosto y septiembre ya no incluyen sus cuotas (si no hay otros movimientos, muestran el estado vacío). |
 
@@ -1195,7 +1195,7 @@ Casos de camino feliz: 36.
 |---|---|---|
 | 1 | En la barra de navegación de abajo (en computadora, el menú lateral), tocar "Movimientos". | Se abre Movimientos del mes actual, con la cuota 1/12. |
 | 2 | Observar la fila de la compra. | Solo tiene la opción de eliminar la compra: no existe la opción de borrar una cuota suelta. |
-| 3 | Tocar el tacho de la compra y, en el diálogo, tocar "Eliminar". | Aparece "Transacción eliminada". |
+| 3 | Tocar el tacho de la compra y, en el diálogo, tocar "Eliminar". | Aparece "Movimiento eliminado". |
 | 4 | En el Resumen, pasar con "Mes siguiente" por los meses siguientes; en la base, contar las imputaciones activas de la compra. | Las 12 imputaciones dejan de contar en todos los meses, incluidas las futuras. |
 
 #### CP-CUO-010 — En USD, la suma en pesos de las cuotas es exacta

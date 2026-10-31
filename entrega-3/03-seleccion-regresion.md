@@ -236,3 +236,11 @@ Respecto de la Entrega 2 se dejan de lado sus reglas 2 a 4 (Media de los módulo
 ## Cambios a la selección
 
 Ninguno todavía.
+
+## Casos ajustados a V3
+
+Pasos o resultados esperados que cambian porque V3 cambió la aplicación. El resultado esperado se ajusta al comportamiento nuevo; no se relaja.
+
+| Caso | Qué cambió | Por |
+|---|---|---|
+| CP-REG-012, CP-REG-013, CP-CUO-009, CP-DEU-015 | El diálogo dice «¿Eliminar movimiento?» y el aviso «Movimiento eliminado» (antes, «transacción») | US-94 (#355) |
