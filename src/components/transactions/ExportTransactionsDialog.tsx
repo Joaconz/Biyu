@@ -40,39 +40,37 @@ export function ExportTransactionsDialog({
   const abortControllerRef = useRef<AbortController | null>(null)
 
   const location = useLocation()
-  const initialLocationKeyRef = useRef(location.key)
+  // Clave de la URL en el momento en que se abrió la hoja; null mientras está cerrada.
+  const openedAtKeyRef = useRef<string | null>(null)
 
   const busy = status === 'exporting'
 
   useModalFocus(isOpen, panelRef, cancelButtonRef)
 
-  // Al abrir la hoja vuelve al estado Inicial (CA-1, ADR-029)
+  // Al abrir la hoja vuelve al estado Inicial (CA-1, ADR-029). La clave se toma solo al abrir:
+  // DEF-031 (#345) era que se volvía a tomar en cada cambio de URL y nunca difería.
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && openedAtKeyRef.current === null) {
       setScope('month')
       setStatus('idle')
-      initialLocationKeyRef.current = location.key
+      openedAtKeyRef.current = location.key
     }
+    if (!isOpen) openedAtKeyRef.current = null
   }, [isOpen, location.key])
 
-  // CA-24: Si mientras está abierta cambia la URL o se presiona Atrás del navegador,
-  // la hoja se cierra y la exportación se cancela sin descargar nada.
+  // CA-24: si mientras está abierta cambia la URL (también con Atrás o Adelante del navegador),
+  // la hoja se cierra y la exportación en curso se cancela sin descargar nada (DEF-032, #346).
   useEffect(() => {
-    if (isOpen && location.key !== initialLocationKeyRef.current) {
+    if (isOpen && openedAtKeyRef.current !== null && location.key !== openedAtKeyRef.current) {
       abortControllerRef.current?.abort()
       onClose()
     }
   }, [location.key, isOpen, onClose])
 
+  // Si la hoja se cierra por cualquier motivo, nada de lo que estaba en curso descarga.
   useEffect(() => {
-    if (!isOpen) return
-    function handlePopState() {
-      abortControllerRef.current?.abort()
-      onClose()
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [isOpen, onClose])
+    if (!isOpen) abortControllerRef.current?.abort()
+  }, [isOpen])
 
   // CA-18, CA-23: Escape cierra la hoja solo si no está en "Exportando…"
   useEffect(() => {
@@ -129,16 +127,17 @@ export function ExportTransactionsDialog({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      onClick={(e) => {
-        // CA-18, CA-23: tocar fuera de la hoja la cierra solo si no está en Exportando…
-        if (e.target === e.currentTarget && !busy) {
-          onClose()
-        }
-      }}
-    >
-      <div className="fixed inset-0 -z-10 bg-[rgba(43,30,25,0.32)]" aria-hidden="true" />
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+      {/* CA-18, CA-23: tocar fuera de la hoja la cierra solo si no está en Exportando…
+          El clic lo recibe este fondo, que cubre la pantalla (DEF-030, #344). */}
+      <div
+        className="fixed inset-0 -z-10 bg-[rgba(43,30,25,0.32)]"
+        aria-hidden="true"
+        data-testid="transactions-export-backdrop"
+        onClick={() => {
+          if (!busy) onClose()
+        }}
+      />
       <div
         ref={panelRef}
         role="dialog"
