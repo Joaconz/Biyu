@@ -219,7 +219,7 @@ Los casos aparecen en dos redacciones:
 | CP-SUS-029 | Alta | Suscripción con día de cobro igual a `<DIA_HOY>` genera la ocurrencia del mes corriente | US-53, US-55 | Sí | Límite | Análisis de valores límite |
 | CP-SUS-030 | Alta | Pausar suscripción activa con día de cobro `28` (`> <DIA_HOY>`) muestra advertencia de este mes y pasa a `"Pausada desde <HOY>"` con piso en `<MES_SIGUIENTE>` | US-56 | Sí | Positivo | Transición de estados |
 | CP-SUS-031 | Alta | `pause_subscription` por API ejecuta primero la puesta al día y genera los meses vencidos pendientes antes de pausar | US-56 | No | Positivo | Transición de estados |
-| CP-SUS-032 | Alta | Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 P0002`) | US-56 | No | Negativo | Partición de equivalencia |
+| CP-SUS-032 | Alta | Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 PT404`) | US-56 | No | Negativo | Partición de equivalencia |
 | CP-SUS-033 | Alta | Reanudar suscripción pausada abre `resume-subscription-dialog`, pasa a `"Activa"`, limpia `paused_at`, conserva `generate_from_period = '<MES_SIGUIENTE>-01'` y no genera el mes actual | US-56, US-57 | Sí | Positivo | Transición de estados |
 | CP-SUS-034 | Alta | Cancelar suscripción activa con 4 gastos cargados mantiene el historial en el Detalle y en el Resumen y oculta los botones de acción | US-58 | Sí | Positivo | Transición de estados |
 | CP-SUS-035 | Alta | Editar el monto de una suscripción activa de `$5.000,00` a `$7.000,00` conserva las 4 ocurrencias ya generadas en `$5.000,00` y muestra Moneda y Mes de inicio como solo lectura | US-59 | Sí | Positivo | Partición de equivalencia |
@@ -6499,7 +6499,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ejecutar `POST <SUPABASE_URL>/rest/v1/rpc/create_subscription` con headers `apikey: <ANON_KEY>` y `Authorization: Bearer <ANON_KEY>` y body `{"p_name":"Netflix","p_amount":"5000.00","p_currency":"ARS","p_category_id":"<CATEGORY_ID>","p_account_id":"<ACCOUNT_ID>","p_billing_day":10,"p_start_period":"<MES_ACTUAL>-01","p_end_period":null,"p_description":null}` | Respuesta HTTP `403 Forbidden` con `"code": "42501"` (`permission denied for function create_subscription`) |
+| 1 | Ejecutar `POST <SUPABASE_URL>/rest/v1/rpc/create_subscription` con headers `apikey: <ANON_KEY>` y `Authorization: Bearer <ANON_KEY>` y body `{"p_name":"Netflix","p_amount":"5000.00","p_currency":"ARS","p_category_id":"<CATEGORY_ID>","p_account_id":"<ACCOUNT_ID>","p_billing_day":10,"p_start_period":"<MES_ACTUAL>-01","p_end_period":null,"p_description":null}` | Respuesta HTTP `401 Unauthorized` con `"code": "42501"` (`permission denied for function create_subscription`). *Corregido en V3 (DEF-035): PostgREST responde 401 al rol `anon`; el caso esperaba 403.* |
 
 **Post-condición:** No se crea ninguna suscripción. El usuario queda como dato de prueba (email único, sin limpieza).
 
@@ -6768,7 +6768,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 
 ---
 
-#### CP-SUS-032 — Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 P0002`)
+#### CP-SUS-032 — Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 PT404`)
 
 | Campo | Contenido |
 |---|---|
@@ -6784,7 +6784,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ejecutar con PR-04 usando `<ACCESS_TOKEN_A>` `POST <SUPABASE_URL>/rest/v1/rpc/pause_subscription` con body `{"p_subscription_id":"<SUB_ID_B>"}` | Respuesta HTTP `404 Not Found` con `"code": "P0002"` y `"message": "Suscripción no encontrada"` |
+| 1 | Ejecutar con PR-04 usando `<ACCESS_TOKEN_A>` `POST <SUPABASE_URL>/rest/v1/rpc/pause_subscription` con body `{"p_subscription_id":"<SUB_ID_B>"}` | Respuesta HTTP `404 Not Found` con `"code": "PT404"` y `"message": "Suscripción no encontrada"`. *Cambiado en V3 (DEF-034): antes respondía HTTP 500 con P0002.* |
 | 2 | Ejecutar con PR-08 usando `<ACCESS_TOKEN_B>` `GET <SUPABASE_URL>/rest/v1/subscriptions?id=eq.<SUB_ID_B>&select=status,paused_at` | Respuesta HTTP `200 OK` con `[{"status":"active","paused_at":null}]` |
 
 **Post-condición:** La suscripción `<SUB_ID_B>` de Usuario B permanece activa. Los usuarios A y B quedan como datos de prueba (emails únicos, sin limpieza).

@@ -80,7 +80,7 @@ conserva solo el permiso de lectura: `insert`, `update` y `delete` directos se r
 
 ## Consecuencias
 
-- Cada RPC lleva su par de autorización en pgTAP (otra sesión → P0002 y nada cambia; `anon` → 42501), un
+- Cada RPC lleva su par de autorización en pgTAP (otra sesión → PT404 (P0002 antes de DEF-034) y nada cambia; `anon` → 42501), un
   caso por transición inexistente y el negativo por API de cada validación (C6, C7).
 - `04-data-model.md` §RLS cambia: `subscriptions` pasa a ser de solo lectura para el cliente, como
   `transactions`.
