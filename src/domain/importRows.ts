@@ -237,6 +237,8 @@ export function reviewRow(row: ImportRow, catalog: ImportCatalog, today: string)
     currency,
     fxRate: ok('fxRate') ? fxRate : null,
     installmentsCount,
+    categoryName: category?.name ?? null,
+    accountName: account?.name ?? null,
   })
   if (failed.size > 0) {
     const errors = RULE_ORDER.filter((rule) => failed.get(RULE_COLUMN[rule])?.rule === rule).map((rule) =>
@@ -275,15 +277,20 @@ function buildCard(
     currency: Currency | null
     fxRate: Decimal | null
     installmentsCount: number | null
+    /** Nombre del catálogo con que coincidió la celda (CA-5), o null si no coincidió. */
+    categoryName: string | null
+    accountName: string | null
   },
 ): RowCard {
-  const { occurredOn, type, amount, currency, fxRate, installmentsCount } = parsed
+  const { occurredOn, type, amount, currency, fxRate, installmentsCount, categoryName, accountName } = parsed
   return {
     date: occurredOn ? formatDisplayDate(occurredOn) : cellAsText(cells.date),
     type: type === 'expense' ? 'Gasto' : type === 'income' ? 'Ingreso' : cellAsText(cells.type),
     amount: amount && currency ? (currency === 'USD' ? formatUsd(amount) : formatArs(amount)) : cellAsText(cells.amount),
-    category: cellAsText(cells.category),
-    account: cellAsText(cells.account),
+    // DEF-033 (#347): si la celda coincidió con el catálogo, se muestra el nombre de Biyu
+    // («Educación»), no lo escrito en el archivo («  educación  »).
+    category: categoryName ?? cellAsText(cells.category),
+    account: accountName ?? cellAsText(cells.account),
     fxRate: currency === 'USD' && fxRate ? `TC ${formatRate(fxRate)}` : null,
     installments: installmentsCount && installmentsCount > 1 ? `${installmentsCount} cuotas` : null,
   }

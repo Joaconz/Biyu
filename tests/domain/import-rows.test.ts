@@ -190,6 +190,15 @@ describe('nombres, fechas y números (CA-5 a CA-7)', () => {
     expect(reviewRow(row({ category: t('Educación') }), CATALOG, TODAY).status).toBe('ready')
   })
 
+  it('la tarjeta de una fila Lista muestra los nombres de Biyu, no el texto del archivo (DEF-033, CP-IMP-024)', () => {
+    const reviewed = reviewRow(row({ category: t('  educación  '), account: t('  efectivo  ') }), CATALOG, TODAY)
+    expect(reviewed.status).toBe('ready')
+    expect(reviewed.card).toMatchObject({ category: 'Educación', account: 'Efectivo' })
+    // Con error, la celda que no coincide se muestra tal cual, para que se vea qué está mal.
+    const withError = reviewRow(row({ category: t('Educacion'), account: t(' efectivo ') }), CATALOG, TODAY)
+    expect(withError.card).toMatchObject({ category: 'Educacion', account: 'Efectivo' })
+  })
+
   it('Tipo " gasto " y Moneda "usd" se aceptan (CA-5)', () => {
     expect(reviewRow(row({ type: t(' gasto '), ...USD, currency: t('usd') }), CATALOG, TODAY).status).toBe('ready')
   })
