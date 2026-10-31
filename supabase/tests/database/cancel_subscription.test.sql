@@ -434,17 +434,17 @@ select is((select count(*) from transactions where subscription_id in
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"58b00000-0000-0000-0000-000000000002","role":"authenticated"}';
 select throws_ok($$select cancel_subscription('d5800000-0000-0000-0000-000000000009')$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-58 CA-9 / C7: con la sesión de B, cancelar una suscripción de A responde P0002');
+  'PT404', 'Suscripción no encontrada',
+  'US-58 CA-9 / C7: con la sesión de B, cancelar una suscripción de A responde PT404');
 select throws_ok($$select cancel_subscription('d5800000-0000-0000-0000-0000000000ff')$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-58 CA-9 / C7: un uuid inexistente responde el mismo P0002 y mensaje (no revela si existe)');
+  'PT404', 'Suscripción no encontrada',
+  'US-58 CA-9 / C7: un uuid inexistente responde el mismo PT404 y mensaje (no revela si existe)');
 select throws_ok($$select cancel_subscription(null)$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-58 CA-9 / C7: un id null también responde P0002');
+  'PT404', 'Suscripción no encontrada',
+  'US-58 CA-9 / C7: un id null también responde PT404');
 select throws_ok($$select cancel_subscription('d5800000-0000-0000-0000-000000000008')$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-58 CA-9 / C7: B tampoco distingue una cancelada ajena (P0002, no 23514)');
+  'PT404', 'Suscripción no encontrada',
+  'US-58 CA-9 / C7: B tampoco distingue una cancelada ajena (PT404, no 23514)');
 select is((select count(*) from subscriptions where id = 'd5800000-0000-0000-0000-000000000009'), 0::bigint,
   'US-58 CA-9 / C7: B no ve la suscripción de A');
 

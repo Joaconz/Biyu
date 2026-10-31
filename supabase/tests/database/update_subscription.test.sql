@@ -785,16 +785,16 @@ select is((select to_jsonb(s)::text from subscriptions s where s.id = 'd5900000-
 set local request.jwt.claims = '{"sub":"59b00000-0000-0000-0000-000000000002","role":"authenticated"}';
 select throws_ok($$select update_subscription('d5900000-0000-0000-0000-000000000017', 'Hackeada', 1.00,
     'c5900000-0000-0000-0000-000000000005', 'a5900000-0000-0000-0000-000000000005', 1, null, null)$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-59 CA-13 / C7: con la sesión de B, editar una suscripción de A responde P0002');
+  'PT404', 'Suscripción no encontrada',
+  'US-59 CA-13 / C7: con la sesión de B, editar una suscripción de A responde PT404');
 select throws_ok($$select update_subscription('d5900000-0000-0000-0000-0000000000ff', 'Nada', 1.00,
     'c5900000-0000-0000-0000-000000000005', 'a5900000-0000-0000-0000-000000000005', 1, null, null)$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-59 CA-13 / C7: un uuid inexistente responde el mismo P0002 y mensaje (no revela si existe)');
+  'PT404', 'Suscripción no encontrada',
+  'US-59 CA-13 / C7: un uuid inexistente responde el mismo PT404 y mensaje (no revela si existe)');
 select throws_ok($$select update_subscription(null, 'Nada', 1.00,
     'c5900000-0000-0000-0000-000000000005', 'a5900000-0000-0000-0000-000000000005', 1, null, null)$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-59 CA-13 / C7: un id null también responde P0002');
+  'PT404', 'Suscripción no encontrada',
+  'US-59 CA-13 / C7: un id null también responde PT404');
 select is((select count(*) from subscriptions where id = 'd5900000-0000-0000-0000-000000000017'), 0::bigint,
   'US-59 CA-13 / C7: B no ve la suscripción de A');
 

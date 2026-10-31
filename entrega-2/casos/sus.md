@@ -88,7 +88,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 | **US-56** | CA-6 | `"Cancelar"` en el diálogo de pausa no cambia nada | — (sin caso tras el recorte del 2026-10-27) |
 | **US-56** | CA-7 | Por API, `pause_subscription` sobre una pausada da `"La suscripción ya está pausada"` (`23514`) y sobre una cancelada da `"Una suscripción cancelada no se puede modificar"` (`23514`) | — (sin caso tras el recorte del 2026-10-27) |
 | **US-56** | CA-8 | Un `UPDATE` directo de `status` sobre `subscriptions` con la sesión del usuario se rechaza con `42501` | — (sin caso tras el recorte del 2026-10-27) |
-| **US-56** | CA-9 | Par de autorización (C7) de `pause_subscription`: otro usuario recibe `P0002` `"Suscripción no encontrada"`; sin sesión recibe `42501` | CP-SUS-032 |
+| **US-56** | CA-9 | Par de autorización (C7) de `pause_subscription`: otro usuario recibe `PT404` (HTTP 404) `"Suscripción no encontrada"`; sin sesión recibe `42501` | CP-SUS-032 |
 | **US-56** | CA-10 | Pausar una bloqueada muestra `pause-subscription-dialog-blocked-warning`, se pausa igual y los meses bloqueados no se generan al reanudar | — (sin caso tras el recorte del 2026-10-27) |
 | **US-56** | CA-11 | El texto sobre `"Este mes tampoco se cobra..."` aparece cuando el mes corriente aún no venció y no aparece cuando ya se generó | CP-SUS-030 |
 | **US-57** | CA-1 | Al confirmar reanudación: `status = 'active'`, `paused_at = null` y `generate_from_period = max(anterior, start_period, período corriente)` (`R8`) | CP-SUS-033 |
@@ -97,7 +97,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 | **US-57** | CA-4 | `generate_from_period` después de reanudar nunca es menor que antes (`I12`) | CP-SUS-033 |
 | **US-57** | CA-5 | El `"Próximo cobro"` del diálogo de reanudar coincide con el del Detalle tras reanudar (la rama `"Al reanudar se carga..."` requiere pausa en mes anterior) | CP-SUS-033 |
 | **US-57** | CA-6 | Por API, `resume_subscription` sobre una activa da `"La suscripción no está pausada"` (`23514`) y sobre una cancelada da `"Una suscripción cancelada no se puede modificar"` (`23514`) | — (sin caso tras el recorte del 2026-10-27) |
-| **US-57** | CA-7 | Par de autorización (C7) de `resume_subscription`: otro usuario recibe `P0002` `"Suscripción no encontrada"`; sin sesión recibe `42501` | — (sin caso tras el recorte del 2026-10-27) |
+| **US-57** | CA-7 | Par de autorización (C7) de `resume_subscription`: otro usuario recibe `PT404` (HTTP 404) `"Suscripción no encontrada"`; sin sesión recibe `42501` | — (sin caso tras el recorte del 2026-10-27) |
 | **US-58** | CA-1 | Al confirmar cancelación (desde activa o pausada): `status = 'cancelled'` y `cancelled_at` con fecha y hora de la operación (`I15`) | CP-SUS-034 |
 | **US-58** | CA-2 | Las transacciones ya generadas siguen existiendo sin `deleted_at` y siguen sumando en el Resumen de sus meses | CP-SUS-034 |
 | **US-58** | CA-3 | Ninguna puesta al día posterior genera transacciones para una cancelada | CP-SUS-034 |
@@ -106,7 +106,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 | **US-58** | CA-6 | Una cancelada no vuelve a `active` ni `paused` (`pause_subscription`, `resume_subscription`, `update_subscription` dan `23514`; `UPDATE` directo da `42501`), y el Detalle no muestra botones de acción | CP-SUS-034, CP-SUS-038 |
 | **US-58** | CA-7 | Después de cancelar, se puede dar de alta otra suscripción con el mismo nombre | CP-SUS-003 |
 | **US-58** | CA-8 | Por API, `cancel_subscription` sobre una cancelada se rechaza con `"Una suscripción cancelada no se puede modificar"` (`23514`) | — (sin caso tras el recorte del 2026-10-27) |
-| **US-58** | CA-9 | Par de autorización (C7) de `cancel_subscription`: otro usuario recibe `P0002` `"Suscripción no encontrada"`; sin sesión recibe `42501` | — (sin caso tras el recorte del 2026-10-27) |
+| **US-58** | CA-9 | Par de autorización (C7) de `cancel_subscription`: otro usuario recibe `PT404` (HTTP 404) `"Suscripción no encontrada"`; sin sesión recibe `42501` | — (sin caso tras el recorte del 2026-10-27) |
 | **US-58** | CA-10 | Cancelar una bloqueada muestra `cancel-subscription-dialog-blocked-warning` y se cancela igual | — (sin caso tras el recorte del 2026-10-27) |
 | **US-59** | CA-1 | Cambiar el monto de `$5.000,00` a `$7.000,00` no modifica las transacciones ya generadas y aplica desde el próximo cobro (`R7`) | CP-SUS-035 |
 | **US-59** | CA-2 | Si al editar había meses vencidos sin generar, `update_subscription` los genera con el monto **anterior** antes de aplicar el cambio | — (sin caso tras el recorte del 2026-10-27) |
@@ -120,7 +120,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 | **US-59** | CA-10 | Con la categoría o cuenta actual archivada, cambiar solo el monto se guarda; elegir por API otra categoría o cuenta archivada distinta de la actual se rechaza | CP-SUS-039 |
 | **US-59** | CA-11 | Una terminada se puede editar sin tocar el mes de fin; extenderla a `"Sin fin"` deja `generate_from_period` en el período corriente sin rellenar los meses intermedios | — (sin caso tras el recorte del 2026-10-27) |
 | **US-59** | CA-12 | Cambiar el día de cobro de `28` a `3` (con `<DIA_HOY> >= 3` y mes corriente sin generar) crea al guardar la ocurrencia del mes corriente con fecha día `3` y los datos nuevos | — (sin caso tras el recorte del 2026-10-27) |
-| **US-59** | CA-13 | Par de autorización (C7) de `update_subscription`: otro usuario recibe `P0002` `"Suscripción no encontrada"`; sin sesión recibe `42501` | — (sin caso tras el recorte del 2026-10-27) |
+| **US-59** | CA-13 | Par de autorización (C7) de `update_subscription`: otro usuario recibe `PT404` (HTTP 404) `"Suscripción no encontrada"`; sin sesión recibe `42501` | — (sin caso tras el recorte del 2026-10-27) |
 | **US-60** | CA-1 | Eliminar una ocurrencia generada (`deleted_at`) y volver a correr la puesta al día no vuelve a crear la transacción de ese mes (`R2`) | CP-SUS-040 |
 | **US-60** | CA-2 | La ocurrencia eliminada deja de sumar en el Resumen de su mes (`I10`) | — (sin caso tras el recorte del 2026-10-27) |
 | **US-60** | CA-3 | El diálogo de borrado muestra `delete-transaction-subscription-note` con el nombre de la suscripción y el mes solo si tiene `subscription_id` | CP-SUS-040 |
@@ -752,7 +752,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ejecutar `POST <SUPABASE_URL>/rest/v1/rpc/create_subscription` con headers `apikey: <ANON_KEY>` y `Authorization: Bearer <ANON_KEY>` y body `{"p_name":"Netflix","p_amount":"5000.00","p_currency":"ARS","p_category_id":"<CATEGORY_ID>","p_account_id":"<ACCOUNT_ID>","p_billing_day":10,"p_start_period":"<MES_ACTUAL>-01","p_end_period":null,"p_description":null}` | Respuesta HTTP `403 Forbidden` con `"code": "42501"` (`permission denied for function create_subscription`) |
+| 1 | Ejecutar `POST <SUPABASE_URL>/rest/v1/rpc/create_subscription` con headers `apikey: <ANON_KEY>` y `Authorization: Bearer <ANON_KEY>` y body `{"p_name":"Netflix","p_amount":"5000.00","p_currency":"ARS","p_category_id":"<CATEGORY_ID>","p_account_id":"<ACCOUNT_ID>","p_billing_day":10,"p_start_period":"<MES_ACTUAL>-01","p_end_period":null,"p_description":null}` | Respuesta HTTP `401 Unauthorized` con `"code": "42501"` (`permission denied for function create_subscription`). *Corregido en V3 (DEF-035): PostgREST responde 401 al rol `anon`; el caso esperaba 403.* |
 
 **Post-condición:** No se crea ninguna suscripción. El usuario queda como dato de prueba (email único, sin limpieza).
 
@@ -1021,7 +1021,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 
 ---
 
-### CP-SUS-032 — Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 P0002`)
+### CP-SUS-032 — Rechazar en API `pause_subscription` usando la sesión de otro usuario (`404 PT404`)
 
 | Campo | Contenido |
 |---|---|
@@ -1037,7 +1037,7 @@ En llamadas a las RPC (`create_subscription`, `update_subscription`, `upsert_fx_
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Ejecutar con PR-04 usando `<ACCESS_TOKEN_A>` `POST <SUPABASE_URL>/rest/v1/rpc/pause_subscription` con body `{"p_subscription_id":"<SUB_ID_B>"}` | Respuesta HTTP `404 Not Found` con `"code": "P0002"` y `"message": "Suscripción no encontrada"` |
+| 1 | Ejecutar con PR-04 usando `<ACCESS_TOKEN_A>` `POST <SUPABASE_URL>/rest/v1/rpc/pause_subscription` con body `{"p_subscription_id":"<SUB_ID_B>"}` | Respuesta HTTP `404 Not Found` con `"code": "PT404"` y `"message": "Suscripción no encontrada"`. *Cambiado en V3 (DEF-034): antes respondía HTTP 500 con P0002.* |
 | 2 | Ejecutar con PR-08 usando `<ACCESS_TOKEN_B>` `GET <SUPABASE_URL>/rest/v1/subscriptions?id=eq.<SUB_ID_B>&select=status,paused_at` | Respuesta HTTP `200 OK` con `[{"status":"active","paused_at":null}]` |
 
 **Post-condición:** La suscripción `<SUB_ID_B>` de Usuario B permanece activa. Los usuarios A y B quedan como datos de prueba (emails únicos, sin limpieza).

@@ -66,7 +66,7 @@ function PreviewRows({ itemTestId, rows }: { itemTestId: string; rows: PreviewRo
           key={row.periodKey}
           data-testid={itemTestId}
           data-period={row.periodKey}
-          data-blocked={row.blockedBy ? 'true' : undefined}
+          data-blocked={row.blockedBy ? 'true' : 'false'}
           className={cn('flex flex-col py-2 text-callout', row.blockedBy ? 'text-warning' : 'text-foreground')}
         >
           <span className="tabular">{row.text}</span>
