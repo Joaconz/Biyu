@@ -1,6 +1,6 @@
-import { Decimal } from './money'
+import { Decimal, formatArs, formatUsd } from './money'
 import { generateLedgerEntries, type LedgerEntryDraft } from './installments'
-import { currentPeriod, isPeriodBefore, periodOf, type Period } from './period'
+import { currentPeriod, formatDisplayDate, isPeriodBefore, periodOf, type Period } from './period'
 
 export interface DeletionPeriodImpact {
   period: Period
@@ -67,4 +67,35 @@ export function getTransactionDeletionImpact(
     first,
   )
   return computeDeletionImpact(entries, current)
+}
+
+/** Una línea de «qué se borra» en la confirmación (US-94). */
+export interface DeletionSummaryItem {
+  label: string
+  value: string
+}
+
+export interface TransactionToSummarize {
+  type: 'expense' | 'income'
+  amount: Decimal
+  currency: 'ARS' | 'USD'
+  categoryName: string | null
+  accountName: string | null
+  occurredOn: string // YYYY-MM-DD
+  installmentsCount: number
+}
+
+/**
+ * Qué movimiento se va a borrar, para la confirmación (US-94): tipo y monto total en su moneda,
+ * categoría (un ingreso puede no tener), cuenta, fecha y, en una compra en cuotas, cuántas son.
+ */
+export function transactionDeletionSummary(t: TransactionToSummarize): DeletionSummaryItem[] {
+  const items: DeletionSummaryItem[] = [
+    { label: t.type === 'expense' ? 'Gasto' : 'Ingreso', value: t.currency === 'USD' ? formatUsd(t.amount) : formatArs(t.amount) },
+  ]
+  if (t.categoryName) items.push({ label: 'Categoría', value: t.categoryName })
+  if (t.accountName) items.push({ label: 'Cuenta', value: t.accountName })
+  items.push({ label: 'Fecha', value: formatDisplayDate(t.occurredOn) })
+  if (t.installmentsCount > 1) items.push({ label: 'Cuotas', value: `${t.installmentsCount} cuotas` })
+  return items
 }

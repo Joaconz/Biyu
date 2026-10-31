@@ -43,7 +43,7 @@ test('DEF-007: una transacción eliminada queda en Eliminados, marcada, y se pue
   const items = page.getByTestId('transactions-item')
   await expect(items).toHaveCount(1)
   await page.getByTestId('transactions-item-delete').click()
-  await expect(page.getByTestId('delete-transaction-dialog')).toContainText('¿Estás seguro de que querés eliminar esta transacción?')
+  await expect(page.getByTestId('delete-transaction-dialog')).toContainText('¿Estás seguro de que querés eliminar este movimiento?') // US-94
   await page.getByTestId('delete-transaction-confirm').click()
   await expect(page.getByTestId('transactions-empty')).toBeVisible()
 
@@ -95,4 +95,26 @@ test('DEF-024: el diálogo de eliminar transacción toma el foco, lo retiene y l
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   await expect(page.getByTestId('transactions-item-delete')).toBeFocused()
+})
+
+test('US-94: la confirmación de eliminar dice qué movimiento se borra, con «Eliminar» separado de «Cancelar»', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'confirmacion')
+  await registerExpense(page, '1500', 'otros')
+  await page.goto('/transactions')
+  await page.getByTestId('transactions-item-delete').click()
+
+  const dialog = page.getByTestId('delete-transaction-dialog')
+  await expect(dialog.getByRole('heading')).toHaveText('¿Eliminar movimiento?')
+  const summary = page.getByTestId('delete-transaction-summary')
+  await expect(summary).toContainText('Gasto')
+  await expect(summary).toContainText('$1.500,00')
+  await expect(summary).toContainText('Otros')
+  await expect(summary).toContainText('Fecha')
+
+  const cancel = await page.getByTestId('delete-transaction-cancel').boundingBox()
+  const confirm = await page.getByTestId('delete-transaction-confirm').boundingBox()
+  expect(confirm!.x - (cancel!.x + cancel!.width)).toBeGreaterThan(24)
+
+  await page.getByTestId('delete-transaction-confirm').click()
+  await expect(page.getByTestId('transaction-deleted')).toContainText('Movimiento eliminado')
 })
