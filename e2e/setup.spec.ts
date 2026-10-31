@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test'
 
 // DEF-022 (US-68, ADR-025): completar el setup tiene que llevar a la app y dejarla usable; una
 // cuenta que ya existía no puede quedar atrapada en /setup, y un error al leer o guardar el
-// estado del setup nunca puede bloquear el acceso. Corre contra el deploy (SMOKE_URL), igual que
+// estado del setup nunca puede bloquear el acceso. Corre en local y contra el deploy (SMOKE_URL), igual que
 // smoke.spec.ts, así detecta también una migración que no se aplicó en la base hosteada.
 const PASSWORD = 'Smoke-Test-2026'
 const SETUP_REST = '**/rest/v1/user_setup**'

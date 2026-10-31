@@ -2,7 +2,7 @@
 // (dialog.evaluate corre en el navegador: necesita los tipos del DOM)
 import { expect, type Page, test } from '@playwright/test'
 
-// Historial de /transactions: DEF-006 (#147) y DEF-007 (#148). Corre contra el deploy (SMOKE_URL),
+// Historial de /transactions: DEF-006 (#147) y DEF-007 (#148). Corre en local y contra el deploy (SMOKE_URL),
 // como smoke.spec.ts. restore_transaction tiene además su test pgTAP.
 const PASSWORD = 'Smoke-Test-2026'
 

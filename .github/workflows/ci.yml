@@ -32,3 +32,36 @@ jobs:
       - name: Levantar Supabase local (solo lo necesario para pgTAP)
         run: supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta
       - run: supabase test db
+
+  # Suite Playwright contra Vite y Supabase local (#334). El reporte HTML y las trazas quedan como
+  # artefacto de la corrida, pase o falle.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.113.0
+      # Auth, PostgREST y el edge runtime (puesta al día de suscripciones) hacen falta; el resto no.
+      - name: Levantar Supabase local
+        run: supabase start -x studio,imgproxy,realtime,storage-api,logflare,vector,supavisor,mailpit,postgres-meta
+      - name: Claves locales para la suite
+        run: |
+          supabase status -o env | sed -nE 's/^(API_URL|ANON_KEY)="?([^"]*)"?$/\1=\2/p' > /tmp/sb.env
+          grep -q '^ANON_KEY=' /tmp/sb.env
+          sed -nE 's/^API_URL=(.*)/SUPABASE_URL=\1/p; s/^ANON_KEY=(.*)/SUPABASE_ANON_KEY=\1/p' /tmp/sb.env >> "$GITHUB_ENV"
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

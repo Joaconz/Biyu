@@ -27,7 +27,8 @@ y `docs/adr/019-vuelta-a-supabase.md` (los ADR 016 y 018 describen la API Python
 | `npm run preview` | Sirve `dist/` localmente |
 | `npm test` | Vitest sobre `tests/domain/` (no necesita Docker) |
 | `npm run test:db` | pgTAP con `supabase test db` (necesita Docker y `supabase start`) |
-| `SMOKE_URL=<url> npm run test:e2e` | Prueba de humo Playwright contra un deploy (Chromium, WebKit, Firefox). No corre en la CI |
+| `npm run test:e2e` | Suite Playwright contra Vite y Supabase local (`supabase start` antes; las claves salen de `.env`). Corre en la CI (#334). Helpers de PR-01/PR-04 en `e2e/support/` |
+| `SMOKE_URL=<url> npm run test:e2e` | La misma suite como prueba de humo contra un deploy (Chromium, WebKit, Firefox). No corre en la CI |
 | `npm run gen:types` | Regenera `src/lib/database.types.ts` desde Supabase local (`supabase start` antes) |
 | `/speckit-checklist <foco>` | Checklist de calidad de redacción de los NFR; la feature es `specs/nfr/`, que apunta a `docs/pre-entrega.md` §4 |
 

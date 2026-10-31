@@ -3,7 +3,7 @@
 import { expect, test } from '@playwright/test'
 
 // DEF-008 (#149): sin sesión, abrir una ruta privada lleva a /login?next=…; al iniciar sesión
-// RedirectIfAuthed mandaba siempre a /register e ignoraba next. Corre contra el deploy
+// RedirectIfAuthed mandaba siempre a /register e ignoraba next. Corre en local y contra el deploy
 // (SMOKE_URL), igual que smoke.spec.ts. La regla del destino también está en
 // tests/lib/postAuthDestination.test.ts; esto cubre el orden real entre AuthForm y el guard.
 const PASSWORD = 'Smoke-Test-2026'
