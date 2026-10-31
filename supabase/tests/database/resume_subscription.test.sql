@@ -468,11 +468,11 @@ select is((select count(*) from transactions where subscription_id = 'd5700000-0
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"57b00000-0000-0000-0000-000000000002","role":"authenticated"}';
 select throws_ok($$select resume_subscription('d5700000-0000-0000-0000-000000000013')$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-57 CA-7 / C7: con la sesión de B, reanudar una suscripción de A responde P0002');
+  'PT404', 'Suscripción no encontrada',
+  'US-57 CA-7 / C7: con la sesión de B, reanudar una suscripción de A responde PT404');
 select throws_ok($$select resume_subscription('d5700000-0000-0000-0000-0000000000ff')$$,
-  'P0002', 'Suscripción no encontrada',
-  'US-57 CA-7 / C7: un uuid inexistente responde el mismo P0002 y mensaje (no revela si existe)');
+  'PT404', 'Suscripción no encontrada',
+  'US-57 CA-7 / C7: un uuid inexistente responde el mismo PT404 y mensaje (no revela si existe)');
 select is((select count(*) from subscriptions where id = 'd5700000-0000-0000-0000-000000000013'), 0::bigint,
   'US-57 CA-7 / C7: B no ve la suscripción de A');
 

@@ -63,6 +63,8 @@ conserva solo el permiso de lectura: `insert`, `update` y `delete` directos se r
   una cancelada): `check_violation` (23514) con mensaje en español. Suscripción inexistente o de otro
   usuario: `no_data_found` (P0002) con el mensaje "Suscripción no encontrada" (no distingue una de otra,
   igual que RLS). Sin sesión: `permission denied` (42501), porque `anon` no tiene `execute`.
+  *Actualización (DEF-034, V3):* el código pasó a `PT404`, que PostgREST responde como HTTP 404 con el mismo
+  mensaje; `P0002` salía como HTTP 500. Sin sesión, PostgREST responde HTTP 401 (DEF-035).
 
 ## Alternativas descartadas
 
@@ -78,7 +80,7 @@ conserva solo el permiso de lectura: `insert`, `update` y `delete` directos se r
 
 ## Consecuencias
 
-- Cada RPC lleva su par de autorización en pgTAP (otra sesión → P0002 y nada cambia; `anon` → 42501), un
+- Cada RPC lleva su par de autorización en pgTAP (otra sesión → PT404 (P0002 antes de DEF-034) y nada cambia; `anon` → 42501), un
   caso por transición inexistente y el negativo por API de cada validación (C6, C7).
 - `04-data-model.md` §RLS cambia: `subscriptions` pasa a ser de solo lectura para el cliente, como
   `transactions`.

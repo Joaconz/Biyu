@@ -1799,7 +1799,7 @@ Milestone V2 · Versión del documento: 2026-10-06
     sobre una cancelada, con "Una suscripción cancelada no se puede modificar" (las dos con 23514).
   - CA-8: Un `update` directo de `status` sobre `subscriptions` con la sesión del usuario se rechaza
     (ADR-030).
-  - CA-9: Par de autorización (C7): con la sesión de otro usuario, `pause_subscription` responde P0002
+  - CA-9: Par de autorización (C7): con la sesión de otro usuario, `pause_subscription` responde PT404 (HTTP 404; P0002 antes de DEF-034)
     "Suscripción no encontrada" y la suscripción no cambia; sin sesión, responde 42501.
   - CA-10: Pausar una bloqueada muestra `pause-subscription-dialog-blocked-warning`; al confirmar, se
     pausa igual y los meses bloqueados no se generan después de reanudar.
@@ -1837,7 +1837,7 @@ Milestone V2 · Versión del documento: 2026-10-06
     operación, sin recargar.
   - CA-6: Por API, `resume_subscription` sobre una activa se rechaza con "La suscripción no está pausada";
     sobre una cancelada, con "Una suscripción cancelada no se puede modificar" (las dos con 23514).
-  - CA-7: Par de autorización (C7): con la sesión de otro usuario, `resume_subscription` responde P0002
+  - CA-7: Par de autorización (C7): con la sesión de otro usuario, `resume_subscription` responde PT404 (HTTP 404; P0002 antes de DEF-034)
     "Suscripción no encontrada" y la suscripción no cambia; sin sesión, responde 42501.
 - **Trazabilidad:** FR-17 · R8 · I12, I15 · ADR-030
 - **Mock:** `entrega-2/mocks/suscripciones-dialogos.html`
@@ -1877,7 +1877,7 @@ Milestone V2 · Versión del documento: 2026-10-06
   - CA-7: Después de cancelar, se puede dar de alta otra suscripción con el mismo nombre.
   - CA-8: Por API, `cancel_subscription` sobre una cancelada se rechaza con "Una suscripción cancelada no
     se puede modificar" (23514).
-  - CA-9: Par de autorización (C7): con la sesión de otro usuario, `cancel_subscription` responde P0002
+  - CA-9: Par de autorización (C7): con la sesión de otro usuario, `cancel_subscription` responde PT404 (HTTP 404; P0002 antes de DEF-034)
     "Suscripción no encontrada" y la suscripción no cambia; sin sesión, responde 42501.
   - CA-10: Cancelar una bloqueada muestra `cancel-subscription-dialog-blocked-warning` y se cancela igual.
 - **Trazabilidad:** FR-17 · I15 · C5, C10 · ADR-030
@@ -1943,7 +1943,7 @@ Milestone V2 · Versión del documento: 2026-10-06
     genera junio a septiembre 2026.
   - CA-12: Cambiar el día de cobro de 28 a 3 con hoy 6 y el mes corriente sin generar crea al guardar la
     ocurrencia del mes corriente con fecha 3 y los datos nuevos, y el aviso lo informa.
-  - CA-13: Par de autorización (C7): con la sesión de otro usuario, `update_subscription` responde P0002
+  - CA-13: Par de autorización (C7): con la sesión de otro usuario, `update_subscription` responde PT404 (HTTP 404; P0002 antes de DEF-034)
     "Suscripción no encontrada" y nada cambia; sin sesión, responde 42501.
 - **Trazabilidad:** FR-17 · R7 · C5, C6 · ADR-030, ADR-032
 - **Mock:** `entrega-2/mocks/suscripciones-edicion.html`
