@@ -99,7 +99,21 @@ export function DebtFormPage() {
     change({ currency, fxRate: '' })
   }
 
-  const blur = (field: DebtDraftField) => () => setTouched((t) => (t[field] ? t : { ...t, [field]: true }))
+  // DEF-037 (#351): si el foco se va porque se apretó otro control (por ejemplo «US$»), el error que
+  // aparece corre los controles de abajo entre apretar y soltar, y el clic se pierde. Mientras el
+  // puntero está apretado, el error espera a que se suelte; con el teclado aparece enseguida.
+  const pointerDownRef = useRef(false)
+  const blur = (field: DebtDraftField) => () => {
+    const markTouched = () => setTouched((t) => (t[field] ? t : { ...t, [field]: true }))
+    if (!pointerDownRef.current) return markTouched()
+    const release = () => {
+      window.removeEventListener('pointerup', release)
+      window.removeEventListener('pointercancel', release)
+      markTouched()
+    }
+    window.addEventListener('pointerup', release)
+    window.addEventListener('pointercancel', release)
+  }
   const shown = (field: DebtDraftField) => (touched[field] ? errors[field] : undefined)
 
   async function submit(e: FormEvent) {
@@ -121,7 +135,22 @@ export function DebtFormPage() {
   }
 
   return (
-    <form onSubmit={submit} noValidate className="mx-auto flex w-full max-w-2xl flex-col">
+    <form
+      onSubmit={submit}
+      noValidate
+      onPointerDownCapture={() => {
+        pointerDownRef.current = true
+        // En window: el botón se puede soltar fuera del formulario.
+        const reset = () => {
+          pointerDownRef.current = false
+          window.removeEventListener('pointerup', reset)
+          window.removeEventListener('pointercancel', reset)
+        }
+        window.addEventListener('pointerup', reset)
+        window.addEventListener('pointercancel', reset)
+      }}
+      className="mx-auto flex w-full max-w-2xl flex-col"
+    >
       <PageHeader title="Nueva deuda" testId="debt-form-title" />
 
       <fieldset disabled={saving} className="grid gap-6">
