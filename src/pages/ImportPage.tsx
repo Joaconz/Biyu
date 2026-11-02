@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useBlocker, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { FileStep } from '@/components/import/FileStep'
+import { ImportGuideDialog } from '@/components/import/ImportGuideDialog'
 import { ImportSteps } from '@/components/import/ImportSteps'
 import { LeaveDialog } from '@/components/import/LeaveDialog'
 import { ResultStep } from '@/components/import/ResultStep'
 import { ReviewStep } from '@/components/import/ReviewStep'
+import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   classifyImportFailure,
@@ -53,6 +55,9 @@ export function ImportPage() {
   const [state, setState] = useState<ImportState>({ step: 1, error: null })
   const [reading, setReading] = useState(false)
   const [importing, setImporting] = useState(false)
+  // US-81: abrir y cerrar la guía no cambia el paso, el archivo ni la URL, y no se recuerda.
+  const [guideOpen, setGuideOpen] = useState(false)
+  const closeGuide = useCallback(() => setGuideOpen(false), [])
   // Corta el doble toque antes de que React pinte el botón deshabilitado: una sola llamada (ADR-035).
   const importingRef = useRef(false)
   // Un id por archivo revisado (ADR-035): volver a confirmar el mismo archivo repite el id y la base
@@ -170,9 +175,23 @@ export function ImportPage() {
         <span aria-hidden="true">‹&nbsp;</span>Registrar
       </Link>
       <PageHeader title="Importar desde Excel" testId="import-title" className="pt-0 pb-4 lg:pb-5" />
-      <div className="pb-6">
+      <div className="pb-4">
         <ImportSteps current={state.step} />
       </div>
+      {state.step !== 3 && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mb-6 self-start"
+          disabled={importing}
+          onClick={() => setGuideOpen(true)}
+          data-testid="import-guide-open"
+        >
+          ¿Cómo armo el archivo?
+        </Button>
+      )}
+      {state.step === 3 && <div className="pb-2" />}
 
       {state.step === 1 && (
         <FileStep error={state.error} reading={reading} onFile={onFile} onDownloadTemplate={onDownloadTemplate} />
@@ -190,6 +209,7 @@ export function ImportPage() {
         />
       )}
       {state.step === 3 && <ResultStep result={state.result} onImportAnother={backToStepOne} />}
+      <ImportGuideDialog isOpen={guideOpen} onClose={closeGuide} onDownloadTemplate={onDownloadTemplate} />
       <LeaveDialog isOpen={confirmChangeFile || blocker.state === 'blocked'} onStay={stay} onLeave={leave} />
     </div>
   )
