@@ -96,6 +96,7 @@ export function SubscriptionDetailPage() {
             blocked={state.blocked}
             fxRates={state.fxRates}
             transactionCount={state.transactionCount}
+            generatedCount={state.occurrences ? state.occurrences.length : null}
             onChanged={state.refresh}
           />
           {state.occurrences && (

@@ -29,3 +29,15 @@ export async function cancelSubscription(subscriptionId: string): Promise<{ gene
   const generatedBefore = (data as { generated_before?: unknown } | null)?.generated_before
   return { generatedBefore: Number.isInteger(generatedBefore) ? (generatedBefore as number) : 0 }
 }
+
+/**
+ * US-88, ADR-044 §4: borrado definitivo de la suscripción, en cualquier estado. Los gastos que generó quedan
+ * como movimientos sueltos; devuelve cuántos (`detached`). La RPC toma el mismo bloqueo que la puesta al día.
+ */
+export async function deleteSubscription(subscriptionId: string): Promise<{ detached: number }> {
+  const { data, error } = await supabase.rpc('delete_subscription', { p_subscription_id: subscriptionId })
+  if (error) throw error
+  // Como al pausar: el conteo solo redacta el aviso, y el borrado ya se hizo.
+  const detached = (data as { detached?: unknown } | null)?.detached
+  return { detached: Number.isInteger(detached) ? (detached as number) : 0 }
+}

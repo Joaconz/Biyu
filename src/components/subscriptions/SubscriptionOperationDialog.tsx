@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { ConfirmDialog, type ConfirmSummaryItem } from '@/components/shared/ConfirmDialog'
 import { saveFailureReason } from '@/lib/errors'
 
 /**
@@ -11,6 +11,7 @@ import { saveFailureReason } from '@/lib/errors'
 export function SubscriptionOperationDialog({
   isOpen,
   title,
+  summary,
   confirmLabel,
   busyLabel,
   cancelLabel,
@@ -24,6 +25,8 @@ export function SubscriptionOperationDialog({
 }: {
   isOpen: boolean
   title: string
+  /** Qué se borra (US-94), para los borrados. */
+  summary?: ConfirmSummaryItem[]
   confirmLabel: string
   busyLabel: string
   cancelLabel?: string
@@ -57,6 +60,7 @@ export function SubscriptionOperationDialog({
     <ConfirmDialog
       isOpen={isOpen}
       title={title}
+      summary={summary}
       confirmLabel={confirmLabel}
       busyLabel={busyLabel}
       cancelLabel={cancelLabel}

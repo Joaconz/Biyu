@@ -6,6 +6,7 @@ import type { BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
 import { todayInArgentina } from '@/lib/clock'
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog'
+import { DeleteSubscriptionDialog } from './DeleteSubscriptionDialog'
 import { PauseSubscriptionDialog } from './PauseSubscriptionDialog'
 import { ResumeSubscriptionDialog } from './ResumeSubscriptionDialog'
 
@@ -19,6 +20,7 @@ export function SubscriptionActions({
   blocked,
   fxRates,
   transactionCount,
+  generatedCount,
   onChanged,
 }: {
   subscription: SubscriptionRecord
@@ -27,25 +29,29 @@ export function SubscriptionActions({
   fxRates: ReadonlyMap<string, Decimal> | null
   /** Transacciones vigentes de la suscripción (US-58); null si no se pudieron contar. */
   transactionCount: number | null
+  /** Gastos que generó, también los dados de baja (US-88); null si no se pudieron leer. */
+  generatedCount: number | null
   onChanged: () => void
 }) {
   const [pausing, setPausing] = useState(false)
   const [resuming, setResuming] = useState(false)
   const [cancelling, setCancelling] = useState(false)
-
-  if (subscription.status === 'cancelled') return null
+  const [deleting, setDeleting] = useState(false)
+  const cancelled = subscription.status === 'cancelled'
 
   return (
     <>
       <div data-testid="subscription-detail-actions" className="mt-4 flex flex-wrap gap-2">
-        {/* Editar: una activa o pausada (US-59); la cancelada no muestra ninguna acción. */}
-        <Link
-          to={`/subscriptions/${subscription.id}/edit`}
-          data-testid="subscription-detail-edit"
-          className={buttonVariants({ variant: 'outline', size: 'sm' })}
-        >
-          Editar
-        </Link>
+        {/* Editar: una activa o pausada (US-59); la cancelada solo se puede eliminar (US-88). */}
+        {!cancelled && (
+          <Link
+            to={`/subscriptions/${subscription.id}/edit`}
+            data-testid="subscription-detail-edit"
+            className={buttonVariants({ variant: 'outline', size: 'sm' })}
+          >
+            Editar
+          </Link>
+        )}
         {subscription.status === 'active' && (
           <Button type="button" variant="outline" size="sm" data-testid="subscription-detail-pause" onClick={() => setPausing(true)}>
             Pausar
@@ -56,10 +62,23 @@ export function SubscriptionActions({
             Reanudar
           </Button>
         )}
-        <Button type="button" variant="destructive" size="sm" data-testid="subscription-detail-cancel" onClick={() => setCancelling(true)}>
-          Cancelar suscripción
+        {!cancelled && (
+          <Button type="button" variant="destructive" size="sm" data-testid="subscription-detail-cancel" onClick={() => setCancelling(true)}>
+            Cancelar suscripción
+          </Button>
+        )}
+        {/* US-88: separada de «Cancelar», que conserva la suscripción como cancelada. */}
+        <Button type="button" variant="outline" size="sm" data-testid="subscription-detail-delete" className="text-destructive hover:text-destructive" onClick={() => setDeleting(true)}>
+          Eliminar definitivamente
         </Button>
       </div>
+
+      <DeleteSubscriptionDialog
+        subscription={subscription}
+        generatedCount={generatedCount}
+        isOpen={deleting}
+        onClose={() => setDeleting(false)}
+      />
 
       <PauseSubscriptionDialog
         subscription={subscription}
