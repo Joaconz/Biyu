@@ -13,7 +13,7 @@ import {
 } from './period'
 import { parseMoney, type Decimal } from './money'
 import type { BlockedOccurrence } from './subscriptionBlocked'
-import { computeDueOccurrences, evaluateOccurrences, nextChargeDate, noMoreChargesText, occurrenceDate, type SubscriptionRecord } from './subscriptions'
+import { computeDueOccurrences, evaluateOccurrences, nextChargeDate, noMoreChargesText, occurrenceDate, subscriptionAmountText, type SubscriptionRecord, type SubscriptionStatus } from './subscriptions'
 
 type Schedule = Pick<SubscriptionRecord, 'billingDay' | 'generateFromPeriod' | 'endPeriod'>
 
@@ -201,4 +201,42 @@ export function cancelWarningText(kept: number | null): string {
 /** Aviso al cancelar (US-58). Con gastos atrasados que se generaron antes de cancelar, los cuenta. */
 export function cancelledNoticeText(generatedBefore: number): string {
   return generatedBefore > 0 ? `Suscripción cancelada. ${beforeText(generatedBefore)}` : 'Suscripción cancelada'
+}
+
+/**
+ * Qué se borra con la suscripción (US-88, US-94): nombre, monto, estado y cuántos gastos generó. `generated`
+ * cuenta también los dados de baja; null si no se pudo leer.
+ */
+export function subscriptionDeletionSummary(
+  subscription: Pick<SubscriptionRecord, 'name' | 'amount' | 'currency' | 'status'>,
+  generated: number | null,
+): Array<{ label: string; value: string }> {
+  const status = { active: 'Activa', paused: 'Pausada', cancelled: 'Cancelada' }[subscription.status]
+  const items = [
+    { label: 'Suscripción', value: subscription.name },
+    { label: 'Monto', value: subscriptionAmountText(subscription.amount, subscription.currency) },
+    { label: 'Estado', value: status },
+  ]
+  if (generated !== null) items.push({ label: 'Gastos generados', value: String(generated) })
+  return items
+}
+
+/**
+ * Texto del diálogo de eliminar definitivamente (US-88 CA-4 de ADR-044 §4): qué pasa con los gastos ya
+ * generados y, si todavía está vigente, que deja de generar. No se puede deshacer.
+ */
+export function deleteSubscriptionWarning(status: SubscriptionStatus, generated: number | null): string[] {
+  const lines: string[] = []
+  if (status !== 'cancelled') lines.push('Deja de generar gastos.')
+  if (generated === null) lines.push('Los gastos ya generados quedan como movimientos sueltos.')
+  else if (generated === 0) lines.push('Todavía no generó ningún gasto.')
+  else if (generated === 1) lines.push('El gasto que generó queda como un movimiento suelto, sin vínculo con la suscripción.')
+  else lines.push(`Los ${generated} gastos que generó quedan como movimientos sueltos, sin vínculo con la suscripción.`)
+  lines.push('Los totales de los meses cerrados no cambian. Se borra para siempre.')
+  return lines
+}
+
+/** Aviso al eliminar definitivamente una suscripción (US-88). */
+export function deletedSubscriptionNoticeText(name: string): string {
+  return `Suscripción «${name}» eliminada`
 }
