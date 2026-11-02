@@ -1,6 +1,6 @@
 # ADR-044 — Borrado definitivo en V3: dos pasos para los movimientos, directo para el resto
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** aceptada · **Fecha:** 2026-10
 **Relacionada:** ADR-009, ADR-026, ADR-030, ADR-036, ADR-037, ADR-041, ADR-043 · **Modifica C10** · Cierra [#327](https://github.com/Joaconz/Biyu/issues/327)
 
 ## Contexto

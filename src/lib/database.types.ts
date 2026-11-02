@@ -506,6 +506,7 @@ export type Database = {
         Returns: string
       }
       delete_account: { Args: { p_account_id: string }; Returns: number }
+      delete_category: { Args: { p_category_id: string }; Returns: undefined }
       delete_transaction: {
         Args: { p_transaction_id: string }
         Returns: undefined

@@ -123,3 +123,21 @@ export function transactionDeletionSummary(t: TransactionToSummarize): DeletionS
   if (t.installmentsCount > 1) items.push({ label: 'Cuotas', value: `${t.installmentsCount} cuotas` })
   return items
 }
+
+/** Plural simple en español: `pluralize(1, 'movimiento', 'movimientos')` → «1 movimiento». */
+function countOf(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`
+}
+
+/**
+ * Qué categoría se va a borrar y cuánto la usa (US-89, ADR-044 §5). Una línea «Uso» solo si tiene:
+ * con uso la RPC rechaza, y la confirmación lo avisa antes.
+ */
+export function categoryDeletionSummary(name: string, usage: { transactions: number; subscriptions: number }): DeletionSummaryItem[] {
+  const items: DeletionSummaryItem[] = [{ label: 'Categoría', value: name }]
+  const parts: string[] = []
+  if (usage.transactions > 0) parts.push(countOf(usage.transactions, 'movimiento', 'movimientos'))
+  if (usage.subscriptions > 0) parts.push(countOf(usage.subscriptions, 'suscripción', 'suscripciones'))
+  items.push({ label: 'Uso', value: parts.length > 0 ? parts.join(' y ') : 'Sin uso' })
+  return items
+}
