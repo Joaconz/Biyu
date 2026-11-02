@@ -169,6 +169,97 @@ export function debtTotals(debts: readonly DebtRecord[]): DebtTotals {
   return { owedToMe, iOwe, net: owedToMe.minus(iOwe) }
 }
 
+/**
+ * US-91: la clave con que dos nombres son la misma persona. Ignora mayúsculas, tildes y espacios de
+ * más: " Juán  Pérez" y "juan perez" dan la misma clave. No cambia lo guardado: cada deuda conserva el
+ * nombre como se escribió.
+ */
+export function personKey(person: string): string {
+  return person.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
+/** Neto de un grupo en una moneda: lo que te deben menos lo que debés, sin convertir entre monedas. */
+export interface DebtGroupNet {
+  currency: Currency
+  net: Decimal
+}
+
+/** Una persona con dos o más deudas visibles en el filtro (US-91). */
+export interface DebtGroup {
+  /** `personKey` de la persona. */
+  key: string
+  /** El nombre de la deuda más reciente del grupo, tal como se escribió. */
+  name: string
+  debts: DebtRecord[]
+  /** Del neto cuentan solo las deudas pendientes del grupo. ARS primero; solo las monedas que hay. */
+  nets: DebtGroupNet[]
+  /** Cuántas de las deudas del grupo están pendientes. */
+  pendingCount: number
+}
+
+/** Lo que se dibuja en la lista: una fila común (persona con una sola deuda) o un grupo plegable. */
+export type DebtListEntry = { kind: 'debt'; debt: DebtRecord } | { kind: 'group'; group: DebtGroup }
+
+/**
+ * US-91: agrupa por persona las deudas que ya pasaron por `debtsForFilter` (visibles, del filtro y
+ * ordenadas con la más reciente primero). Una persona con una sola deuda queda como fila común, con
+ * dos o más forma un grupo. Los grupos y las filas conservan el orden de la lista: cada persona va
+ * donde está su deuda más reciente.
+ */
+export function groupDebtsByPerson(debts: readonly DebtRecord[]): DebtListEntry[] {
+  const byKey = new Map<string, DebtRecord[]>()
+  for (const d of debts) {
+    const key = personKey(d.person)
+    byKey.set(key, [...(byKey.get(key) ?? []), d])
+  }
+  const entries: DebtListEntry[] = []
+  const seen = new Set<string>()
+  for (const d of debts) {
+    const key = personKey(d.person)
+    if (seen.has(key)) continue
+    seen.add(key)
+    const own = byKey.get(key)!
+    if (own.length === 1) {
+      entries.push({ kind: 'debt', debt: d })
+      continue
+    }
+    const latest = own.reduce((a, b) => (instantMs(b.createdAt) > instantMs(a.createdAt) ? b : a))
+    entries.push({ kind: 'group', group: { key, name: latest.person, debts: own, ...groupNets(own) } })
+  }
+  return entries
+}
+
+function groupNets(debts: readonly DebtRecord[]): { nets: DebtGroupNet[]; pendingCount: number } {
+  const byCurrency = new Map<Currency, Decimal>()
+  let pendingCount = 0
+  for (const d of debts) {
+    if (d.status !== 'pending') continue
+    pendingCount++
+    const amount = parseMoney(d.amount)
+    const signed = d.direction === 'owed_to_me' ? amount : amount.negated()
+    byCurrency.set(d.currency, (byCurrency.get(d.currency) ?? new Decimal(0)).plus(signed))
+  }
+  const nets = (['ARS', 'USD'] as const).flatMap((currency) => {
+    const net = byCurrency.get(currency)
+    return net ? [{ currency, net }] : []
+  })
+  return { nets, pendingCount }
+}
+
+/** "Te deben $95.000,00", "Le debés US$20,00" o "En cero" de un neto en su moneda (US-91). */
+export function groupNetText({ currency, net }: DebtGroupNet): string {
+  if (net.isZero()) return 'En cero'
+  const amount = currency === 'USD' ? formatUsd(net.abs()) : formatArs(net.abs())
+  return `${net.isPositive() ? 'Te debe' : 'Le debés'} ${amount}`
+}
+
+/** Resumen de un grupo plegado: "3 deudas" o "3 deudas, 1 pendiente" cuando se ven saldadas (US-91). */
+export function groupCountText(group: DebtGroup): string {
+  const total = `${group.debts.length} deudas`
+  if (group.pendingCount === group.debts.length) return total
+  return `${total}, ${group.pendingCount === 0 ? 'ninguna pendiente' : `${group.pendingCount} ${group.pendingCount === 1 ? 'pendiente' : 'pendientes'}`}`
+}
+
 /** "A tu favor $95.000,00", "En contra $5.000,00" (sin signo) o "En cero" (US-37). */
 export function debtNetText(net: Decimal): string {
   if (net.isZero()) return 'En cero'
