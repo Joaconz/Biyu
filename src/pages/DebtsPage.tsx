@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { DebtGroupItem } from '@/components/debts/DebtGroupItem'
 import { DebtItem } from '@/components/debts/DebtItem'
 import { DebtsDirectionFilter, DebtsFilter } from '@/components/debts/DebtsFilter'
 import { DebtsTotals } from '@/components/debts/DebtsTotals'
@@ -13,6 +14,7 @@ import {
   debtUpdateErrorReason,
   debtsForFilter,
   emptyDebtsMessage,
+  groupDebtsByPerson,
   isStaleDebtError,
   parseDebtDirectionFilter,
   parseDebtStatusFilter,
@@ -39,6 +41,8 @@ export function DebtsPage() {
   // vuelva a pintar el botón deshabilitado (US-39 CA-3); el estado es lo que se ve.
   const busyRef = useRef(new Set<string>())
   const [busy, setBusy] = useState<ReadonlySet<string>>(new Set())
+  // US-91: los grupos de personas desplegados (por personKey). Arrancan plegados.
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set())
   const undoNotices = useRef(new Set<string | number>())
   // Sube al cambiar de filtro o salir de la pantalla: un saldado que termina después ya no muestra
   // "Deshacer", porque el aviso dura hasta ese cambio.
@@ -131,6 +135,16 @@ export function DebtsPage() {
   const selectDirection = (next: DebtDirectionFilter) => setParam('direction', next)
 
   const debts = debtsState.status === 'ready' ? debtsForFilter(debtsState.debts, filter, direction) : []
+  // US-91: las de una misma persona (sin distinguir mayúsculas, tildes ni espacios) van juntas.
+  const entries = groupDebtsByPerson(debts)
+
+  function toggleGroup(key: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      if (!next.delete(key)) next.add(key)
+      return next
+    })
+  }
   const empty = emptyDebtsMessage(filter, direction)
 
   return (
@@ -185,15 +199,27 @@ export function DebtsPage() {
             </div>
           ) : (
             <GroupedCard data-testid="debts-list">
-              {debts.map((debt) => (
-                <DebtItem
-                  key={debt.id}
-                  debt={debt}
-                  busy={busy.has(debt.id)}
-                  onSettle={handleSettle}
-                  onReopen={handleReopen}
-                />
-              ))}
+              {entries.map((entry) =>
+                entry.kind === 'group' ? (
+                  <DebtGroupItem
+                    key={`group-${entry.group.key}`}
+                    group={entry.group}
+                    expanded={expanded.has(entry.group.key)}
+                    onToggle={toggleGroup}
+                    busyIds={busy}
+                    onSettle={handleSettle}
+                    onReopen={handleReopen}
+                  />
+                ) : (
+                  <DebtItem
+                    key={entry.debt.id}
+                    debt={entry.debt}
+                    busy={busy.has(entry.debt.id)}
+                    onSettle={handleSettle}
+                    onReopen={handleReopen}
+                  />
+                ),
+              )}
             </GroupedCard>
           )}
         </>
