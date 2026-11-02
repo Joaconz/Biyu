@@ -30,6 +30,11 @@ export function ImportRowCard({ row }: { row: ReviewedRow }) {
         <span className="min-w-0 text-callout break-words text-foreground">{details.join(' · ')}</span>
         <span className="tabular shrink-0 text-callout font-semibold">{card.amount}</span>
       </div>
+      {card.pending && (
+        <p data-testid={`import-row-${n}-pending`} className="text-footnote text-muted-foreground">
+          {card.pending}
+        </p>
+      )}
       {row.status === 'error' && (
         <ul data-testid={`import-row-${n}-errors`} className="flex flex-col gap-0.5 text-footnote text-destructive">
           {row.errors.map((message) => (

@@ -28,6 +28,7 @@ const VALID: Record<ImportColumn, SheetCell> = {
   category: t('Comida y supermercado'),
   account: t('Tarjeta de débito'),
   installments: EMPTY_CELL,
+  installmentsPending: EMPTY_CELL,
   note: t('Compra del mes'),
 }
 const USD = { currency: t('USD'), fxRate: n('1450'), amount: n('12.5') }

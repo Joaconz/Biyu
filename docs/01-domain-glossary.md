@@ -29,6 +29,9 @@ Mes calendario, identificado como `YYYY-MM`. Es la unidad temporal de todo el da
 ### Cuota (`Installment`)
 Cada una de las N partes en que se paga una transacción. `installment_number` va de 1 a `installments_count`. Una compra de contado tiene `installments_count = 1` — no es un caso especial, es el caso general con N=1.
 
+### Compra en cuotas empezada
+Compra en cuotas que el usuario ya venía pagando antes de cargarla en Biyu (ADR-039, US-80). Se importa indicando cuántas cuotas faltan: `installments_paid` = N − pendientes. Se guardan solo las cuotas pendientes, numeradas de `installments_paid + 1` a N, desde el mes de hoy; el `amount` de la transacción es lo que falta pagar. Hoy solo la crea la importación desde Excel.
+
 ### Mes cerrado
 Cualquier período estrictamente anterior al mes actual (`period < currentPeriod`). No tiene relación con el ciclo real de cierre de tarjeta, que está fuera de alcance (ver "Fecha de imputación" abajo y Asunción 2 de `02-behavior-spec.md`). Es la definición operacional que usan FR-07, FR-08 y sus casos de prueba (`10-catalogo-casos-v1.md`, CP-REG-012/013) para decidir cuándo avisar antes de borrar o editar.
 

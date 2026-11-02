@@ -342,6 +342,7 @@ export type Database = {
           fx_rate: number | null
           id: string
           installments_count: number
+          installments_paid: number
           occurred_on: string
           request_id: string | null
           subscription_id: string | null
@@ -362,6 +363,7 @@ export type Database = {
           fx_rate?: number | null
           id?: string
           installments_count?: number
+          installments_paid?: number
           occurred_on: string
           request_id?: string | null
           subscription_id?: string | null
@@ -382,6 +384,7 @@ export type Database = {
           fx_rate?: number | null
           id?: string
           installments_count?: number
+          installments_paid?: number
           occurred_on?: string
           request_id?: string | null
           subscription_id?: string | null
@@ -493,6 +496,7 @@ export type Database = {
           p_description?: string
           p_fx_rate: number
           p_installments_count: number
+          p_installments_paid?: number
           p_occurred_on: string
           p_request_id?: string
           p_shared_amount?: number
@@ -519,6 +523,7 @@ export type Database = {
           p_description: string
           p_fx_rate: number
           p_installments_count: number
+          p_installments_paid?: number
           p_occurred_on: string
           p_request_id?: string
           p_subscription_id?: string

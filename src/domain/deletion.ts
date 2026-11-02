@@ -42,12 +42,25 @@ export function computeDeletionImpact(
   }
 }
 
+/** Una imputación guardada de la transacción (ledger_entries), con el período como AAAA-MM-DD. */
+export interface StoredEntry {
+  period: string
+  installmentNumber: number
+  amountArs: Decimal
+}
+
 export interface TransactionForDeletion {
   amount: Decimal
   fxRate: Decimal | null
   installmentsCount: number
   occurredOn: string
   type: 'expense' | 'income'
+  /**
+   * Las imputaciones guardadas. Si vienen, el aviso las usa tal cual: una compra empezada (US-80,
+   * ADR-039) no se puede recalcular desde la fecha, porque sus cuotas empiezan en el mes de la
+   * importación y no tiene las ya pagadas. Sin ellas, se recalcula el prorrateo desde occurredOn.
+   */
+  storedEntries?: readonly StoredEntry[]
 }
 
 /**
@@ -59,6 +72,17 @@ export function getTransactionDeletionImpact(
   todayDate: Date,
 ): DeletionImpactSummary {
   const current = currentPeriod(todayDate)
+  if (transaction.storedEntries && transaction.storedEntries.length > 0) {
+    const entries: LedgerEntryDraft[] = transaction.storedEntries
+      .map((e) => ({
+        period: periodOf(e.period),
+        installmentNumber: e.installmentNumber,
+        amount: e.amountArs,
+        amountArs: e.amountArs,
+      }))
+      .sort((a, b) => a.installmentNumber - b.installmentNumber)
+    return computeDeletionImpact(entries, current)
+  }
   const first = periodOf(transaction.occurredOn)
   const entries = generateLedgerEntries(
     transaction.amount,
