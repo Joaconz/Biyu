@@ -15,6 +15,7 @@ export function DebtGroupItem({
   busyIds,
   onSettle,
   onReopen,
+  onDelete,
 }: {
   group: DebtGroup
   expanded: boolean
@@ -22,6 +23,7 @@ export function DebtGroupItem({
   busyIds: ReadonlySet<string>
   onSettle: (debt: DebtRecord) => void
   onReopen: (debt: DebtRecord) => void
+  onDelete: (debt: DebtRecord) => void
 }) {
   const slug = toTestIdSuffix(group.name) || 'persona'
   const panelId = `debts-group-panel-${slug}`
@@ -64,7 +66,7 @@ export function DebtGroupItem({
       {expanded && (
         <div id={panelId} data-testid="debts-group-items" className="bg-secondary/40 [&>*+*]:border-t [&>*+*]:border-hairline">
           {group.debts.map((debt) => (
-            <DebtItem key={debt.id} debt={debt} busy={busyIds.has(debt.id)} onSettle={onSettle} onReopen={onReopen} />
+            <DebtItem key={debt.id} debt={debt} busy={busyIds.has(debt.id)} onSettle={onSettle} onReopen={onReopen} onDelete={onDelete} />
           ))}
         </div>
       )}
