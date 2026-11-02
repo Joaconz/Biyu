@@ -42,12 +42,25 @@ export function computeDeletionImpact(
   }
 }
 
+/** Una imputación guardada de la transacción (ledger_entries), con el período como AAAA-MM-DD. */
+export interface StoredEntry {
+  period: string
+  installmentNumber: number
+  amountArs: Decimal
+}
+
 export interface TransactionForDeletion {
   amount: Decimal
   fxRate: Decimal | null
   installmentsCount: number
   occurredOn: string
   type: 'expense' | 'income'
+  /**
+   * Las imputaciones guardadas. Si vienen, el aviso las usa tal cual: una compra empezada (US-80,
+   * ADR-039) no se puede recalcular desde la fecha, porque sus cuotas empiezan en el mes de la
+   * importación y no tiene las ya pagadas. Sin ellas, se recalcula el prorrateo desde occurredOn.
+   */
+  storedEntries?: readonly StoredEntry[]
 }
 
 /**
@@ -59,6 +72,17 @@ export function getTransactionDeletionImpact(
   todayDate: Date,
 ): DeletionImpactSummary {
   const current = currentPeriod(todayDate)
+  if (transaction.storedEntries && transaction.storedEntries.length > 0) {
+    const entries: LedgerEntryDraft[] = transaction.storedEntries
+      .map((e) => ({
+        period: periodOf(e.period),
+        installmentNumber: e.installmentNumber,
+        amount: e.amountArs,
+        amountArs: e.amountArs,
+      }))
+      .sort((a, b) => a.installmentNumber - b.installmentNumber)
+    return computeDeletionImpact(entries, current)
+  }
   const first = periodOf(transaction.occurredOn)
   const entries = generateLedgerEntries(
     transaction.amount,
@@ -97,5 +121,23 @@ export function transactionDeletionSummary(t: TransactionToSummarize): DeletionS
   if (t.accountName) items.push({ label: 'Cuenta', value: t.accountName })
   items.push({ label: 'Fecha', value: formatDisplayDate(t.occurredOn) })
   if (t.installmentsCount > 1) items.push({ label: 'Cuotas', value: `${t.installmentsCount} cuotas` })
+  return items
+}
+
+/** Plural simple en español: `pluralize(1, 'movimiento', 'movimientos')` → «1 movimiento». */
+function countOf(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`
+}
+
+/**
+ * Qué categoría se va a borrar y cuánto la usa (US-89, ADR-044 §5). Una línea «Uso» solo si tiene:
+ * con uso la RPC rechaza, y la confirmación lo avisa antes.
+ */
+export function categoryDeletionSummary(name: string, usage: { transactions: number; subscriptions: number }): DeletionSummaryItem[] {
+  const items: DeletionSummaryItem[] = [{ label: 'Categoría', value: name }]
+  const parts: string[] = []
+  if (usage.transactions > 0) parts.push(countOf(usage.transactions, 'movimiento', 'movimientos'))
+  if (usage.subscriptions > 0) parts.push(countOf(usage.subscriptions, 'suscripción', 'suscripciones'))
+  items.push({ label: 'Uso', value: parts.length > 0 ? parts.join(' y ') : 'Sin uso' })
   return items
 }

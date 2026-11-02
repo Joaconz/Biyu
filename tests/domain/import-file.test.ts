@@ -14,7 +14,7 @@ const t = (text: string): SheetCell => ({ kind: 'text', text })
 const n = (text: string): SheetCell => ({ kind: 'number', text })
 const E: SheetCell = { kind: 'empty' }
 const HEADERS = IMPORT_COLUMNS.map((c) => t(c.header))
-const ROW = [t('01/09/2026'), t('Gasto'), n('45800'), t('ARS'), E, t('Otros'), t('Efectivo'), E, t('Nota')]
+const ROW = [t('01/09/2026'), t('Gasto'), n('45800'), t('ARS'), E, t('Otros'), t('Efectivo'), E, E, t('Nota')]
 
 function rows(count: number): SheetCell[][] {
   return Array.from({ length: count }, () => ROW)
@@ -89,7 +89,7 @@ describe('A4 a A7: la primera hoja (US-74 · CA-3 a CA-7)', () => {
   })
 
   it('A6: filas con solo espacios, o con datos solo en columnas ignoradas, son vacías', () => {
-    const blank = [t('  '), E, E, E, E, E, E, E, E, t('dato en Comercio')]
+    const blank = [t('  '), E, E, E, E, E, E, E, E, E, t('dato en Comercio')]
     expect(readImportSheet([[...HEADERS, t('Comercio')], blank])).toMatchObject({ error: { rule: 'A6' } })
   })
 
@@ -156,11 +156,11 @@ describe('encabezados y filas (US-74 · CA-6, CA-7)', () => {
 })
 
 describe('plantilla (US-74 · CA-2)', () => {
-  it('hoja 1 "Movimientos" con los nueve encabezados de A a I y nada más', () => {
+  it('hoja 1 "Movimientos" con los diez encabezados de A a J y nada más', () => {
     const [rowsSheet, instructions] = templateSheets()
     expect(rowsSheet).toEqual({
       name: 'Movimientos',
-      rows: [['Fecha', 'Tipo', 'Monto', 'Moneda', 'Tipo de cambio', 'Categoría', 'Cuenta', 'Cuotas', 'Nota']],
+      rows: [['Fecha', 'Tipo', 'Monto', 'Moneda', 'Tipo de cambio', 'Categoría', 'Cuenta', 'Cuotas', 'Cuotas pendientes', 'Nota']],
     })
     expect(instructions.name).toBe('Instrucciones')
     expect(instructions.rows[0]).toEqual(['Encabezado', 'Celda obligatoria', 'Qué va', 'Formatos aceptados'])

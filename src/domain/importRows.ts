@@ -6,6 +6,7 @@
 import { MAX_FX_RATE, type Currency } from './fx'
 import { cellAsText, cleanText, isBlankCell, type ImportRow, type SheetCell } from './importFile'
 import { convertToArs, Decimal, formatArs, formatRate, formatUsd, tryParseMoney } from './money'
+import { pendingAmount } from './installments'
 import { formatDisplayDate, isValidIsoDate } from './period'
 import { allowsInstallments, hasEmptyInstallment, MAX_AMOUNT, MAX_INSTALLMENTS, type TransactionDraft } from './validation'
 
@@ -26,6 +27,8 @@ export interface ImportTransaction {
   categoryId: string | null
   accountId: string
   installmentsCount: number
+  /** Cuotas ya pagadas (K = N − pendientes), solo en una compra empezada (US-80, ADR-039). */
+  installmentsPaid: number | null
   occurredOn: string // YYYY-MM-DD
   description: string | null
 }
@@ -39,15 +42,18 @@ export interface RowCard {
   account: string
   /** "TC 1.450,00", solo en USD con un tipo de cambio válido. */
   fxRate: string | null
-  /** "3 cuotas", solo si hay más de una. */
+  /** "3 cuotas", solo si hay más de una y no es una compra empezada. */
   installments: string | null
+  /** "Faltan 3 de 6 cuotas ($60.000,00)", solo en una fila "Lista" con Cuotas pendientes (US-80). */
+  pending: string | null
 }
 
 export type ReviewedRow =
   | { rowNumber: number; status: 'ready'; card: RowCard; transaction: ImportTransaction; amountArs: Decimal }
   | { rowNumber: number; status: 'error'; card: RowCard; errors: string[] }
 
-type Column = 'date' | 'type' | 'amount' | 'currency' | 'fxRate' | 'category' | 'account' | 'installments'
+type Column =
+  | 'date' | 'type' | 'amount' | 'currency' | 'fxRate' | 'category' | 'account' | 'installments' | 'installmentsPending'
 
 /** Las reglas de §4 con su columna, en el orden de la tabla: los mensajes salen en este orden (CA-3). */
 const RULE_TABLE = [
@@ -60,6 +66,7 @@ const RULE_TABLE = [
   ['F14c', 'account'], ['F14d', 'account'],
   ['F14e', 'installments'], ['F15', 'installments'],
   ['F16', 'amount'], ['F17', 'installments'], ['F18', 'amount'],
+  ['F19', 'installmentsPending'], ['F20', 'installmentsPending'], ['F21', 'installmentsPending'],
 ] as const satisfies readonly (readonly [string, Column])[]
 type Rule = (typeof RULE_TABLE)[number][0]
 const RULE_COLUMN = Object.fromEntries(RULE_TABLE) as Record<Rule, Column>
@@ -94,6 +101,9 @@ export function ruleMessage(rule: Rule, value = ''): string {
     case 'F16': return `En pesos daría más que el máximo de ${formatArs(MAX_AMOUNT)}`
     case 'F17': return 'Con ese monto, cada cuota daría menos de 0,01'
     case 'F18': return 'En pesos daría menos de $0,01. Revisá el monto o el tipo de cambio'
+    case 'F19': return 'Las cuotas pendientes solo van en una compra en cuotas'
+    case 'F20': return `Las cuotas pendientes van de 1 a ${value}`
+    case 'F21': return `Con esa fecha todavía no puede haber ${value === '1' ? '1 cuota pagada' : `${value} cuotas pagadas`}`
   }
 }
 
@@ -126,6 +136,12 @@ export function cellDate(cell: SheetCell): string | null {
   if (!match) return null
   const iso = `${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`
   return isValidIsoDate(iso) ? iso : null
+}
+
+/** Meses de diferencia entre dos fechas YYYY-MM-DD (por mes calendario, no por día). */
+function monthsBetween(from: string, to: string): number {
+  const months = (iso: string) => Number(iso.slice(0, 4)) * 12 + Number(iso.slice(5, 7))
+  return months(to) - months(from)
 }
 
 /** Nombre comparable de categoría o cuenta: sin mayúsculas ni espacios en los bordes, con tildes (§2). */
@@ -228,6 +244,24 @@ export function reviewRow(row: ImportRow, catalog: ImportCatalog, today: string)
     }
   }
 
+  // Cuotas pendientes: F19–F21 (US-80, ADR-039). Vacía = compra normal. K = N − P son las pagadas.
+  const pendingBlank = isBlankCell(cells.installmentsPending)
+  const pending = pendingBlank ? null : cellNumber(cells.installmentsPending)
+  let installmentsPaid: number | null = null
+  if (!pendingBlank && ok('installments') && installmentsCount !== null) {
+    if (installmentsCount === 1) fail('F19')
+    else if (ok('type', 'account')) {
+      if (!pending || !pending.isInteger() || pending.lt(1) || pending.gt(installmentsCount)) {
+        fail('F20', String(installmentsCount))
+      } else {
+        const paid = installmentsCount - pending.toNumber()
+        // Meses entre la fecha de la compra y hoy: K cuotas pagadas necesitan K meses ya cerrados.
+        if (ok('date') && occurredOn && paid > monthsBetween(occurredOn, today)) fail('F21', String(paid))
+        else installmentsPaid = paid
+      }
+    }
+  }
+
   // La tarjeta muestra un monto o un TC formateado solo si se pudo interpretar sin error; si no, el
   // texto de la celda (§1): "10,555" no se muestra como "$10,56" al lado de F9.
   const card = buildCard(cells, {
@@ -255,16 +289,25 @@ export function reviewRow(row: ImportRow, catalog: ImportCatalog, today: string)
     categoryId: category?.id ?? null,
     accountId: account!.id,
     installmentsCount: installmentsCount!,
+    installmentsPaid,
     occurredOn: occurredOn!,
     description: cellAsText(cells.note) || null,
+  }
+  // ADR-013: el monto en pesos, half-up a 2 decimales (igual que la columna amount_ars). En una
+  // compra empezada es lo que falta pagar (ADR-039), no el Monto escrito.
+  const owed = installmentsPaid === null ? transaction.amount : pendingAmount(transaction.amount, installmentsCount!, installmentsPaid)
+  if (installmentsPaid !== null) {
+    const left = installmentsCount! - installmentsPaid
+    const format = transaction.currency === 'USD' ? formatUsd : formatArs
+    card.installments = null
+    card.pending = `${left === 1 ? 'Falta' : 'Faltan'} ${left} de ${installmentsCount} cuotas (${format(owed)})`
   }
   return {
     rowNumber: row.rowNumber,
     status: 'ready',
     card,
     transaction,
-    // ADR-013: el monto total en pesos, half-up a 2 decimales (igual que la columna amount_ars).
-    amountArs: convertToArs(transaction.amount, transaction.fxRate),
+    amountArs: convertToArs(owed, transaction.fxRate),
   }
 }
 
@@ -293,6 +336,7 @@ function buildCard(
     account: accountName ?? cellAsText(cells.account),
     fxRate: currency === 'USD' && fxRate ? `TC ${formatRate(fxRate)}` : null,
     installments: installmentsCount && installmentsCount > 1 ? `${installmentsCount} cuotas` : null,
+    pending: null,
   }
 }
 
@@ -302,7 +346,7 @@ export interface ImportReview {
   total: number
   ready: number
   withErrors: number
-  /** Suma en pesos de las filas "Lista": el monto total de cada transacción, no lo que imputa a un mes. */
+  /** Suma en pesos de las filas "Lista": el monto total de cada transacción (lo que falta pagar, en una compra empezada), no lo que imputa a un mes. */
   expensesArs: Decimal
   incomeArs: Decimal
 }

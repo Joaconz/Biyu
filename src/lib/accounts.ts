@@ -23,6 +23,17 @@ export async function listActiveAccounts(): Promise<Account[]> {
   return data
 }
 
+/** US-90: las archivadas, para poder reactivarlas desde Ajustes (como listArchivedCategories, DEF-026). */
+export async function listArchivedAccounts(): Promise<Account[]> {
+  const { data, error } = await supabase
+    .from('accounts')
+    .select('*')
+    .not('archived_at', 'is', null)
+    .order('name')
+  if (error) throw error
+  return data
+}
+
 export async function createAccount(input: { name: string; type: AccountType; currency: AccountCurrency }) {
   const { data, error } = await supabase.from('accounts').insert(input).select().single()
   if (error) throw error
@@ -32,6 +43,15 @@ export async function createAccount(input: { name: string; type: AccountType; cu
 // Soft delete (C10): las transacciones históricas conservan account_id sin cambios.
 export async function archiveAccount(id: string, archivedAt: string): Promise<void> {
   const { error } = await supabase.from('accounts').update({ archived_at: archivedAt }).eq('id', id)
+  if (error) throw error
+}
+
+/**
+ * US-90: deshace archiveAccount. Los movimientos de la cuenta no cambian. El índice único de nombres
+ * activos rechaza (23505) si ya hay una cuenta activa con ese nombre.
+ */
+export async function unarchiveAccount(id: string): Promise<void> {
+  const { error } = await supabase.from('accounts').update({ archived_at: null }).eq('id', id)
   if (error) throw error
 }
 

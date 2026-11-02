@@ -7,8 +7,10 @@ import { GroupedCard } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog'
+import { PurgeTransactionDialog } from '@/components/transactions/PurgeTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { isExportAvailable } from '@/domain/exportCsv'
+import { canPurge } from '@/domain/transactionPurge'
 import { formatDayHeading, formatPeriod } from '@/domain/period'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
@@ -25,6 +27,7 @@ export function TransactionsPage() {
   const view: TransactionsView = params.get('view') === 'deleted' ? 'deleted' : 'active'
   const transactionsState = useMonthlyTransactions(period, undefined, view)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
+  const [txToPurge, setTxToPurge] = useState<DashboardTransaction | null>(null)
   const [isExportOpen, setIsExportOpen] = useState(false)
   const now = today()
   const isFuturePeriod = !isExportAvailable(period, now)
@@ -150,7 +153,11 @@ export function TransactionsPage() {
                     testId="transactions-item"
                     showDate={false}
                     onDeleteRequest={view === 'active' ? setTxToDelete : undefined}
+                    editHref={view === 'active' ? `/transactions/${tx.id}/edit?period=${formatPeriod(period)}` : undefined}
                     onRestoreRequest={view === 'deleted' ? onRestore : undefined}
+                    onPurgeRequest={
+                      view === 'deleted' && canPurge({ subscriptionName: tx.subscription?.name ?? null }) ? setTxToPurge : undefined
+                    }
                   />
                 ))}
               </GroupedCard>
@@ -164,6 +171,13 @@ export function TransactionsPage() {
         isOpen={txToDelete !== null}
         onClose={() => setTxToDelete(null)}
         onDeleted={() => transactionsState.refresh()}
+      />
+
+      <PurgeTransactionDialog
+        transaction={txToPurge}
+        isOpen={txToPurge !== null}
+        onClose={() => setTxToPurge(null)}
+        onPurged={() => transactionsState.refresh()}
       />
 
       <ExportTransactionsDialog

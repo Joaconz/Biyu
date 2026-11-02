@@ -37,6 +37,11 @@ export function DeleteTransactionDialog({
       installmentsCount: transaction.installments_count,
       occurredOn: transaction.occurred_on,
       type: transaction.type,
+      storedEntries: transaction.entries.map((e) => ({
+        period: e.period,
+        installmentNumber: e.installment_number,
+        amountArs: parseMoney(e.amount_ars),
+      })),
     },
     today(),
   )

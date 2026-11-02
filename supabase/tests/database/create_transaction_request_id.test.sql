@@ -103,7 +103,7 @@ select lives_ok($$insert into transactions (user_id, type, amount, currency, cat
 
 -- insert_transaction_with_entries es interna: authenticated no la ejecuta.
 select is(has_function_privilege('authenticated',
-  'public.insert_transaction_with_entries(uuid, transaction_type, numeric, currency_code, numeric, uuid, uuid, int, date, text, uuid, date, uuid)', 'execute'),
+  'public.insert_transaction_with_entries(uuid, transaction_type, numeric, currency_code, numeric, uuid, uuid, int, date, text, uuid, date, uuid, int)', 'execute'),
   false, 'C7: authenticated no tiene EXECUTE sobre insert_transaction_with_entries');
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}';

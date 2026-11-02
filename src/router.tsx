@@ -6,6 +6,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { DebtFormPage } from '@/pages/DebtFormPage'
 import { DebtsPage } from '@/pages/DebtsPage'
 import { EditDebtPage } from '@/pages/EditDebtPage'
+import { EditTransactionPage } from '@/pages/EditTransactionPage'
 import { EditSubscriptionPage } from '@/pages/EditSubscriptionPage'
 import { ImportPage } from '@/pages/ImportPage'
 import { NewSubscriptionPage } from '@/pages/NewSubscriptionPage'
@@ -37,6 +38,8 @@ export const router = createBrowserRouter([
           // US-73 (ADR-038): bajo /dashboard, así la barra sigue marcando Resumen.
           { path: '/dashboard/categories/:categoryId', element: <CategoryDetailPage /> },
           { path: '/transactions', element: <TransactionsPage /> },
+          // US-84: bajo /transactions, así la barra sigue marcando Resumen (CA-26).
+          { path: '/transactions/:id/edit', element: <EditTransactionPage /> },
           { path: '/debts', element: <DebtsPage /> },
           { path: '/debts/new', element: <DebtFormPage /> },
           { path: '/debts/:id/edit', element: <EditDebtPage /> },

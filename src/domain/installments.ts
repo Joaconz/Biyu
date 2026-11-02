@@ -31,6 +31,16 @@ export function generateLedgerEntries(
   }))
 }
 
+/**
+ * Compra en cuotas empezada (ADR-039): lo que falta pagar de una compra de `total` en `count` cuotas
+ * con `paid` ya pagadas. El calendario se calcula sobre el total (base truncada, la última absorbe el
+ * resto) y solo se guardan las últimas `count - paid`: su suma es el monto del movimiento.
+ */
+export function pendingAmount(total: Decimal, count: number, paid: number): Decimal {
+  const [base] = prorate(total, count)
+  return total.minus(base.times(paid))
+}
+
 export interface InstallmentsPreview {
   /** "12 cuotas de $10.000,00 · de ago 2026 a jul 2027": `${installments} · ${range}` */
   summary: string
