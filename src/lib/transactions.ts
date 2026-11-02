@@ -89,6 +89,15 @@ export async function deleteTransaction(id: string): Promise<void> {
 }
 
 
+/**
+ * US-85, ADR-044 §1: borra para siempre un movimiento ya eliminado, con sus imputaciones y su deuda vinculada,
+ * en una sola RPC (C4). Rechaza uno activo y el generado por una suscripción.
+ */
+export async function purgeTransaction(id: string): Promise<void> {
+  const { error } = await supabase.rpc('purge_transaction', { p_transaction_id: id })
+  if (error) throw error
+}
+
 /** Deshace la baja lógica de deleteTransaction desde el filtro "Eliminados" (DEF-007, C10). */
 export async function restoreTransaction(id: string): Promise<void> {
   const { error } = await supabase.rpc('restore_transaction', { p_transaction_id: id })

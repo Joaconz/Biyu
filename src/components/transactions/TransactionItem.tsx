@@ -15,6 +15,8 @@ interface TransactionItemProps {
   editHref?: string
   /** Filtro "Eliminados" (DEF-007): en vez de eliminar, se restaura. */
   onRestoreRequest?: (transaction: DashboardTransaction) => void
+  /** US-85: en «Eliminados», borrarlo para siempre. No se pasa para el generado por una suscripción (ADR-044 §2). */
+  onPurgeRequest?: (transaction: DashboardTransaction) => void
   /** En la lista agrupada por día la fecha ya está en el encabezado. */
   showDate?: boolean
 }
@@ -23,7 +25,7 @@ interface TransactionItemProps {
  * Fila de movimiento: el ícono dice la categoría, así el renglón secundario queda para la fecha y
  * la cuenta y no se trunca en tres pedazos. El monto es la cuota que impacta en el mes (US-17).
  */
-export function TransactionItem({ transaction, testId, onDeleteRequest, onRestoreRequest, editHref, showDate = true }: TransactionItemProps) {
+export function TransactionItem({ transaction, testId, onDeleteRequest, onRestoreRequest, onPurgeRequest, editHref, showDate = true }: TransactionItemProps) {
   const isIncome = transaction.type === 'income'
   const amountArs = formatArs(parseMoney(transaction.entry_amount_ars))
   const installmentLabel = formatInstallmentLabel(transaction.installment_number, transaction.installments_count)
@@ -125,6 +127,18 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
           className="press -ml-1 flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/8 hover:text-primary"
         >
           <RotateCcw aria-hidden="true" className="size-4" strokeWidth={1.6} />
+        </button>
+      )}
+
+      {onPurgeRequest && (
+        <button
+          type="button"
+          onClick={() => onPurgeRequest(transaction)}
+          data-testid={`${baseTestId}-purge`}
+          aria-label={`Eliminar definitivamente ${title}`}
+          className="press flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/8 hover:text-destructive"
+        >
+          <Trash2 aria-hidden="true" className="size-4" strokeWidth={1.6} />
         </button>
       )}
 
