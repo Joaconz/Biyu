@@ -209,3 +209,37 @@ test('DEF-026: el paso de categorías del setup no queda vacío sin explicación
   await page.getByTestId('setup-reason-skip').click()
   await expect(page.getByTestId('setup-categories-empty')).toBeVisible()
 })
+
+test('US-89: una categoría sin uso se borra con confirmación; una en uso se rechaza', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'borrar-categoria')
+  await page.goto('/settings')
+
+  // Una categoría nueva, sin uso: cancelar no borra; confirmar sí, y el nombre queda libre.
+  await page.getByTestId('settings-categories-name').fill('Tecnología')
+  await page.getByTestId('settings-categories-submit').click()
+  await expect(page.getByTestId('settings-categories-edit-tecnologia')).toBeVisible()
+
+  await page.getByTestId('settings-categories-delete-tecnologia').click()
+  const dialog = page.getByTestId('settings-categories-delete-dialog')
+  await expect(page.getByTestId('settings-categories-delete-dialog-summary')).toContainText('Sin uso')
+  await page.getByTestId('settings-categories-delete-dialog-cancel').click()
+  await expect(dialog).toHaveCount(0)
+  await expect(page.getByTestId('settings-categories-edit-tecnologia')).toBeVisible()
+
+  await page.getByTestId('settings-categories-delete-tecnologia').click()
+  await page.getByTestId('settings-categories-delete-dialog-confirm').click()
+  await expect(page.getByTestId('settings-categories-edit-tecnologia')).toHaveCount(0)
+
+  await page.getByTestId('settings-categories-name').fill('Tecnología')
+  await page.getByTestId('settings-categories-submit').click()
+  await expect(page.getByTestId('settings-categories-edit-tecnologia')).toBeVisible()
+
+  // «Otros» recibe un gasto: la confirmación dice cuánto la usa y la RPC rechaza con ese mensaje.
+  await registerExpense(page, '500', 'efectivo')
+  await page.goto('/settings')
+  await page.getByTestId('settings-categories-delete-otros').click()
+  await expect(page.getByTestId('settings-categories-delete-dialog-summary')).toContainText('1 movimiento')
+  await page.getByTestId('settings-categories-delete-dialog-confirm').click()
+  await expect(page.getByTestId('settings-categories-error')).toContainText('Archivala')
+  await expect(page.getByTestId('settings-categories-edit-otros')).toBeVisible()
+})

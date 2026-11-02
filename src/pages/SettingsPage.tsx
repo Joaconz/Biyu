@@ -34,7 +34,9 @@ import {
 import {
   archiveCategory,
   CATEGORY_COLOR_PALETTE,
+  countCategoryUsage,
   createCategory,
+  deleteCategory,
   listActiveCategories,
   listArchivedCategories,
   unarchiveCategory,
@@ -44,6 +46,7 @@ import {
 import { isUniqueViolation } from '@/lib/errors'
 import { today } from '@/lib/clock'
 import { toTestIdSuffix } from '@/lib/utils'
+import { categoryDeletionSummary } from '@/domain/deletion'
 import { validateFxRateInput } from '@/domain/fx'
 import { formatRate, parseMoney } from '@/domain/money'
 import { formatPeriod, formatPeriodLong, fromDbDate, parsePeriod } from '@/domain/period'
@@ -180,6 +183,8 @@ function CategoriesSection() {
   // DEF-025: el error de la edición va en la fila que se edita, no en el formulario de alta.
   const [editError, setEditError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // US-89: la categoría que se quiere borrar y cuánto la usa, para la confirmación.
+  const [deleting, setDeleting] = useState<{ category: Category; transactions: number; subscriptions: number } | null>(null)
 
   useEffect(() => {
     listActiveCategories().then(setCategories).catch((e: Error) => setError(e.message))
@@ -200,6 +205,31 @@ function CategoriesSection() {
       setCategories((prev) => [...(prev ?? []), { ...category, archived_at: null }].sort((a, b) => a.name.localeCompare(b.name)))
     } catch (err) {
       setError(isUniqueViolation(err) ? `Ya hay una categoría activa llamada «${category.name}»` : 'No se pudo reactivar la categoría')
+    }
+  }
+
+  // US-89: cuenta el uso antes de confirmar; la regla real (rechazar con uso) la aplica Postgres (C6).
+  async function onAskDelete(category: Category) {
+    setError(null)
+    try {
+      setDeleting({ category, ...(await countCategoryUsage(category.id)) })
+    } catch {
+      setError('No se pudo consultar el uso de la categoría')
+    }
+  }
+
+  async function onConfirmDelete() {
+    if (!deleting) return
+    try {
+      await deleteCategory(deleting.category.id)
+      const id = deleting.category.id
+      setCategories((prev) => prev?.filter((c) => c.id !== id) ?? null)
+      setArchived((prev) => prev.filter((c) => c.id !== id))
+      setDeleting(null)
+      toast.success('Categoría eliminada', { testId: 'settings-categories-deleted' })
+    } catch (err) {
+      setDeleting(null)
+      setError((err as { message?: string }).message || 'No se pudo eliminar la categoría')
     }
   }
 
@@ -293,6 +323,17 @@ function CategoriesSection() {
                 >
                   <Archive strokeWidth={1.6} />
                 </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  data-testid={`settings-categories-delete-${toTestIdSuffix(category.name)}`}
+                  aria-label={`Eliminar ${category.name}`}
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => onAskDelete(category)}
+                >
+                  <Trash2 strokeWidth={1.6} />
+                </Button>
               </li>
             ),
           )}
@@ -330,12 +371,41 @@ function CategoriesSection() {
                   >
                     <ArchiveRestore strokeWidth={1.6} />
                   </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    data-testid={uniqueTestId(`settings-categories-delete-archived-${toTestIdSuffix(category.name)}`, archived, i)}
+                    aria-label={`Eliminar ${category.name}`}
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => onAskDelete(category)}
+                  >
+                    <Trash2 strokeWidth={1.6} />
+                  </Button>
                 </li>
               ))}
             </ul>
           </GroupedCard>
         </div>
       )}
+      <ConfirmDialog
+        isOpen={deleting !== null}
+        title="¿Eliminar categoría?"
+        summary={deleting ? categoryDeletionSummary(deleting.category.name, deleting) : undefined}
+        confirmLabel="Eliminar"
+        busyLabel="Eliminando…"
+        testId="settings-categories-delete-dialog"
+        onConfirm={onConfirmDelete}
+        onClose={() => setDeleting(null)}
+      >
+        {deleting && (deleting.transactions > 0 || deleting.subscriptions > 0) ? (
+          <p data-testid="settings-categories-delete-impact" className="font-medium text-destructive">
+            No se puede eliminar una categoría en uso. Archivala si no la querés ver más.
+          </p>
+        ) : (
+          <p data-testid="settings-categories-delete-impact">Se borra para siempre y su nombre queda libre.</p>
+        )}
+      </ConfirmDialog>
     </GroupedSection>
   )
 }

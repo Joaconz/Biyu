@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeDeletionImpact, getTransactionDeletionImpact, transactionDeletionSummary } from '@/domain/deletion'
+import { categoryDeletionSummary, computeDeletionImpact, getTransactionDeletionImpact, transactionDeletionSummary } from '@/domain/deletion'
 import { Decimal, parseMoney } from '@/domain/money'
 import { isPeriodBefore } from '@/domain/period'
 
@@ -128,5 +128,19 @@ describe('transactionDeletionSummary (US-94)', () => {
 
   it('un ingreso sin categoría no muestra la línea de categoría', () => {
     expect(transactionDeletionSummary({ ...base, type: 'income', categoryName: null }).map((i) => i.label)).toEqual(['Ingreso', 'Cuenta', 'Fecha'])
+  })
+})
+
+describe('categoryDeletionSummary (US-89)', () => {
+  it('sin uso: nombre y «Sin uso»', () => {
+    expect(categoryDeletionSummary('Tecnología', { transactions: 0, subscriptions: 0 })).toEqual([
+      { label: 'Categoría', value: 'Tecnología' },
+      { label: 'Uso', value: 'Sin uso' },
+    ])
+  })
+
+  it('con uso: cuenta movimientos y suscripciones en singular y plural', () => {
+    expect(categoryDeletionSummary('Comida', { transactions: 1, subscriptions: 2 })[1].value).toBe('1 movimiento y 2 suscripciones')
+    expect(categoryDeletionSummary('Comida', { transactions: 3, subscriptions: 0 })[1].value).toBe('3 movimientos')
   })
 })
