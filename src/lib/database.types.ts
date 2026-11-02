@@ -515,6 +515,17 @@ export type Database = {
         Args: { p_import_id: string; p_rows: Json }
         Returns: Json
       }
+      insert_ledger_entries: {
+        Args: {
+          p_amount: number
+          p_amount_ars: number
+          p_first_period: string
+          p_installments_count: number
+          p_transaction_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       insert_transaction_with_entries: {
         Args: {
           p_account_id: string
@@ -562,6 +573,18 @@ export type Database = {
           p_subscription_id: string
         }
         Returns: Json
+      }
+      update_transaction: {
+        Args: {
+          p_account_id: string
+          p_amount: number
+          p_category_id: string
+          p_description?: string
+          p_installments_count: number
+          p_occurred_on: string
+          p_transaction_id: string
+        }
+        Returns: string
       }
       upsert_fx_rate: {
         Args: { p_ars_per_usd: number; p_period: string }
