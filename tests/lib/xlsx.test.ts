@@ -52,7 +52,7 @@ describe('plantilla descargada (US-74 · CA-2)', () => {
     const template = await buildTemplate()
     const grid = await readFirstSheet(template)
     expect(grid).toEqual([
-      ['Fecha', 'Tipo', 'Monto', 'Moneda', 'Tipo de cambio', 'Categoría', 'Cuenta', 'Cuotas', 'Nota'].map((text) => ({
+      ['Fecha', 'Tipo', 'Monto', 'Moneda', 'Tipo de cambio', 'Categoría', 'Cuenta', 'Cuotas', 'Cuotas pendientes', 'Nota'].map((text) => ({
         kind: 'text',
         text,
       })),

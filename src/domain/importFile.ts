@@ -26,6 +26,7 @@ export type ImportColumn =
   | 'category'
   | 'account'
   | 'installments'
+  | 'installmentsPending'
   | 'note'
 
 export interface ImportColumnSpec {
@@ -97,6 +98,14 @@ export const IMPORT_COLUMNS: readonly ImportColumnSpec[] = [
     requiredCell: 'No (vacía = 1)',
     meaning: 'Cantidad de cuotas',
     formats: 'Entero de 1 a 12, celda numérica o texto',
+  },
+  {
+    key: 'installmentsPending',
+    header: 'Cuotas pendientes',
+    requiredHeader: false,
+    requiredCell: 'No. Vacía = la compra se imputa desde el mes de su fecha, como hasta ahora',
+    meaning: 'Cuántas cuotas faltan pagar, contando la del mes de hoy',
+    formats: 'Entero, celda numérica o texto',
   },
   { key: 'note', header: 'Nota', requiredHeader: false, requiredCell: 'No', meaning: 'Descripción', formats: 'Texto libre. Vacía = sin descripción' },
 ]

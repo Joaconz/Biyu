@@ -160,6 +160,10 @@ export interface DashboardTransaction {
   fx_rate: string | null
   amount_ars: string // total de la transacción en ARS
   installments_count: number
+  /** Cuotas pagadas antes de cargar la compra (US-80): sus imputaciones empiezan en la cuota siguiente. */
+  installments_paid: number
+  /** Todas las imputaciones guardadas de la transacción (para el aviso del borrado, US-65 y US-80). */
+  entries: { period: string; installment_number: number; amount_ars: string }[]
   occurred_on: string
   description: string | null
   category: {
@@ -215,6 +219,8 @@ export async function fetchMonthlyTransactions(
         fx_rate_text:fx_rate::text,
         amount_ars_text:amount_ars::text,
         installments_count,
+        installments_paid,
+        entries:ledger_entries!ledger_entries_transaction_fk (period, installment_number, amount_ars_text:amount_ars::text),
         occurred_on,
         description,
         created_at,
@@ -260,6 +266,8 @@ export async function fetchMonthlyTransactions(
         fx_rate_text: string | null
         amount_ars_text: string
         installments_count: number
+        installments_paid: number
+        entries: { period: string; installment_number: number; amount_ars_text: string }[]
         occurred_on: string
         description: string | null
         deleted_at: string | null
@@ -278,6 +286,8 @@ export async function fetchMonthlyTransactions(
     fx_rate: tx.fx_rate_text,
     amount_ars: tx.amount_ars_text,
     installments_count: tx.installments_count,
+    installments_paid: tx.installments_paid,
+    entries: tx.entries.map((e) => ({ period: e.period, installment_number: e.installment_number, amount_ars: e.amount_ars_text })),
     occurred_on: tx.occurred_on,
     description: tx.description,
     category: tx.category,

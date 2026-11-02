@@ -19,6 +19,8 @@ import {
 import { fileErrorMessage, type ImportSheet } from '@/domain/importFile'
 import { buildImportResult, importPayload, type ImportResult } from '@/domain/importResult'
 import { submitLabel, type ImportReview } from '@/domain/importRows'
+import { toIsoDate } from '@/domain/period'
+import { todayInArgentina } from '@/lib/clock'
 import {
   CatalogError,
   downloadTemplate,
@@ -120,7 +122,7 @@ export function ImportPage() {
       // resultado sin crear nada (ADR-035, NFR-10).
       importId.current ??= crypto.randomUUID()
       const response = await importTransactions(importId.current, importPayload(review))
-      const result = buildImportResult(review, response)
+      const result = buildImportResult(review, response, toIsoDate(todayInArgentina()))
       // Recién con el resultado armado se suelta el id: si algo fallara antes, el reintento lo repite.
       importId.current = null
       setFailure(null)
