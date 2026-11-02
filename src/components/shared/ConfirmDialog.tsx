@@ -28,6 +28,9 @@ interface ConfirmDialogProps {
   testId: string
   /** Testid del diálogo si no es `testId`, para conservar uno que ya usan los casos (`delete-transaction-dialog`). */
   dialogTestId?: string
+  /** Testids de los botones si no son `testId-cancel` y `testId-confirm` (por ejemplo `…-leave-stay`). */
+  cancelTestId?: string
+  confirmTestId?: string
   onConfirm: () => Promise<void>
   onClose: () => void
 }
@@ -48,6 +51,8 @@ export function ConfirmDialog({
   confirmVariant = 'destructive',
   testId,
   dialogTestId = testId,
+  cancelTestId = `${testId}-cancel`,
+  confirmTestId = `${testId}-confirm`,
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
@@ -103,7 +108,7 @@ export function ConfirmDialog({
         )}
         <div className="space-y-2 text-sm text-muted-foreground">{children}</div>
         <div className={cn('flex items-center gap-2 pt-2', confirmVariant === 'destructive' ? 'justify-between' : 'justify-end')}>
-          <Button ref={cancel} type="button" variant="outline" size="sm" onClick={onClose} disabled={busy} data-testid={`${testId}-cancel`}>
+          <Button ref={cancel} type="button" variant="outline" size="sm" onClick={onClose} disabled={busy} data-testid={cancelTestId}>
             {cancelLabel}
           </Button>
           {/* US-94: la acción destructiva lleva fondo de peligro, no solo texto bordó. */}
@@ -113,7 +118,7 @@ export function ConfirmDialog({
             size="sm"
             onClick={handleConfirm}
             disabled={busy}
-            data-testid={`${testId}-confirm`}
+            data-testid={confirmTestId}
           >
             {busy ? busyLabel : confirmLabel}
           </Button>

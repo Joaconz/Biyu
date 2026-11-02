@@ -18,15 +18,24 @@ const FADE_IN = 'transition-opacity duration-(--dur-fade) ease-out-quick startin
  * `installmentsCount`; el reparto lo hace create_transaction (C4). Debajo, la previsualización del
  * impacto mensual (US-13), que sale entera del dominio.
  */
-export function InstallmentsField({ values, errors, touched, onChange }: SectionProps) {
-  const errorId = 'transaction-form-installments-error'
+export function InstallmentsField({
+  values,
+  errors,
+  touched,
+  onChange,
+  testIdPrefix = 'transaction-form',
+}: SectionProps & {
+  /** Prefijo de los testids y ids: `edit-transaction` en la edición (US-84). */
+  testIdPrefix?: string
+}) {
+  const errorId = `${testIdPrefix}-installments-error`
   const preview = previewInstallments(parseDraftInput(values), errors)
   return (
     <div className={`grid gap-2.5 ${FADE_IN}`}>
-      <SectionLabel id="transaction-form-installments-label">Cuotas</SectionLabel>
+      <SectionLabel id={`${testIdPrefix}-installments-label`}>Cuotas</SectionLabel>
       <ToggleGroup
-        data-testid="transaction-form-installments"
-        aria-labelledby="transaction-form-installments-label"
+        data-testid={`${testIdPrefix}-installments`}
+        aria-labelledby={`${testIdPrefix}-installments-label`}
         aria-describedby={errors.installmentsCount ? errorId : undefined}
         className="grid grid-cols-6 gap-2"
         value={[String(values.installmentsCount)]}
@@ -37,7 +46,7 @@ export function InstallmentsField({ values, errors, touched, onChange }: Section
             key={n}
             value={n}
             aria-label={n === '1' ? '1 cuota' : `${n} cuotas`}
-            data-testid={`transaction-form-installments-chip-${n}`}
+            data-testid={`${testIdPrefix}-installments-chip-${n}`}
             className="press tabular h-11 rounded-lg border border-hairline bg-card text-callout font-medium text-foreground hover:border-input aria-pressed:border-primary aria-pressed:bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))] aria-pressed:text-primary aria-pressed:ring-1 aria-pressed:ring-primary aria-pressed:ring-inset"
           >
             {n}
@@ -48,16 +57,16 @@ export function InstallmentsField({ values, errors, touched, onChange }: Section
       <div aria-live="polite">
         {preview && (
           <div
-            data-testid="transaction-form-installments-preview"
+            data-testid={`${testIdPrefix}-installments-preview`}
             className={`flex gap-3 rounded-lg bg-muted px-3.5 py-3 ${FADE_IN}`}
           >
             <CalendarRange aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-gold" strokeWidth={1.8} />
             <div className="grid gap-0.5">
-              <p data-testid="transaction-form-installments-preview-summary" className="tabular text-callout font-medium">
+              <p data-testid={`${testIdPrefix}-installments-preview-summary`} className="tabular text-callout font-medium">
                 {preview.installments} · <span className="whitespace-nowrap">{preview.range}</span>
               </p>
               {preview.lastInstallment && (
-                <p data-testid="transaction-form-installments-preview-last" className="tabular text-footnote text-muted-foreground">
+                <p data-testid={`${testIdPrefix}-installments-preview-last`} className="tabular text-footnote text-muted-foreground">
                   {preview.lastInstallment}
                 </p>
               )}

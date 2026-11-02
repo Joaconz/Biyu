@@ -150,6 +150,7 @@ export function TransactionsPage() {
                     testId="transactions-item"
                     showDate={false}
                     onDeleteRequest={view === 'active' ? setTxToDelete : undefined}
+                    editHref={view === 'active' ? `/transactions/${tx.id}/edit?period=${formatPeriod(period)}` : undefined}
                     onRestoreRequest={view === 'deleted' ? onRestore : undefined}
                   />
                 ))}

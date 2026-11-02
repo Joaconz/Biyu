@@ -56,6 +56,14 @@ export async function apiSession(request: APIRequestContext, email: string, pass
       parse(await request.post(`${supabaseUrl}/rest/v1/rpc/${fn}`, { headers: headers(opts.asAnon ? null : token), data: args })),
     select: async (table: string, query = 'select=*', opts: { asAnon?: boolean } = {}) =>
       parse(await request.get(`${supabaseUrl}/rest/v1/${table}?${query}`, { headers: headers(opts.asAnon ? null : token) })),
+    // PATCH con `Prefer: return=representation`: el cuerpo trae las filas que cambió (con RLS, las ajenas no).
+    patch: async (table: string, query: string, data: Record<string, unknown>, opts: { asAnon?: boolean } = {}) =>
+      parse(
+        await request.patch(`${supabaseUrl}/rest/v1/${table}?${query}`, {
+          headers: { ...headers(opts.asAnon ? null : token), Prefer: 'return=representation' },
+          data,
+        }),
+      ),
   }
 }
 
