@@ -552,6 +552,7 @@ export type Database = {
         Args: { p_transaction_id: string }
         Returns: undefined
       }
+      purge_transaction: { Args: { p_transaction_id: string }; Returns: undefined }
       resume_subscription: {
         Args: { p_subscription_id: string }
         Returns: Json
