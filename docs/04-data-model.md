@@ -150,6 +150,7 @@ El evento económico. Una compra, un ingreso. **No es lo que suma el dashboard.*
 | category_id | uuid FK → categories | not null si type = expense |
 | account_id | uuid FK → accounts | not null |
 | installments_count | int | default 1, entre 1 y 12 (`transactions_installments_max`, ADR-020) |
+| installments_paid | int | default 0, `0 <= installments_paid < installments_count` (`transactions_installments_paid_range`). Cuotas ya pagadas al cargar una compra empezada (ADR-039, US-80); sus imputaciones empiezan en la cuota siguiente |
 | first_period | date | día 1 del mes de la primera imputación |
 | description | text | opcional |
 | occurred_on | date | fecha real del evento; no posterior a hoy en Argentina (FR-06, `create_transaction`, ADR-021) |
@@ -173,7 +174,7 @@ la vuelve a crear. Borrar es una decisión del usuario, no un hueco a rellenar.
 `first_period` es derivable hoy: siempre es el mes de `occurred_on` (ver glosario, "Fecha
 de imputación"). Existe como columna igual, sin `CHECK` que la ate a `occurred_on`, porque
 es lo que permite modelar el ciclo de cierre de tarjeta más adelante sin migración — ahí
-dejaría de ser derivable. La calcula el servidor (`create_transaction`) a partir de `occurred_on`; el cliente no la manda.
+dejaría de ser derivable. Una **compra en cuotas empezada** (ADR-039) es la excepción: su `first_period` es el mes de hoy en Argentina y no el de `occurred_on`, porque solo se guardan las cuotas que faltan. La calcula el servidor (`create_transaction`) a partir de `occurred_on`; el cliente no la manda.
 
 ## `ledger_entries`
 
@@ -185,7 +186,7 @@ La imputación mensual. **Esto es lo que suma el dashboard.**
 | user_id | uuid FK → users | denormalizado: es el filtro de dueño y el índice principal del dashboard |
 | transaction_id | uuid FK → transactions | on delete cascade — red de contención administrativa; el camino normal de borrado es `transactions.deleted_at` (C10) y nunca la dispara |
 | period | date | día 1 del mes |
-| installment_number | int | 1..installments_count |
+| installment_number | int | `installments_paid + 1` .. `installments_count` (ADR-039) |
 | amount | numeric(14,2) | en la moneda de la transacción |
 | amount_ars | numeric(14,2) | **no es columna generada.** La calculan `create_transaction` y `update_transaction` junto con `amount` (misma regla que `domain/installments.ts`) y se persiste — ver I1' más abajo |
 
@@ -221,7 +222,7 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 |---|---|---|
 | I1 | La suma de `ledger_entries.amount` de una transacción es exactamente `transactions.amount`, en la moneda de la transacción | Dominio + vista de integridad |
 | I1' | La suma de `ledger_entries.amount_ars` de una transacción es exactamente `transactions.amount_ars` | Dominio + vista de integridad |
-| I2 | Una transacción tiene exactamente `installments_count` imputaciones, con `installment_number` de 1 a N sin huecos | Dominio + vista de integridad (la unicidad de `(transaction_id, installment_number)` evita duplicados, pero no huecos ni el conteo total) |
+| I2 | Una transacción tiene exactamente `installments_count − installments_paid` imputaciones, con `installment_number` de `installments_paid + 1` a N sin huecos (ADR-039; con `installments_paid = 0`, de 1 a N) | Dominio + vista de integridad (la unicidad de `(transaction_id, installment_number)` evita duplicados, pero no huecos ni el conteo total) |
 | I3 | Los períodos de las imputaciones son consecutivos desde `first_period`, sin saltos ni repeticiones | Dominio |
 | I4 | `amount > 0` siempre, en transacciones, imputaciones y deudas | Restricción de verificación en la base |
 | I5 | `fx_rate` es not null si y solo si `currency = 'USD'` | Restricción de verificación |
@@ -387,7 +388,7 @@ parten de otra tabla — está indicado en cada una.
 ## Vista de integridad
 
 `ledger_integrity_violations` expone las transacciones cuya suma de imputaciones no cuadra
-contra I1 o I1' — no debería devolver filas nunca, dado que la escritura es atómica (C4) y
+contra I1 o I1', o cuya cantidad de imputaciones no cuadra con I2 — no debería devolver filas nunca, dado que la escritura es atómica (C4) y
 el único generador de imputaciones es `create_transaction` ([ADR-020](adr/020-create-transaction-security-definer.md)). Sirve de aserción en los
 tests de integración y de herramienta de inspección manual si alguna vez hay que
 sospechar de datos escritos por fuera del camino normal.

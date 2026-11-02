@@ -14,6 +14,8 @@ export interface ImportPayloadRow {
   category_id: string | null
   account_id: string
   installments_count: number
+  /** Solo en una compra empezada (US-80); si falta, la fila es una compra normal. */
+  installments_paid?: number
   occurred_on: string
   description: string | null
 }
@@ -33,6 +35,7 @@ export function importPayload(review: ImportReview): ImportPayloadRow[] {
         category_id: t.categoryId,
         account_id: t.accountId,
         installments_count: t.installmentsCount,
+        ...(t.installmentsPaid === null ? {} : { installments_paid: t.installmentsPaid }),
         occurred_on: t.occurredOn,
         description: t.description,
       },
@@ -70,13 +73,13 @@ export interface ImportResult {
   incomeArs: Decimal
   /** Las filas no importadas, ordenadas por número de fila: las del paso 2 y las que rechazó la base. */
   notImported: { rowNumber: number; messages: string[] }[]
-  /** `AAAA-MM` de la fecha más reciente entre las creadas; null si no se creó ninguna (§1). */
+  /** `AAAA-MM` del mes más reciente entre las creadas (el de hoy si alguna es una compra empezada); null si no se creó ninguna (§1). */
   period: string | null
   alreadyImported: boolean
 }
 
 /** Cruza la revisión del paso 2 con la respuesta de la base. T es el mismo del paso 2. */
-export function buildImportResult(review: ImportReview, response: ImportResponse): ImportResult {
+export function buildImportResult(review: ImportReview, response: ImportResponse, today: string): ImportResult {
   // `rows` falta solo si la base devolviera un registro sin resultado: cada fila figura sin respuesta.
   const outcome = new Map((response.rows ?? []).map((r) => [r.row, r]))
   const created: ReviewedRow[] = []
@@ -94,9 +97,11 @@ export function buildImportResult(review: ImportReview, response: ImportResponse
     }
   }
   const { expensesArs, incomeArs } = summarize(created)
+  // Una compra empezada empieza a imputarse en el mes de hoy (ADR-039), no en el de su fecha.
   const lastDate = created.reduce<string | null>((max, row) => {
-    const date = row.status === 'ready' ? row.transaction.occurredOn : null
-    return date && (!max || date > max) ? date : max
+    if (row.status !== 'ready') return max
+    const date = row.transaction.installmentsPaid === null ? row.transaction.occurredOn : today
+    return !max || date > max ? date : max
   }, null)
   return {
     total: review.total,

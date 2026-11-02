@@ -1,4 +1,4 @@
-import { ArrowDownLeft, Repeat, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowDownLeft, Pencil, Repeat, RotateCcw, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { formatInstallmentLabel } from '@/domain/installments'
@@ -11,8 +11,12 @@ interface TransactionItemProps {
   transaction: DashboardTransaction
   testId?: string
   onDeleteRequest?: (transaction: DashboardTransaction) => void
+  /** US-84: si viene, la fila lleva «Editar» y lleva acá (solo las activas de Movimientos). */
+  editHref?: string
   /** Filtro "Eliminados" (DEF-007): en vez de eliminar, se restaura. */
   onRestoreRequest?: (transaction: DashboardTransaction) => void
+  /** US-85: en «Eliminados», borrarlo para siempre. No se pasa para el generado por una suscripción (ADR-044 §2). */
+  onPurgeRequest?: (transaction: DashboardTransaction) => void
   /** En la lista agrupada por día la fecha ya está en el encabezado. */
   showDate?: boolean
 }
@@ -21,7 +25,7 @@ interface TransactionItemProps {
  * Fila de movimiento: el ícono dice la categoría, así el renglón secundario queda para la fecha y
  * la cuenta y no se trunca en tres pedazos. El monto es la cuota que impacta en el mes (US-17).
  */
-export function TransactionItem({ transaction, testId, onDeleteRequest, onRestoreRequest, showDate = true }: TransactionItemProps) {
+export function TransactionItem({ transaction, testId, onDeleteRequest, onRestoreRequest, onPurgeRequest, editHref, showDate = true }: TransactionItemProps) {
   const isIncome = transaction.type === 'income'
   const amountArs = formatArs(parseMoney(transaction.entry_amount_ars))
   const installmentLabel = formatInstallmentLabel(transaction.installment_number, transaction.installments_count)
@@ -124,6 +128,29 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
         >
           <RotateCcw aria-hidden="true" className="size-4" strokeWidth={1.6} />
         </button>
+      )}
+
+      {onPurgeRequest && (
+        <button
+          type="button"
+          onClick={() => onPurgeRequest(transaction)}
+          data-testid={`${baseTestId}-purge`}
+          aria-label={`Eliminar definitivamente ${title}`}
+          className="press flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/8 hover:text-destructive"
+        >
+          <Trash2 aria-hidden="true" className="size-4" strokeWidth={1.6} />
+        </button>
+      )}
+
+      {editHref && (
+        <Link
+          to={editHref}
+          data-testid={`${baseTestId}-edit`}
+          aria-label="Editar movimiento"
+          className="press -ml-1 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/8 hover:text-primary"
+        >
+          <Pencil aria-hidden="true" className="size-4" strokeWidth={1.6} />
+        </Link>
       )}
 
       {onDeleteRequest && (

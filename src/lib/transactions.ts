@@ -1,4 +1,5 @@
 import { Decimal, serializeMoney } from '@/domain/money'
+import type { EditableTransaction } from '@/domain/transactionEdit'
 import { debtOfDraft } from '@/domain/sharedDebt'
 import type { TransactionDraft } from '@/domain/validation'
 import { supabase } from './supabase'
@@ -88,8 +89,107 @@ export async function deleteTransaction(id: string): Promise<void> {
 }
 
 
+/**
+ * US-85, ADR-044 §1: borra para siempre un movimiento ya eliminado, con sus imputaciones y su deuda vinculada,
+ * en una sola RPC (C4). Rechaza uno activo y el generado por una suscripción.
+ */
+export async function purgeTransaction(id: string): Promise<void> {
+  const { error } = await supabase.rpc('purge_transaction', { p_transaction_id: id })
+  if (error) throw error
+}
+
 /** Deshace la baja lógica de deleteTransaction desde el filtro "Eliminados" (DEF-007, C10). */
 export async function restoreTransaction(id: string): Promise<void> {
   const { error } = await supabase.rpc('restore_transaction', { p_transaction_id: id })
   if (error) throw error
+}
+
+/**
+ * US-84: un movimiento para la pantalla de edición, con su categoría y cuenta (también si están archivadas),
+ * la suscripción que lo generó y las personas de sus deudas. Los montos se piden como texto (C2). RLS deja ver
+ * solo los propios (C7): uno ajeno, inexistente o con un id que no es uuid devuelve null.
+ */
+export async function fetchTransactionForEdit(id: string): Promise<EditableTransaction | null> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select(`
+      id,
+      type,
+      amount_text:amount::text,
+      currency,
+      fx_rate_text:fx_rate::text,
+      installments_count,
+      occurred_on,
+      description,
+      deleted_at,
+      category:categories!transactions_category_fk (id, name, archived_at),
+      account:accounts!transactions_account_fk (id, name, type, archived_at),
+      debts:debts!debts_transaction_fk (person),
+      subscription:subscriptions!transactions_subscription_fk (name)
+    `)
+    .eq('id', id)
+    .maybeSingle()
+  // 22P02: el id de la URL no es un uuid. Es lo mismo que no encontrarlo.
+  if (error) {
+    if (error.code === '22P02') return null
+    throw error
+  }
+  if (!data) return null
+  const row = data as unknown as {
+    id: string
+    type: 'expense' | 'income'
+    amount_text: string
+    currency: 'ARS' | 'USD'
+    fx_rate_text: string | null
+    installments_count: number
+    occurred_on: string
+    description: string | null
+    deleted_at: string | null
+    category: { id: string; name: string; archived_at: string | null } | null
+    account: { id: string; name: string; type: EditableTransaction['account']['type']; archived_at: string | null }
+    debts: { person: string }[] | null
+    subscription: { name: string } | null
+  }
+  return {
+    id: row.id,
+    type: row.type,
+    amount: row.amount_text,
+    currency: row.currency,
+    fxRate: row.fx_rate_text,
+    installmentsCount: row.installments_count,
+    occurredOn: row.occurred_on,
+    description: row.description,
+    category: row.category && { id: row.category.id, name: row.category.name, archivedAt: row.category.archived_at },
+    account: { id: row.account.id, name: row.account.name, type: row.account.type, archivedAt: row.account.archived_at },
+    deletedAt: row.deleted_at,
+    subscriptionName: row.subscription?.name ?? null,
+    sharedPeople: (row.debts ?? []).map((d) => d.person),
+  }
+}
+
+/**
+ * US-84, ADR-043: edita el movimiento con una sola RPC que regenera sus imputaciones (C4). No manda tipo,
+ * moneda ni tipo de cambio: la base los conserva (C5). Falla con el mismo `SaveError` que createTransaction.
+ */
+export async function updateTransaction(id: string, draft: TransactionDraft): Promise<string> {
+  if (!draft.amount || !draft.accountId) throw new Error('Borrador incompleto: validalo antes de guardar')
+  const timeout = abortAfter(SAVE_TIMEOUT_MS)
+  try {
+    const { data, error, status } = await supabase
+      .rpc('update_transaction', {
+        p_transaction_id: id,
+        p_amount: asNumeric(draft.amount),
+        // Un ingreso no lleva categoría (I8 solo la exige en un gasto).
+        p_category_id: draft.categoryId as string,
+        p_account_id: draft.accountId,
+        p_installments_count: draft.installmentsCount,
+        p_occurred_on: draft.occurredOn,
+        p_description: draft.description ?? undefined,
+      })
+      .abortSignal(timeout.signal)
+    if (error) throw { code: error.code ?? '', message: error.message, status } satisfies SaveError
+    return data
+  } finally {
+    timeout.clear()
+  }
 }

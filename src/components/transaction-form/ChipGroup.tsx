@@ -4,8 +4,8 @@ import { ToggleGroup } from '@base-ui/react/toggle-group'
 import { cn } from '@/lib/utils'
 import { toTestIdSuffix } from '@/lib/utils'
 
-interface ChipGroupProps<T extends { id: string; name: string }> {
-  /** data-testid del grupo; cada chip es `<testId>-chip-<nombre>`. */
+interface ChipGroupProps<T extends { id: string; name: string; label?: string }> {
+  /** data-testid del grupo; cada chip es `<testId>-chip-<nombre>`. `label` cambia lo que se lee, no el testid (US-84: «(archivada)»). */
   testId: string
   labelId: string
   describedBy?: string
@@ -23,7 +23,7 @@ interface ChipGroupProps<T extends { id: string; name: string }> {
  * Selección única sin `select` (US-06). Tocar el elegido no lo deselecciona. La selección se marca
  * con anillo y tinte verde, no con relleno sólido: el único verde lleno de la pantalla es Guardar.
  */
-export function ChipGroup<T extends { id: string; name: string }>({
+export function ChipGroup<T extends { id: string; name: string; label?: string }>({
   testId,
   labelId,
   describedBy,
@@ -63,7 +63,7 @@ export function ChipGroup<T extends { id: string; name: string }>({
                 'line-clamp-2 w-full text-center text-caption font-medium break-words hyphens-auto [overflow-wrap:anywhere]',
             )}
           >
-            {option.name}
+            {option.label ?? option.name}
           </span>
         </Toggle>
       ))}

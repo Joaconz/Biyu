@@ -11,8 +11,12 @@ import {
   settledNoticeText,
   debtsForFilter,
   emptyDebtsMessage,
+  groupCountText,
+  groupDebtsByPerson,
+  groupNetText,
   parseDebtDirectionFilter,
   parseDebtStatusFilter,
+  personKey,
   type DebtRecord,
 } from '@/domain/debts'
 import { Decimal } from '@/domain/money'
@@ -277,5 +281,117 @@ describe('filtro por dirección (US-79)', () => {
   it('los totales no dependen del filtro de dirección (CA-7)', () => {
     const totals = debtTotals(list)
     expect([totals.owedToMe.toFixed(2), totals.iOwe.toFixed(2)]).toEqual(['60000.00', '60000.00'])
+  })
+})
+
+describe('personKey (US-91 CA-1)', () => {
+  it('ignora mayúsculas, tildes y espacios de más', () => {
+    expect(personKey('Juan')).toBe('juan')
+    expect(personKey(' juan ')).toBe('juan')
+    expect(personKey('Juán')).toBe('juan')
+    expect(personKey(' Juán  Pérez')).toBe(personKey('juan perez'))
+  })
+
+  it('tilde escrita como carácter aparte (NFD) = compuesta', () => {
+    expect(personKey('Sofía')).toBe(personKey('Sofía'))
+  })
+
+  it('dos personas distintas no se juntan', () => {
+    expect(personKey('Juan Pérez')).not.toBe(personKey('Juan'))
+    expect(personKey('Ana')).not.toBe(personKey('Anna'))
+  })
+})
+
+describe('groupDebtsByPerson (US-91)', () => {
+  const at = (n: number) => `2026-08-0${n}T12:00:00.000000+00:00`
+
+  it('«Juan», «juan» y «Juán» quedan en un solo grupo (CA-1); el nombre es el de la deuda más reciente', () => {
+    const list = debtsForFilter(
+      [
+        debt({ id: 'a', person: 'Juan', incurredOn: '2026-08-01', createdAt: at(1) }),
+        debt({ id: 'b', person: 'juan', incurredOn: '2026-08-02', createdAt: at(2) }),
+        debt({ id: 'c', person: 'Juán', incurredOn: '2026-08-03', createdAt: at(3) }),
+      ],
+      'all',
+    )
+    const entries = groupDebtsByPerson(list)
+    expect(entries).toHaveLength(1)
+    expect(entries[0]).toMatchObject({ kind: 'group', group: { key: 'juan', name: 'Juán' } })
+    expect(entries[0].kind === 'group' && entries[0].group.debts.map((d) => d.id)).toEqual(['c', 'b', 'a'])
+  })
+
+  it('una persona con una sola deuda queda como fila común; las demás, en el orden de su deuda más reciente', () => {
+    const list = debtsForFilter(
+      [
+        debt({ id: 'a', person: 'Sofía', incurredOn: '2026-08-01', createdAt: at(1) }),
+        debt({ id: 'b', person: 'Juan', incurredOn: '2026-08-05', createdAt: at(5) }),
+        debt({ id: 'c', person: 'Marcos', incurredOn: '2026-08-04', createdAt: at(4) }),
+        debt({ id: 'd', person: 'sofia', incurredOn: '2026-08-06', createdAt: at(6) }),
+      ],
+      'all',
+    )
+    const entries = groupDebtsByPerson(list)
+    expect(entries.map((e) => (e.kind === 'debt' ? `debt:${e.debt.person}` : `group:${e.group.key}`))).toEqual([
+      'group:sofia', // su deuda más reciente es la del 06/08
+      'debt:Juan',
+      'debt:Marcos',
+    ])
+  })
+
+  it('el neto es por moneda: ARS y USD por separado, sin convertir (CA-2)', () => {
+    const entries = groupDebtsByPerson([
+      debt({ id: 'a', person: 'Juan', amount: '10000.00', amountArs: '10000.00' }),
+      debt({ id: 'b', person: 'juan', direction: 'i_owe', amount: '4000.00', amountArs: '4000.00' }),
+      debt({ id: 'c', person: 'Juán', currency: 'USD', amount: '20.00', amountArs: '29000.00', direction: 'i_owe' }),
+    ])
+    const group = entries[0].kind === 'group' ? entries[0].group : null
+    expect(group?.nets.map((n) => [n.currency, n.net.toFixed(2)])).toEqual([
+      ['ARS', '6000.00'],
+      ['USD', '-20.00'],
+    ])
+    expect(group?.nets.map(groupNetText)).toEqual(['Te debe $6.000,00', 'Le debés US$20,00'])
+  })
+
+  it('del neto cuentan solo las pendientes; un grupo sin pendientes no tiene neto (CA-3)', () => {
+    const settled = { status: 'settled' as const, settledAt: at(9) }
+    const entries = groupDebtsByPerson([
+      debt({ id: 'a', person: 'Juan', amount: '10000.00' }),
+      debt({ id: 'b', person: 'Juan', amount: '3000.00', ...settled }),
+    ])
+    const mixed = entries[0].kind === 'group' ? entries[0].group : null
+    expect(mixed?.nets.map((n) => n.net.toFixed(2))).toEqual(['10000.00'])
+    expect(mixed && groupCountText(mixed)).toBe('2 deudas, 1 pendiente')
+
+    const onlySettled = groupDebtsByPerson([
+      debt({ id: 'c', person: 'Ana', ...settled }),
+      debt({ id: 'd', person: 'ana', ...settled }),
+    ])
+    const group = onlySettled[0].kind === 'group' ? onlySettled[0].group : null
+    expect(group?.nets).toEqual([])
+    expect(group && groupCountText(group)).toBe('2 deudas, ninguna pendiente')
+  })
+
+  it('con el filtro «Saldadas» solo se agrupan las saldadas: una persona con una sola saldada es fila común (CA-3)', () => {
+    const settled = { status: 'settled' as const, settledAt: at(9) }
+    const all = [
+      debt({ id: 'a', person: 'Juan' }),
+      debt({ id: 'b', person: 'juan', ...settled }),
+      debt({ id: 'c', person: 'Ana', ...settled }),
+      debt({ id: 'd', person: 'ana', ...settled }),
+    ]
+    const entries = groupDebtsByPerson(debtsForFilter(all, 'settled'))
+    expect(entries.map((e) => (e.kind === 'debt' ? `debt:${e.debt.person}` : `group:${e.group.key}`))).toEqual([
+      'debt:juan',
+      'group:ana',
+    ])
+  })
+
+  it('un neto en cero se lee «En cero»', () => {
+    const entries = groupDebtsByPerson([
+      debt({ id: 'a', person: 'Juan', amount: '5000.00' }),
+      debt({ id: 'b', person: 'Juan', direction: 'i_owe', amount: '5000.00' }),
+    ])
+    const group = entries[0].kind === 'group' ? entries[0].group : null
+    expect(group && groupNetText(group.nets[0])).toBe('En cero')
   })
 })

@@ -23,7 +23,7 @@ function row(rowNumber: number, cells: Partial<Record<ImportColumn, SheetCell>>)
     rowNumber,
     cells: {
       date: EMPTY_CELL, type: t('Gasto'), amount: EMPTY_CELL, currency: t('ARS'), fxRate: EMPTY_CELL,
-      category: EMPTY_CELL, account: EMPTY_CELL, installments: EMPTY_CELL, note: EMPTY_CELL,
+      category: EMPTY_CELL, account: EMPTY_CELL, installments: EMPTY_CELL, installmentsPending: EMPTY_CELL, note: EMPTY_CELL,
       ...cells,
     },
   }
@@ -87,7 +87,7 @@ describe('lo que se manda a import_transactions (ADR-035)', () => {
 
 describe('paso 3 (§1, §6)', () => {
   it('con el archivo de ejemplo muestra exactamente el resultado de la §6 (US-77 · CA-3)', () => {
-    const result = buildImportResult(REVIEW, respond())
+    const result = buildImportResult(REVIEW, respond(), TODAY)
     expect(resultTitle(result)).toBe('Se importaron 7 de 11 filas.')
     expect(resultAmountsText(result)).toBe('$324.915,50 en gastos y $850.000,00 en ingresos (en pesos).')
     expect(notImportedHeading(result.total - result.imported)).toBe('4 filas no se importaron:')
@@ -102,7 +102,7 @@ describe('paso 3 (§1, §6)', () => {
   })
 
   it('una fila que la base rechaza se lista con el mensaje de la §5 y no suma (US-77 · CA-4)', () => {
-    const result = buildImportResult(REVIEW, respond({ 6: 'la categoría no existe, no es tuya o está archivada' }))
+    const result = buildImportResult(REVIEW, respond({ 6: 'la categoría no existe, no es tuya o está archivada' }), TODAY)
     expect(resultTitle(result)).toBe('Se importaron 6 de 11 filas.')
     expect(resultAmountsText(result)).toBe('$321.715,50 en gastos y $850.000,00 en ingresos (en pesos).')
     expect(result.notImported.map(notImportedLine)).toContain('Fila 6: No existe la categoría «Transporte» o está archivada')
@@ -111,15 +111,15 @@ describe('paso 3 (§1, §6)', () => {
   })
 
   it('"Ver en Movimientos" va al mes de la fecha más reciente creada, no al de la última cuota', () => {
-    const result = buildImportResult(REVIEW, respond({ 13: 'x', 11: 'x' }))
+    const result = buildImportResult(REVIEW, respond({ 13: 'x', 11: 'x' }), TODAY)
     expect(result.period).toBe('2026-09')
     const onlyOld = reviewRows([row(2, { date: d('2026-08-31'), amount: n('10'), category: t('Otros'), account: t('Tarjeta de crédito'), installments: n('12') })], SEEDED_CATALOG, TODAY)
-    expect(buildImportResult(onlyOld, { import_id: 'i', already_imported: false, sent_rows: 1, imported_rows: 1, rows: [{ row: 2, status: 'imported', transaction_id: 't' }] }).period).toBe('2026-08')
+    expect(buildImportResult(onlyOld, { import_id: 'i', already_imported: false, sent_rows: 1, imported_rows: 1, rows: [{ row: 2, status: 'imported', transaction_id: 't' }] }, TODAY).period).toBe('2026-08')
   })
 
   it('sin filas creadas no hay período (el botón no se muestra)', () => {
     const all = Object.fromEntries(importPayload(REVIEW).map((p) => [p.row, 'boom']))
-    expect(buildImportResult(REVIEW, respond(all)).period).toBeNull()
+    expect(buildImportResult(REVIEW, respond(all), TODAY).period).toBeNull()
   })
 
   it('plurales y singulares del paso 3', () => {

@@ -1,6 +1,6 @@
 # ADR-039 — Una compra en cuotas empezada se carga con las cuotas que faltan
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** aceptada · **Fecha:** 2026-10
 **Relacionada:** ADR-001, ADR-013, ADR-020, ADR-021, ADR-040 · Modifica ADR-035 (contrato de `p_rows`), I2 y la
 nota de `first_period` de `docs/04-data-model.md`
 

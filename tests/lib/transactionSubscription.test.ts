@@ -36,6 +36,8 @@ function entry(transaction: Record<string, unknown>) {
       fx_rate_text: null,
       amount_ars_text: '5000.00',
       installments_count: 1,
+      installments_paid: 0,
+      entries: [],
       occurred_on: '2026-10-10',
       description: 'Netflix',
       deleted_at: null,
