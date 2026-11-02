@@ -5,6 +5,7 @@ import { CategoryDetailPage } from '@/pages/CategoryDetailPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { DebtFormPage } from '@/pages/DebtFormPage'
 import { DebtsPage } from '@/pages/DebtsPage'
+import { EditDebtPage } from '@/pages/EditDebtPage'
 import { EditSubscriptionPage } from '@/pages/EditSubscriptionPage'
 import { ImportPage } from '@/pages/ImportPage'
 import { NewSubscriptionPage } from '@/pages/NewSubscriptionPage'
@@ -38,6 +39,7 @@ export const router = createBrowserRouter([
           { path: '/transactions', element: <TransactionsPage /> },
           { path: '/debts', element: <DebtsPage /> },
           { path: '/debts/new', element: <DebtFormPage /> },
+          { path: '/debts/:id/edit', element: <EditDebtPage /> },
           { path: '/subscriptions', element: <SubscriptionsPage /> },
           { path: '/subscriptions/new', element: <NewSubscriptionPage /> },
           { path: '/subscriptions/:id', element: <SubscriptionDetailPage /> },

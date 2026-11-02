@@ -1,3 +1,5 @@
+import { Pencil, Trash2 } from 'lucide-react'
+import { Link } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
 import { debtRowText, type DebtRecord } from '@/domain/debts'
 import { cn } from '@/lib/utils'
@@ -13,12 +15,18 @@ export function DebtItem({
   busy,
   onSettle,
   onReopen,
+  editHref,
+  onDelete,
 }: {
   debt: DebtRecord
   /** Esperando settle_debt o reopen_debt de esta fila. */
   busy: boolean
   onSettle: (debt: DebtRecord) => void
   onReopen: (debt: DebtRecord) => void
+  /** US-86: a dónde lleva «Editar». Solo una deuda pendiente se edita (primero se vuelve a pendiente). */
+  editHref?: string
+  /** US-87: abre la confirmación de eliminar. Solo una deuda pendiente se elimina. */
+  onDelete?: (debt: DebtRecord) => void
 }) {
   const text = debtRowText(debt)
   const settled = debt.status === 'settled'
@@ -87,15 +95,39 @@ export function DebtItem({
             {busy ? 'Actualizando…' : 'Volver a pendiente'}
           </button>
         ) : (
-          <button
-            type="button"
-            data-testid="debts-item-settle"
-            disabled={busy}
-            onClick={() => onSettle(debt)}
-            className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'mt-1.5 -mr-2')}
-          >
-            {busy ? 'Saldando…' : 'Marcar saldada'}
-          </button>
+          <div className="mt-1 -mr-2 flex items-center">
+            {editHref && (
+              <Link
+                to={editHref}
+                data-testid="debts-item-edit"
+                aria-label={`Editar la deuda de ${debt.person}`}
+                className="press flex size-11 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/8 hover:text-primary"
+              >
+                <Pencil aria-hidden="true" className="size-4" strokeWidth={1.6} />
+              </Link>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                data-testid="debts-item-delete"
+                aria-label={`Eliminar la deuda de ${debt.person}`}
+                disabled={busy}
+                onClick={() => onDelete(debt)}
+                className="press flex size-11 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/8 hover:text-destructive disabled:opacity-50"
+              >
+                <Trash2 aria-hidden="true" className="size-4" strokeWidth={1.6} />
+              </button>
+            )}
+            <button
+              type="button"
+              data-testid="debts-item-settle"
+              disabled={busy}
+              onClick={() => onSettle(debt)}
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              {busy ? 'Saldando…' : 'Marcar saldada'}
+            </button>
+          </div>
         )}
       </div>
     </div>

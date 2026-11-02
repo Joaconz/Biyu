@@ -7,8 +7,10 @@ import { DebtsDirectionFilter, DebtsFilter } from '@/components/debts/DebtsFilte
 import { DebtsTotals } from '@/components/debts/DebtsTotals'
 import { SettledNotice } from '@/components/debts/SettledNotice'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { buttonVariants } from '@/components/ui/button'
+import { debtDeletionConsequence, debtDeletionSummary, deletedDebtNotice } from '@/domain/debtEdit'
 import {
   debtTotals,
   debtUpdateErrorReason,
@@ -24,7 +26,7 @@ import {
   type DebtStatusFilter,
 } from '@/domain/debts'
 import { useDebts } from '@/hooks/useDebts'
-import { reopenDebt, settleDebt } from '@/lib/debts'
+import { deleteDebt, reopenDebt, settleDebt } from '@/lib/debts'
 
 const UNDO_MS = 5000
 
@@ -43,6 +45,8 @@ export function DebtsPage() {
   const [busy, setBusy] = useState<ReadonlySet<string>>(new Set())
   // US-91: los grupos de personas desplegados (por personKey). Arrancan plegados.
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set())
+  // US-87: la deuda cuya confirmación de eliminar está abierta.
+  const [debtToDelete, setDebtToDelete] = useState<DebtRecord | null>(null)
   const undoNotices = useRef(new Set<string | number>())
   // Sube al cambiar de filtro o salir de la pantalla: un saldado que termina después ya no muestra
   // "Deshacer", porque el aviso dura hasta ese cambio.
@@ -137,6 +141,9 @@ export function DebtsPage() {
   const debts = debtsState.status === 'ready' ? debtsForFilter(debtsState.debts, filter, direction) : []
   // US-91: las de una misma persona (sin distinguir mayúsculas, tildes ni espacios) van juntas.
   const entries = groupDebtsByPerson(debts)
+  // US-86: la edición vuelve a la lista con los mismos filtros (C11).
+  const search = params.toString() ? `?${params.toString()}` : ''
+  const editHref = (debt: DebtRecord) => `/debts/${debt.id}/edit${search}`
 
   function toggleGroup(key: string) {
     setExpanded((prev) => {
@@ -146,6 +153,24 @@ export function DebtsPage() {
     })
   }
   const empty = emptyDebtsMessage(filter, direction)
+
+  // US-87: elimina la deuda y recarga la lista y los totales. Un rechazo viejo (otra pestaña ya la saldó o la
+  // borró) se muestra como los demás de esta pantalla y también recarga.
+  async function handleConfirmDelete() {
+    const debt = debtToDelete
+    if (!debt) return
+    try {
+      await deleteDebt(debt.id)
+    } catch (error) {
+      toast.error('No se pudo eliminar la deuda', { testId: 'debts-delete-error', description: debtUpdateErrorReason(error) })
+      setDebtToDelete(null)
+      await reload()
+      return
+    }
+    setDebtToDelete(null)
+    await reload()
+    toast.success(deletedDebtNotice(debt.person), { testId: 'debts-deleted' })
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
@@ -209,6 +234,8 @@ export function DebtsPage() {
                     busyIds={busy}
                     onSettle={handleSettle}
                     onReopen={handleReopen}
+                    editHref={editHref}
+                    onDelete={setDebtToDelete}
                   />
                 ) : (
                   <DebtItem
@@ -217,6 +244,8 @@ export function DebtsPage() {
                     busy={busy.has(entry.debt.id)}
                     onSettle={handleSettle}
                     onReopen={handleReopen}
+                    editHref={editHref(entry.debt)}
+                    onDelete={setDebtToDelete}
                   />
                 ),
               )}
@@ -224,6 +253,22 @@ export function DebtsPage() {
           )}
         </>
       )}
+      <ConfirmDialog
+        isOpen={debtToDelete !== null}
+        title="¿Eliminar deuda?"
+        summary={debtToDelete ? debtDeletionSummary(debtToDelete) : undefined}
+        confirmLabel="Eliminar"
+        busyLabel="Eliminando…"
+        testId="debts-delete"
+        dialogTestId="debts-delete-dialog"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDebtToDelete(null)}
+      >
+        <p>La deuda deja de contar en los totales. Esto no se puede deshacer.</p>
+        {debtToDelete && debtDeletionConsequence(debtToDelete) && (
+          <p data-testid="debts-delete-consequence">{debtDeletionConsequence(debtToDelete)}</p>
+        )}
+      </ConfirmDialog>
     </div>
   )
 }
