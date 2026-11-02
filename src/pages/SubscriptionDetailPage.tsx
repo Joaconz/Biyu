@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { BackHeader } from '@/components/subscriptions/BackHeader'
 import { SubscriptionActions } from '@/components/subscriptions/SubscriptionActions'
@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils'
 /** Detalle de suscripción (US-52): estado, datos, acciones y los gastos cargados (US-60). */
 export function SubscriptionDetailPage() {
   const { id = '' } = useParams()
+  const navigate = useNavigate()
   const state = useSubscription(id)
   const subscription = state.status === 'ready' ? state.subscription : null
 
@@ -97,6 +98,7 @@ export function SubscriptionDetailPage() {
             fxRates={state.fxRates}
             transactionCount={state.transactionCount}
             onChanged={state.refresh}
+            onDeleted={() => navigate('/subscriptions')}
           />
           {state.occurrences && (
             <Occurrences

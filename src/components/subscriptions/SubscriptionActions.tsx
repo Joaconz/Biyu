@@ -6,12 +6,14 @@ import type { BlockedOccurrence } from '@/domain/subscriptionBlocked'
 import type { SubscriptionRecord } from '@/domain/subscriptions'
 import { todayInArgentina } from '@/lib/clock'
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog'
+import { DeleteSubscriptionDialog } from './DeleteSubscriptionDialog'
 import { PauseSubscriptionDialog } from './PauseSubscriptionDialog'
 import { ResumeSubscriptionDialog } from './ResumeSubscriptionDialog'
 
 /**
- * Acciones del Detalle según el estado (entrega-2/historias/suscripciones.md, Detalle §3). Una
- * cancelada no muestra ninguna. `onChanged` vuelve a leer la suscripción después de una operación.
+ * Acciones del Detalle según el estado (entrega-2/historias/suscripciones.md, Detalle §3). Una cancelada solo
+ * muestra «Eliminar» (US-88, que vale en cualquier estado). `onChanged` vuelve a leer la suscripción después de una
+ * operación; `onDeleted` sale del Detalle, que ya no existe.
  */
 export function SubscriptionActions({
   subscription,
@@ -20,6 +22,7 @@ export function SubscriptionActions({
   fxRates,
   transactionCount,
   onChanged,
+  onDeleted,
 }: {
   subscription: SubscriptionRecord
   generatedPeriods: ReadonlySet<string>
@@ -28,16 +31,19 @@ export function SubscriptionActions({
   /** Transacciones vigentes de la suscripción (US-58); null si no se pudieron contar. */
   transactionCount: number | null
   onChanged: () => void
+  onDeleted: () => void
 }) {
   const [pausing, setPausing] = useState(false)
   const [resuming, setResuming] = useState(false)
   const [cancelling, setCancelling] = useState(false)
-
-  if (subscription.status === 'cancelled') return null
+  const [deleting, setDeleting] = useState(false)
+  const cancelled = subscription.status === 'cancelled'
 
   return (
     <>
       <div data-testid="subscription-detail-actions" className="mt-4 flex flex-wrap gap-2">
+        {!cancelled && (
+          <>
         {/* Editar: una activa o pausada (US-59); la cancelada no muestra ninguna acción. */}
         <Link
           to={`/subscriptions/${subscription.id}/edit`}
@@ -58,6 +64,11 @@ export function SubscriptionActions({
         )}
         <Button type="button" variant="destructive" size="sm" data-testid="subscription-detail-cancel" onClick={() => setCancelling(true)}>
           Cancelar suscripción
+        </Button>
+          </>
+        )}
+        <Button type="button" variant="outline" size="sm" data-testid="subscription-detail-delete" onClick={() => setDeleting(true)}>
+          Eliminar
         </Button>
       </div>
 
@@ -90,6 +101,14 @@ export function SubscriptionActions({
         isOpen={cancelling}
         onClose={() => setCancelling(false)}
         onCancelled={onChanged}
+      />
+
+      <DeleteSubscriptionDialog
+        subscription={subscription}
+        transactionCount={transactionCount}
+        isOpen={deleting}
+        onClose={() => setDeleting(false)}
+        onDeleted={onDeleted}
       />
     </>
   )

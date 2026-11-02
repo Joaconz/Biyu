@@ -21,6 +21,15 @@ export async function resumeSubscription(subscriptionId: string): Promise<{ gene
   return { generatedAfter: Number.isInteger(generatedAfter) ? (generatedAfter as number) : 0 }
 }
 
+/**
+ * US-88, ADR-044 §4: elimina la suscripción, en cualquier estado. Los gastos que ya cargó quedan como movimientos
+ * sueltos y deja de generar gastos. Falla con `PT404` si no existe o es de otro usuario.
+ */
+export async function deleteSubscription(subscriptionId: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_subscription', { p_subscription_id: subscriptionId })
+  if (error) throw error
+}
+
 /** US-58: devuelve cuántos gastos vencidos se cargaron antes de cancelar (`generated_before`). */
 export async function cancelSubscription(subscriptionId: string): Promise<{ generatedBefore: number }> {
   const { data, error } = await supabase.rpc('cancel_subscription', { p_subscription_id: subscriptionId })

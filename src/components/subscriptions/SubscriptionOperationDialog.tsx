@@ -15,6 +15,7 @@ export function SubscriptionOperationDialog({
   busyLabel,
   cancelLabel,
   confirmVariant,
+  summary,
   testId,
   failurePrefix,
   run,
@@ -28,6 +29,8 @@ export function SubscriptionOperationDialog({
   busyLabel: string
   cancelLabel?: string
   confirmVariant?: 'default' | 'destructive'
+  /** Qué se va a cambiar, antes del texto (US-88). */
+  summary?: { label: string; value: string }[]
   testId: string
   /** "No se pudo pausar", "No se pudo reanudar"… */
   failurePrefix: string
@@ -61,6 +64,7 @@ export function SubscriptionOperationDialog({
       busyLabel={busyLabel}
       cancelLabel={cancelLabel}
       confirmVariant={confirmVariant}
+      summary={summary}
       testId={testId}
       onConfirm={onConfirm}
       onClose={onClose}

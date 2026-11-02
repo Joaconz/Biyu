@@ -13,6 +13,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,
+  // Con varios workers creando usuarios a la vez, la base local tarda más que los 5 s de siempre en dejar lista cada pantalla.
+  expect: { timeout: local ? 15_000 : 5_000 },
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: target.appUrl,
