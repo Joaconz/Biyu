@@ -1,3 +1,4 @@
+import { comparePeople } from './sharedDebt'
 import type { Currency } from './fx'
 import { Decimal, formatArs, formatUsd, parseMoney } from './money'
 import { formatDisplayDate } from './period'
@@ -74,7 +75,10 @@ export function debtsForFilter(
       (filter === 'all' || d.status === filter) &&
       (direction === 'all' || d.direction === direction),
   )
-  const byLoaded = (a: DebtRecord, b: DebtRecord) => instantMs(b.createdAt) - instantMs(a.createdAt)
+  // A igual fecha y `created_at` (las deudas de un mismo gasto comparten ambos, ADR-040 §5), por persona y
+  // después por id: el orden no depende del orden en que la base devuelva las filas.
+  const byLoaded = (a: DebtRecord, b: DebtRecord) =>
+    instantMs(b.createdAt) - instantMs(a.createdAt) || comparePeople(a.person, b.person) || a.id.localeCompare(b.id)
   if (filter === 'settled') {
     return shown.sort((a, b) => instantMs(b.settledAt) - instantMs(a.settledAt) || byLoaded(a, b))
   }

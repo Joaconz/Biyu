@@ -178,8 +178,8 @@ export interface DashboardTransaction {
     type: string
   } | null
   deleted_at: string | null // DEF-007: solo en el filtro "Eliminados" de /transactions
-  /** Deuda vinculada de un gasto compartido (US-35, ADR-036): una por gasto, o null. */
-  shared_debt: { person: string; amount: string } | null
+  /** Deudas vinculadas de un gasto compartido (US-35, US-82, ADR-040): una por persona, vacío si no hay. */
+  shared_debts: { person: string; amount: string }[]
   /** Suscripción que generó la transacción (US-60), por subscription_id y no por el nombre; o null. */
   subscription: { id: string; name: string; period: string } | null
   // Imputación del período listado (US-17): qué cuota es y cuánto impacta en el mes.
@@ -294,7 +294,7 @@ export async function fetchMonthlyTransactions(
     account: tx.account,
     deleted_at: tx.deleted_at,
     // La deuda viene en la misma consulta: el diálogo de borrado nunca se abre sin saber si hay una.
-    shared_debt: tx.debts?.[0] ? { person: tx.debts[0].person, amount: tx.debts[0].amount_text } : null,
+    shared_debts: (tx.debts ?? []).map((d) => ({ person: d.person, amount: d.amount_text })),
     subscription:
       tx.subscription && tx.subscription_period
         ? { id: tx.subscription.id, name: tx.subscription.name, period: tx.subscription_period }

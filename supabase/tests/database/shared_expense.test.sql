@@ -20,7 +20,7 @@ select lives_ok($$select set_config('t.ca3', create_transaction(
   p_type => 'expense', p_amount => 120000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 12, p_occurred_on => '2026-08-15', p_description => 'CA-3',
-  p_shared_person => 'Sofía', p_shared_amount => 60000)::text, true)$$,
+  p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(60000)::numeric])::text, true)$$,
   'CA-3: un gasto compartido en 12 cuotas se guarda');
 select is((select count(*) from transactions where description = 'CA-3'), 1::bigint, 'CA-3: una sola transacción');
 select is((select array_agg(amount order by installment_number) from ledger_entries where transaction_id = current_setting('t.ca3')::uuid),
@@ -39,7 +39,7 @@ select lives_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'USD', p_fx_rate => 1250,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-5',
-  p_shared_person => 'Marcos', p_shared_amount => 40)$$,
+  p_shared_persons => array['Marcos']::text[], p_shared_amounts => array[(40)::numeric])$$,
   'CA-5: un gasto en USD compartido se guarda');
 select results_eq(
   $$select amount, currency::text, fx_rate, amount_ars from debts where person = 'Marcos'$$,
@@ -51,17 +51,17 @@ select lives_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-6a',
-  p_shared_person => '  Sofía  ', p_shared_amount => 50)$$, 'CA-6: persona con espacios alrededor se guarda');
+  p_shared_persons => array['  Sofía  ']::text[], p_shared_amounts => array[(50)::numeric])$$, 'CA-6: persona con espacios alrededor se guarda');
 select lives_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-6b',
-  p_shared_person => E' \tAna\t ', p_shared_amount => 50)$$, 'CA-6: persona con NBSP y tabulación alrededor se guarda');
+  p_shared_persons => array[E' \tAna\t ']::text[], p_shared_amounts => array[(50)::numeric])$$, 'CA-6: persona con NBSP y tabulación alrededor se guarda');
 select lives_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-6c',
-  p_shared_person => repeat('b', 60), p_shared_amount => 50)$$, 'CA-6: persona de exactamente 60 caracteres se acepta (borde)');
+  p_shared_persons => array[repeat('b', 60)]::text[], p_shared_amounts => array[(50)::numeric])$$, 'CA-6: persona de exactamente 60 caracteres se acepta (borde)');
 select is((select d.person from debts d join transactions t on t.id = d.transaction_id where t.description = 'CA-6a'), 'Sofía', 'CA-6: ''  Sofía  '' se guarda como ''Sofía''');
 select is((select d.person from debts d join transactions t on t.id = d.transaction_id where t.description = 'CA-6b'), 'Ana', 'CA-6: NBSP y tabulación se recortan');
 select is((select char_length(d.person) from debts d join transactions t on t.id = d.transaction_id where t.description = 'CA-6c'), 60, 'CA-6: la persona de 60 caracteres se guarda entera');
@@ -77,57 +77,57 @@ select is((select count(*) from debts d join transactions t on t.id = d.transact
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía')$$,
-  '23514', 'Un gasto compartido necesita persona y monto', 'CA-8: solo persona, sin monto, se rechaza');
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[])$$,
+  '23514', 'Un gasto compartido necesita una persona y un monto por cada deuda', 'CA-8: solo persona, sin monto, se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_amount => 50)$$,
-  '23514', 'Un gasto compartido necesita persona y monto', 'CA-8: solo monto, sin persona, se rechaza');
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_amounts => array[50::numeric])$$,
+  '23514', 'Un gasto compartido necesita una persona y un monto por cada deuda', 'CA-8: solo monto, sin persona, se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'income', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => null, p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía', p_shared_amount => 50)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(50)::numeric])$$,
   '23514', 'Un ingreso no se puede compartir', 'CA-8: un ingreso con deuda se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => '   ', p_shared_amount => 50)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['   ']::text[], p_shared_amounts => array[(50)::numeric])$$,
   '23514', 'Ingresá con quién compartiste el gasto', 'CA-8: persona de solo espacios se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => E'\t', p_shared_amount => 50)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array[E'\t']::text[], p_shared_amounts => array[(50)::numeric])$$,
   '23514', 'Ingresá con quién compartiste el gasto', 'CA-8: persona de solo tabulación se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => repeat('b', 61), p_shared_amount => 50)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array[repeat('b', 61)]::text[], p_shared_amounts => array[(50)::numeric])$$,
   '23514', 'La persona admite hasta 60 caracteres', 'CA-8: persona de 61 caracteres se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía', p_shared_amount => 0)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(0)::numeric])$$,
   '23514', 'I4: el monto de la deuda debe ser mayor a cero', 'CA-8 / I4: monto de deuda 0 se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía', p_shared_amount => -1)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(-1)::numeric])$$,
   '23514', 'I4: el monto de la deuda debe ser mayor a cero', 'CA-8 / I4: monto de deuda negativo se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía', p_shared_amount => 1.001)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(1.001)::numeric])$$,
   '23514', 'I4: el monto de la deuda admite hasta 2 decimales', 'CA-8 / I4: monto de deuda con 3 decimales se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía', p_shared_amount => 'NaN')$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[('NaN')::numeric])$$,
   '23514', 'I4: el monto de la deuda debe ser mayor a cero', 'CA-8 / I4: monto de deuda NaN se rechaza');
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'USD', p_fx_rate => 0.4,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía', p_shared_amount => 0.01)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(0.01)::numeric])$$,
   '23514', 'I4: la deuda en pesos daría menos de $0,01', 'CA-8 / I4: deuda USD que en pesos redondea a cero se rechaza');
 
 select is((select count(*) from transactions), 6::bigint, 'CA-8: los rechazos no dejaron transacciones (C4)');
@@ -140,7 +140,7 @@ set local role anon;
 select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000002',
-  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_person => 'Sofía', p_shared_amount => 50)$$,
+  p_installments_count => 1, p_occurred_on => '2026-08-15', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(50)::numeric])$$,
   '42501', null, 'C7: anon no ejecuta create_transaction con gasto compartido');
 
 select * from finish();

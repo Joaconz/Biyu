@@ -1,7 +1,7 @@
 import { parseDraftInput, type DraftInput } from './draft'
 import type { Currency } from './fx'
 import { formatArs, formatUsd, tryParseMoney, type Decimal } from './money'
-import { debtOfDraft, sharedDebtSavedMessage } from './sharedDebt'
+import { debtsOfDraft, sharedDebtSavedMessage } from './sharedDebt'
 import type { SaveFailure } from './saveFailure'
 
 /**
@@ -36,8 +36,12 @@ export function sameDraftValues(a: DraftInput, b: DraftInput): boolean {
   const sameShared =
     x.shared == null || y.shared == null
       ? x.shared == y.shared
-      : x.shared.person.trim() === y.shared.person.trim() &&
-        sameMoney(tryParseMoney(x.shared.amount), tryParseMoney(y.shared.amount))
+      : x.shared.length === y.shared.length &&
+        x.shared.every(
+          (row, i) =>
+            row.person.trim() === y.shared![i].person.trim() &&
+            sameMoney(tryParseMoney(row.amount), tryParseMoney(y.shared![i].amount)),
+        )
   return (
     x.type === y.type &&
     sameMoney(x.amount, y.amount) &&
@@ -139,6 +143,6 @@ export function savedDraftDescription(
     categoryName: names.categoryName,
     accountName: names.accountName,
   })
-  const debt = debtOfDraft(draft)
-  return debt ? `${base} · ${sharedDebtSavedMessage(debt, draft.currency)}` : base
+  const debts = debtsOfDraft(draft)
+  return debts ? `${base} · ${sharedDebtSavedMessage(debts, draft.currency)}` : base
 }

@@ -32,7 +32,7 @@ async function expense(
   const res = await api.rpc('create_transaction', {
     p_type: 'expense', p_amount: o.amount, p_currency: 'ARS', p_fx_rate: null, p_category_id: o.category, p_account_id: o.account,
     p_installments_count: o.installments ?? 1, p_occurred_on: `${H}-01`, p_description: null,
-    p_shared_person: o.shared?.person ?? null, p_shared_amount: o.shared?.amount ?? null, p_request_id: null,
+    p_shared_persons: o.shared ? [o.shared.person] : null, p_shared_amounts: o.shared ? [o.shared.amount] : null, p_request_id: null,
   })
   expect(res.status).toBe(200)
   return res.body as string

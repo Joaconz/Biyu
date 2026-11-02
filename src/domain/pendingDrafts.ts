@@ -113,7 +113,23 @@ export function restorableValues(
   }
 }
 
-const DRAFT_STRING_FIELDS = ['amount', 'fxRate', 'description', 'sharedPerson', 'sharedAmount', 'occurredOn'] as const
+const DRAFT_STRING_FIELDS = ['amount', 'fxRate', 'description', 'occurredOn'] as const
+
+/**
+ * Un pendiente guardado antes de US-82 trae la deuda como `sharedPerson` y `sharedAmount`: pasa a una
+ * sola fila de `sharedRows`. Cualquier otra forma se deja como está y la rechaza `isDraftInput`.
+ */
+function upgradeLegacyShared(values: unknown): unknown {
+  if (typeof values !== 'object' || values === null) return values
+  const d = values as Record<string, unknown>
+  if (Array.isArray(d.sharedRows)) return values
+  const { sharedPerson, sharedAmount, ...rest } = d
+  const legacy = d.shared === true && typeof sharedPerson === 'string' && typeof sharedAmount === 'string'
+  return { ...rest, sharedRows: legacy ? [{ person: sharedPerson, amount: sharedAmount }] : [] }
+}
+
+const isSharedRow = (r: unknown) =>
+  typeof r === 'object' && r !== null && typeof (r as { person?: unknown }).person === 'string' && typeof (r as { amount?: unknown }).amount === 'string'
 
 function isDraftInput(v: unknown): v is DraftInput {
   if (typeof v !== 'object' || v === null) return false
@@ -126,7 +142,10 @@ function isDraftInput(v: unknown): v is DraftInput {
     (d.accountId === null || typeof d.accountId === 'string') &&
     (d.accountType === null || typeof d.accountType === 'string') &&
     Number.isInteger(d.installmentsCount) &&
-    typeof d.shared === 'boolean'
+    typeof d.shared === 'boolean' &&
+    Array.isArray(d.sharedRows) &&
+    d.sharedRows.length <= 10 &&
+    d.sharedRows.every(isSharedRow)
   )
 }
 
@@ -143,7 +162,9 @@ export function parsePendingDrafts(raw: string | null): PendingDraft[] {
     return []
   }
   if (!Array.isArray(data)) return []
-  return data.filter(
+  return data
+    .map((p) => (typeof p === 'object' && p !== null ? { ...p, values: upgradeLegacyShared(p.values) } : p))
+    .filter(
     (p): p is PendingDraft =>
       typeof p === 'object' &&
       p !== null &&

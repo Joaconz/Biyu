@@ -499,8 +499,8 @@ export type Database = {
           p_installments_paid?: number
           p_occurred_on: string
           p_request_id?: string
-          p_shared_amount?: number
-          p_shared_person?: string
+          p_shared_amounts?: number[]
+          p_shared_persons?: string[]
           p_type: Database["public"]["Enums"]["transaction_type"]
         }
         Returns: string

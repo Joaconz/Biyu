@@ -70,8 +70,8 @@ select results_eq(
 -- Supuesto 6: gasto compartido con la misma clave: una transacción y una sola deuda.
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}';
-select lives_ok($$select set_config('t.s6a', create_transaction('expense',1000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15','S6','Sofía',400,'10000000-0000-0000-0000-000000000006')::text, true)$$, 'Supuesto 6: el gasto compartido con clave se guarda');
-select is(create_transaction('expense',1000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15','S6','Sofía',400,'10000000-0000-0000-0000-000000000006'), current_setting('t.s6a')::uuid, 'Supuesto 6: el reintento devuelve el mismo id');
+select lives_ok($$select set_config('t.s6a', create_transaction('expense',1000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15','S6',array['Sofía'],array[400::numeric],'10000000-0000-0000-0000-000000000006')::text, true)$$, 'Supuesto 6: el gasto compartido con clave se guarda');
+select is(create_transaction('expense',1000,'ARS',null,'c0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001',1,'2026-08-15','S6',array['Sofía'],array[400::numeric],'10000000-0000-0000-0000-000000000006'), current_setting('t.s6a')::uuid, 'Supuesto 6: el reintento devuelve el mismo id');
 select is((select count(*) from transactions where description = 'S6'), 1::bigint, 'Supuesto 6: una sola transacción');
 select is((select count(*) from debts where transaction_id = current_setting('t.s6a')::uuid), 1::bigint, 'Supuesto 6: una sola deuda, no se duplica en el reintento');
 

@@ -79,8 +79,7 @@ export function editInputFromTransaction(tx: EditableTransaction): DraftInput {
     occurredOn: tx.occurredOn,
     description: tx.description ?? '',
     shared: false,
-    sharedPerson: '',
-    sharedAmount: '',
+    sharedRows: [],
   }
 }
 

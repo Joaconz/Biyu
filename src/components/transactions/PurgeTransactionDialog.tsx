@@ -34,7 +34,7 @@ export function PurgeTransactionDialog({
   })
   const consequences = purgeConsequences({
     installmentsCount: transaction.installments_count,
-    sharedPerson: transaction.shared_debt?.person ?? null,
+    sharedPeople: transaction.shared_debts.map((d) => d.person),
     subscriptionName: transaction.subscription?.name ?? null,
   })
 

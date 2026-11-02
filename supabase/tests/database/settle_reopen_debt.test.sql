@@ -27,12 +27,12 @@ select set_config('t.tx1', create_transaction(
   p_type => 'expense', p_amount => 120000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15',
-  p_shared_person => 'Sofía', p_shared_amount => 60000)::text, true);
+  p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(60000)::numeric])::text, true);
 select set_config('t.tx2', create_transaction(
   p_type => 'expense', p_amount => 30000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-16',
-  p_shared_person => 'Juan', p_shared_amount => 10000)::text, true);
+  p_shared_persons => array['Juan']::text[], p_shared_amounts => array[(10000)::numeric])::text, true);
 select set_config('t.dl', (select id::text from debts where transaction_id = current_setting('t.tx1')::uuid), true);
 select set_config('t.dx', (select id::text from debts where transaction_id = current_setting('t.tx2')::uuid), true);
 select delete_transaction(current_setting('t.tx2')::uuid);

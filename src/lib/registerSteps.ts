@@ -12,7 +12,7 @@ export function stepsFor(type: TransactionDraft['type']): RegisterStep[] {
 export const STEP_FIELDS: Record<RegisterStep, readonly DraftField[]> = {
   amount: ['amount', 'fxRate'],
   category: ['categoryId'],
-  details: ['accountId', 'installmentsCount', 'occurredOn', 'sharedPerson', 'sharedAmount'],
+  details: ['accountId', 'installmentsCount', 'occurredOn', 'sharedPerson', 'sharedAmount', 'sharedTotal'],
 }
 
 /** Errores que bloquean avanzar desde un paso; los de pasos siguientes no cuentan todavía. */

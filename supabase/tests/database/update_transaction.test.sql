@@ -49,7 +49,7 @@ select
   public.create_transaction('expense', 9000, 'ARS', null, 'c8400000-0000-0000-0000-000000000001',
     'a8400000-0000-0000-0000-000000000002', 1, '2026-09-03') as eliminada,
   public.create_transaction('expense', 40000, 'ARS', null, 'c8400000-0000-0000-0000-000000000001',
-    'a8400000-0000-0000-0000-000000000002', 1, '2026-09-04', null, 'Sofía', 15000) as compartida;
+    'a8400000-0000-0000-0000-000000000002', 1, '2026-09-04', null, array['Sofía'], array[15000::numeric]) as compartida;
 
 -- ---------------------------------------------------------------------------
 -- CA-4: el resto de las cuotas se reparte con la regla de C3

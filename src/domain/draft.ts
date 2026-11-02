@@ -1,5 +1,6 @@
 import { formatRate, parseMoney, tryParseMoney } from './money'
 import { isSamePeriod, tryPeriodOf, type Period } from './period'
+import type { SharedDebtInput } from './sharedDebt'
 import { allowsInstallments, type TransactionDraft } from './validation'
 
 /**
@@ -10,11 +11,13 @@ export interface DraftInput extends Omit<TransactionDraft, 'amount' | 'fxRate' |
   amount: string
   fxRate: string
   description: string
-  /** Interruptor "Gasto compartido" (US-34). Persona y monto quedan como texto hasta guardar. */
+  /** Interruptor "Gasto compartido" (US-34). Persona y monto de cada fila quedan como texto hasta guardar. */
   shared: boolean
-  sharedPerson: string
-  sharedAmount: string
+  /** Las filas de personas (US-82, hasta 10): una vacía al encender, ninguna con el interruptor apagado. */
+  sharedRows: SharedDebtInput[]
 }
+
+const EMPTY_SHARED_ROW: SharedDebtInput = { person: '', amount: '' }
 
 export type DraftAccount = Pick<DraftInput, 'accountId' | 'accountType'>
 
@@ -34,14 +37,13 @@ export function emptyDraftInput(today: string, account: DraftAccount = NO_ACCOUN
     occurredOn: today,
     description: '',
     shared: false,
-    sharedPerson: '',
-    sharedAmount: '',
+    sharedRows: [],
   }
 }
 
 /** Borrador listo para validateTransactionDraft y createTransaction: montos vacíos o inválidos → null. */
 export function parseDraftInput(input: DraftInput): TransactionDraft {
-  const { shared, sharedPerson, sharedAmount, ...rest } = input
+  const { shared, sharedRows, ...rest } = input
   const trimmed = input.description?.trim()
   return {
     ...rest,
@@ -49,7 +51,7 @@ export function parseDraftInput(input: DraftInput): TransactionDraft {
     fxRate: tryParseMoney(input.fxRate),
     description: trimmed ? trimmed : null,
     // Apagado, o si es un ingreso, no viaja ninguna deuda aunque haya algo escrito (US-34 · CA-2, CA-10).
-    shared: shared && input.type === 'expense' ? { person: sharedPerson, amount: sharedAmount } : null,
+    shared: shared && input.type === 'expense' ? sharedRows : null,
   }
 }
 
@@ -102,10 +104,10 @@ export function applyDraftChange(
   let clearedFields: SharedField[] = []
   if (values.type !== prev.type || values.shared !== prev.shared) {
     if (values.type !== prev.type) values = { ...values, shared: false }
-    values = { ...values, sharedPerson: '', sharedAmount: '' }
+    values = { ...values, sharedRows: values.shared ? [EMPTY_SHARED_ROW] : [] }
     clearedFields = ['sharedPerson', 'sharedAmount']
   } else if (values.currency !== prev.currency) {
-    values = { ...values, sharedAmount: '' }
+    values = { ...values, sharedRows: values.sharedRows.map((row) => ({ ...row, amount: '' })) }
     clearedFields = ['sharedAmount']
   }
   const installmentsReset = values.installmentsCount > 1 && !allowsInstallments(values)

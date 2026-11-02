@@ -95,7 +95,7 @@ select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 120000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 6, p_occurred_on => public.t_h(4), p_description => 'R7',
-  p_installments_paid => 3, p_shared_person => 'Sofía', p_shared_amount => 100)$$,
+  p_installments_paid => 3, p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(100)::numeric])$$,
   '23514', 'Una compra empezada no se puede compartir', 'CA-16: compra empezada con deuda');
 select throws_ok($$select t_buy('R8', 120000, 'ARS', null, 6, 3, 4, 'a0000000-0000-0000-0000-000000000002')$$, '23514', null, 'I6: K con una cuenta que no es de crédito');
 select is((select count(*) from transactions where description like 'R_' and description <> 'R6'), 0::bigint, 'Los rechazos no dejan transacciones');

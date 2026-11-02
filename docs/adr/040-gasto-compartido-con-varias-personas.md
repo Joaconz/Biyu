@@ -1,6 +1,6 @@
 # ADR-040 — Un gasto se comparte con hasta 10 personas, cada una con su monto
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** aceptada · **Fecha:** 2026-10
 **Relacionada:** ADR-006, ADR-013, ADR-034, ADR-037 · Modifica ADR-036 (puntos 1, 2, 5 y 6)
 
 ## Contexto

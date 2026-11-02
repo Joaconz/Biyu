@@ -57,10 +57,10 @@ export function DeleteTransactionDialog({
   })
 
   // US-35: la deuda vinculada deja de contar mientras el gasto esté eliminado (ADR-037 §4).
-  const debtWarning = transaction.shared_debt && (
+  const debtWarning = transaction.shared_debts.length > 0 && (
     <p data-testid="delete-transaction-debt-warning" className="text-xs font-medium text-foreground">
       {deletionDebtWarning(
-        { person: transaction.shared_debt.person, amount: parseMoney(transaction.shared_debt.amount) },
+        transaction.shared_debts.map((d) => ({ person: d.person, amount: parseMoney(d.amount) })),
         transaction.currency,
       )}
     </p>

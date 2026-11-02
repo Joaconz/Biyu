@@ -1,6 +1,6 @@
 import { Decimal, serializeMoney } from '@/domain/money'
 import type { EditableTransaction } from '@/domain/transactionEdit'
-import { debtOfDraft } from '@/domain/sharedDebt'
+import { debtsOfDraft } from '@/domain/sharedDebt'
 import type { TransactionDraft } from '@/domain/validation'
 import { supabase } from './supabase'
 import { abortAfter } from './timeout'
@@ -29,9 +29,9 @@ export interface SaveError {
  */
 export async function createTransaction(draft: TransactionDraft, requestId: string) {
   if (!draft.amount || !draft.accountId) throw new Error('Borrador incompleto: validalo antes de guardar')
-  // La deuda de un gasto compartido viaja en la misma llamada (ADR-036): nunca un insert a debts.
-  const debt = debtOfDraft(draft)
-  if (draft.type === 'expense' && draft.shared && !debt) throw new Error('Borrador incompleto: validalo antes de guardar')
+  // Las deudas de un gasto compartido viajan en la misma llamada (ADR-036, ADR-040): nunca un insert a debts.
+  const debts = debtsOfDraft(draft)
+  if (draft.type === 'expense' && draft.shared && !debts) throw new Error('Borrador incompleto: validalo antes de guardar')
   const timeout = abortAfter(SAVE_TIMEOUT_MS)
   try {
     const { data, error, status } = await supabase
@@ -45,8 +45,8 @@ export async function createTransaction(draft: TransactionDraft, requestId: stri
         p_installments_count: draft.installmentsCount,
         p_occurred_on: draft.occurredOn,
         p_description: draft.description ?? undefined,
-        p_shared_person: debt?.person,
-        p_shared_amount: debt ? asNumeric(debt.amount) : undefined,
+        p_shared_persons: debts?.map((d) => d.person),
+        p_shared_amounts: debts?.map((d) => asNumeric(d.amount)),
         p_request_id: requestId,
       })
       .abortSignal(timeout.signal)

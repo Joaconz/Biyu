@@ -1,7 +1,16 @@
 import type { DraftInput } from '@/domain/draft'
-import type { DraftErrors } from '@/domain/validation'
+import type { DraftErrors, DraftField } from '@/domain/validation'
 
-export type Touched = Partial<Record<keyof DraftInput, boolean>>
+/** Qué campos de una fila de "Gasto compartido" ya tocó el usuario (US-82). */
+export interface SharedRowTouched {
+  person?: boolean
+  amount?: boolean
+}
+
+export type Touched = Partial<Record<Exclude<keyof DraftInput, 'sharedRows'> | DraftField, boolean>> & {
+  /** Por fila de personas, en el mismo orden que `values.sharedRows`. */
+  sharedRows?: SharedRowTouched[]
+}
 
 /**
  * Contrato de cada sección del formulario de registro. Una sección muestra sus campos y su
