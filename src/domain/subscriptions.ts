@@ -392,6 +392,73 @@ export function committedMonthlyTotal(
   return { period, totalArs, count, usdPending }
 }
 
+// ---------------------------------------------------------------------------
+// Suscripciones por cobrar en el Resumen (ADR-045)
+// ---------------------------------------------------------------------------
+
+export interface PendingSubscriptionCharges {
+  /** Pesos: las ARS más las USD convertidas con el tipo de cambio del período. */
+  totalArs: Decimal
+  /** Cuántos cobros faltan, también las USD que no se pudieron convertir. */
+  count: number
+  /** La suma sin convertir de las USD sin tipo de cambio del período; null si no hay. */
+  usdPending: Decimal | null
+}
+
+/**
+ * Cobros de suscripciones activas que el período todavía no tiene cargados: lo que va a salir y aún no
+ * es una transacción (ADR-045). Es una proyección que el Resumen muestra aparte; no cambia ninguna
+ * imputación ni el gastado (ADR-001). Los meses pasados no tienen nada pendiente. En el período
+ * corriente solo cuentan los cobros cuyo día todavía no llegó (R5): los vencidos que faltan son
+ * bloqueos (R6) que la puesta al día informa, no plata por cobrar. `generatedBySubscription` es
+ * `YYYY-MM` por id, con las borradas incluidas (R2); las USD se convierten con el tipo de cambio de
+ * `period`, redondeando cada una a 2 decimales antes de sumar (ADR-013).
+ */
+export function pendingSubscriptionCharges(
+  subscriptions: ReadonlyArray<
+    Pick<SubscriptionRecord, 'id' | 'status' | 'amount' | 'currency' | 'billingDay' | 'generateFromPeriod' | 'endPeriod'>
+  >,
+  generatedBySubscription: ReadonlyMap<string, ReadonlySet<string>>,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal>,
+  period: Period,
+  today: Date,
+): PendingSubscriptionCharges {
+  const none = { totalArs: new Decimal(0), count: 0, usdPending: null }
+  if (isPeriodBefore(period, currentPeriod(today))) return none
+  const rate = fxRatesByPeriod.get(formatPeriod(period)) ?? null
+  let totalArs = new Decimal(0)
+  let usdPending: Decimal | null = null
+  let count = 0
+  for (const subscription of subscriptions) {
+    if (subscription.status !== 'active') continue
+    if (isPeriodBefore(period, subscription.generateFromPeriod)) continue
+    if (subscription.endPeriod && isPeriodBefore(subscription.endPeriod, period)) continue
+    if (generatedBySubscription.get(subscription.id)?.has(formatPeriod(period))) continue
+    if (hasFallenDue(period, subscription.billingDay, today)) continue
+    count += 1
+    const amount = parseMoney(subscription.amount)
+    if (subscription.currency === 'USD' && !rate) {
+      usdPending = (usdPending ?? new Decimal(0)).plus(amount)
+    } else {
+      totalArs = totalArs.plus(convertToArs(amount, subscription.currency === 'USD' ? rate : null))
+    }
+  }
+  return count === 0 ? none : { totalArs, count, usdPending }
+}
+
+/** "Suscripciones por cobrar en octubre 2026" */
+export function pendingChargesLabel(period: Period): string {
+  return `Suscripciones por cobrar en ${formatPeriodLong(period)}`
+}
+
+/** "1 cobro que todavía no se cargó" o "3 cobros que todavía no se cargaron". */
+export function pendingChargesCountText(count: number): string {
+  return count === 1 ? '1 cobro que todavía no se cargó' : `${count} cobros que todavía no se cargaron`
+}
+
+/** "Balance proyectado" */
+export const PROJECTED_BALANCE_LABEL = 'Balance proyectado'
+
 /** "Comprometido en octubre 2026" */
 export function committedLabel(period: Period): string {
   return `Comprometido en ${formatPeriodLong(period)}`

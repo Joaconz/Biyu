@@ -16,6 +16,10 @@ Consecuencia práctica: **el dashboard no sabe que las suscripciones existen.** 
 imputaciones, y las imputaciones de una suscripción son imputaciones normales. Nada del
 cálculo mensual cambia por esta feature. Eso es intencional y es lo que la hace barata.
 
+Una sola excepción, de solo lectura (ADR-045): el Resumen muestra aparte una tarjeta con lo que las
+suscripciones activas todavía van a cobrar en el mes y un balance proyectado. No es una imputación: el
+gastado y el balance siguen saliendo solo de las imputaciones.
+
 No es: una suscripción de pago de la app (planes, cobro, límites). Ver "Lo que esto no es",
 al final.
 
