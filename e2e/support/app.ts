@@ -26,7 +26,8 @@ export async function signUpAndSkipSetup(page: Page, tag: string) {
     await page.getByTestId(`setup-${step}-skip`).click()
   }
   await expect(page).toHaveURL(/\/register$/)
-  await expect(page.getByTestId('transaction-form')).toBeVisible()
+  // Con varios workers a la vez la base local tarda más que los 5 s de siempre en dejar el formulario listo.
+  await expect(page.getByTestId('transaction-form')).toBeVisible({ timeout: 20_000 })
   return { email, password: TEST_PASSWORD }
 }
 
@@ -56,6 +57,14 @@ export async function apiSession(request: APIRequestContext, email: string, pass
       parse(await request.post(`${supabaseUrl}/rest/v1/rpc/${fn}`, { headers: headers(opts.asAnon ? null : token), data: args })),
     select: async (table: string, query = 'select=*', opts: { asAnon?: boolean } = {}) =>
       parse(await request.get(`${supabaseUrl}/rest/v1/${table}?${query}`, { headers: headers(opts.asAnon ? null : token) })),
+    // PATCH con `Prefer: return=representation`: el cuerpo trae las filas que cambió (con RLS, las ajenas no).
+    patch: async (table: string, query: string, data: Record<string, unknown>, opts: { asAnon?: boolean } = {}) =>
+      parse(
+        await request.patch(`${supabaseUrl}/rest/v1/${table}?${query}`, {
+          headers: { ...headers(opts.asAnon ? null : token), Prefer: 'return=representation' },
+          data,
+        }),
+      ),
   }
 }
 
