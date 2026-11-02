@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { debtRowText, type DebtRecord } from '@/domain/debts'
 import { cn } from '@/lib/utils'
@@ -13,12 +14,15 @@ export function DebtItem({
   busy,
   onSettle,
   onReopen,
+  onDelete,
 }: {
   debt: DebtRecord
   /** Esperando settle_debt o reopen_debt de esta fila. */
   busy: boolean
   onSettle: (debt: DebtRecord) => void
   onReopen: (debt: DebtRecord) => void
+  /** US-87: solo en una pendiente; una saldada vuelve a pendiente primero (ADR-044 §3). */
+  onDelete: (debt: DebtRecord) => void
 }) {
   const text = debtRowText(debt)
   const settled = debt.status === 'settled'
@@ -95,6 +99,18 @@ export function DebtItem({
             className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'mt-1.5 -mr-2')}
           >
             {busy ? 'Saldando…' : 'Marcar saldada'}
+          </button>
+        )}
+        {!settled && (
+          <button
+            type="button"
+            data-testid="debts-item-delete"
+            aria-label={`Eliminar deuda de ${debt.person}`}
+            disabled={busy}
+            onClick={() => onDelete(debt)}
+            className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), '-mr-2 text-muted-foreground hover:text-destructive')}
+          >
+            <Trash2 strokeWidth={1.6} aria-hidden="true" />
           </button>
         )}
       </div>

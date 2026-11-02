@@ -6,6 +6,7 @@ import { DebtItem } from '@/components/debts/DebtItem'
 import { DebtsDirectionFilter, DebtsFilter } from '@/components/debts/DebtsFilter'
 import { DebtsTotals } from '@/components/debts/DebtsTotals'
 import { SettledNotice } from '@/components/debts/SettledNotice'
+import { DeleteDebtDialog } from '@/components/debts/DeleteDebtDialog'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { buttonVariants } from '@/components/ui/button'
@@ -41,6 +42,8 @@ export function DebtsPage() {
   // vuelva a pintar el botón deshabilitado (US-39 CA-3); el estado es lo que se ve.
   const busyRef = useRef(new Set<string>())
   const [busy, setBusy] = useState<ReadonlySet<string>>(new Set())
+  // US-87: la deuda cuya confirmación de borrado está abierta.
+  const [toDelete, setToDelete] = useState<DebtRecord | null>(null)
   // US-91: los grupos de personas desplegados (por personKey). Arrancan plegados.
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set())
   const undoNotices = useRef(new Set<string | number>())
@@ -209,6 +212,7 @@ export function DebtsPage() {
                     busyIds={busy}
                     onSettle={handleSettle}
                     onReopen={handleReopen}
+                    onDelete={setToDelete}
                   />
                 ) : (
                   <DebtItem
@@ -217,6 +221,7 @@ export function DebtsPage() {
                     busy={busy.has(entry.debt.id)}
                     onSettle={handleSettle}
                     onReopen={handleReopen}
+                    onDelete={setToDelete}
                   />
                 ),
               )}
@@ -224,6 +229,12 @@ export function DebtsPage() {
           )}
         </>
       )}
+      <DeleteDebtDialog
+        debt={toDelete}
+        allDebts={debtsState.status === 'ready' ? debtsState.debts : []}
+        onClose={() => setToDelete(null)}
+        onDeleted={reload}
+      />
     </div>
   )
 }
