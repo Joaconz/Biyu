@@ -26,6 +26,8 @@ import {
   createAccount,
   deleteAccount,
   listActiveAccounts,
+  listArchivedAccounts,
+  unarchiveAccount,
   updateAccount,
   type Account,
   type AccountCurrency,
@@ -510,6 +512,7 @@ function ColorSwatchPicker({
 
 function AccountsSection() {
   const [accounts, setAccounts] = useState<Account[] | null>(null)
+  const [archived, setArchived] = useState<Account[]>([])
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -524,6 +527,7 @@ function AccountsSection() {
 
   useEffect(() => {
     listActiveAccounts().then(setAccounts).catch((e: Error) => setError(e.message))
+    listArchivedAccounts().then(setArchived).catch(() => {})
   }, [])
 
   async function onSave(id: string, changes: { name: string; type: AccountType }) {
@@ -543,10 +547,25 @@ function AccountsSection() {
   async function onArchive(id: string) {
     setError(null)
     try {
-      await archiveAccount(id, today().toISOString())
+      const archivedAt = today().toISOString()
+      await archiveAccount(id, archivedAt)
+      const account = accounts?.find((a) => a.id === id)
       setAccounts((prev) => prev?.filter((a) => a.id !== id) ?? null)
+      if (account) setArchived((prev) => [...prev, { ...account, archived_at: archivedAt }].sort((a, b) => a.name.localeCompare(b.name)))
     } catch {
       setError('No se pudo archivar la cuenta')
+    }
+  }
+
+  // US-90: reactivar deshace el archivado; si ya hay una activa con ese nombre, lo dice (como en categorías).
+  async function onUnarchive(account: Account) {
+    setError(null)
+    try {
+      await unarchiveAccount(account.id)
+      setArchived((prev) => prev.filter((a) => a.id !== account.id))
+      setAccounts((prev) => [...(prev ?? []), { ...account, archived_at: null }].sort((a, b) => a.name.localeCompare(b.name)))
+    } catch (err) {
+      setError(isUniqueViolation(err) ? `Ya hay una cuenta activa llamada «${account.name}»` : 'No se pudo reactivar la cuenta')
     }
   }
 
@@ -688,6 +707,36 @@ function AccountsSection() {
           Crear cuenta
         </Button>
       </form>
+      {/* US-90: sin esto, archivar una cuenta era de ida. */}
+      {archived.length > 0 && (
+        <div className="mt-4 flex flex-col gap-2">
+          <h3 className="px-1 text-footnote font-semibold text-muted-foreground">Archivadas</h3>
+          <GroupedCard>
+            <ul data-testid="settings-accounts-archived-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+              {archived.map((account, i) => (
+                <li key={account.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
+                  <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                    <AccountIcon type={account.type} className="size-4" />
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-callout font-medium text-muted-foreground">{account.name}</span>
+                  {account.currency === 'USD' && <span className="text-footnote font-medium text-muted-foreground">US$</span>}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    data-testid={uniqueTestId(`settings-accounts-unarchive-${toTestIdSuffix(account.name)}`, archived, i)}
+                    aria-label={`Reactivar ${account.name}`}
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => onUnarchive(account)}
+                  >
+                    <ArchiveRestore strokeWidth={1.6} />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </GroupedCard>
+        </div>
+      )}
       <ConfirmDialog
         isOpen={deleting !== null}
         title={`¿Seguro que querés eliminar «${deleting?.account.name ?? ''}»?`}
