@@ -8,11 +8,13 @@ import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
+import { PendingSubscriptionsCard } from '@/components/dashboard/PendingSubscriptionsCard'
 import { buttonVariants } from '@/components/ui/button'
 import { formatArs, formatUsd, type Decimal } from '@/domain/money'
 import { daysElapsedInPeriod, formatPeriod, formatPeriodLong } from '@/domain/period'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
+import { usePendingSubscriptionCharges } from '@/hooks/usePendingSubscriptionCharges'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { today } from '@/lib/clock'
 import type { DashboardTransaction } from '@/lib/dashboard'
@@ -47,6 +49,7 @@ export function DashboardPage() {
   const { period, setPeriod, shift } = usePeriodParam()
   const summaryState = useMonthlySummary(period)
   const transactionsState = useMonthlyTransactions(period, 10)
+  const pendingCharges = usePendingSubscriptionCharges(period)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   // US-33: un mes sin imputaciones muestra el acceso al registro en vez de un dashboard de ceros.
   const isEmpty = summaryState.status === 'ready' && !summaryState.summary.hasData
@@ -57,6 +60,13 @@ export function DashboardPage() {
       <PageHeader title="Resumen" testId="dashboard-title" className="flex-wrap items-center">
         <PeriodSwitcher screen="dashboard" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
       </PageHeader>
+
+      {/* ADR-045: lo que las suscripciones todavía van a cobrar, aparte del gastado y del balance. */}
+      <PendingSubscriptionsCard
+        pending={pendingCharges}
+        period={period}
+        balance={summaryState.status === 'ready' ? summaryState.summary.balance : null}
+      />
 
       {summaryState.status === 'loading' && (
         <p data-testid="dashboard-loading" className="text-callout text-muted-foreground">
