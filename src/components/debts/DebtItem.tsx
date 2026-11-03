@@ -1,4 +1,5 @@
-import { Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
+import { Link } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
 import { debtRowText, type DebtRecord } from '@/domain/debts'
 import { cn } from '@/lib/utils'
@@ -15,6 +16,7 @@ export function DebtItem({
   onSettle,
   onReopen,
   onDelete,
+  editHref,
 }: {
   debt: DebtRecord
   /** Esperando settle_debt o reopen_debt de esta fila. */
@@ -23,6 +25,8 @@ export function DebtItem({
   onReopen: (debt: DebtRecord) => void
   /** US-87: solo en una pendiente; una saldada vuelve a pendiente primero (ADR-044 §3). */
   onDelete: (debt: DebtRecord) => void
+  /** US-86: a dónde lleva «Editar». Solo una pendiente se edita (una saldada vuelve a pendiente primero). */
+  editHref?: string
 }) {
   const text = debtRowText(debt)
   const settled = debt.status === 'settled'
@@ -100,6 +104,16 @@ export function DebtItem({
           >
             {busy ? 'Saldando…' : 'Marcar saldada'}
           </button>
+        )}
+        {!settled && editHref && (
+          <Link
+            to={editHref}
+            data-testid="debts-item-edit"
+            aria-label={`Editar deuda de ${debt.person}`}
+            className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), '-mr-2 text-muted-foreground hover:text-primary')}
+          >
+            <Pencil strokeWidth={1.6} aria-hidden="true" />
+          </Link>
         )}
         {!settled && (
           <button

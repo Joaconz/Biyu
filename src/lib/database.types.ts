@@ -579,6 +579,17 @@ export type Database = {
       run_subscription_catchup: { Args: never; Returns: Json }
       settle_debt: { Args: { p_debt_id: string }; Returns: undefined }
       trim_js: { Args: { p_text: string }; Returns: string }
+      update_debt: {
+        Args: {
+          p_amount: number
+          p_debt_id: string
+          p_direction?: Database["public"]["Enums"]["debt_direction"]
+          p_incurred_on?: string
+          p_notes?: string
+          p_person: string
+        }
+        Returns: undefined
+      }
       update_subscription: {
         Args: {
           p_account_id: string

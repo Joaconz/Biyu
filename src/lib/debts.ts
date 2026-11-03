@@ -1,4 +1,5 @@
 import type { NewDebt } from '@/domain/debtDraft'
+import type { EditableDebt } from '@/domain/debtEdit'
 import type { DebtRecord } from '@/domain/debts'
 import { serializeMoney, type Decimal } from '@/domain/money'
 import { supabase } from './supabase'
@@ -91,4 +92,72 @@ export async function fetchDebts(): Promise<DebtRecord[]> {
 function requiredAmountArs(value: string | null): string {
   if (value === null) throw new Error('Deuda sin amount_ars')
   return value
+}
+
+/** Los cambios de una deuda (US-86). `incurredOn` y `direction` solo se mandan en una deuda suelta. */
+export interface DebtChanges {
+  person: string
+  amount: Decimal
+  notes: string | null
+  incurredOn?: string
+  direction?: DebtRecord['direction']
+}
+
+/**
+ * Edita la deuda con una sola RPC (US-86, ADR-037): nunca un update a debts. La moneda y el tipo de cambio
+ * quedan congelados (C5); en la deuda de un gasto, la fecha y la dirección son las del gasto.
+ */
+export async function updateDebt(id: string, changes: DebtChanges): Promise<void> {
+  const { error } = await supabase.rpc('update_debt', {
+    p_debt_id: id,
+    p_person: changes.person,
+    p_amount: asNumeric(changes.amount),
+    p_notes: changes.notes ?? undefined,
+    p_incurred_on: changes.incurredOn,
+    p_direction: changes.direction,
+  })
+  if (error) throw error
+}
+
+/**
+ * Una deuda para la pantalla de edición (US-86), con el tipo de cambio congelado y el gasto de origen para el
+ * tope de I7. RLS deja ver solo las propias (C7): una ajena, inexistente o con un id que no es uuid devuelve null.
+ */
+export async function fetchDebtForEdit(id: string): Promise<EditableDebt | null> {
+  const { data, error } = await supabase
+    .from('debts')
+    .select(`
+      id, person, direction, amount_text:amount::text, currency, fx_rate_text:fx_rate::text, incurred_on, notes, status,
+      transaction:transactions!debts_transaction_fk (
+        deleted_at, currency, amount_text:amount::text,
+        category:categories!transactions_category_fk (name)
+      )
+    `)
+    .eq('id', id)
+    .maybeSingle()
+  // 22P02: el id de la URL no es un uuid. Es lo mismo que no encontrarla.
+  if (error) {
+    if (error.code === '22P02') return null
+    throw error
+  }
+  if (!data) return null
+  return {
+    id: data.id,
+    person: data.person,
+    direction: data.direction,
+    amount: data.amount_text as string,
+    currency: data.currency,
+    fxRate: data.fx_rate_text as string | null,
+    incurredOn: data.incurred_on,
+    notes: data.notes,
+    status: data.status,
+    linked: data.transaction
+      ? {
+          amount: data.transaction.amount_text as string,
+          currency: data.transaction.currency,
+          categoryName: data.transaction.category?.name ?? null,
+          deleted: data.transaction.deleted_at != null,
+        }
+      : null,
+  }
 }
