@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   argentinaDateOf,
+  debtDeletionEffect,
+  debtDeletionSummary,
   debtNetText,
   debtOriginText,
   debtRowText,
@@ -393,5 +395,44 @@ describe('groupDebtsByPerson (US-91)', () => {
     ])
     const group = entries[0].kind === 'group' ? entries[0].group : null
     expect(group && groupNetText(group.nets[0])).toBe('En cero')
+  })
+})
+
+describe('eliminar una deuda (US-87)', () => {
+  const lent = debt({ id: 'a', person: 'Lucas', amountArs: '20000.00', amount: '20000.00', incurredOn: '2026-10-05' })
+  const owed = debt({ id: 'b', person: 'Marta', direction: 'i_owe', amountArs: '700.00', amount: '700.00', incurredOn: '2026-10-06' })
+  const shared = debt({ id: 'c', transactionId: 'tx', origin: { categoryName: 'Comida', amount: '1000.00', currency: 'ARS', occurredOn: '2026-10-07' }, amountArs: '400.00', amount: '400.00' })
+
+  it('el resumen dice persona, dirección, monto, fecha y origen', () => {
+    expect(debtDeletionSummary(lent)).toEqual([
+      { label: 'Persona', value: 'Lucas' },
+      { label: 'Dirección', value: 'Te debe' },
+      { label: 'Monto', value: '$20.000,00' },
+      { label: 'Fecha', value: '05/10/2026' },
+      { label: 'Origen', value: 'Deuda suelta' },
+    ])
+    expect(debtDeletionSummary(shared)[4].value).toBe('Gasto compartido')
+  })
+
+  it('una suelta «Me deben» baja ese total y sube el balance del mes', () => {
+    const e = debtDeletionEffect(lent, [lent, owed, shared])
+    expect(e.totalLabel).toBe('Me deben')
+    expect(e.before.toFixed(2)).toBe('20400.00')
+    expect(e.after.toFixed(2)).toBe('400.00')
+    expect(e.balanceNote).toBe('El balance de octubre 2026 sube $20.000,00.')
+    expect(e.keepsExpense).toBe(false)
+  })
+
+  it('una suelta «Debo» baja el balance del mes', () => {
+    const e = debtDeletionEffect(owed, [lent, owed])
+    expect(e.totalLabel).toBe('Debo')
+    expect(e.after.toFixed(2)).toBe('0.00')
+    expect(e.balanceNote).toBe('El balance de octubre 2026 baja $700,00.')
+  })
+
+  it('la de un gasto compartido no mueve el balance y deja el gasto como normal', () => {
+    const e = debtDeletionEffect(shared, [lent, shared])
+    expect(e.balanceNote).toBeNull()
+    expect(e.keepsExpense).toBe(true)
   })
 })

@@ -4,6 +4,9 @@ import {
   blockedMonthsWarning,
   cancelledNoticeText,
   cancelWarningText,
+  deletedSubscriptionNoticeText,
+  deleteSubscriptionWarning,
+  subscriptionDeletionSummary,
   expensesKeptOnCancel,
   pauseSkipsCurrentMonthDay,
   pausedNoticeText,
@@ -250,5 +253,41 @@ describe('expensesKeptOnCancel (US-58 CA-5)', () => {
     expect(expensesKeptOnCancel(2, { ...ars, generateFromPeriod: { year: 2026, month: 8 } }, new Set(['2026-09']), null, TODAY)).toBe(
       2 + 1,
     )
+  })
+})
+
+describe('eliminar definitivamente una suscripción (US-88)', () => {
+  const sub = { name: 'Netflix', amount: '5000.00', currency: 'ARS' as const, status: 'active' as const }
+
+  it('el resumen dice nombre, monto, estado y cuántos gastos generó', () => {
+    expect(subscriptionDeletionSummary(sub, 3)).toEqual([
+      { label: 'Suscripción', value: 'Netflix' },
+      { label: 'Monto', value: '$5.000,00' },
+      { label: 'Estado', value: 'Activa' },
+      { label: 'Gastos generados', value: '3' },
+    ])
+  })
+
+  it('sin el conteo no inventa un número', () => {
+    expect(subscriptionDeletionSummary({ ...sub, status: 'cancelled' }, null).map((i) => i.label)).not.toContain('Gastos generados')
+  })
+
+  it('una vigente avisa que deja de generar; una cancelada no', () => {
+    expect(deleteSubscriptionWarning('active', 2)[0]).toBe('Deja de generar gastos.')
+    expect(deleteSubscriptionWarning('paused', 2)[0]).toBe('Deja de generar gastos.')
+    expect(deleteSubscriptionWarning('cancelled', 2)).not.toContain('Deja de generar gastos.')
+  })
+
+  it.each([
+    [0, 'Todavía no generó ningún gasto.'],
+    [1, 'El gasto que generó queda como un movimiento suelto, sin vínculo con la suscripción.'],
+    [3, 'Los 3 gastos que generó quedan como movimientos sueltos, sin vínculo con la suscripción.'],
+    [null, 'Los gastos ya generados quedan como movimientos sueltos.'],
+  ])('con %s gastos generados', (n, text) => {
+    expect(deleteSubscriptionWarning('cancelled', n)).toContain(text)
+  })
+
+  it('el aviso nombra la suscripción', () => {
+    expect(deletedSubscriptionNoticeText('Netflix')).toBe('Suscripción «Netflix» eliminada')
   })
 })

@@ -1,7 +1,7 @@
 import { comparePeople } from './sharedDebt'
 import type { Currency } from './fx'
 import { Decimal, formatArs, formatUsd, parseMoney } from './money'
-import { formatDisplayDate } from './period'
+import { formatDisplayDate, formatPeriodLong, periodOf } from './period'
 
 export type DebtDirection = 'owed_to_me' | 'i_owe'
 export type DebtStatus = 'pending' | 'settled'
@@ -328,4 +328,61 @@ export function emptyDebtsMessage(
     case 'all':
       return { message: 'No cargaste ninguna deuda todavía.', offerNew: true }
   }
+}
+
+/** Una línea de «qué se borra» en la confirmación de eliminar una deuda (US-87, US-94). */
+export interface DebtDeletionItem {
+  label: string
+  value: string
+}
+
+/** Qué deuda se va a borrar: persona, dirección, monto, fecha y de dónde viene (US-87, US-94). */
+export function debtDeletionSummary(debt: DebtRecord): DebtDeletionItem[] {
+  const text = debtRowText(debt)
+  return [
+    { label: 'Persona', value: text.person },
+    { label: 'Dirección', value: text.direction },
+    { label: 'Monto', value: text.amountArs ? `${text.amount} (${text.amountArs})` : text.amount },
+    { label: 'Fecha', value: text.date },
+    { label: 'Origen', value: debt.origin ? 'Gasto compartido' : 'Deuda suelta' },
+  ]
+}
+
+/** Lo que cambia al borrar una deuda pendiente (US-87): el total de su dirección y, si es suelta, el balance del mes. */
+export interface DebtDeletionEffect {
+  /** «Me deben» o «Debo». */
+  totalLabel: string
+  before: Decimal
+  after: Decimal
+  /** Solo una deuda suelta mueve el balance (ADR-041 §4): «El balance de octubre de 2026 baja $20.000,00». */
+  balanceNote: string | null
+  /** Una deuda de gasto compartido deja el gasto como gasto normal (ADR-044 §3). */
+  keepsExpense: boolean
+}
+
+/**
+ * Calcula el efecto de borrar `debt` sobre los totales de Deudas (US-37) y el balance del mes (ADR-041).
+ * Una pendiente solo tiene el evento «alta»: al borrarla, el balance de ese mes sube si la prestó el usuario
+ * (`owed_to_me`: dejó de salir plata) y baja si se la prestaron (`i_owe`: dejó de entrar).
+ */
+export function debtDeletionEffect(debt: DebtRecord, all: readonly DebtRecord[]): DebtDeletionEffect {
+  const before = debtTotals(all)
+  const after = debtTotals(all.filter((d) => d.id !== debt.id))
+  const owed = debt.direction === 'owed_to_me'
+  const ars = parseMoney(debt.amountArs)
+  const month = formatPeriodLong(periodOf(debt.incurredOn))
+  return {
+    totalLabel: owed ? 'Me deben' : 'Debo',
+    before: owed ? before.owedToMe : before.iOwe,
+    after: owed ? after.owedToMe : after.iOwe,
+    balanceNote: debt.transactionId
+      ? null
+      : `El balance de ${month} ${owed ? 'sube' : 'baja'} ${formatArs(ars)}.`,
+    keepsExpense: debt.transactionId !== null,
+  }
+}
+
+/** Aviso de éxito al eliminar una deuda (US-87 CA-4). */
+export function deletedNoticeText(person: string): string {
+  return `Deuda con ${person} eliminada`
 }

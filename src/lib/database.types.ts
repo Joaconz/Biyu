@@ -507,6 +507,11 @@ export type Database = {
       }
       delete_account: { Args: { p_account_id: string }; Returns: number }
       delete_category: { Args: { p_category_id: string }; Returns: undefined }
+      delete_debt: { Args: { p_debt_id: string }; Returns: undefined }
+      delete_subscription: {
+        Args: { p_subscription_id: string }
+        Returns: Json
+      }
       delete_transaction: {
         Args: { p_transaction_id: string }
         Returns: undefined
@@ -547,12 +552,26 @@ export type Database = {
       }
       pause_subscription: { Args: { p_subscription_id: string }; Returns: Json }
       period_label: { Args: { p_period: string }; Returns: string }
+      purge_transaction: {
+        Args: { p_transaction_id: string }
+        Returns: undefined
+      }
+      regenerate_ledger_entries: {
+        Args: {
+          p_amount: number
+          p_amount_ars: number
+          p_first_period: string
+          p_installments_count: number
+          p_transaction_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       reopen_debt: { Args: { p_debt_id: string }; Returns: undefined }
       restore_transaction: {
         Args: { p_transaction_id: string }
         Returns: undefined
       }
-      purge_transaction: { Args: { p_transaction_id: string }; Returns: undefined }
       resume_subscription: {
         Args: { p_subscription_id: string }
         Returns: Json

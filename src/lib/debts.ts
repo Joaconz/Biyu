@@ -34,6 +34,12 @@ export async function reopenDebt(id: string): Promise<void> {
   if (error) throw error
 }
 
+/** US-87, ADR-044 §3: elimina una deuda pendiente por RPC (ADR-037 revocó el DELETE directo). */
+export async function deleteDebt(id: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_debt', { p_debt_id: id })
+  if (error) throw error
+}
+
 /**
  * Las deudas del usuario (RLS, C7), con la baja lógica del gasto de origen para que el dominio
  * oculte las de gastos eliminados (ADR-037 §4). Se traen todas: el filtro y el orden de la
