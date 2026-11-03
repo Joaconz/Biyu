@@ -21,7 +21,7 @@ select
   public.create_debt('owed_to_me', 'Ana', 500, 'ARS', null, '2026-08-17', null) as saldada,
   public.create_debt('owed_to_me', 'Borrar', 700, 'ARS', null, '2026-08-18', null) as borrar,
   public.create_transaction('expense', 40000, 'ARS', null, 'c8600000-0000-0000-0000-000000000001',
-    'a8600000-0000-0000-0000-000000000001', 1, '2026-08-19', null, 'Sofía', 15000) as gasto;
+    'a8600000-0000-0000-0000-000000000001', 1, '2026-08-19', null, array['Sofía'], array[15000]) as gasto;
 select set_config('t.linked', (select id::text from debts where transaction_id = (select gasto from d)), true);
 select public.settle_debt((select saldada from d));
 
