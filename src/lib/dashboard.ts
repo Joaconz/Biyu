@@ -1,5 +1,5 @@
 import { addMonths, toDbDate, type Period } from '@/domain/period'
-import type { ConsistencyTransaction, SummaryDebt, SummaryEntry } from '@/domain/summary'
+import type { ConsistencyTransaction, LooseDebt, SummaryDebt, SummaryEntry } from '@/domain/summary'
 import { supabase } from './supabase'
 
 /**
@@ -120,6 +120,27 @@ export async function fetchMonthlyReimbursementDebts(period: Period): Promise<Su
     amount_ars: requiredText(row.amount_ars_text),
     transaction_first_period: row.transaction?.first_period ?? null,
     transaction_deleted_at: row.transaction?.deleted_at ?? null,
+  }))
+}
+
+/**
+ * Las deudas sueltas del usuario (sin gasto de origen) para el movimiento del balance (US-83, ADR-041).
+ * Se traen todas y el dominio filtra los eventos del período (el día de `settled_at` es hora de Argentina,
+ * ADR-021): son pocas, y así el borde de mes no depende de un filtro en UTC. RLS acota al usuario (C7).
+ */
+export async function fetchLooseDebts(): Promise<LooseDebt[]> {
+  const { data, error } = await supabase
+    .from('debts')
+    .select('direction, amount_ars_text:amount_ars::text, incurred_on, status, settled_at')
+    .is('transaction_id', null)
+
+  if (error) throw error
+  return (data ?? []).map((row) => ({
+    direction: row.direction,
+    amount_ars: requiredText(row.amount_ars_text),
+    incurred_on: row.incurred_on,
+    status: row.status,
+    settled_at: row.settled_at,
   }))
 }
 

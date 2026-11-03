@@ -1,6 +1,6 @@
 # ADR-041 — Las deudas sueltas mueven el balance del mes
 
-**Estado:** propuesta · **Fecha:** 2026-10
+**Estado:** aceptada · **Fecha:** 2026-10
 **Relacionada:** ADR-001, ADR-002, ADR-006, ADR-021 · Modifica ADR-037 (punto 6) y US-36 · CA-12
 
 ## Contexto

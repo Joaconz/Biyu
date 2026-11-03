@@ -216,6 +216,12 @@ export function DashboardPage() {
                 >
                   {balanceText}
                 </span>
+                {/* US-83: el balance incluye el movimiento de las deudas sueltas; la línea dice cuánto. */}
+                {summary.hasLooseDebtEvents && (
+                  <span data-testid="dashboard-balance-loose-debts" className="tabular text-caption text-muted-foreground">
+                    Incluye deudas sueltas: {formatArs(summary.looseDebtMovement)}
+                  </span>
+                )}
               </div>
             </div>
 

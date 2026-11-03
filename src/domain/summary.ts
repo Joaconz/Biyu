@@ -1,4 +1,5 @@
 import { formatPeriod, type Period } from './period'
+import { argentinaDateOf } from './debts'
 import { Decimal, parseMoney } from './money'
 
 // Filas como las entrega src/lib/dashboard.ts: los montos son string porque se piden con ::text (C2).
@@ -40,6 +41,16 @@ export interface SummaryDebt {
   transaction_deleted_at: string | null
 }
 
+/** Una deuda suelta (sin gasto de origen) para el movimiento del balance (US-83, ADR-041). */
+export interface LooseDebt {
+  direction: 'owed_to_me' | 'i_owe'
+  /** Pesos congelados al crear la deuda (C5); texto porque PostgREST manda numeric como número (C2). */
+  amount_ars: string
+  incurred_on: string // YYYY-MM-DD
+  status: 'pending' | 'settled'
+  settled_at: string | null // timestamptz
+}
+
 export interface CategoryExpenseSummary {
   id: string
   name: string
@@ -62,7 +73,12 @@ export interface MonthlySummary {
   expenses: Decimal
   expensesUsd: Decimal // subtotal en USD de las imputaciones en dólares (US-24)
   income: Decimal
+  /** Ingresos − gastos + movimiento de deudas sueltas del período (US-83, ADR-041). */
   balance: Decimal
+  /** Lo que las deudas sueltas suman al balance: con signo, negativo si salió más plata de la que entró. */
+  looseDebtMovement: Decimal
+  /** Si el período tiene al menos un evento de una deuda suelta: sin ninguno, la línea no se muestra. */
+  hasLooseDebtEvents: boolean
   inheritedInstallments: Decimal // cuotas con installment_number > 1
   /** Total gastado menos las deudas que cuentan para el neto (US-30); puede ser negativo. */
   netOfReimbursements: Decimal
@@ -82,6 +98,7 @@ export function computeMonthlySummary(
   entries: SummaryEntry[],
   debts: SummaryDebt[],
   period: Period,
+  looseDebts: readonly LooseDebt[] = [],
 ): MonthlySummary {
   const key = `${formatPeriod(period)}-01`
   let expenses = new Decimal(0)
@@ -192,11 +209,15 @@ export function computeMonthlySummary(
   const counted = debts.filter((d) => countsForNet(d, key))
   const reimbursed = counted.reduce((acc, d) => acc.plus(parseMoney(d.amount_ars)), new Decimal(0))
 
+  const loose = looseDebtMovement(looseDebts, period)
+
   return {
     expenses,
     expensesUsd,
     income,
-    balance: income.minus(expenses),
+    balance: income.minus(expenses).plus(loose.movement),
+    looseDebtMovement: loose.movement,
+    hasLooseDebtEvents: loose.hasEvents,
     inheritedInstallments: inherited,
     netOfReimbursements: expenses.minus(reimbursed),
     hasReimbursements: counted.length > 0,
@@ -204,8 +225,41 @@ export function computeMonthlySummary(
     byAccount,
     categoryExpenses,
     accountExpenses,
-    hasData,
+    // Un mes solo con eventos de deudas sueltas no es un mes vacío (US-83, ADR-041 §6).
+    hasData: hasData || loose.hasEvents,
   }
+}
+
+/**
+ * Movimiento de las deudas sueltas en un período (US-83, ADR-041 §2): cada evento suma su `amount_ars`
+ * en el período del día en que pasó, en hora de Argentina (ADR-021).
+ *
+ * - Alta, el día `incurred_on`: "me deben" resta (presté, salió plata) y "debo" suma (entró plata).
+ * - Saldada, el día de `settled_at`: "me deben" suma (me devolvieron) y "debo" resta (devolví).
+ *
+ * Reabrir deja `settled_at` en nulo, así que el evento "saldada" desaparece solo. Las deudas vinculadas
+ * a un gasto no entran: ya cuentan en gastos y en el neto de reembolsos (ADR-041 §4).
+ */
+export function looseDebtMovement(
+  debts: readonly LooseDebt[],
+  period: Period,
+): { movement: Decimal; hasEvents: boolean } {
+  const month = formatPeriod(period) // "YYYY-MM"
+  let movement = new Decimal(0)
+  let hasEvents = false
+  for (const debt of debts) {
+    const amount = parseMoney(debt.amount_ars)
+    const sign = debt.direction === 'owed_to_me' ? -1 : 1
+    if (debt.incurred_on.startsWith(month)) {
+      movement = movement.plus(amount.times(sign))
+      hasEvents = true
+    }
+    if (debt.status === 'settled' && debt.settled_at && argentinaDateOf(debt.settled_at).startsWith(month)) {
+      movement = movement.plus(amount.times(-sign))
+      hasEvents = true
+    }
+  }
+  return { movement, hasEvents }
 }
 
 /**
