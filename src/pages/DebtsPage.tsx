@@ -140,6 +140,9 @@ export function DebtsPage() {
   const debts = debtsState.status === 'ready' ? debtsForFilter(debtsState.debts, filter, direction) : []
   // US-91: las de una misma persona (sin distinguir mayúsculas, tildes ni espacios) van juntas.
   const entries = groupDebtsByPerson(debts)
+  // US-86: la edición vuelve a la lista con los mismos filtros (C11).
+  const search = params.toString() ? `?${params.toString()}` : ''
+  const editHref = (debt: DebtRecord) => `/debts/${debt.id}/edit${search}`
 
   function toggleGroup(key: string) {
     setExpanded((prev) => {
@@ -213,6 +216,7 @@ export function DebtsPage() {
                     onSettle={handleSettle}
                     onReopen={handleReopen}
                     onDelete={setToDelete}
+                    editHref={editHref}
                   />
                 ) : (
                   <DebtItem
@@ -222,6 +226,7 @@ export function DebtsPage() {
                     onSettle={handleSettle}
                     onReopen={handleReopen}
                     onDelete={setToDelete}
+                    editHref={editHref(entry.debt)}
                   />
                 ),
               )}
