@@ -1,11 +1,12 @@
 
 // Eliminar definitivamente un movimiento (US-85, ADR-044 §1-§2): lo que decide la pantalla de Eliminados.
 // Funciones puras, sin React ni Supabase.
+import { joinNames } from './sharedDebt'
 
 export interface PurgeableTransaction {
   installmentsCount: number
-  /** Persona de la deuda vinculada de un gasto compartido (ADR-036), o null. */
-  sharedPerson: string | null
+  /** Personas de las deudas vinculadas de un gasto compartido (ADR-036, ADR-040); vacío si no hay. */
+  sharedPeople: readonly string[]
   /** Nombre de la suscripción que lo generó (US-60), o null. */
   subscriptionName: string | null
 }
@@ -25,7 +26,8 @@ export function canPurge(tx: Pick<PurgeableTransaction, 'subscriptionName'>): bo
 export function purgeConsequences(tx: PurgeableTransaction): string[] {
   const lines: string[] = []
   if (tx.installmentsCount > 1) lines.push(`Se borran también sus ${tx.installmentsCount} cuotas.`)
-  if (tx.sharedPerson) lines.push(`Se borra también la deuda con ${tx.sharedPerson}.`)
+  if (tx.sharedPeople.length === 1) lines.push(`Se borra también la deuda con ${tx.sharedPeople[0]}.`)
+  else if (tx.sharedPeople.length > 1) lines.push(`Se borran también las deudas con ${joinNames(tx.sharedPeople)}.`)
   return lines
 }
 

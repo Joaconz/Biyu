@@ -19,7 +19,7 @@ select lives_ok($$select create_transaction(
   p_type => 'expense', p_amount => 10000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-1',
-  p_shared_person => 'Sofía', p_shared_amount => 9999.99)$$,
+  p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(9999.99)::numeric])$$,
   'CA-1: gasto de 10000 con deuda de 9999.99 se guarda');
 
 -- CA-2: deuda igual al gasto.
@@ -27,7 +27,7 @@ select lives_ok($$select create_transaction(
   p_type => 'expense', p_amount => 10000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-2',
-  p_shared_person => 'Sofía', p_shared_amount => 10000)$$,
+  p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(10000)::numeric])$$,
   'CA-2: gasto de 10000 con deuda de 10000 se guarda');
 select is((select d.amount from debts d join transactions t on t.id = d.transaction_id where t.description = 'CA-2'),
   10000.00::numeric, 'CA-2: la deuda tiene amount = 10000.00');
@@ -40,7 +40,7 @@ select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 10000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-5',
-  p_shared_person => 'Sofía', p_shared_amount => 10000.01)$$,
+  p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(10000.01)::numeric])$$,
   '23514', 'I7: la deuda no puede superar el monto del gasto',
   'CA-5: deuda de 10000.01 sobre un gasto de 10000 se rechaza con el mensaje de US-41');
 -- CA-4 por API: el sad path de la spec (15000) recibe el mismo rechazo.
@@ -48,7 +48,7 @@ select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 10000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-4',
-  p_shared_person => 'Sofía', p_shared_amount => 15000)$$,
+  p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(15000)::numeric])$$,
   '23514', 'I7: la deuda no puede superar el monto del gasto',
   'CA-4: deuda de 15000 sobre un gasto de 10000 se rechaza igual');
 select is((select count(*) from transactions)::text, current_setting('t.tx'), 'CA-5: no hay transacciones nuevas');
@@ -60,7 +60,7 @@ select lives_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100.01, p_currency => 'USD', p_fx_rate => 1250.5555,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-6',
-  p_shared_person => 'Marcos', p_shared_amount => 100.01)$$,
+  p_shared_persons => array['Marcos']::text[], p_shared_amounts => array[(100.01)::numeric])$$,
   'CA-6: gasto de US$100,01 con deuda de 100,01 se guarda');
 select results_eq(
   $$select d.amount_ars, t.amount_ars from debts d join transactions t on t.id = d.transaction_id where t.description = 'CA-6'$$,
@@ -70,7 +70,7 @@ select throws_ok($$select create_transaction(
   p_type => 'expense', p_amount => 100.01, p_currency => 'USD', p_fx_rate => 1250.5555,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15', p_description => 'CA-6b',
-  p_shared_person => 'Marcos', p_shared_amount => 100.02)$$,
+  p_shared_persons => array['Marcos']::text[], p_shared_amounts => array[(100.02)::numeric])$$,
   '23514', 'I7: la deuda no puede superar el monto del gasto',
   'CA-6: deuda de 100,02 sobre US$100,01 se rechaza');
 

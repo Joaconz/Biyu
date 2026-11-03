@@ -20,7 +20,7 @@ set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","r
 select public.create_transaction('expense', 3000, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',
   'a0000000-0000-0000-0000-000000000001', 3, '2026-08-15');
 select public.create_transaction('expense', 1000, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',
-  'a0000000-0000-0000-0000-000000000001', 1, '2026-08-16', p_shared_person => 'Sofía', p_shared_amount => 400);
+  'a0000000-0000-0000-0000-000000000001', 1, '2026-08-16', p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(400)::numeric]);
 select public.delete_transaction(public.create_transaction('expense', 500, 'ARS', null,
   'c0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 1, '2026-08-17'));
 select public.create_transaction('expense', 200, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',

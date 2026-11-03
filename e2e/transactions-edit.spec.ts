@@ -352,7 +352,7 @@ test('CA-21 · eliminado, de una suscripción y compartido muestran su aviso y n
 
   const shared = await s.api.rpc('create_transaction', {
     p_type: 'expense', p_amount: '40000.00', p_currency: 'ARS', p_fx_rate: null, p_category_id: s.food, p_account_id: s.cash,
-    p_installments_count: 1, p_occurred_on: day(0, 1), p_description: null, p_shared_person: 'Sofía', p_shared_amount: '15000.00', p_request_id: null,
+    p_installments_count: 1, p_occurred_on: day(0, 1), p_description: null, p_shared_persons: ['Sofía'], p_shared_amounts: ['15000.00'], p_request_id: null,
   })
   await page.goto(editUrl(shared.body as string))
   await expect(page.getByTestId('edit-transaction-blocked-shared')).toHaveText(

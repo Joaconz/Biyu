@@ -30,7 +30,7 @@ select
   public.create_transaction('expense', 30000, 'ARS', null, 'c8500000-0000-0000-0000-000000000001',
     'a8500000-0000-0000-0000-000000000001', 3, '2026-08-15') as cuotas,
   public.create_transaction('expense', 40000, 'ARS', null, 'c8500000-0000-0000-0000-000000000001',
-    'a8500000-0000-0000-0000-000000000001', 1, '2026-08-16', null, 'Sofía', 15000) as compartida,
+    'a8500000-0000-0000-0000-000000000001', 1, '2026-08-16', null, array['Sofía'], array[15000::numeric]) as compartida,
   public.create_transaction('expense', 500, 'ARS', null, 'c8500000-0000-0000-0000-000000000001',
     'a8500000-0000-0000-0000-000000000001', 1, '2026-08-17') as otra,
   public.create_transaction('expense', 700, 'ARS', null, 'c8500000-0000-0000-0000-000000000001',

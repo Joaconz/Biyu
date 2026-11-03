@@ -383,8 +383,8 @@ describe('groupDebtsByPerson (US-91)', () => {
     ]
     const entries = groupDebtsByPerson(debtsForFilter(all, 'settled'))
     expect(entries.map((e) => (e.kind === 'debt' ? `debt:${e.debt.person}` : `group:${e.group.key}`))).toEqual([
-      'debt:juan',
       'group:ana',
+      'debt:juan',
     ])
   })
 

@@ -82,9 +82,9 @@ describe('sameDraftValues: volver al mismo valor no es un cambio', () => {
   })
 
   it('compara la deuda de un gasto compartido', () => {
-    const shared = { ...comida, shared: true, sharedPerson: 'Sofía', sharedAmount: '6000' }
-    expect(sameDraftValues(shared, { ...shared, sharedPerson: ' Sofía ', sharedAmount: '6.000' })).toBe(true)
-    expect(sameDraftValues(shared, { ...shared, sharedAmount: '5000' })).toBe(false)
+    const shared = { ...comida, shared: true, sharedRows: [{ person: 'Sofía', amount: '6000' }] }
+    expect(sameDraftValues(shared, { ...shared, sharedRows: [{ person: ' Sofía ', amount: '6.000' }] })).toBe(true)
+    expect(sameDraftValues(shared, { ...shared, sharedRows: [{ person: 'Sofía', amount: '5000' }] })).toBe(false)
     expect(sameDraftValues(shared, comida)).toBe(false)
   })
 })
@@ -162,7 +162,7 @@ describe('descripción del toast de éxito (CA-1, CA-2)', () => {
   })
 
   it('un gasto compartido suma la línea de US-34 al final', () => {
-    const shared = { ...comida, amount: '120000', shared: true, sharedPerson: 'Sofía', sharedAmount: '60000' }
+    const shared = { ...comida, amount: '120000', shared: true, sharedRows: [{ person: 'Sofía', amount: '60000' }] }
     expect(savedDraftDescription(shared, { categoryName: 'Comida', accountName: 'Visa BBVA' })).toBe(
       '$120.000,00 · Comida · Visa BBVA · Sofía te debe $60.000,00',
     )
@@ -254,5 +254,15 @@ describe('movimientos pendientes (NFR-09, ADR-034)', () => {
     expect(parsePendingDrafts('no es json')).toEqual([])
     expect(parsePendingDrafts('{"id":"d1"}')).toEqual([])
     expect(parsePendingDrafts(JSON.stringify([{ ...list[0], requestIds: [] }, { id: 'x' }, list[0]]))).toEqual(list)
+  })
+
+  it('un pendiente guardado antes de US-82 pasa su deuda a una fila (CA-21)', () => {
+    const list = recordNetworkFailure([], failure('d1', { ...comida, shared: true, sharedRows: [{ person: 'Sofía', amount: '6000' }] }, 'k1'))
+    const { sharedRows, ...rest } = list[0].values
+    const legacy = [{ ...list[0], values: { ...rest, sharedPerson: sharedRows[0].person, sharedAmount: sharedRows[0].amount } }]
+    expect(parsePendingDrafts(JSON.stringify(legacy))).toEqual(list)
+    const off = recordNetworkFailure([], failure('d2', comida, 'k2'))
+    const { sharedRows: _rows, ...offRest } = off[0].values
+    expect(parsePendingDrafts(JSON.stringify([{ ...off[0], values: { ...offRest, sharedPerson: '', sharedAmount: '' } }]))).toEqual(off)
   })
 })

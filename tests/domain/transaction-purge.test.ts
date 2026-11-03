@@ -13,7 +13,7 @@ describe('canPurge', () => {
 })
 
 describe('purgeConsequences', () => {
-  const base = { installmentsCount: 1, sharedPerson: null, subscriptionName: null }
+  const base = { installmentsCount: 1, sharedPeople: [], subscriptionName: null }
 
   it('un gasto de una cuota y sin deuda no arrastra nada', () => {
     expect(purgeConsequences(base)).toEqual([])
@@ -24,11 +24,11 @@ describe('purgeConsequences', () => {
   })
 
   it('un gasto compartido dice que se borra la deuda con la persona', () => {
-    expect(purgeConsequences({ ...base, sharedPerson: 'Sofía' })).toEqual(['Se borra también la deuda con Sofía.'])
+    expect(purgeConsequences({ ...base, sharedPeople: ['Sofía'] })).toEqual(['Se borra también la deuda con Sofía.'])
   })
 
   it('cuotas y deuda a la vez: las dos líneas, en ese orden', () => {
-    expect(purgeConsequences({ ...base, installmentsCount: 3, sharedPerson: 'Juan' })).toEqual([
+    expect(purgeConsequences({ ...base, installmentsCount: 3, sharedPeople: ['Juan'] })).toEqual([
       'Se borran también sus 3 cuotas.',
       'Se borra también la deuda con Juan.',
     ])

@@ -21,7 +21,7 @@ select set_config('t.tx', create_transaction(
   p_type => 'expense', p_amount => 120000, p_currency => 'ARS', p_fx_rate => null,
   p_category_id => 'c0000000-0000-0000-0000-000000000001', p_account_id => 'a0000000-0000-0000-0000-000000000001',
   p_installments_count => 1, p_occurred_on => '2026-08-15',
-  p_shared_person => 'Sofía', p_shared_amount => 60000)::text, true);
+  p_shared_persons => array['Sofía']::text[], p_shared_amounts => array[(60000)::numeric])::text, true);
 
 create temp table before on commit drop as
   select id, person, amount, currency, fx_rate, amount_ars, direction, incurred_on, notes, transaction_id, created_at

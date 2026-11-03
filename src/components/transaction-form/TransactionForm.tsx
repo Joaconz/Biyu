@@ -149,8 +149,14 @@ export function TransactionForm({
   // campos de este paso que todavía no se tocaron (los tocados muestran su error al lado) y, en el
   // último paso, cualquier error de un paso anterior, que ya no está en pantalla.
   const onScreen = new Set<keyof DraftErrors>(STEP_FIELDS[step])
+  // Con varias personas (US-82), un campo compartido cuenta como tocado cuando lo tocó cada fila.
+  const touchedFields: Touched = {
+    ...touched,
+    sharedPerson: values.sharedRows.length > 0 && values.sharedRows.every((_, i) => touched.sharedRows?.[i]?.person),
+    sharedAmount: values.sharedRows.length > 0 && values.sharedRows.every((_, i) => touched.sharedRows?.[i]?.amount),
+  }
   const pending = (Object.keys(FIELD_NAMES) as (keyof DraftErrors)[])
-    .filter((field) => errors[field] && (onScreen.has(field) ? !touched[field] : isLastStep))
+    .filter((field) => errors[field] && (onScreen.has(field) ? !touchedFields[field] : isLastStep))
     .map((field) => FIELD_NAMES[field] as string)
 
   useEffect(() => {
@@ -208,11 +214,18 @@ export function TransactionForm({
         testId: 'transaction-form-installments-reset',
       })
     }
-    setTouched((prev) => ({
-      ...prev,
-      ...Object.fromEntries(next.clearedFields.map((k) => [k, false])),
-      ...Object.fromEntries(Object.keys(patch).map((k) => [k, true])),
-    }))
+    setTouched((prev) => {
+      // Cambiar el interruptor o el tipo vacía las filas; cambiar la moneda solo sus montos (US-34 CA-12).
+      let sharedRows = prev.sharedRows
+      if (next.clearedFields.includes('sharedPerson')) sharedRows = []
+      else if (next.clearedFields.includes('sharedAmount')) sharedRows = sharedRows?.map(({ person }) => ({ person }))
+      return {
+        ...prev,
+        sharedRows,
+        // Las filas de personas llevan su propio "tocado" (SharedSection): escribir en una no marca las demás.
+        ...Object.fromEntries(Object.keys(patch).filter((k) => k !== 'sharedRows').map((k) => [k, true])),
+      }
+    })
   }
 
   function goTo(target: RegisterStep) {
@@ -450,7 +463,10 @@ export function TransactionForm({
             <DescriptionSection {...section} />
             {/* Gasto compartido (US-34): solo un gasto se comparte. */}
             {values.type === 'expense' && (
-              <SharedSection {...section} onTouch={(field) => setTouched((prev) => ({ ...prev, [field]: true }))} />
+              <SharedSection
+                {...section}
+                onTouchedRowsChange={(sharedRows) => setTouched((prev) => ({ ...prev, sharedRows }))}
+              />
             )}
           </>
         )}

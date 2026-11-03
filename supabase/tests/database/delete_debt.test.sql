@@ -20,10 +20,10 @@ create temp table ids as
          public.create_debt('i_owe', 'Marta', 700, 'ARS', null, '2026-10-06', null) as settled,
          public.create_transaction('expense', 1000, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',
            'a0000000-0000-0000-0000-000000000001', 1, '2026-10-07',
-           p_shared_person => 'Sofía', p_shared_amount => 400) as shared_tx,
+           p_shared_persons => array['Sofía'], p_shared_amounts => array[400]) as shared_tx,
          public.create_transaction('expense', 600, 'ARS', null, 'c0000000-0000-0000-0000-000000000001',
            'a0000000-0000-0000-0000-000000000001', 1, '2026-10-08',
-           p_shared_person => 'Juan', p_shared_amount => 100) as gone_tx;
+           p_shared_persons => array['Juan'], p_shared_amounts => array[100]) as gone_tx;
 select public.settle_debt((select settled from ids));
 select public.delete_transaction((select gone_tx from ids));
 

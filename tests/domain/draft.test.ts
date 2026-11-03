@@ -20,7 +20,7 @@ describe('emptyDraftInput', () => {
     expect(emptyDraftInput(TODAY)).toEqual({
       type: 'expense', amount: '', currency: 'ARS', fxRate: '', categoryId: null,
       accountId: null, accountType: null, installmentsCount: 1, occurredOn: TODAY,
-      description: '', shared: false, sharedPerson: '', sharedAmount: '',
+      description: '', shared: false, sharedRows: [],
     })
   })
   it('la fecha es el today que recibe, no la del reloj (C1)', () =>

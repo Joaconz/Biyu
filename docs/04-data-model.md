@@ -227,7 +227,7 @@ Cada una tiene un test. Si una no se puede testear, está mal formulada.
 | I4 | `amount > 0` siempre, en transacciones, imputaciones y deudas | Restricción de verificación en la base |
 | I5 | `fx_rate` es not null si y solo si `currency = 'USD'` | Restricción de verificación |
 | I6 | `installments_count > 1` solo si la cuenta es `credit_card` y el tipo es `expense` | Trigger en la base (requiere join, no se resuelve con check), revalidado en `create_transaction`. Un segundo trigger en `accounts` impide que una cuenta con compras en cuotas deje de ser `credit_card` (DEF-009) |
-| I7 | La suma de las deudas vinculadas a una transacción no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Trigger en la base (`security definer`: bloquea la transacción con `for update`, que authenticated no puede hacer por C4; DEF-016) |
+| I7 | La suma de las deudas vinculadas a una transacción (hasta 10, una por persona: ADR-040) no supera `transactions.amount_ars`, y una deuda vinculada tiene la misma `currency` que su transacción de origen | Trigger en la base (`security definer`: bloquea la transacción con `for update`, que authenticated no puede hacer por C4; DEF-016) |
 | I8 | Una transacción de tipo `expense` tiene categoría | Restricción de verificación |
 | I9 | `status = 'settled'` implica `settled_at` not null | Restricción de verificación |
 | I10 | Una transacción con `deleted_at` no aporta a ningún KPI, y tampoco su deuda vinculada (ADR-037 §4) | Filtro en todas las consultas de lectura |

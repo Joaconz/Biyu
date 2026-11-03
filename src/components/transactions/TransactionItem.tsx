@@ -81,12 +81,12 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
           )}
           {/* US-35: el gasto compartido lo dice en cada cuota, junto a las otras etiquetas. Va última y sin
             recortar: el nombre es lo que importa, y en el celular baja de renglón. */}
-          {transaction.shared_debt && (
+          {transaction.shared_debts.length > 0 && (
             <span
               data-testid={`${baseTestId}-shared`}
               className="max-w-full rounded-md break-words bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
             >
-              {sharedExpenseLabel(transaction.shared_debt.person)}
+              {sharedExpenseLabel(transaction.shared_debts.map((d) => d.person))}
             </span>
           )}
           {/* US-61: sale de subscription_id, con el nombre actual de la suscripción (CA-3), sea cual sea su estado. */}
