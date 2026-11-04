@@ -25,7 +25,7 @@ async function debt(api: Api, over: Record<string, unknown> = {}) {
 async function sharedExpense(api: Api, s: { food: string; cash: string }) {
   const res = await api.rpc('create_transaction', {
     p_type: 'expense', p_amount: '40000.00', p_currency: 'ARS', p_fx_rate: null, p_category_id: s.food, p_account_id: s.cash,
-    p_installments_count: 1, p_occurred_on: '2026-08-19', p_description: null, p_shared_person: 'Sofía', p_shared_amount: '15000.00', p_request_id: null,
+    p_installments_count: 1, p_occurred_on: '2026-08-19', p_description: null, p_shared_persons: ['Sofía'], p_shared_amounts: ['15000.00'], p_request_id: null,
   })
   expect(res.status).toBe(200)
   const debts = (await api.select('debts', `select=id&transaction_id=eq.${res.body}`)).body as { id: string }[]
