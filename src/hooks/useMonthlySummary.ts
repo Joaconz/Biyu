@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { BalanceOptions } from '@/domain/balance'
 import type { Period } from '@/domain/period'
 import {
   computeMonthlySummary,
@@ -11,16 +12,17 @@ import {
   fetchMonthlyLedgerEntries,
   fetchMonthlyReimbursementDebts,
 } from '@/lib/dashboard'
+import { fetchBalanceOptions } from '@/lib/preferences'
 
 export type MonthlySummaryState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; summary: MonthlySummary; daysWithTransactions: number }
+  | { status: 'ready'; summary: MonthlySummary; daysWithTransactions: number; balanceOptions: BalanceOptions }
 
 /**
  * Carga el resumen mensual para un período determinado.
  * Vuelve a cargar si cambia el período. Las deudas del neto de reembolsos (US-30) vienen en la
- * misma carga, igual que las deudas sueltas del balance (US-83): si falla cualquier parte, se ve el error y ningún número a medias.
+ * misma carga, igual que las deudas sueltas y las preferencias del balance (US-83, US-101): si falla cualquier parte, se ve el error y ningún número a medias.
  */
 export function useMonthlySummary(period: Period): MonthlySummaryState & { refresh: () => void } {
   const [state, setState] = useState<MonthlySummaryState>({ status: 'loading' })
@@ -35,12 +37,13 @@ export function useMonthlySummary(period: Period): MonthlySummaryState & { refre
       fetchMonthlyConsistencyTransactions(period),
       fetchMonthlyReimbursementDebts(period),
       fetchLooseDebts(),
+      fetchBalanceOptions(),
     ])
-      .then(([entries, transactions, debts, looseDebts]) => {
+      .then(([entries, transactions, debts, looseDebts, balanceOptions]) => {
         if (!cancelled) {
-          const summary = computeMonthlySummary(entries, debts, period, looseDebts)
+          const summary = computeMonthlySummary(entries, debts, period, looseDebts, balanceOptions)
           const daysWithTransactions = countDaysWithTransactions(transactions, period)
-          setState({ status: 'ready', summary, daysWithTransactions })
+          setState({ status: 'ready', summary, daysWithTransactions, balanceOptions })
         }
       })
       .catch((error: { message?: string }) => {

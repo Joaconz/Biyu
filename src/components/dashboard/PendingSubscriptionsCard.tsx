@@ -19,13 +19,16 @@ export function PendingSubscriptionsCard({
   pending,
   period,
   balance,
+  includedInBalance = false,
 }: {
   pending: PendingSubscriptionCharges | null
   period: Period
   balance: Decimal | null
+  /** US-101: el usuario las incluye en el balance, que ya las descuenta: no se proyecta otro balance (ADR-047 §4). */
+  includedInBalance?: boolean
 }) {
   if (!pending || pending.count === 0) return null
-  const projected = balance?.minus(pending.totalArs) ?? null
+  const projected = includedInBalance ? null : (balance?.minus(pending.totalArs) ?? null)
   return (
     <section
       data-testid="dashboard-pending-subscriptions"
@@ -41,6 +44,11 @@ export function PendingSubscriptionsCard({
       {pending.usdPending && (
         <p data-testid="dashboard-pending-subscriptions-usd-pending" className="tabular text-callout text-warning">
           {committedUsdPendingText(pending.usdPending, period)}
+        </p>
+      )}
+      {includedInBalance && (
+        <p data-testid="dashboard-pending-subscriptions-included" className="border-t border-hairline pt-2 text-footnote text-muted-foreground">
+          Ya están descontadas del balance.
         </p>
       )}
       {projected && (

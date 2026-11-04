@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
@@ -49,12 +50,14 @@ import { isUniqueViolation } from '@/lib/errors'
 import { today } from '@/lib/clock'
 import { toTestIdSuffix } from '@/lib/utils'
 import { categoryDeletionSummary } from '@/domain/deletion'
+import { DEFAULT_BALANCE_OPTIONS, type BalanceOptions } from '@/domain/balance'
 import { validateFxRateInput } from '@/domain/fx'
 import { formatRate, parseMoney } from '@/domain/money'
 import { formatPeriod, formatPeriodLong, fromDbDate, parsePeriod } from '@/domain/period'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { useCatchupInBackground } from '@/hooks/useSubscriptionCatchup'
 import { listReferenceRates, upsertReferenceRate, type ReferenceRate } from '@/lib/fxRates'
+import { fetchBalanceOptions, saveBalanceOption } from '@/lib/preferences'
 
 export function SettingsPage() {
   return (
@@ -63,6 +66,7 @@ export function SettingsPage() {
       <CategoriesSection />
       <AccountsSection />
       <FxRatesSection />
+      <SummarySection />
       {/* CP-CFG-015 (US-68): reabrir el setup inicial, ya completado o no. */}
       <GroupedCard>
         <Link
@@ -79,6 +83,80 @@ export function SettingsPage() {
         <LogoutButton testId="settings-nav-logout" />
       </GroupedCard>
     </div>
+  )
+}
+
+/** Lo que el usuario puede sumar al balance del Resumen, con el texto de cada opción (US-101, ADR-047). */
+const BALANCE_CHOICES: { option: keyof BalanceOptions; testId: string; label: string; hint: string }[] = [
+  {
+    option: 'looseDebts',
+    testId: 'settings-summary-loose-debts',
+    label: 'Deudas sueltas',
+    hint: 'Lo que prestás o te prestan sin un gasto de por medio mueve el balance del mes en que pasó.',
+  },
+  {
+    option: 'reimbursements',
+    testId: 'settings-summary-reimbursements',
+    label: 'Reembolso de gastos compartidos',
+    hint: 'Suma al balance lo que te deben por los gastos que compartiste. Hoy solo se ve en «Neto de reembolsos».',
+  },
+  {
+    option: 'pendingSubscriptions',
+    testId: 'settings-summary-pending-subscriptions',
+    label: 'Suscripciones por cobrar',
+    hint: 'Resta del balance lo que tus suscripciones todavía van a cobrar este mes.',
+  },
+]
+
+/** US-101: qué entra en el balance del Resumen. Cada interruptor guarda al tocarlo y no reescribe ningún movimiento. */
+function SummarySection() {
+  const [options, setOptions] = useState<BalanceOptions | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    fetchBalanceOptions()
+      .then(setOptions)
+      .catch((e: Error) => setError(e.message))
+  }, [])
+
+  async function onChange(option: keyof BalanceOptions, value: boolean) {
+    if (!options || saving) return
+    setSaving(true)
+    setError(null)
+    try {
+      await saveBalanceOption(options, option, value)
+      setOptions({ ...options, [option]: value })
+    } catch (e) {
+      setError((e as { message?: string }).message ?? 'No se pudo guardar')
+      toast.error('No se pudo guardar la preferencia')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const shown = options ?? DEFAULT_BALANCE_OPTIONS
+  return (
+    <GroupedSection title="Resumen" data-testid="settings-summary" footer="Cambiar esto solo cambia el balance del Resumen: no modifica ningún movimiento.">
+      {error && <p role="alert" data-testid="settings-summary-error" className="px-1 text-sm text-destructive">{error}</p>}
+      <GroupedCard>
+        {BALANCE_CHOICES.map(({ option, testId, label, hint }) => (
+          <div key={option} className="flex items-start gap-3 px-4 py-3">
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span id={`${testId}-label`} className="text-callout font-medium text-foreground">{label}</span>
+              <span className="text-footnote text-muted-foreground">{hint}</span>
+            </div>
+            <Switch
+              checked={shown[option]}
+              onCheckedChange={(value) => onChange(option, value)}
+              disabled={options === null || saving}
+              testId={testId}
+              labelledBy={`${testId}-label`}
+            />
+          </div>
+        ))}
+      </GroupedCard>
+    </GroupedSection>
   )
 }
 

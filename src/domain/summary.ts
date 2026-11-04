@@ -1,4 +1,5 @@
 import { formatPeriod, type Period } from './period'
+import { type BalanceOptions, type BalanceParts, computeBalance, DEFAULT_BALANCE_OPTIONS } from './balance'
 import { argentinaDateOf } from './debts'
 import { Decimal, parseMoney } from './money'
 
@@ -73,11 +74,16 @@ export interface MonthlySummary {
   expenses: Decimal
   expensesUsd: Decimal // subtotal en USD de las imputaciones en dólares (US-24)
   income: Decimal
-  /** Ingresos − gastos + movimiento de deudas sueltas del período (US-83, ADR-041). */
+  /**
+   * Ingresos − gastos más lo que el usuario eligió incluir (US-83, US-101, ADR-047), sin las suscripciones
+   * por cobrar: esas se descuentan en la pantalla con `computeBalance(balanceParts, …)`, porque viven en otra carga.
+   */
   balance: Decimal
+  /** Las partes del balance, para recalcularlo con las suscripciones por cobrar. */
+  balanceParts: BalanceParts
   /** Lo que las deudas sueltas suman al balance: con signo, negativo si salió más plata de la que entró. */
   looseDebtMovement: Decimal
-  /** Si el período tiene al menos un evento de una deuda suelta: sin ninguno, la línea no se muestra. */
+  /** Si el período tiene al menos un evento de una deuda suelta y el usuario las incluye: si no, la línea no se muestra. */
   hasLooseDebtEvents: boolean
   inheritedInstallments: Decimal // cuotas con installment_number > 1
   /** Total gastado menos las deudas que cuentan para el neto (US-30); puede ser negativo. */
@@ -99,6 +105,7 @@ export function computeMonthlySummary(
   debts: SummaryDebt[],
   period: Period,
   looseDebts: readonly LooseDebt[] = [],
+  options: BalanceOptions = DEFAULT_BALANCE_OPTIONS,
 ): MonthlySummary {
   const key = `${formatPeriod(period)}-01`
   let expenses = new Decimal(0)
@@ -210,14 +217,23 @@ export function computeMonthlySummary(
   const reimbursed = counted.reduce((acc, d) => acc.plus(parseMoney(d.amount_ars)), new Decimal(0))
 
   const loose = looseDebtMovement(looseDebts, period)
+  const balanceParts: BalanceParts = {
+    income,
+    expenses,
+    looseDebtMovement: loose.movement,
+    reimbursed,
+    pendingSubscriptions: new Decimal(0),
+  }
+  const includesLoose = options.looseDebts && loose.hasEvents
 
   return {
     expenses,
     expensesUsd,
     income,
-    balance: income.minus(expenses).plus(loose.movement),
+    balance: computeBalance(balanceParts, options),
+    balanceParts,
     looseDebtMovement: loose.movement,
-    hasLooseDebtEvents: loose.hasEvents,
+    hasLooseDebtEvents: includesLoose,
     inheritedInstallments: inherited,
     netOfReimbursements: expenses.minus(reimbursed),
     hasReimbursements: counted.length > 0,
@@ -226,7 +242,7 @@ export function computeMonthlySummary(
     categoryExpenses,
     accountExpenses,
     // Un mes solo con eventos de deudas sueltas no es un mes vacío (US-83, ADR-041 §6).
-    hasData: hasData || loose.hasEvents,
+    hasData: hasData || includesLoose,
   }
 }
 
