@@ -252,6 +252,20 @@ puede absorber un resto.
 
 ---
 
+## `user_preferences`
+
+Una fila por usuario, creada al primer cambio en Ajustes (US-101, ADR-047). Sin fila valen los
+predeterminados. Se escribe directo bajo RLS (`user_id = auth.uid()`, C7), sin RPC, y no toca ninguna
+transacción: solo cambia cómo se suma el balance al leer.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| user_id | uuid PK FK → auth.users | `default auth.uid()`; `on delete cascade` |
+| balance_loose_debts | boolean | not null, default `true`: el movimiento de las deudas sueltas entra al balance (ADR-041) |
+| balance_reimbursements | boolean | not null, default `false`: suma al balance lo que descuenta el neto de reembolsos (ADR-006) |
+| balance_pending_subscriptions | boolean | not null, default `false`: resta las suscripciones por cobrar del mes (ADR-045) |
+| updated_at | timestamptz | not null, default `now()` |
+
 ## `imports`
 
 Una importación desde Excel (US-77, [ADR-035](adr/035-importacion-por-lote-con-una-rpc.md)). La
@@ -390,6 +404,10 @@ parten de otra tabla — está indicado en cada una.
    `owed_to_me` y suma si es `i_owe`; la saldada (`settled_at`, con `status = 'settled'`) hace lo contrario.
    Reabrir pone `settled_at` en nulo y el evento desaparece. Gastado, ingresos, el desglose y el neto de
    reembolsos no cambian. Se calcula en `src/domain/summary.ts` (`looseDebtMovement`).
+9. **Balance según las preferencias** (US-101, ADR-047) — ingresos − gastos, más el movimiento de las deudas
+   sueltas (consulta 8) si `balance_loose_debts`, más lo que descuenta el neto de reembolsos (consulta 6) si
+   `balance_reimbursements`, menos lo que las suscripciones activas todavía van a cobrar si
+   `balance_pending_subscriptions`. Las tres partes son disjuntas. Se calcula en `src/domain/balance.ts`.
 
 ## Vista de integridad
 

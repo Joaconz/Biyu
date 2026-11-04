@@ -416,6 +416,30 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          balance_loose_debts: boolean
+          balance_pending_subscriptions: boolean
+          balance_reimbursements: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_loose_debts?: boolean
+          balance_pending_subscriptions?: boolean
+          balance_reimbursements?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          balance_loose_debts?: boolean
+          balance_pending_subscriptions?: boolean
+          balance_reimbursements?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_setup: {
         Row: {
           completed_at: string | null

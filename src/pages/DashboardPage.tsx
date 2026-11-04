@@ -10,6 +10,7 @@ import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransac
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { PendingSubscriptionsCard } from '@/components/dashboard/PendingSubscriptionsCard'
 import { buttonVariants } from '@/components/ui/button'
+import { balanceFormulaText, computeBalance } from '@/domain/balance'
 import { formatArs, formatUsd, type Decimal } from '@/domain/money'
 import { daysElapsedInPeriod, formatPeriod, formatPeriodLong } from '@/domain/period'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
@@ -66,6 +67,7 @@ export function DashboardPage() {
         pending={pendingCharges}
         period={period}
         balance={summaryState.status === 'ready' ? summaryState.summary.balance : null}
+        includedInBalance={summaryState.status === 'ready' && summaryState.balanceOptions.pendingSubscriptions}
       />
 
       {summaryState.status === 'loading' && (
@@ -104,12 +106,19 @@ export function DashboardPage() {
       )}
 
       {summaryState.status === 'ready' && !isEmpty && (() => {
-        const { summary, daysWithTransactions } = summaryState
-        const tone = balanceTone(summary.balance)
+        const { summary, daysWithTransactions, balanceOptions } = summaryState
+        // US-101: las suscripciones por cobrar viven en otra carga y se descuentan acá, si el usuario las incluye.
+        // Mientras esa carga no llegó (o falló), el balance y su fórmula no las incluyen: el número y lo que dice incluir coinciden.
+        const effectiveOptions = pendingCharges ? balanceOptions : { ...balanceOptions, pendingSubscriptions: false }
+        const balance = computeBalance(
+          { ...summary.balanceParts, pendingSubscriptions: pendingCharges?.totalArs ?? summary.balanceParts.pendingSubscriptions },
+          effectiveOptions,
+        )
+        const tone = balanceTone(balance)
         const elapsed = daysElapsedInPeriod(period, today())
         const expensesText = formatArs(summary.expenses)
         const incomeText = formatArs(summary.income)
-        const balanceText = formatArs(summary.balance)
+        const balanceText = formatArs(balance)
         const stackIncomeAndBalance = Math.max(incomeText.length, balanceText.length) > SIDE_BY_SIDE_AMOUNT_MAX_LENGTH
         return (
           <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
@@ -215,6 +224,9 @@ export function DashboardPage() {
                   style={{ fontSize: fitAmountFontSize(balanceText) }}
                 >
                   {balanceText}
+                </span>
+                <span data-testid="dashboard-balance-formula" className="text-caption text-muted-foreground">
+                  {balanceFormulaText(effectiveOptions)}
                 </span>
                 {/* US-83: el balance incluye el movimiento de las deudas sueltas; la línea dice cuánto. */}
                 {summary.hasLooseDebtEvents && (
