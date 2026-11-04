@@ -90,6 +90,13 @@
       "computedHash": "4de18a9f76b6a1cb45310bfdc2091c08619d5c3ea7fdc095a8750e0495890b2d",
       "installMode": "copy"
     },
+    "ci-cd-and-automation": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ci-cd-and-automation/SKILL.md",
+      "computedHash": "f655c44b80ec36532fa058f7b94e7463330b8ccacda35eba05d85c677a4f6a7d",
+      "installMode": "copy"
+    },
     "ci-cd-integration": {
       "source": "petrkindlmann/qa-skills",
       "sourceType": "github",
