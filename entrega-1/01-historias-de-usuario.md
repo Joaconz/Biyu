@@ -572,7 +572,7 @@ cuotas, fecha, nota y botón "Guardar gasto"/"Guardar ingreso"). Arriba hay una 
   gastos), para saber si el mes cerró en positivo.
 - **Pantallas y campos:** tarjetas "Ingresos" y "Balance" con etiqueta "Superávit", "Déficit" o "En cero".
 - **Criterios de aceptación:**
-  - CA-1: Muestra total de ingresos y balance = ingresos − gastos.
+  - CA-1: Muestra total de ingresos y balance = ingresos − gastos. *(Desde V3, el balance suma además el movimiento de las deudas sueltas del mes: US-83, ADR-041.)*
 - **Trazabilidad:** FR-20
 - **Casos de prueba:** CP-DAS-006, CP-DAS-007
 

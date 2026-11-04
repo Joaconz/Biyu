@@ -384,6 +384,12 @@ parten de otra tabla — está indicado en cada una.
    transacción no borrada en el mes. Usar `ledger_entries.period` acá daría mal: una compra
    de agosto en 12 cuotas tiene imputación en diciembre, y ese día de agosto no es un día
    con registro *de diciembre*. Esta consulta mide hábito de registro, no impacto mensual.
+8. **Movimiento de deudas sueltas** — parte de `debts` con `transaction_id is null` (US-83, ADR-041). El
+   balance del período es ingresos − gastos + este movimiento, que suma el `amount_ars` congelado de cada
+   *evento* cuyo día cae en el período, en hora de Argentina: el alta (`incurred_on`) resta si la deuda es
+   `owed_to_me` y suma si es `i_owe`; la saldada (`settled_at`, con `status = 'settled'`) hace lo contrario.
+   Reabrir pone `settled_at` en nulo y el evento desaparece. Gastado, ingresos, el desglose y el neto de
+   reembolsos no cambian. Se calcula en `src/domain/summary.ts` (`looseDebtMovement`).
 
 ## Vista de integridad
 
