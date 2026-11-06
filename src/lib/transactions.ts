@@ -119,6 +119,7 @@ export async function fetchTransactionForEdit(id: string): Promise<EditableTrans
       currency,
       fx_rate_text:fx_rate::text,
       installments_count,
+      installments_paid,
       occurred_on,
       description,
       deleted_at,
@@ -142,6 +143,7 @@ export async function fetchTransactionForEdit(id: string): Promise<EditableTrans
     currency: 'ARS' | 'USD'
     fx_rate_text: string | null
     installments_count: number
+    installments_paid: number
     occurred_on: string
     description: string | null
     deleted_at: string | null
@@ -164,6 +166,7 @@ export async function fetchTransactionForEdit(id: string): Promise<EditableTrans
     deletedAt: row.deleted_at,
     subscriptionName: row.subscription?.name ?? null,
     sharedPeople: (row.debts ?? []).map((d) => d.person),
+    installmentsPaid: row.installments_paid,
   }
 }
 

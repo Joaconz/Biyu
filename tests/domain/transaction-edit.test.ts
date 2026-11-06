@@ -136,7 +136,7 @@ describe('hasEditChanges (CA-22)', () => {
     account: { id: 'cash', name: 'Efectivo', type: 'cash', archivedAt: null },
     deletedAt: null,
     subscriptionName: null,
-    sharedPeople: [],
+    sharedPeople: [], installmentsPaid: 0,
   }
   const original = editInputFromTransaction(tx)
 
@@ -173,7 +173,7 @@ describe('editBlock (CA-21)', () => {
     occurredOn: '2026-09-15', description: null,
     category: { id: 'food', name: 'Comida', archivedAt: null },
     account: { id: 'cash', name: 'Efectivo', type: 'cash', archivedAt: null },
-    deletedAt: null, subscriptionName: null, sharedPeople: [],
+    deletedAt: null, subscriptionName: null, sharedPeople: [], installmentsPaid: 0,
   }
 
   it('sin bloqueo, null', () => {
@@ -191,6 +191,14 @@ describe('editBlock (CA-21)', () => {
       'Este gasto está compartido con Sofía. Para cambiarlo, eliminalo y cargalo de nuevo.',
     )
     expect(editBlock({ ...base, sharedPeople: ['Sofía', 'Marcos'] })?.message).toContain('con 2 personas')
+  })
+
+  it('una compra empezada (US-80) tiene su propio aviso y es el último bloqueo', () => {
+    expect(editBlock({ ...base, installmentsCount: 12, installmentsPaid: 4 })).toEqual({
+      kind: 'started',
+      message: 'Esta compra ya venía en curso al importarla: solo tiene las cuotas que faltan. Para cambiarla, eliminala y cargala de nuevo.',
+    })
+    expect(editBlock({ ...base, sharedPeople: ['Ana'], installmentsPaid: 4 })?.kind).toBe('shared')
   })
 
   it('con dos bloqueos sale el primero: eliminado va antes que suscripción y que compartido', () => {
@@ -212,7 +220,7 @@ describe('valores iniciales', () => {
       occurredOn: '2026-09-15', description: 'x',
       category: { id: 'food', name: 'Comida', archivedAt: null },
       account: { id: 'cash', name: 'Efectivo', type: 'cash', archivedAt: null },
-      deletedAt: null, subscriptionName: null, sharedPeople: [],
+      deletedAt: null, subscriptionName: null, sharedPeople: [], installmentsPaid: 0,
     })
     expect(input.fxRate).toBe('1000')
     expect(snapshotOf(input)?.fxRate?.toFixed()).toBe('1000')

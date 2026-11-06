@@ -26,9 +26,11 @@ export interface EditableTransaction {
   subscriptionName: string | null
   /** Personas de sus deudas vinculadas (ADR-036, ADR-040); vacío si no se compartió. */
   sharedPeople: string[]
+  /** Cuotas que ya venían pagas al importarla (US-80, ADR-039); 0 en una compra normal. */
+  installmentsPaid: number
 }
 
-export type EditBlockKind = 'deleted' | 'subscription' | 'shared'
+export type EditBlockKind = 'deleted' | 'subscription' | 'shared' | 'started'
 
 export interface EditBlock {
   kind: EditBlockKind
@@ -52,6 +54,12 @@ export function editBlock(tx: EditableTransaction): EditBlock | null {
   if (tx.sharedPeople.length > 0) {
     const who = tx.sharedPeople.length === 1 ? tx.sharedPeople[0] : `${tx.sharedPeople.length} personas`
     return { kind: 'shared', message: `Este gasto está compartido con ${who}. Para cambiarlo, eliminalo y cargalo de nuevo.` }
+  }
+  if (tx.installmentsPaid > 0) {
+    return {
+      kind: 'started',
+      message: 'Esta compra ya venía en curso al importarla: solo tiene las cuotas que faltan. Para cambiarla, eliminala y cargala de nuevo.',
+    }
   }
   return null
 }
