@@ -3,6 +3,7 @@ import { CalendarCheck, CirclePlus } from 'lucide-react'
 import { Link } from 'react-router'
 import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
+import { DashboardTrends } from '@/components/dashboard/DashboardTrends'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
@@ -13,6 +14,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { balanceFormulaText, computeBalance } from '@/domain/balance'
 import { formatArs, formatUsd, type Decimal } from '@/domain/money'
 import { daysElapsedInPeriod, formatPeriod, formatPeriodLong } from '@/domain/period'
+import { useDashboardTrends } from '@/hooks/useDashboardTrends'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePendingSubscriptionCharges } from '@/hooks/usePendingSubscriptionCharges'
@@ -50,6 +52,7 @@ export function DashboardPage() {
   const { period, setPeriod, shift } = usePeriodParam()
   const summaryState = useMonthlySummary(period)
   const transactionsState = useMonthlyTransactions(period, 10)
+  const trendsState = useDashboardTrends(period)
   const pendingCharges = usePendingSubscriptionCharges(period)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   // US-33: un mes sin imputaciones muestra el acceso al registro en vez de un dashboard de ceros.
@@ -237,9 +240,13 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-7 lg:col-span-2 lg:grid-cols-[repeat(2,minmax(0,1fr))] lg:gap-5">
-              <CategoryExpenseBars categories={summary.categoryExpenses} totalExpenses={summary.expenses} period={period} />
-              <AccountExpenseBreakdown accounts={summary.accountExpenses} />
+            {/* ADR-050: las tendencias (6 meses, ritmo del mes, cuotas que vienen) son secundarias y no frenan el resto. */}
+            <div className="mt-5 flex flex-col gap-7 lg:col-span-2">
+              <DashboardTrends state={trendsState} period={period} />
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-7 lg:grid-cols-[repeat(2,minmax(0,1fr))] lg:gap-5">
+                <CategoryExpenseBars categories={summary.categoryExpenses} totalExpenses={summary.expenses} period={period} />
+                <AccountExpenseBreakdown accounts={summary.accountExpenses} />
+              </div>
             </div>
           </div>
         )
@@ -300,6 +307,7 @@ export function DashboardPage() {
         onDeleted={() => {
           transactionsState.refresh()
           summaryState.refresh()
+          trendsState.refresh()
         }}
       />
     </div>
