@@ -152,11 +152,14 @@
     --dur-press: 120ms;
     --dur-fade: 180ms;
     --dur-spring: 500ms;
+    --dur-nav: 250ms;
 
     /* Alturas del cromo. Sin la barra (desktop o teclado abierto), el offset es 0. */
     --app-header-h: 3.25rem;
     --app-nav-h: 3.5rem;
-    --app-nav-offset: calc(var(--app-nav-h) + env(safe-area-inset-bottom, 0px));
+    /* La barra flota a --app-nav-gap del borde (ADR-048): el offset suma el aire de abajo y el de arriba. */
+    --app-nav-gap: 0.5rem;
+    --app-nav-offset: calc(var(--app-nav-h) + var(--app-nav-gap) * 2 + env(safe-area-inset-bottom, 0px));
     --kb-inset: 0px;
 }
 
@@ -274,8 +277,12 @@ html[data-keyboard="open"] {
     }
     @media (max-width: 63.999rem) {
         html[data-keyboard="open"] .app-nav {
-            translate: 0 100%;
+            translate: 0 calc(100% + var(--app-nav-gap) + env(safe-area-inset-bottom, 0px) + 1px);
             visibility: hidden;
         }
+    }
+    /* Indicador de la pestaña activa (ADR-048): solo transform y opacity; con movimiento reducido queda el fundido. */
+    .app-nav-indicator {
+        transition: transform var(--dur-nav) var(--ease-drawer), opacity var(--dur-fade) ease;
     }
 }
