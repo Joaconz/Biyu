@@ -2,7 +2,16 @@ import type { MouseEvent } from 'react'
 import { ChartNoAxesColumn, CirclePlus, HandCoins, Plus, ReceiptText, Repeat, Settings, type LucideIcon } from 'lucide-react'
 import { Link, useLocation } from 'react-router'
 import { cn } from '@/lib/utils'
-import { NAV_ITEMS, activeNavScreen, isCurrentNavTarget, navHref, navTestId, type Screen } from '@/lib/navigation'
+import {
+  MOBILE_NAV_SCREENS,
+  NAV_ITEMS,
+  SCREEN_LABELS,
+  activeNavScreen,
+  isCurrentNavTarget,
+  navHref,
+  navTestId,
+  type Screen,
+} from '@/lib/navigation'
 import { Wordmark } from './Wordmark'
 
 const ICONS: Record<Screen, LucideIcon> = {
@@ -18,9 +27,12 @@ const ICONS: Record<Screen, LucideIcon> = {
  * Un solo <nav> para las dos formas (ADR-023): píldora flotante translúcida en el celular (ADR-048)
  * y sidebar desde 1024px. Nunca se montan dos copias, así ningún data-testid queda duplicado.
  */
-export function AppNav({ screen, showSettings }: { screen: Screen | null; showSettings: boolean }) {
-  // ADR-048: un solo indicador que se desliza entre columnas. Ajustes y las pantallas sin ítem no marcan ninguno.
-  const activeIndex = NAV_ITEMS.findIndex((item) => item.screen === activeNavScreen(screen))
+export function AppNav({ screen, isDesktop }: { screen: Screen | null; isDesktop: boolean }) {
+  // ADR-048: en el celular son cinco destinos con Registrar al centro; en desktop, los de NAV_ITEMS y Ajustes al pie.
+  const destinations = isDesktop ? NAV_ITEMS.map((item) => item.screen) : MOBILE_NAV_SCREENS
+  // Un solo indicador que se desliza entre columnas; las pantallas sin ítem no marcan ninguno.
+  const active = activeNavScreen(screen)
+  const activeIndex = active ? destinations.indexOf(active) : -1
   return (
     <nav
       aria-label="Principal"
@@ -33,25 +45,27 @@ export function AppNav({ screen, showSettings }: { screen: Screen | null; showSe
       <div className="hidden px-3 pt-9 pb-8 lg:block">
         <Wordmark rule className="text-title-1" />
       </div>
-      <ul className="relative grid flex-1 grid-cols-4 lg:flex lg:flex-none lg:flex-col lg:gap-1">
-        <li
-          aria-hidden="true"
-          data-testid="app-nav-indicator"
-          data-index={activeIndex}
-          className="app-nav-indicator pointer-events-none absolute inset-y-1 left-0 w-1/4 p-0.5 lg:hidden"
-          style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`, opacity: activeIndex < 0 ? 0 : 1 }}
-        >
-          <span className="block size-full rounded-full bg-secondary" />
-        </li>
-        {NAV_ITEMS.map((item) => (
-          <li key={item.screen}>
-            <NavItemLink screen={screen} destination={item.screen} label={item.label} />
+      <ul className="relative grid flex-1 grid-cols-5 lg:flex lg:flex-none lg:flex-col lg:gap-1">
+        {!isDesktop && (
+          <li
+            aria-hidden="true"
+            data-testid="app-nav-indicator"
+            data-index={activeIndex}
+            className="app-nav-indicator pointer-events-none absolute inset-y-1 left-0 w-1/5 p-0.5"
+            style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`, opacity: activeIndex < 0 ? 0 : 1 }}
+          >
+            <span className="block size-full rounded-full bg-secondary" />
+          </li>
+        )}
+        {destinations.map((destination) => (
+          <li key={destination}>
+            <NavItemLink screen={screen} destination={destination} label={SCREEN_LABELS[destination]} />
           </li>
         ))}
       </ul>
-      {showSettings && (
-        <div className="mt-auto hidden lg:block">
-          <NavItemLink screen={screen} destination="settings" label="Ajustes" />
+      {isDesktop && (
+        <div className="mt-auto">
+          <NavItemLink screen={screen} destination="settings" label={SCREEN_LABELS.settings} />
         </div>
       )}
     </nav>
@@ -78,7 +92,7 @@ function NavItemLink({ screen, destination, label }: { screen: Screen | null; de
       aria-current={isActive ? 'page' : undefined}
       data-testid={navTestId(screen ?? 'register', destination)}
       className={cn(
-        'press relative flex h-(--app-nav-h) flex-col items-center justify-center gap-0.5 text-tab font-medium whitespace-nowrap text-muted-foreground outline-offset-[-4px]',
+        'press relative flex h-(--app-nav-h) flex-col items-center justify-center gap-0.5 text-tab font-medium whitespace-nowrap max-lg:text-[0.625rem] max-lg:tracking-normal text-muted-foreground outline-offset-[-4px]',
         'lg:h-11 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-lg lg:px-3 lg:text-callout',
         'hover:text-foreground lg:hover:bg-accent',
         isActive && 'text-primary lg:bg-muted lg:text-primary',

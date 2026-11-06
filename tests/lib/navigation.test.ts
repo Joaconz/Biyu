@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { NAV_ITEMS, activeNavScreen, isCurrentNavTarget, navHref, navTestId, screenFromPath } from '@/lib/navigation'
+import { MOBILE_NAV_SCREENS, NAV_ITEMS, SCREEN_LABELS, activeNavScreen, isCurrentNavTarget, navHref, navTestId, screenFromPath } from '@/lib/navigation'
 
 describe('navegación global (ADR-023)', () => {
   it('V2: Registrar, Resumen, Deudas y Suscripciones; sin Movimientos ni Ajustes (US-69 · CA-1)', () => {
@@ -44,5 +44,13 @@ describe('navegación global (ADR-023)', () => {
     expect(navHref('register', 'dashboard', '?period=2026-08')).toBe('/register')
     expect(navHref('debts', 'dashboard', '?period=2026-08')).toBe('/debts')
     expect(navHref('subscriptions', 'dashboard', '?period=2026-08')).toBe('/subscriptions')
+  })
+
+  it('celular (ADR-048): cinco destinos con Registrar al centro y Ajustes al final', () => {
+    expect(MOBILE_NAV_SCREENS).toEqual(['dashboard', 'debts', 'register', 'subscriptions', 'settings'])
+    expect(MOBILE_NAV_SCREENS[Math.floor(MOBILE_NAV_SCREENS.length / 2)]).toBe('register')
+    // Mismos destinos que la sidebar (NAV_ITEMS + Ajustes al pie), solo en otro orden.
+    expect([...MOBILE_NAV_SCREENS].sort()).toEqual([...NAV_ITEMS.map((i) => i.screen), 'settings'].sort())
+    expect(NAV_ITEMS.map((i) => i.label)).toEqual(NAV_ITEMS.map((i) => SCREEN_LABELS[i.screen]))
   })
 })

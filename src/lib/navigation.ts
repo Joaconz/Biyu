@@ -18,7 +18,7 @@ export interface NavItem {
 
 /**
  * Destinos de la barra en V2 (US-69, ADR-023). Movimientos sale de la barra y cuelga del Resumen
- * ("Ver todos"); Ajustes va aparte (engranaje en el celular, pie de la barra lateral).
+ * ("Ver todos"); Ajustes va aparte (quinto destino de la barra en el celular, pie de la barra lateral).
  */
 export const NAV_ITEMS: readonly NavItem[] = [
   { screen: 'register', label: 'Registrar' },
@@ -26,6 +26,23 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { screen: 'debts', label: 'Deudas' },
   { screen: 'subscriptions', label: 'Suscripciones' },
 ]
+
+/** Rótulo de cada pantalla en la barra y la sidebar. */
+export const SCREEN_LABELS: Record<Screen, string> = {
+  register: 'Registrar',
+  dashboard: 'Resumen',
+  transactions: 'Movimientos',
+  debts: 'Deudas',
+  subscriptions: 'Suscripciones',
+  settings: 'Ajustes',
+}
+
+/**
+ * Orden de la barra en el celular (ADR-048): Registrar queda en el centro, con dos destinos a cada
+ * lado, y Ajustes pasa a ser el quinto en lugar del engranaje del header. La sidebar sigue con
+ * NAV_ITEMS y Ajustes al pie.
+ */
+export const MOBILE_NAV_SCREENS: readonly Screen[] = ['dashboard', 'debts', 'register', 'subscriptions', 'settings']
 
 /** Qué ítem marca la barra en cada pantalla (US-69 · CA-3): Movimientos cuelga del Resumen. */
 export function activeNavScreen(screen: Screen | null): Screen | null {

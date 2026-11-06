@@ -21,10 +21,14 @@ que se mueva de una pestaña a otra, y con Registrar —la acción más frecuent
    (`--dur-nav`). Es interrumpible: una transición CSS se reencauza si se toca otra pestaña a mitad de
    camino. En Ajustes o en pantallas sin ítem queda en opacidad 0. Con `prefers-reduced-motion` la regla
    global ya reduce las transiciones a un fundido.
-3. **Registrar destacado.** En el celular su ícono va en un círculo sólido `primary`. **Sigue en la
-   primera posición**: la barra tiene 4 destinos, así que no hay un centro real, y reordenar
-   `NAV_ITEMS` cambiaría el orden de la sidebar y de `tests/lib/navigation.test.ts`. Centrarlo exigiría
-   un quinto destino o reordenar; queda como decisión aparte.
+3. **Registrar al centro, destacado.** En el celular la barra tiene cinco destinos y Registrar queda en
+   el medio, con su ícono en un círculo sólido `primary`: Resumen · Deudas · **Registrar** ·
+   Suscripciones · Ajustes. Con cuatro no había centro, así que **Ajustes pasa a ser el quinto
+   destino** y el engranaje sale del header (que queda con el wordmark). El orden del celular vive en
+   `MOBILE_NAV_SCREENS` (`src/lib/navigation.ts`, con test); `AppNav` renderiza esa lista en el
+   celular y `NAV_ITEMS` + Ajustes al pie en desktop, según `isDesktop`, así el orden de tabulación
+   coincide con el visual en ambos y los `data-testid` no se duplican. Esto matiza US-69 · CA-1
+   («sin Ajustes» en la barra): vale para la sidebar; en el celular Ajustes ahora está en la barra.
 4. **Offset.** `--app-nav-offset` pasa a `nav-h + 2 × gap + safe-area` para que los pies fijos de los
    formularios (`sticky bottom-(--app-nav-offset)`) queden sobre el aire de la píldora. Con teclado
    abierto la barra se oculta como antes, desplazándose además el aire de abajo.
@@ -46,5 +50,7 @@ que se mueva de una pestaña a otra, y con Registrar —la acción más frecuent
 
 - El contenido pasa por debajo de la píldora y de los 0,5 rem de aire: el relleno inferior de
   `main` ya usa `--app-nav-offset`, así que el último elemento de cada pantalla sigue alcanzable.
-- Cada pestaña tiene 1/4 del ancho de la píldora (≈ 85 px a 375 px): «Suscripciones» entra justo; un
-  rótulo más largo exigiría abreviar.
+- Cada pestaña tiene 1/5 del ancho de la píldora (≈ 70 px a 375 px): «Suscripciones» es el rótulo
+  más largo que entra; uno más largo exigiría abreviar.
+- Mover Ajustes a la barra cambia el paso 1 de PR de Ajustes en `docs/12-procedimientos-de-prueba.md`
+  (ya actualizado) y la redacción de US-69 · CA-1 en el issue, que conviene alinear.
