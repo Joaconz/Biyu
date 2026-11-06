@@ -368,6 +368,24 @@ test('CA-21 · eliminado, de una suscripción y compartido muestran su aviso y n
   expect(apiDeleted.body).toMatchObject({ code: '23514', message: 'Un movimiento eliminado no se puede editar' })
 })
 
+test('CA-21 · una compra empezada (US-80) muestra su aviso y la base la rechaza', async ({ page, request }) => {
+  const s = await setup(page, request, 'us84-started')
+  const started = await s.api.rpc('create_transaction', {
+    p_type: 'expense', p_amount: '120000.00', p_currency: 'ARS', p_fx_rate: null, p_category_id: s.food, p_account_id: s.visa,
+    p_installments_count: 12, p_occurred_on: day(-4, 1), p_description: null, p_installments_paid: 4, p_request_id: null,
+  })
+  expect(started.status).toBe(200)
+  await page.goto(editUrl(started.body as string))
+  await expect(page.getByTestId('edit-transaction-blocked-started')).toHaveText(
+    'Esta compra ya venía en curso al importarla: solo tiene las cuotas que faltan. Para cambiarla, eliminala y cargala de nuevo.',
+  )
+  await expect(page.getByTestId('edit-transaction-amount')).toHaveCount(0)
+  const api = await s.api.rpc('update_transaction', {
+    p_transaction_id: started.body, p_amount: '130000.00', p_category_id: s.food, p_account_id: s.visa, p_installments_count: 12, p_occurred_on: day(-4, 1),
+  })
+  expect(api.body).toMatchObject({ code: '23514', message: 'Una compra empezada no se puede editar' })
+})
+
 test('CA-22 · «Guardar cambios» sigue los cambios y atrás pide confirmar si hay algo sin guardar', async ({ page, request }) => {
   const s = await setup(page, request, 'us84-ca22')
   const id = await addTx(s.api, { amount: '12500.00', category: s.food, account: s.cash, on: day(0, 1) })
