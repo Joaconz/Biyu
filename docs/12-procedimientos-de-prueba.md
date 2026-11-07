@@ -47,7 +47,7 @@ de cero, repetir PR-01 con el siguiente `<nnn>`.
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Tocar el engranaje "Ajustes" arriba a la derecha (en computadora, "Ajustes" en el menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
+| 1 | Tocar "Ajustes" en la barra inferior (en computadora, "Ajustes" al pie del menú lateral). | Se abre Ajustes con las secciones Categorías, Cuentas y Tipo de cambio de referencia. |
 | 2 | En "Cuentas", escribir `Visa BBVA` en "Nueva cuenta". | El campo muestra "Visa BBVA". |
 | 3 | En "Tipo", elegir "Tarjeta de crédito". | "Tarjeta de crédito" queda seleccionada. |
 | 4 | Tocar "Crear cuenta". | "Visa BBVA" aparece en la lista de cuentas. |
