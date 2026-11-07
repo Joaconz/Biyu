@@ -286,7 +286,12 @@ html[data-keyboard="open"] {
   installViewTransitions: tab = fundido, forward/back = desplazamiento corto + fundido.
   Salida más corta que entrada: el sistema responde rápido, la pantalla nueva se asienta.
 */
-.app-page {
+/*
+  Los nombres existen solo mientras dura la transición (`data-nav` en <html>). Un
+  view-transition-name permanente crea un contexto de apilamiento: los diálogos `fixed` quedarían
+  atrapados dentro de <main> y la barra (z-40) los taparía.
+*/
+html[data-nav] .app-page {
     view-transition-name: app-page;
 }
 
@@ -295,10 +300,10 @@ html[data-keyboard="open"] {
   éste se desplaza (si no, el contenido pasaría por encima de la barra). No se animan: una sola
   imagen, la nueva, fija en su lugar.
 */
-.app-header {
+html[data-nav] .app-header {
     view-transition-name: app-header;
 }
-.app-nav {
+html[data-nav] .app-nav {
     view-transition-name: app-nav;
 }
 ::view-transition-group(app-header),
