@@ -1,6 +1,6 @@
 # ADR-047 — El usuario elige qué entra en el balance del Resumen
 
-**Estado:** aceptada · **Fecha:** 2026-11
+**Estado:** aceptada; los puntos 7 y 4 (último guion) los reemplaza [ADR-051](051-balance-desglosado-y-configurable-desde-el-resumen.md) · **Fecha:** 2026-11
 **Relacionada:** ADR-001, ADR-006, ADR-025, ADR-037, ADR-041, ADR-045 · US-101 ([#371](https://github.com/Joaconz/Biyu/issues/371))
 
 ## Contexto
@@ -65,5 +65,6 @@ su Resumen si no toca nada.
 
 - Migración con la tabla, su RLS y su par de tests pgTAP (C7): otra sesión → cero filas; `anon` →
   `permission denied`.
-- Ajustes suma la sección «Resumen» con tres interruptores que guardan al tocarlos.
+- Ajustes suma la sección «Resumen» con tres interruptores que guardan al tocarlos. Desde ADR-051 los mismos
+  interruptores se abren también desde la tarjeta de Balance del Resumen.
 - Docs a actualizar: `04-data-model.md` (tabla nueva y consulta del balance) y la trazabilidad de FR-20.

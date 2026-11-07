@@ -254,7 +254,7 @@ puede absorber un resto.
 
 ## `user_preferences`
 
-Una fila por usuario, creada al primer cambio en Ajustes (US-101, ADR-047). Sin fila valen los
+Una fila por usuario, creada al primer cambio en Ajustes o en la tarjeta de Balance del Resumen (US-101, ADR-047, ADR-051). Sin fila valen los
 predeterminados. Se escribe directo bajo RLS (`user_id = auth.uid()`, C7), sin RPC, y no toca ninguna
 transacción: solo cambia cómo se suma el balance al leer.
 
@@ -407,7 +407,8 @@ parten de otra tabla — está indicado en cada una.
 9. **Balance según las preferencias** (US-101, ADR-047) — ingresos − gastos, más el movimiento de las deudas
    sueltas (consulta 8) si `balance_loose_debts`, más lo que descuenta el neto de reembolsos (consulta 6) si
    `balance_reimbursements`, menos lo que las suscripciones activas todavía van a cobrar si
-   `balance_pending_subscriptions`. Las tres partes son disjuntas. Se calcula en `src/domain/balance.ts`.
+   `balance_pending_subscriptions`. Las tres partes son disjuntas. Se calcula en `src/domain/balance.ts`, que también
+   arma el desglose de la tarjeta (`balanceBreakdown`, ADR-051): las líneas incluidas suman exactamente el balance.
 
 ## Vista de integridad
 
