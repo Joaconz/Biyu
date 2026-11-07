@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { balanceFormulaText, computeBalance, DEFAULT_BALANCE_OPTIONS, type BalanceOptions } from '@/domain/balance'
-import { Decimal } from '@/domain/money'
+import {
+  BALANCE_OPTION_KEYS,
+  balanceBreakdown,
+  balanceFormulaText,
+  computeBalance,
+  DEFAULT_BALANCE_OPTIONS,
+  isOnlyMovements,
+  ONLY_MOVEMENTS,
+  optionContribution,
+  type BalanceActivity,
+  type BalanceOptions,
+} from '@/domain/balance'
+import { Decimal, formatSignedArs } from '@/domain/money'
 import { computeMonthlySummary, type LooseDebt, type SummaryDebt, type SummaryEntry } from '@/domain/summary'
 
 // US-101 (#371), ADR-047: qué entra en el balance del Resumen.
@@ -32,9 +43,61 @@ describe('computeBalance (ADR-047 §3)', () => {
   it('con todo incluido suma las tres partes', () => expect(computeBalance(parts, all).toFixed(2)).toBe('15000.00'))
 
   it('la fórmula dice lo que el balance incluye', () => {
-    expect(balanceFormulaText(none)).toBe('Ingresos − gastos')
+    expect(balanceFormulaText(none)).toBe('Solo movimientos: ingresos − gastos')
     expect(balanceFormulaText(DEFAULT_BALANCE_OPTIONS)).toBe('Ingresos − gastos + deudas sueltas')
     expect(balanceFormulaText(all)).toBe('Ingresos − gastos + deudas sueltas + reembolsos − suscripciones por cobrar')
+  })
+})
+
+describe('«Solo movimientos» y lo que mueve cada opción (ADR-051)', () => {
+  it('solo movimientos es no incluir ninguna opción', () => {
+    expect(ONLY_MOVEMENTS).toEqual(none)
+    expect(isOnlyMovements(none)).toBe(true)
+    expect(isOnlyMovements(DEFAULT_BALANCE_OPTIONS)).toBe(false)
+    expect(isOnlyMovements({ ...none, pendingSubscriptions: true })).toBe(false)
+    expect(computeBalance(parts, ONLY_MOVEMENTS).toFixed(2)).toBe(parts.income.minus(parts.expenses).toFixed(2))
+  })
+
+  it('cada opción mueve el balance con su signo: las suscripciones por cobrar restan', () => {
+    expect(optionContribution(parts, 'looseDebts').toFixed(2)).toBe('-20000.00')
+    expect(optionContribution(parts, 'reimbursements').toFixed(2)).toBe('60000.00')
+    expect(optionContribution(parts, 'pendingSubscriptions').toFixed(2)).toBe('-5000.00')
+  })
+})
+
+describe('balanceBreakdown (ADR-051)', () => {
+  const allActivity: BalanceActivity = { looseDebts: true, reimbursements: true, pendingSubscriptions: true }
+  const keys = (lines: { key: string }[]) => lines.map((l) => l.key)
+  const sum = (lines: { amount: Decimal }[]) => lines.reduce((acc, l) => acc.plus(l.amount), new Decimal(0))
+
+  it('con los predeterminados: ingresos, gastos y deudas sueltas adentro; reembolsos y suscripciones afuera', () => {
+    const { included, excluded } = balanceBreakdown(parts, DEFAULT_BALANCE_OPTIONS, allActivity)
+    expect(keys(included)).toEqual(['income', 'expenses', 'looseDebts'])
+    expect(included.map((l) => l.amount.toFixed(2))).toEqual(['100000.00', '-120000.00', '-20000.00'])
+    expect(keys(excluded)).toEqual(['reimbursements', 'pendingSubscriptions'])
+    expect(excluded.map((l) => l.amount.toFixed(2))).toEqual(['60000.00', '-5000.00'])
+  })
+
+  it('solo movimientos deja dos líneas adentro y las tres opciones afuera', () => {
+    const { included, excluded } = balanceBreakdown(parts, ONLY_MOVEMENTS, allActivity)
+    expect(keys(included)).toEqual(['income', 'expenses'])
+    expect(keys(excluded)).toEqual(['looseDebts', 'reimbursements', 'pendingSubscriptions'])
+  })
+
+  it('una opción sin actividad en el mes no aparece, esté incluida o no', () => {
+    const quiet: BalanceActivity = { looseDebts: false, reimbursements: true, pendingSubscriptions: false }
+    expect(keys(balanceBreakdown(parts, all, quiet).included)).toEqual(['income', 'expenses', 'reimbursements'])
+    expect(keys(balanceBreakdown(parts, none, quiet).excluded)).toEqual(['reimbursements'])
+  })
+
+  it('las líneas de adentro suman exactamente el balance, para las ocho combinaciones de opciones', () => {
+    for (let mask = 0; mask < 8; mask++) {
+      const options = Object.fromEntries(BALANCE_OPTION_KEYS.map((key, i) => [key, Boolean(mask & (1 << i))])) as unknown as BalanceOptions
+      const { included, excluded } = balanceBreakdown(parts, options, allActivity)
+      expect(sum(included).toFixed(2)).toBe(computeBalance(parts, options).toFixed(2))
+      // Incluir lo de afuera lleva al balance con todo incluido.
+      expect(sum(included).plus(sum(excluded)).toFixed(2)).toBe(computeBalance(parts, all).toFixed(2))
+    }
   })
 })
 
@@ -66,6 +129,7 @@ describe('computeMonthlySummary con opciones', () => {
   it('con las deudas sueltas excluidas no hay línea ni cuentan para saber si el mes tiene datos', () => {
     const s = computeMonthlySummary([], [], P, [loose], none)
     expect(s.hasLooseDebtEvents).toBe(false)
+    expect(s.looseDebtActivity).toBe(true)
     expect(s.hasData).toBe(false)
     expect(s.balance.isZero()).toBe(true)
     expect(computeMonthlySummary([], [], P, [loose]).hasData).toBe(true)
@@ -74,5 +138,14 @@ describe('computeMonthlySummary con opciones', () => {
   it('expone las partes para sumar después las suscripciones por cobrar', () => {
     const s = computeMonthlySummary(entries, [linked], P, [loose], DEFAULT_BALANCE_OPTIONS)
     expect(computeBalance({ ...s.balanceParts, pendingSubscriptions: new Decimal('5000') }, { ...DEFAULT_BALANCE_OPTIONS, pendingSubscriptions: true }).toFixed(2)).toBe('-45000.00')
+  })
+})
+
+describe('formatSignedArs (ADR-051)', () => {
+  it('lo que suma lleva +, lo que resta -, y cero no lleva signo', () => {
+    expect(formatSignedArs(new Decimal('60000'))).toBe('+$60.000,00')
+    expect(formatSignedArs(new Decimal('-20000'))).toBe('-$20.000,00')
+    expect(formatSignedArs(new Decimal('0'))).toBe('$0,00')
+    expect(formatSignedArs(new Decimal('-0'))).toBe('$0,00')
   })
 })

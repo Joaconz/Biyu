@@ -58,6 +58,11 @@ export function formatArs(amount: Decimal): string {
   return formatWithSymbol('$', amount)
 }
 
+/** Con signo explícito, para lo que suma o resta una línea del balance (ADR-051): +$1.234,56, -$1.234,56 o $0,00. */
+export function formatSignedArs(amount: Decimal): string {
+  return amount.gt(0) ? `+${formatArs(amount)}` : formatArs(amount)
+}
+
 /** Dólares con el código, como en las historias de Entrega 2: "USD 1.234,56" o "-USD 1.234,56". */
 export function formatUsdCode(amount: Decimal): string {
   return formatWithSymbol('USD ', amount)
