@@ -1,3 +1,4 @@
+import { ListSkeleton } from '@/components/skeletons/Skeleton'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Download } from 'lucide-react'
@@ -119,9 +120,7 @@ export function TransactionsPage() {
       </div>
 
       {transactionsState.status === 'loading' && (
-        <p data-testid="transactions-loading" className="text-callout text-muted-foreground">
-          Cargando…
-        </p>
+        <ListSkeleton testId="transactions-loading" label="Cargando…" rows={6} />
       )}
 
       {transactionsState.status === 'error' && (

@@ -1,3 +1,4 @@
+import { ListSkeleton } from '@/components/skeletons/Skeleton'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
@@ -168,9 +169,7 @@ export function DebtsPage() {
       <DebtsDirectionFilter value={direction} onChange={selectDirection} />
 
       {debtsState.status === 'loading' && (
-        <p data-testid="debts-loading" className="text-callout text-muted-foreground">
-          Cargando deudas…
-        </p>
+        <ListSkeleton testId="debts-loading" label="Cargando deudas…" />
       )}
 
       {debtsState.status === 'error' && (
