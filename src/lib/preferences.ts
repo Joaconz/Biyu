@@ -20,13 +20,15 @@ export async function fetchBalanceOptions(): Promise<BalanceOptions> {
 }
 
 
-/** Guarda una opción. La fila se crea al primer cambio y las demás opciones quedan en su valor actual. */
-export async function saveBalanceOption(current: BalanceOptions, option: keyof BalanceOptions, value: boolean): Promise<void> {
-  const next = { ...current, [option]: value }
+/**
+ * Guarda las tres opciones juntas: la fila se crea al primer cambio (ADR-047 §5). Escribir las tres, y no
+ * solo la que cambió, hace que la última escritura deje la fila igual a lo que se ve (ADR-051).
+ */
+export async function saveBalanceOptions(options: BalanceOptions): Promise<void> {
   const { error } = await supabase.from('user_preferences').upsert({
-    balance_loose_debts: next.looseDebts,
-    balance_reimbursements: next.reimbursements,
-    balance_pending_subscriptions: next.pendingSubscriptions,
+    balance_loose_debts: options.looseDebts,
+    balance_reimbursements: options.reimbursements,
+    balance_pending_subscriptions: options.pendingSubscriptions,
     updated_at: new Date().toISOString(),
   })
   if (error) throw error

@@ -36,7 +36,7 @@ test('los predeterminados son los de hoy y cada interruptor cambia solo el balan
   await expect(page.getByTestId('dashboard-balance-formula')).toHaveText('Ingresos − gastos + deudas sueltas + reembolsos')
   await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$120.000,00')
 
-  // Sacar las deudas sueltas: sin la línea, y la preferencia sigue ahí al recargar.
+  // Sacar las deudas sueltas: la línea pasa a «Fuera del balance» (ADR-051), y la preferencia sigue ahí al recargar.
   await page.goto('/settings')
   await page.getByTestId('settings-summary-loose-debts').click()
   await expect(page.getByTestId('settings-summary-loose-debts')).toHaveAttribute('aria-checked', 'false')
@@ -45,6 +45,6 @@ test('los predeterminados son los de hoy y cada interruptor cambia solo el balan
   await expect(page.getByTestId('settings-summary-reimbursements')).toHaveAttribute('aria-checked', 'true')
   await page.goto('/dashboard')
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('$40.000,00')
-  await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveCount(0)
+  await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveAttribute('data-included', 'false')
   await expect(page.getByTestId('dashboard-balance-formula')).toHaveText('Ingresos − gastos + reembolsos')
 })

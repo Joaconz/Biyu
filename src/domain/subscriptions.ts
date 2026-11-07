@@ -456,9 +456,6 @@ export function pendingChargesCountText(count: number): string {
   return count === 1 ? '1 cobro que todavía no se cargó' : `${count} cobros que todavía no se cargaron`
 }
 
-/** "Balance proyectado" */
-export const PROJECTED_BALANCE_LABEL = 'Balance proyectado'
-
 /** "Comprometido en octubre 2026" */
 export function committedLabel(period: Period): string {
   return `Comprometido en ${formatPeriodLong(period)}`

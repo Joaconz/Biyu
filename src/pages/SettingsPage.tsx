@@ -3,6 +3,7 @@ import { Archive, ArchiveRestore, Pencil, Sparkles, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Link } from 'react-router'
 import { LogoutButton } from '@/components/LogoutButton'
+import { BalanceOptionsList } from '@/components/balance/BalanceOptionsList'
 import { AccountIcon } from '@/components/shared/AccountIcon'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
@@ -11,7 +12,6 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
@@ -57,7 +57,8 @@ import { formatPeriod, formatPeriodLong, fromDbDate, parsePeriod } from '@/domai
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { useCatchupInBackground } from '@/hooks/useSubscriptionCatchup'
 import { listReferenceRates, upsertReferenceRate, type ReferenceRate } from '@/lib/fxRates'
-import { fetchBalanceOptions, saveBalanceOption } from '@/lib/preferences'
+import { fetchBalanceOptions } from '@/lib/preferences'
+import { useBalanceOptionsSaver } from '@/hooks/useBalanceOptionsSaver'
 
 export function SettingsPage() {
   return (
@@ -86,75 +87,37 @@ export function SettingsPage() {
   )
 }
 
-/** Lo que el usuario puede sumar al balance del Resumen, con el texto de cada opción (US-101, ADR-047). */
-const BALANCE_CHOICES: { option: keyof BalanceOptions; testId: string; label: string; hint: string }[] = [
-  {
-    option: 'looseDebts',
-    testId: 'settings-summary-loose-debts',
-    label: 'Deudas sueltas',
-    hint: 'Lo que prestás o te prestan sin un gasto de por medio mueve el balance del mes en que pasó.',
-  },
-  {
-    option: 'reimbursements',
-    testId: 'settings-summary-reimbursements',
-    label: 'Reembolso de gastos compartidos',
-    hint: 'Suma al balance lo que te deben por los gastos que compartiste. Hoy solo se ve en «Neto de reembolsos».',
-  },
-  {
-    option: 'pendingSubscriptions',
-    testId: 'settings-summary-pending-subscriptions',
-    label: 'Suscripciones por cobrar',
-    hint: 'Resta del balance lo que tus suscripciones todavía van a cobrar este mes.',
-  },
-]
-
-/** US-101: qué entra en el balance del Resumen. Cada interruptor guarda al tocarlo y no reescribe ningún movimiento. */
+/**
+ * US-101: qué entra en el balance del Resumen. Los mismos interruptores y el mismo guardado que la tarjeta de
+ * Balance del Resumen (ADR-051): cada uno guarda al tocarlo y no reescribe ningún movimiento.
+ */
 function SummarySection() {
-  const [options, setOptions] = useState<BalanceOptions | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
+  const [stored, setStored] = useState<BalanceOptions | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const saver = useBalanceOptionsSaver()
 
   useEffect(() => {
     fetchBalanceOptions()
-      .then(setOptions)
-      .catch((e: Error) => setError(e.message))
+      .then(setStored)
+      .catch((e: Error) => setLoadError(e.message))
   }, [])
 
-  async function onChange(option: keyof BalanceOptions, value: boolean) {
-    if (!options || saving) return
-    setSaving(true)
-    setError(null)
-    try {
-      await saveBalanceOption(options, option, value)
-      setOptions({ ...options, [option]: value })
-    } catch (e) {
-      setError((e as { message?: string }).message ?? 'No se pudo guardar')
-      toast.error('No se pudo guardar la preferencia')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const shown = options ?? DEFAULT_BALANCE_OPTIONS
+  const shown = saver.edited ?? stored ?? DEFAULT_BALANCE_OPTIONS
+  const error = loadError ?? saver.error
   return (
-    <GroupedSection title="Resumen" data-testid="settings-summary" footer="Cambiar esto solo cambia el balance del Resumen: no modifica ningún movimiento.">
+    <GroupedSection
+      title="Resumen"
+      data-testid="settings-summary"
+      footer="Qué entra en el balance. También lo podés cambiar desde la tarjeta de Balance del Resumen. No modifica ningún movimiento."
+    >
       {error && <p role="alert" data-testid="settings-summary-error" className="px-1 text-sm text-destructive">{error}</p>}
       <GroupedCard>
-        {BALANCE_CHOICES.map(({ option, testId, label, hint }) => (
-          <div key={option} className="flex items-start gap-3 px-4 py-3">
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span id={`${testId}-label`} className="text-callout font-medium text-foreground">{label}</span>
-              <span className="text-footnote text-muted-foreground">{hint}</span>
-            </div>
-            <Switch
-              checked={shown[option]}
-              onCheckedChange={(value) => onChange(option, value)}
-              disabled={options === null || saving}
-              testId={testId}
-              labelledBy={`${testId}-label`}
-            />
-          </div>
-        ))}
+        <BalanceOptionsList
+          options={shown}
+          onChange={(option, value) => saver.save({ ...shown, [option]: value }, shown)}
+          disabled={stored === null}
+          testIdPrefix="settings-summary"
+        />
       </GroupedCard>
     </GroupedSection>
   )
