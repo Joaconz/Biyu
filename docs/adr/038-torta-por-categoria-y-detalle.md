@@ -1,6 +1,6 @@
 # ADR-038 — Torta por categoría en el Resumen y evolución en el detalle de la categoría
 
-**Estado:** aceptada · **Fecha:** 2026-10 · Modifica parcialmente ADR-023 (alternativa "dona")
+**Estado:** aceptada · **Fecha:** 2026-10 · Modifica parcialmente ADR-023 (alternativa "dona") · La torta pasa a dona por [ADR-050](050-tendencias-y-dona-en-el-resumen.md)
 
 ## Contexto
 
@@ -47,7 +47,7 @@ abrir la decisión para V2, ahora como US-72 ([#242](https://github.com/Joaconz/
 - **Reemplazar las barras por la torta.** Es la torta clásica de las apps de finanzas, pero vuelve el
   problema de ADR-023: con 8 categorías hay que leer los montos en una leyenda aparte y comparar
   ángulos chicos.
-- **Dona con el total en el centro.** El total ya está en la tarjeta verde, la única superficie sólida
+- **Dona con el total en el centro** (adoptada después, ADR-050). El total ya está en la tarjeta verde, la única superficie sólida
   del Resumen (ADR-023); repetirlo compite con ella.
 - **Detalle como `/transactions?category=…`** (lo que sugería #171). Reusa Movimientos, pero mezcla la
   lista general con un resumen de categoría y Movimientos deja de ser pestaña en V2 (ADR-023). Una
