@@ -62,8 +62,8 @@ export function AppLayout() {
   return (
     <div className="min-h-dvh lg:pl-60">
       <div ref={sentinel} aria-hidden="true" className="absolute top-0 h-px w-px" />
-      {!isDesktop && <AppHeader screen={screen} scrolled={scrolled} />}
-      <AppNav screen={screen} showSettings={isDesktop} />
+      {!isDesktop && <AppHeader scrolled={scrolled} />}
+      <AppNav screen={screen} isDesktop={isDesktop} />
       <main className="px-5 pb-[calc(var(--app-nav-offset)+2.5rem)] sm:px-6 lg:px-10 lg:pt-10">
         {catchup.status === 'running' ? (
           <CatchupLoading />
