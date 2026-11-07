@@ -9,7 +9,7 @@ import { fetchSetupStatus, setupFinishedThisSession } from '@/lib/setup'
 import { shouldRedirectToSetup } from '@/lib/setupGate'
 import { AppHeader } from './AppHeader'
 import { AppNav } from './AppNav'
-import { CatchupBanner, CatchupLoading } from './CatchupBanner'
+import { CatchupBanner, CatchupLoading, useCatchupBannerDismissal } from './CatchupBanner'
 
 /**
  * Layout de las rutas privadas (ADR-023). Queda montado al cambiar de pestaña, así el cromo
@@ -30,6 +30,7 @@ export function AppLayout() {
   // tarda más de 8 s, la pantalla se muestra igual con la franja de error.
   const { session } = useSession()
   const catchup = useSubscriptionCatchup(session?.user.id ?? null, setupPending === false)
+  const catchupBanner = useCatchupBannerDismissal(session?.user.id ?? null)
   const catchupContext = useMemo(() => ({ runInBackground: catchup.runInBackground }), [catchup.runInBackground])
 
   useEffect(() => {
@@ -69,8 +70,8 @@ export function AppLayout() {
           <CatchupLoading />
         ) : (
           <SubscriptionCatchupContext.Provider value={catchupContext}>
-            {(catchup.status === 'failed' || catchup.status === 'retrying') && (
-              <CatchupBanner retrying={catchup.status === 'retrying'} onRetry={catchup.retry} />
+            {(catchup.status === 'failed' || catchup.status === 'retrying') && !catchupBanner.dismissed && (
+              <CatchupBanner retrying={catchup.status === 'retrying'} onRetry={catchup.retry} onDismiss={catchupBanner.dismiss} />
             )}
             <Outlet key={catchup.dataVersion} />
           </SubscriptionCatchupContext.Provider>
