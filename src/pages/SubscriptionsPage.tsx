@@ -1,3 +1,4 @@
+import { ListSkeleton } from '@/components/skeletons/Skeleton'
 import { Link } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
@@ -23,9 +24,7 @@ export function SubscriptionsPage() {
       </PageHeader>
 
       {state.status === 'loading' && (
-        <p data-testid="subscriptions-loading" className="text-callout text-muted-foreground">
-          Cargando suscripciones…
-        </p>
+        <ListSkeleton testId="subscriptions-loading" label="Cargando suscripciones…" />
       )}
 
       {state.status === 'error' && (

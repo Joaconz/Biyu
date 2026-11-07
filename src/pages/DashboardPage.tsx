@@ -9,6 +9,7 @@ import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { PendingSubscriptionsCard } from '@/components/dashboard/PendingSubscriptionsCard'
+import { DashboardSkeleton, ListSkeleton } from '@/components/skeletons/Skeleton'
 import { buttonVariants } from '@/components/ui/button'
 import { balanceFormulaText, computeBalance } from '@/domain/balance'
 import { formatArs, formatUsd, type Decimal } from '@/domain/money'
@@ -70,11 +71,7 @@ export function DashboardPage() {
         includedInBalance={summaryState.status === 'ready' && summaryState.balanceOptions.pendingSubscriptions}
       />
 
-      {summaryState.status === 'loading' && (
-        <p data-testid="dashboard-loading" className="text-callout text-muted-foreground">
-          Cargando…
-        </p>
-      )}
+      {summaryState.status === 'loading' && <DashboardSkeleton />}
 
       {summaryState.status === 'error' && (
         <p role="alert" data-testid="dashboard-error" className="text-callout text-destructive">
@@ -261,9 +258,7 @@ export function DashboardPage() {
           }
         >
           {transactionsState.status === 'loading' && (
-            <p data-testid="dashboard-transactions-loading" className="px-1 text-callout text-muted-foreground">
-              Cargando movimientos…
-            </p>
+            <ListSkeleton testId="dashboard-transactions-loading" label="Cargando movimientos…" rows={3} />
           )}
 
           {transactionsState.status === 'error' && (

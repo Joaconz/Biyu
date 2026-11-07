@@ -18,8 +18,9 @@ import { SubscriptionsPage } from '@/pages/SubscriptionsPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 import { RedirectIfAuthed, RequireAuth } from '@/pages/RequireAuth'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { installViewTransitions } from '@/lib/viewTransitions'
 
-export const router = createBrowserRouter([
+export const router = installViewTransitions(createBrowserRouter([
   { path: '/', element: <Navigate to="/register" replace /> },
   {
     element: <RequireAuth />,
@@ -61,4 +62,4 @@ export const router = createBrowserRouter([
   },
   // DEF-001: catch-all fuera de RequireAuth/RedirectIfAuthed, así se ve con o sin sesión.
   { path: '*', element: <NotFoundPage /> },
-])
+]))

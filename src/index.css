@@ -279,3 +279,105 @@ html[data-keyboard="open"] {
         }
     }
 }
+
+/*
+  Transiciones entre pantallas (ADR-049). Solo <main> tiene nombre: el cromo (header y barra)
+  queda en la captura del documento, que no se anima, así no parpadea. `data-nav` lo pone
+  installViewTransitions: tab = fundido, forward/back = desplazamiento corto + fundido.
+  Salida más corta que entrada: el sistema responde rápido, la pantalla nueva se asienta.
+*/
+.app-page {
+    view-transition-name: app-page;
+}
+
+/*
+  El header y la barra también tienen nombre, solo para quedar por encima de <main> mientras
+  éste se desplaza (si no, el contenido pasaría por encima de la barra). No se animan: una sola
+  imagen, la nueva, fija en su lugar.
+*/
+.app-header {
+    view-transition-name: app-header;
+}
+.app-nav {
+    view-transition-name: app-nav;
+}
+::view-transition-group(app-header),
+::view-transition-group(app-nav) {
+    animation: none;
+}
+::view-transition-old(app-header),
+::view-transition-old(app-nav) {
+    display: none;
+}
+::view-transition-new(app-header),
+::view-transition-new(app-nav) {
+    animation: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+}
+
+::view-transition-group(app-page) {
+    animation-duration: 0s;
+}
+
+@keyframes vt-fade-out {
+    to { opacity: 0; }
+}
+@keyframes vt-fade-in {
+    from { opacity: 0; }
+}
+@keyframes vt-out-forward {
+    to { opacity: 0; transform: translateX(-12px); }
+}
+@keyframes vt-in-forward {
+    from { opacity: 0; transform: translateX(28px); }
+}
+@keyframes vt-out-back {
+    to { opacity: 0; transform: translateX(12px); }
+}
+@keyframes vt-in-back {
+    from { opacity: 0; transform: translateX(-28px); }
+}
+
+::view-transition-old(app-page),
+::view-transition-new(app-page) {
+    mix-blend-mode: normal;
+    animation-timing-function: var(--ease-drawer);
+    animation-fill-mode: both;
+}
+::view-transition-old(app-page) {
+    animation-name: vt-fade-out;
+    animation-duration: 120ms;
+}
+::view-transition-new(app-page) {
+    animation-name: vt-fade-in;
+    animation-duration: 180ms;
+}
+html[data-nav="forward"]::view-transition-old(app-page) {
+    animation-name: vt-out-forward;
+}
+html[data-nav="forward"]::view-transition-new(app-page) {
+    animation-name: vt-in-forward;
+    animation-duration: 260ms;
+}
+html[data-nav="back"]::view-transition-old(app-page) {
+    animation-name: vt-out-back;
+}
+html[data-nav="back"]::view-transition-new(app-page) {
+    animation-name: vt-in-back;
+    animation-duration: 260ms;
+}
+
+/* Menos movimiento: solo se funde (apple-design, emil-design-eng). */
+@media (prefers-reduced-motion: reduce) {
+    html[data-nav]::view-transition-old(app-page) {
+        animation-name: vt-fade-out;
+    }
+    html[data-nav]::view-transition-new(app-page) {
+        animation-name: vt-fade-in;
+        animation-duration: 180ms;
+    }
+}
