@@ -9,7 +9,7 @@ export function AppHeader({ scrolled }: { scrolled: boolean }) {
   return (
     <header
       className={cn(
-        'chrome sticky top-0 z-30 border-b pt-[env(safe-area-inset-top)] transition-[border-color] duration-(--dur-fade)',
+        'app-header chrome sticky top-0 z-30 border-b pt-[env(safe-area-inset-top)] transition-[border-color] duration-(--dur-fade)',
         scrolled ? 'border-hairline' : 'border-transparent',
       )}
     >

@@ -4,16 +4,19 @@ import { Link } from 'react-router'
 import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
 import { BalanceCard } from '@/components/dashboard/BalanceCard'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
+import { DashboardTrends } from '@/components/dashboard/DashboardTrends'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
 import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { PendingSubscriptionsCard } from '@/components/dashboard/PendingSubscriptionsCard'
+import { DashboardSkeleton, ListSkeleton } from '@/components/skeletons/Skeleton'
 import { buttonVariants } from '@/components/ui/button'
 import { formatArs, formatUsd } from '@/domain/money'
 import { daysElapsedInPeriod, formatPeriod, formatPeriodLong } from '@/domain/period'
 import { useBalanceOptionsSaver } from '@/hooks/useBalanceOptionsSaver'
+import { useDashboardTrends } from '@/hooks/useDashboardTrends'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
 import { usePendingSubscriptionCharges } from '@/hooks/usePendingSubscriptionCharges'
@@ -28,6 +31,7 @@ export function DashboardPage() {
   const balanceSaver = useBalanceOptionsSaver()
   const summaryState = useMonthlySummary(period, balanceSaver.edited)
   const transactionsState = useMonthlyTransactions(period, 10)
+  const trendsState = useDashboardTrends(period)
   const pendingCharges = usePendingSubscriptionCharges(period)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   // US-33: un mes sin imputaciones muestra el acceso al registro en vez de un dashboard de ceros.
@@ -49,11 +53,7 @@ export function DashboardPage() {
       */}
       {(isEmpty || summaryState.status === 'error') && <PendingSubscriptionsCard pending={pendingCharges} period={period} />}
 
-      {summaryState.status === 'loading' && (
-        <p data-testid="dashboard-loading" className="text-callout text-muted-foreground">
-          Cargando…
-        </p>
-      )}
+      {summaryState.status === 'loading' && <DashboardSkeleton />}
 
       {summaryState.status === 'error' && (
         <p role="alert" data-testid="dashboard-error" className="text-callout text-destructive">
@@ -170,9 +170,13 @@ export function DashboardPage() {
               onOptionsChange={(next) => balanceSaver.save(next, balanceOptions)}
             />
 
-            <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-7 lg:col-span-2 lg:grid-cols-[repeat(2,minmax(0,1fr))] lg:gap-5">
-              <CategoryExpenseBars categories={summary.categoryExpenses} totalExpenses={summary.expenses} period={period} />
-              <AccountExpenseBreakdown accounts={summary.accountExpenses} />
+            {/* ADR-050: las tendencias (6 meses, ritmo del mes, cuotas que vienen) son secundarias y no frenan el resto. */}
+            <div className="mt-5 flex flex-col gap-7 lg:col-span-2">
+              <DashboardTrends state={trendsState} period={period} />
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-7 lg:grid-cols-[repeat(2,minmax(0,1fr))] lg:gap-5">
+                <CategoryExpenseBars categories={summary.categoryExpenses} totalExpenses={summary.expenses} period={period} />
+                <AccountExpenseBreakdown accounts={summary.accountExpenses} />
+              </div>
             </div>
           </div>
         )
@@ -194,9 +198,7 @@ export function DashboardPage() {
           }
         >
           {transactionsState.status === 'loading' && (
-            <p data-testid="dashboard-transactions-loading" className="px-1 text-callout text-muted-foreground">
-              Cargando movimientos…
-            </p>
+            <ListSkeleton testId="dashboard-transactions-loading" label="Cargando movimientos…" rows={3} />
           )}
 
           {transactionsState.status === 'error' && (
@@ -233,6 +235,7 @@ export function DashboardPage() {
         onDeleted={() => {
           transactionsState.refresh()
           summaryState.refresh()
+          trendsState.refresh()
         }}
       />
     </div>
