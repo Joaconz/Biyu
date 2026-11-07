@@ -76,26 +76,28 @@ export function MonthlyFlowChart({ months }: { months: readonly FlowMonth[] }) {
           Escala común: lo más alto es <span data-testid="dashboard-flow-max">{formatCompactArs(max)}</span>
         </p>
       </div>
-      {/* Vista de tabla para lector de pantalla: los montos exactos de todos los meses. */}
-      <table className="sr-only" data-testid="dashboard-flow-table">
-        <caption>Gastado e ingresos de los últimos 6 meses</caption>
-        <thead>
-          <tr>
-            <th scope="col">Mes</th>
-            <th scope="col">Gastos</th>
-            <th scope="col">Ingresos</th>
-          </tr>
-        </thead>
-        <tbody>
-          {months.map((m) => (
-            <tr key={formatPeriod(m.period)}>
-              <th scope="row">{formatPeriodLong(m.period)}</th>
-              <td>{formatArs(m.expenses)}</td>
-              <td>{formatArs(m.income)}</td>
+      {/* Vista de tabla para lector de pantalla (en un div: una tabla ignora el ancho de sr-only y ensancha la página): los montos exactos de todos los meses. */}
+      <div className="sr-only">
+        <table data-testid="dashboard-flow-table">
+          <caption>Gastado e ingresos de los últimos 6 meses</caption>
+          <thead>
+            <tr>
+              <th scope="col">Mes</th>
+              <th scope="col">Gastos</th>
+              <th scope="col">Ingresos</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {months.map((m) => (
+              <tr key={formatPeriod(m.period)}>
+                <th scope="row">{formatPeriodLong(m.period)}</th>
+                <td>{formatArs(m.expenses)}</td>
+                <td>{formatArs(m.income)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </GroupedSection>
   )
 }

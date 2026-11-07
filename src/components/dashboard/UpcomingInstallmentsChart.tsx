@@ -73,24 +73,26 @@ export function UpcomingInstallmentsChart({ months }: { months: readonly Upcomin
           })}
         </ol>
       </div>
-      {/* Vista de tabla para lector de pantalla: el monto exacto de cada mes. */}
-      <table className="sr-only" data-testid="dashboard-upcoming-table">
-        <caption>Cuotas ya comprometidas en los próximos 6 meses</caption>
-        <thead>
-          <tr>
-            <th scope="col">Mes</th>
-            <th scope="col">Cuotas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {months.map((m) => (
-            <tr key={formatPeriod(m.period)}>
-              <th scope="row">{formatPeriodLong(m.period)}</th>
-              <td>{formatArs(m.amount)}</td>
+      {/* Vista de tabla para lector de pantalla (en un div: una tabla ignora el ancho de sr-only y ensancha la página): el monto exacto de cada mes. */}
+      <div className="sr-only">
+        <table data-testid="dashboard-upcoming-table">
+          <caption>Cuotas ya comprometidas en los próximos 6 meses</caption>
+          <thead>
+            <tr>
+              <th scope="col">Mes</th>
+              <th scope="col">Cuotas</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {months.map((m) => (
+              <tr key={formatPeriod(m.period)}>
+                <th scope="row">{formatPeriodLong(m.period)}</th>
+                <td>{formatArs(m.amount)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </GroupedSection>
   )
 }
