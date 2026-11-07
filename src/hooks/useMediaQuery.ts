@@ -14,3 +14,6 @@ export function useMediaQuery(query: string): boolean {
 }
 
 export const DESKTOP_QUERY = '(min-width: 64rem)'
+
+/** El corte `sm` de Tailwind: por debajo, la pantalla es de celular. */
+export const SM_QUERY = '(min-width: 40rem)'

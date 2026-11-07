@@ -85,6 +85,8 @@ export interface MonthlySummary {
   looseDebtMovement: Decimal
   /** Si el período tiene al menos un evento de una deuda suelta y el usuario las incluye: si no, la línea no se muestra. */
   hasLooseDebtEvents: boolean
+  /** Si el período tiene algún evento de una deuda suelta, se incluyan o no (ADR-051: la línea «fuera del balance»). */
+  looseDebtActivity: boolean
   inheritedInstallments: Decimal // cuotas con installment_number > 1
   /** Total gastado menos las deudas que cuentan para el neto (US-30); puede ser negativo. */
   netOfReimbursements: Decimal
@@ -234,6 +236,7 @@ export function computeMonthlySummary(
     balanceParts,
     looseDebtMovement: loose.movement,
     hasLooseDebtEvents: includesLoose,
+    looseDebtActivity: loose.hasEvents,
     inheritedInstallments: inherited,
     netOfReimbursements: expenses.minus(reimbursed),
     hasReimbursements: counted.length > 0,

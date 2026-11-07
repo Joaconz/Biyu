@@ -173,6 +173,8 @@ informativa: no son metas ni presupuestos (Out of Scope)._
 1. El usuario entra a `/dashboard`.
 2. El sistema resuelve el período actual y suma todas las imputaciones de ese período.
 3. Muestra: total gastado ARS (con USD convertido a su `fx_rate` congelado), total ingresos, balance, gasto neto de reembolsos, y cuánto del total corresponde a cuotas iniciadas en meses anteriores.
+   El balance se muestra con su desglose (ingresos, gastos y lo que el usuario sume: deudas sueltas,
+   reembolsos, suscripciones por cobrar), y tocar su fórmula abre ahí mismo qué entra en él (US-101, ADR-047, ADR-051).
 4. Debajo: barras por categoría, desglose por cuenta, últimas 10 transacciones, y días con registro.
 
 ### Sad path — monto inválido

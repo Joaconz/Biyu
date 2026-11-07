@@ -2,6 +2,8 @@ import { expect, type Page, test } from '@playwright/test'
 import { apiSession, signUpAndSkipSetup } from './support/app.ts'
 
 // US-83 (#271), ADR-041: las deudas sueltas mueven el balance del mes. CA-1, CA-2, CA-3, CA-8, CA-9, CA-10 y CA-14.
+// Desde ADR-051 la línea es una fila del desglose de la tarjeta de Balance: el signo (suma/resta) va en su
+// columna y el monto sin signo.
 
 type Api = Awaited<ReturnType<typeof apiSession>>
 
@@ -25,6 +27,14 @@ const transaction = (api: Api, type: 'income' | 'expense', amount: string, categ
     p_installments_count: 1, p_occurred_on: dayOfMonth(), p_description: null, p_request_id: null, ...extra,
   })
 
+/** La fila «Deudas sueltas» del desglose: adentro del balance, con su signo y su monto sin signo. */
+async function expectLooseDebtLine(page: Page, sign: 'suma' | 'resta', amount: string) {
+  const line = page.getByTestId('dashboard-balance-loose-debts')
+  await expect(line).toHaveAttribute('data-included', 'true')
+  await expect(line).toContainText(sign)
+  await expect(page.getByTestId('dashboard-balance-loose-debts-amount')).toHaveText(amount)
+}
+
 const debt = (api: Api, direction: 'owed_to_me' | 'i_owe', person: string, amount: string) =>
   api.rpc('create_debt', {
     p_direction: direction, p_person: person, p_amount: amount, p_currency: 'ARS', p_fx_rate: null,
@@ -40,14 +50,14 @@ test('CA-1, CA-3 y CA-14 · «me deben» resta del balance, saldarla lo deja en 
   await page.goto('/dashboard')
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('$80.000,00')
   await expect(page.getByTestId('dashboard-balance-badge')).toHaveText('Superávit')
-  await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveText('Incluye deudas sueltas: -$20.000,00')
+  await expectLooseDebtLine(page, 'resta', '$20.000,00')
   await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$0,00')
   await expect(page.getByTestId('dashboard-total-income')).toHaveText('$100.000,00')
 
   expect((await api.rpc('settle_debt', { p_debt_id: created.body })).status).toBe(204)
   await page.reload()
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('$100.000,00')
-  await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveText('Incluye deudas sueltas: $0,00')
+  await expectLooseDebtLine(page, 'suma', '$0,00')
 })
 
 test('CA-2 · «debo» suma al balance', async ({ page, request }) => {
@@ -56,7 +66,7 @@ test('CA-2 · «debo» suma al balance', async ({ page, request }) => {
   await debt(api, 'i_owe', 'Marta', '50000')
   await page.goto('/dashboard')
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('$150.000,00')
-  await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveText('Incluye deudas sueltas: $50.000,00')
+  await expectLooseDebtLine(page, 'suma', '$50.000,00')
 })
 
 test('CA-8 · un gasto compartido no mueve el balance ni muestra la línea', async ({ page, request }) => {

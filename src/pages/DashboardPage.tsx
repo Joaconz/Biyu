@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { CalendarCheck, CirclePlus } from 'lucide-react'
 import { Link } from 'react-router'
 import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
+import { BalanceCard } from '@/components/dashboard/BalanceCard'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
 import { DashboardTrends } from '@/components/dashboard/DashboardTrends'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -12,9 +13,9 @@ import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { PendingSubscriptionsCard } from '@/components/dashboard/PendingSubscriptionsCard'
 import { DashboardSkeleton, ListSkeleton } from '@/components/skeletons/Skeleton'
 import { buttonVariants } from '@/components/ui/button'
-import { balanceFormulaText, computeBalance } from '@/domain/balance'
-import { formatArs, formatUsd, type Decimal } from '@/domain/money'
+import { formatArs, formatUsd } from '@/domain/money'
 import { daysElapsedInPeriod, formatPeriod, formatPeriodLong } from '@/domain/period'
+import { useBalanceOptionsSaver } from '@/hooks/useBalanceOptionsSaver'
 import { useDashboardTrends } from '@/hooks/useDashboardTrends'
 import { useMonthlySummary } from '@/hooks/useMonthlySummary'
 import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions'
@@ -22,42 +23,22 @@ import { usePendingSubscriptionCharges } from '@/hooks/usePendingSubscriptionCha
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { today } from '@/lib/clock'
 import type { DashboardTransaction } from '@/lib/dashboard'
-import { cn } from '@/lib/utils'
-import { fitAmountFontSize, SIDE_BY_SIDE_AMOUNT_MAX_LENGTH } from '@/lib/visuals'
-
-type BalanceTone = 'surplus' | 'deficit' | 'zero'
-
-function balanceTone(balance: Decimal): BalanceTone {
-  if (balance.isZero()) return 'zero'
-  return balance.isNegative() ? 'deficit' : 'surplus'
-}
-
-const BALANCE_BADGE: Record<BalanceTone, { label: string; className: string }> = {
-  surplus: { label: 'Superávit', className: 'bg-[color-mix(in_srgb,var(--income)_12%,var(--card))] text-income' },
-  deficit: { label: 'Déficit', className: 'bg-[color-mix(in_srgb,var(--deficit)_10%,var(--card))] text-deficit' },
-  zero: { label: 'En cero', className: 'bg-secondary text-muted-foreground' },
-}
-
-// Ingresos y Balance: el alto de línea de title-2 (celular) y title-1 (desde sm), y su tamaño
-// como tope de fitAmountFontSize (DEF-021).
-const AMOUNT_CARD_TEXT =
-  'text-title-2 sm:text-title-1 [--amount-max:var(--text-title-2)] sm:[--amount-max:var(--text-title-1)]'
-
-const BALANCE_TEXT: Record<BalanceTone, string> = {
-  surplus: 'text-income',
-  deficit: 'text-deficit',
-  zero: 'text-foreground',
-}
+import { fitAmountFontSize } from '@/lib/visuals'
 
 export function DashboardPage() {
   const { period, setPeriod, shift } = usePeriodParam()
-  const summaryState = useMonthlySummary(period)
+  // ADR-051: la tarjeta de Balance cambia qué entra en el balance; el resumen se recalcula con eso al instante.
+  const balanceSaver = useBalanceOptionsSaver()
+  const summaryState = useMonthlySummary(period, balanceSaver.edited)
   const transactionsState = useMonthlyTransactions(period, 10)
   const trendsState = useDashboardTrends(period)
   const pendingCharges = usePendingSubscriptionCharges(period)
   const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   // US-33: un mes sin imputaciones muestra el acceso al registro en vez de un dashboard de ceros.
-  const isEmpty = summaryState.status === 'ready' && !summaryState.summary.hasData
+  // ADR-051: un mes con deudas sueltas que el usuario dejó afuera tampoco es vacío: la tarjeta de Balance las
+  // muestra «fuera del balance» y sacarlas no hace desaparecer la tarjeta que se está tocando.
+  const isEmpty =
+    summaryState.status === 'ready' && !summaryState.summary.hasData && !summaryState.summary.looseDebtActivity
   const monthName = formatPeriodLong(period).split(' ')[0]
 
   return (
@@ -66,13 +47,11 @@ export function DashboardPage() {
         <PeriodSwitcher screen="dashboard" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
       </PageHeader>
 
-      {/* ADR-045: lo que las suscripciones todavía van a cobrar, aparte del gastado y del balance. */}
-      <PendingSubscriptionsCard
-        pending={pendingCharges}
-        period={period}
-        balance={summaryState.status === 'ready' ? summaryState.summary.balance : null}
-        includedInBalance={summaryState.status === 'ready' && summaryState.balanceOptions.pendingSubscriptions}
-      />
+      {/*
+        ADR-045: lo que las suscripciones todavía van a cobrar. Con el Resumen cargado es una línea de la
+        tarjeta de Balance (ADR-051); la tarjeta suelta queda para el mes vacío o si el resumen no cargó.
+      */}
+      {(isEmpty || summaryState.status === 'error') && <PendingSubscriptionsCard pending={pendingCharges} period={period} />}
 
       {summaryState.status === 'loading' && <DashboardSkeleton />}
 
@@ -107,21 +86,10 @@ export function DashboardPage() {
 
       {summaryState.status === 'ready' && !isEmpty && (() => {
         const { summary, daysWithTransactions, balanceOptions } = summaryState
-        // US-101: las suscripciones por cobrar viven en otra carga y se descuentan acá, si el usuario las incluye.
-        // Mientras esa carga no llegó (o falló), el balance y su fórmula no las incluyen: el número y lo que dice incluir coinciden.
-        const effectiveOptions = pendingCharges ? balanceOptions : { ...balanceOptions, pendingSubscriptions: false }
-        const balance = computeBalance(
-          { ...summary.balanceParts, pendingSubscriptions: pendingCharges?.totalArs ?? summary.balanceParts.pendingSubscriptions },
-          effectiveOptions,
-        )
-        const tone = balanceTone(balance)
         const elapsed = daysElapsedInPeriod(period, today())
         const expensesText = formatArs(summary.expenses)
-        const incomeText = formatArs(summary.income)
-        const balanceText = formatArs(balance)
-        const stackIncomeAndBalance = Math.max(incomeText.length, balanceText.length) > SIDE_BY_SIDE_AMOUNT_MAX_LENGTH
         return (
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-start">
             {/* Lo primero que se lee es cuánto se gastó (US-25): superficie sólida, la única de la pantalla. */}
             <div
               data-testid="dashboard-total"
@@ -192,50 +160,15 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <div
-              className={cn(
-                'grid gap-3 lg:grid-cols-[minmax(0,1fr)]',
-                stackIncomeAndBalance ? 'grid-cols-[minmax(0,1fr)]' : 'grid-cols-[repeat(2,minmax(0,1fr))]',
-              )}
-            >
-              <div data-testid="dashboard-income" className="@container flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
-                <span className="text-footnote font-medium text-muted-foreground">Ingresos</span>
-                <span
-                  data-testid="dashboard-total-income"
-                  className={cn('tabular font-bold whitespace-nowrap text-income', AMOUNT_CARD_TEXT)}
-                  style={{ fontSize: fitAmountFontSize(incomeText) }}
-                >
-                  {incomeText}
-                </span>
-              </div>
-              <div data-testid="dashboard-balance" className="@container flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-footnote font-medium text-muted-foreground">Balance</span>
-                  <span
-                    data-testid="dashboard-balance-badge"
-                    className={cn('rounded-md px-1.5 py-0.5 text-caption font-semibold', BALANCE_BADGE[tone].className)}
-                  >
-                    {BALANCE_BADGE[tone].label}
-                  </span>
-                </div>
-                <span
-                  data-testid="dashboard-total-balance"
-                  className={cn('tabular font-bold whitespace-nowrap', AMOUNT_CARD_TEXT, BALANCE_TEXT[tone])}
-                  style={{ fontSize: fitAmountFontSize(balanceText) }}
-                >
-                  {balanceText}
-                </span>
-                <span data-testid="dashboard-balance-formula" className="text-caption text-muted-foreground">
-                  {balanceFormulaText(effectiveOptions)}
-                </span>
-                {/* US-83: el balance incluye el movimiento de las deudas sueltas; la línea dice cuánto. */}
-                {summary.hasLooseDebtEvents && (
-                  <span data-testid="dashboard-balance-loose-debts" className="tabular text-caption text-muted-foreground">
-                    Incluye deudas sueltas: {formatArs(summary.looseDebtMovement)}
-                  </span>
-                )}
-              </div>
-            </div>
+            {/* US-29, US-101, ADR-051: ingresos, gastos y lo que el usuario sume, con el número y su desglose. */}
+            <BalanceCard
+              summary={summary}
+              options={balanceOptions}
+              pending={pendingCharges}
+              period={period}
+              monthName={monthName}
+              onOptionsChange={(next) => balanceSaver.save(next, balanceOptions)}
+            />
 
             {/* ADR-050: las tendencias (6 meses, ritmo del mes, cuotas que vienen) son secundarias y no frenan el resto. */}
             <div className="mt-5 flex flex-col gap-7 lg:col-span-2">
