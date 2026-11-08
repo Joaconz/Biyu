@@ -14,7 +14,7 @@ export function ListSkeleton({ rows = 4, testId, label }: { rows?: number; testI
   return (
     <div data-testid={testId} role="status" aria-busy="true">
       <span className="sr-only">{label}</span>
-      <div className="overflow-hidden rounded-xl border border-hairline bg-card [&>*+*]:border-t [&>*+*]:border-hairline">
+      <div className="overflow-hidden rounded-xl bg-card [&>*+*]:border-t [&>*+*]:border-hairline">
         {Array.from({ length: rows }, (_, i) => (
           <div key={i} className="flex min-h-16 items-center gap-3 px-4 py-3">
             <Skeleton className="size-10 shrink-0 rounded-full" />

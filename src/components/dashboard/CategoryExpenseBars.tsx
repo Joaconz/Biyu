@@ -32,12 +32,12 @@ export function CategoryExpenseBars({
       ) : (
         <GroupedCard>
           {slices.length > 0 && (
-            <div className="flex justify-center px-4 pt-5 pb-4">
+            <div className="flex justify-center px-4 pt-6 pb-5">
               <CategoryDonutChart slices={slices} period={period} total={totalExpenses} />
             </div>
           )}
           {/* role="list" explícito: con list-style: none Safari le quita la semántica de lista al <ul>. */}
-          <ul role="list" data-testid="dashboard-categories-list" className="[&>*+*]:border-t [&>*+*]:border-hairline">
+          <ul role="list" data-testid="dashboard-categories-list" className="">
             {categories.map((cat) => (
               <BreakdownRow
                 key={cat.id}

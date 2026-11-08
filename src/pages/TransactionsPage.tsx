@@ -6,7 +6,6 @@ import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
-import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog'
 import { PurgeTransactionDialog } from '@/components/transactions/PurgeTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
@@ -27,7 +26,6 @@ export function TransactionsPage() {
   const [params, setParams] = useSearchParams()
   const view: TransactionsView = params.get('view') === 'deleted' ? 'deleted' : 'active'
   const transactionsState = useMonthlyTransactions(period, undefined, view)
-  const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   const [txToPurge, setTxToPurge] = useState<DashboardTransaction | null>(null)
   const [isExportOpen, setIsExportOpen] = useState(false)
   const now = today()
@@ -151,7 +149,6 @@ export function TransactionsPage() {
                     transaction={tx}
                     testId="transactions-item"
                     showDate={false}
-                    onDeleteRequest={view === 'active' ? setTxToDelete : undefined}
                     editHref={view === 'active' ? `/transactions/${tx.id}/edit?period=${formatPeriod(period)}` : undefined}
                     onRestoreRequest={view === 'deleted' ? onRestore : undefined}
                     onPurgeRequest={
@@ -164,13 +161,6 @@ export function TransactionsPage() {
           ))}
         </div>
       )}
-
-      <DeleteTransactionDialog
-        transaction={txToDelete}
-        isOpen={txToDelete !== null}
-        onClose={() => setTxToDelete(null)}
-        onDeleted={() => transactionsState.refresh()}
-      />
 
       <PurgeTransactionDialog
         transaction={txToPurge}

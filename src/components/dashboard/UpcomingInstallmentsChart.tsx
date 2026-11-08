@@ -23,7 +23,7 @@ export function UpcomingInstallmentsChart({ months }: { months: readonly Upcomin
   const shown = months.find((m) => formatPeriod(m.period) === picked) ?? months.find((m) => m.amount.gt(0)) ?? months[0]
   return (
     <GroupedSection title="Cuotas que vienen" data-testid="dashboard-upcoming">
-      <div className="flex flex-col gap-3 rounded-xl border border-hairline bg-card px-3 pt-4 pb-3 sm:px-4">
+      <div className="flex flex-col gap-3 rounded-xl bg-card px-4 pt-5 pb-4 sm:px-6">
         <div className="flex flex-col gap-1">
           <p className="text-callout text-muted-foreground">
             Ya comprometido en los próximos 6 meses:{' '}

@@ -1,5 +1,6 @@
 import { ChevronLeft } from 'lucide-react'
 import { Link, useParams, useSearchParams } from 'react-router'
+import { DeleteFromEdit } from '@/components/transactions/DeleteFromEdit'
 import { EditTransactionForm } from '@/components/transactions/EditTransactionForm'
 import { buttonVariants } from '@/components/ui/button'
 import { parsePeriod } from '@/domain/period'
@@ -7,7 +8,7 @@ import { editBlock } from '@/domain/transactionEdit'
 import { useTransactionEdit } from '@/hooks/useTransactionEdit'
 
 /**
- * Editar movimiento (US-84, `/transactions/:id/edit`). Se entra desde Movimientos con el período en la
+ * Editar movimiento (US-84, `/transactions/:id/edit`). También es donde se elimina (ADR-052). Se entra desde Movimientos con el período en la
  * URL (C11) y se vuelve a él al guardar o cancelar. Un movimiento eliminado, de una suscripción o
  * compartido muestra su aviso en vez del formulario (ADR-043 §5); uno ajeno o inexistente, «no encontrado».
  */
@@ -22,13 +23,16 @@ export function EditTransactionPage() {
     const block = editBlock(state.transaction)
     if (!block) {
       return (
-        <EditTransactionForm
-          key={state.transaction.id}
-          transaction={state.transaction}
-          categories={state.categories}
-          accounts={state.accounts}
-          backTo={backTo}
-        />
+        <>
+          <EditTransactionForm
+            key={state.transaction.id}
+            transaction={state.transaction}
+            categories={state.categories}
+            accounts={state.accounts}
+            backTo={backTo}
+          />
+          <DeleteFromEdit transactionId={state.transaction.id} backTo={backTo} />
+        </>
       )
     }
     return (
@@ -39,6 +43,8 @@ export function EditTransactionPage() {
           </p>
           <BackLink to={backTo} testId="edit-transaction-blocked-back" />
         </div>
+        {/* Compartido, de una suscripción o empezado: no se edita, pero se puede eliminar (ADR-052). */}
+        <DeleteFromEdit transactionId={state.transaction.id} backTo={backTo} />
       </Shell>
     )
   }

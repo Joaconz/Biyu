@@ -209,97 +209,62 @@ export interface DashboardTransaction {
   entry_amount_ars: string
 }
 
-/** Qué movimientos lista /transactions: los activos, o los eliminados para restaurarlos (DEF-007). */
-export type TransactionsView = 'active' | 'deleted'
+/** Lo que se pide de cada imputación con su transacción: lo comparten la lista del mes y el movimiento suelto. */
+const DASHBOARD_TRANSACTION_SELECT = `
+  installment_number,
+  amount_text:amount::text,
+  amount_ars_text:amount_ars::text,
+  transaction:transactions!ledger_entries_transaction_fk!inner (
+    id,
+    type,
+    amount_text:amount::text,
+    currency,
+    fx_rate_text:fx_rate::text,
+    amount_ars_text:amount_ars::text,
+    installments_count,
+    installments_paid,
+    entries:ledger_entries!ledger_entries_transaction_fk (period, installment_number, amount_ars_text:amount_ars::text),
+    occurred_on,
+    description,
+    created_at,
+    deleted_at,
+    category:categories!transactions_category_fk (id, name, color, archived_at),
+    account:accounts!transactions_account_fk (id, name, type),
+    debts:debts!debts_transaction_fk (person, amount_text:amount::text),
+    subscription_period,
+    subscription:subscriptions!transactions_subscription_fk (id, name)
+  )
+`
 
-/**
- * Trae las imputaciones del período con su transacción para el usuario autenticado (C7).
- * Parte de ledger_entries, igual que los KPIs (04-data-model, consultas 1 a 5): una compra en
- * cuotas de un mes anterior aparece con la cuota que cae en este período (US-17).
- * Excluye transacciones con soft delete (I10) y ordena por occurred_on desc.
- */
-export async function fetchMonthlyTransactions(
-  period: Period,
-  limit?: number,
-  view: TransactionsView = 'active',
-  /** Solo los gastos de esta categoría (detalle de categoría, US-73). */
-  expensesOfCategory?: string,
-): Promise<DashboardTransaction[]> {
-  const dbPeriod = toDbDate(period)
-  let query = supabase
-    .from('ledger_entries')
-    .select(`
-      installment_number,
-      amount_text:amount::text,
-      amount_ars_text:amount_ars::text,
-      transaction:transactions!ledger_entries_transaction_fk!inner (
-        id,
-        type,
-        amount_text:amount::text,
-        currency,
-        fx_rate_text:fx_rate::text,
-        amount_ars_text:amount_ars::text,
-        installments_count,
-        installments_paid,
-        entries:ledger_entries!ledger_entries_transaction_fk (period, installment_number, amount_ars_text:amount_ars::text),
-        occurred_on,
-        description,
-        created_at,
-        deleted_at,
-        category:categories!transactions_category_fk (id, name, color, archived_at),
-        account:accounts!transactions_account_fk (id, name, type),
-        debts:debts!debts_transaction_fk (person, amount_text:amount::text),
-        subscription_period,
-        subscription:subscriptions!transactions_subscription_fk (id, name)
-      )
-    `)
-    .eq('period', dbPeriod)
-  // I10: los KPIs y el listado normal nunca ven las eliminadas; el filtro "Eliminados" ve solo esas (DEF-007).
-  query = view === 'deleted' ? query.not('transaction.deleted_at', 'is', null) : query.is('transaction.deleted_at', null)
-  if (expensesOfCategory) {
-    query = query.eq('transaction.category_id', expensesOfCategory).eq('transaction.type', 'expense')
+type DashboardTransactionRow = {
+  installment_number: number
+  amount_text: string
+  amount_ars_text: string
+  transaction: {
+    id: string
+    type: 'expense' | 'income'
+    amount_text: string
+    currency: 'ARS' | 'USD'
+    fx_rate_text: string | null
+    amount_ars_text: string
+    installments_count: number
+    installments_paid: number
+    entries: { period: string; installment_number: number; amount_ars_text: string }[]
+    occurred_on: string
+    description: string | null
+    deleted_at: string | null
+    category: { id: string; name: string; color: string | null; archived_at: string | null } | null
+    account: { id: string; name: string; type: string } | null
+    debts: { person: string; amount_text: string }[] | null
+    subscription_period: string | null
+    subscription: { id: string; name: string } | null
   }
-  query = query
-    // Orden por columnas de la transacción embebida: PostgREST exige que estén en el select.
-    .order('transaction(occurred_on)', { ascending: false })
-    .order('transaction(created_at)', { ascending: false })
+}
 
-  if (limit) {
-    query = query.limit(limit)
-  }
-
-  const { data, error } = await query
-  if (error) throw error
-  if (!data) return []
-
-  // C2: los montos se piden con ::text (sin el cast llegarían como número JSON) y pasan como string;
-  // nunca se parsean a number.
-  return (
-    data as unknown as Array<{
-      installment_number: number
-      amount_text: string
-      amount_ars_text: string
-      transaction: {
-        id: string
-        type: 'expense' | 'income'
-        amount_text: string
-        currency: 'ARS' | 'USD'
-        fx_rate_text: string | null
-        amount_ars_text: string
-        installments_count: number
-        installments_paid: number
-        entries: { period: string; installment_number: number; amount_ars_text: string }[]
-        occurred_on: string
-        description: string | null
-        deleted_at: string | null
-        category: { id: string; name: string; color: string | null; archived_at: string | null } | null
-        account: { id: string; name: string; type: string } | null
-        debts: { person: string; amount_text: string }[] | null
-        subscription_period: string | null
-        subscription: { id: string; name: string } | null
-      }
-    }>
-  ).map(({ transaction: tx, ...entry }) => ({
+// C2: los montos se piden con ::text (sin el cast llegarían como número JSON) y pasan como string;
+// nunca se parsean a number.
+function toDashboardTransaction({ transaction: tx, ...entry }: DashboardTransactionRow): DashboardTransaction {
+  return {
     id: tx.id,
     type: tx.type,
     amount: tx.amount_text,
@@ -323,5 +288,63 @@ export async function fetchMonthlyTransactions(
     installment_number: entry.installment_number,
     entry_amount: entry.amount_text,
     entry_amount_ars: entry.amount_ars_text,
-  }))
+  }
+}
+
+/** Qué movimientos lista /transactions: los activos, o los eliminados para restaurarlos (DEF-007). */
+export type TransactionsView = 'active' | 'deleted'
+
+/**
+ * Trae las imputaciones del período con su transacción para el usuario autenticado (C7).
+ * Parte de ledger_entries, igual que los KPIs (04-data-model, consultas 1 a 5): una compra en
+ * cuotas de un mes anterior aparece con la cuota que cae en este período (US-17).
+ * Excluye transacciones con soft delete (I10) y ordena por occurred_on desc.
+ */
+export async function fetchMonthlyTransactions(
+  period: Period,
+  limit?: number,
+  view: TransactionsView = 'active',
+  /** Solo los gastos de esta categoría (detalle de categoría, US-73). */
+  expensesOfCategory?: string,
+): Promise<DashboardTransaction[]> {
+  const dbPeriod = toDbDate(period)
+  let query = supabase
+    .from('ledger_entries')
+    .select(DASHBOARD_TRANSACTION_SELECT)
+    .eq('period', dbPeriod)
+  // I10: los KPIs y el listado normal nunca ven las eliminadas; el filtro "Eliminados" ve solo esas (DEF-007).
+  query = view === 'deleted' ? query.not('transaction.deleted_at', 'is', null) : query.is('transaction.deleted_at', null)
+  if (expensesOfCategory) {
+    query = query.eq('transaction.category_id', expensesOfCategory).eq('transaction.type', 'expense')
+  }
+  query = query
+    // Orden por columnas de la transacción embebida: PostgREST exige que estén en el select.
+    .order('transaction(occurred_on)', { ascending: false })
+    .order('transaction(created_at)', { ascending: false })
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  if (!data) return []
+
+  return (data as unknown as DashboardTransactionRow[]).map(toDashboardTransaction)
+}
+
+/**
+ * Un movimiento con lo que necesita el diálogo de borrado (ADR-052: Eliminar vive en Editar). Toma su
+ * primera imputación; RLS deja ver solo los propios (C7), así que uno ajeno vuelve null.
+ */
+export async function fetchDashboardTransaction(id: string): Promise<DashboardTransaction | null> {
+  const { data, error } = await supabase
+    .from('ledger_entries')
+    .select(DASHBOARD_TRANSACTION_SELECT)
+    .eq('transaction_id', id)
+    .order('installment_number', { ascending: true })
+    .limit(1)
+  if (error) throw error
+  const row = (data as unknown as DashboardTransactionRow[] | null)?.[0]
+  return row ? toDashboardTransaction(row) : null
 }

@@ -5,13 +5,29 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="description" content="Biyu: en qué se fue la plata este mes. Gastos en pesos y dólares, cuotas y compartidos." />
-    <!-- Solo modo claro (ADR-023): la barra del navegador toma el ecru del header en ambos esquemas. -->
-    <meta name="color-scheme" content="light" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f6f0" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#f9f6f0" />
+    <!-- Claro y oscuro (ADR-052): la barra del navegador toma el fondo de cada tema. -->
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3ecdc" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#051f20" />
     <title>Biyu</title>
-    <!-- Sin destello blanco antes de que cargue el CSS; también tiñe el rebote del scroll. -->
-    <style>html{background:#f9f6f0;color:#2b1e19}</style>
+    <!-- Sin destello antes de que cargue el CSS; también tiñe el rebote del scroll. -->
+    <style>html{background:#f3ecdc;color:#0b2b26}html.dark{background:#051f20;color:#daf1de}</style>
+    <!--
+      Aplica el tema guardado antes del primer pintado (src/lib/theme.ts, ADR-052). Misma clave y
+      mismos valores que useThemePreference; si no hay nada guardado, sigue al sistema.
+    -->
+    <script>
+      (function () {
+        var pref = 'system'
+        try { pref = localStorage.getItem('biyu-theme') || 'system' } catch (e) {}
+        var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        var root = document.documentElement
+        if (dark) root.classList.add('dark')
+        root.style.colorScheme = dark ? 'dark' : 'light'
+        var metas = document.querySelectorAll('meta[name="theme-color"]')
+        for (var i = 0; i < metas.length; i++) metas[i].content = dark ? '#051f20' : '#f3ecdc'
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

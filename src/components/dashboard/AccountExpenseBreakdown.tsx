@@ -30,7 +30,7 @@ export function AccountExpenseBreakdown({ accounts }: { accounts: AccountExpense
                 key={acc.id}
                 testId={`dashboard-account-item-${acc.id}`}
                 icon={
-                  <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
                     <AccountIcon type={acc.type} />
                   </span>
                 }

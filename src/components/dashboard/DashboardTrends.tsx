@@ -16,8 +16,8 @@ export function DashboardTrends({ state, period }: { state: DashboardTrendsState
   if (state.status === 'loading') {
     return (
       <div data-testid="dashboard-trends-loading" aria-busy="true" className="grid gap-3 lg:grid-cols-2">
-        <div className="h-64 rounded-xl border border-hairline bg-card" />
-        <div className="h-64 rounded-xl border border-hairline bg-card" />
+        <div className="h-64 rounded-xl bg-card" />
+        <div className="h-64 rounded-xl bg-card" />
       </div>
     )
   }

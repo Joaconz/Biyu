@@ -19,7 +19,7 @@ export function PendingSubscriptionsCard({ pending, period }: { pending: Pending
   return (
     <section
       data-testid="dashboard-pending-subscriptions"
-      className="mb-3 flex flex-col gap-1.5 rounded-2xl border border-hairline bg-card p-4 sm:p-5"
+      className="mb-3 flex flex-col gap-1.5 rounded-2xl bg-card p-5 sm:p-6"
     >
       <h2 className="text-footnote font-medium text-muted-foreground">{pendingChargesLabel(period)}</h2>
       <p data-testid="dashboard-pending-subscriptions-total" className="tabular text-title-2 font-bold text-foreground">

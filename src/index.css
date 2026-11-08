@@ -3,12 +3,13 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter/opsz.css";
 
-/* Solo modo claro (ADR-023): la variante existe para que las clases dark: de shadcn compilen, pero nada la activa. */
-@custom-variant dark (&:is(.dark *));
+/* Claro y oscuro (ADR-052): `.dark` en <html> lo pone el script de index.html antes del primer pintado. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /*
-  Sistema de diseño "heritage moderno" (ADR-023): ecru, espresso y verde cazador; oro solo en
-  microdetalles. Sin sombras ni degradados; la jerarquía sale del tono, los filetes y el material.
+  Rebranding "esmeralda" (ADR-052, reemplaza la identidad de ADR-023): crema y tinta esmeralda en claro,
+  esmeralda profundo y menta en oscuro, oro solo en microdetalles. Sin sombras grises; la elevación sale
+  del tono. Un único degradado: el brillo de la tarjeta protagonista (`hero`).
 */
 @theme inline {
     /*
@@ -56,14 +57,19 @@
     --color-warning: var(--warning);
     --color-warning-surface: var(--warning-surface);
     --color-hairline: var(--hairline);
+    --color-hero: var(--hero);
+    --color-hero-foreground: var(--hero-foreground);
+    --color-hero-muted: var(--hero-muted);
+    --color-hero-accent: var(--hero-accent);
 
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
-    --radius-xl: 12px;
-    --radius-2xl: 8px;
-    --radius-3xl: 8px;
-    --radius-4xl: 8px;
+    /* Radios grandes (ADR-052): controles de 12 px, tarjetas de 20–24 px, la protagonista de 32 px. */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-3xl: 32px;
+    --radius-4xl: 40px;
 }
 
 @theme {
@@ -110,43 +116,50 @@
 :root {
     color-scheme: light;
 
-    --background: #f9f6f0; /* ecru */
-    --foreground: #2b1e19; /* espresso */
-    --card: #fdfbf7; /* papel: grupos y hojas, nunca blanco puro */
-    --card-foreground: #2b1e19;
-    --popover: #fdfbf7;
-    --popover-foreground: #2b1e19;
-    --primary: #1b4d3e; /* verde cazador, 8,9:1 con texto ecru */
-    --primary-foreground: #f9f6f0;
-    --secondary: #f1ebe0; /* lino */
-    --secondary-foreground: #2b1e19;
-    --muted: #f1ebe0;
-    --muted-foreground: #6e625a; /* 5,5:1 sobre ecru */
-    --accent: #efe8dc;
-    --accent-foreground: #2b1e19;
-    --destructive: #8b2e2e; /* bordó, 7,7:1 */
-    --border: #e6dfd3; /* filete decorativo */
-    --hairline: #e6dfd3;
-    --input: #948877; /* borde de control, 3,2:1 (WCAG 1.4.11) */
-    --ring: #9a7b1f; /* oro profundo, 3,7:1: el #d4af37 no alcanza 3:1 para foco */
-    --gold: #d4af37; /* solo decorativo: filetes e íconos chicos, nunca texto */
-    --income: #1b4d3e;
+    /* Claro: crema y tinta esmeralda. Contrastes WCAG medidos contra fondo / card. */
+    --background: #f3ecdc; /* crema */
+    --foreground: #0b2b26; /* tinta esmeralda, 12,9:1 */
+    --card: #fbf8f1;
+    --card-foreground: #0b2b26;
+    --popover: #fbf8f1;
+    --popover-foreground: #0b2b26;
+    --primary: #1a422f; /* verde oliva, 9,6:1; texto crema encima 9,5:1 */
+    --primary-foreground: #f3ebd6;
+    --secondary: #e9e0cb;
+    --secondary-foreground: #0b2b26;
+    --muted: #e9e0cb;
+    --muted-foreground: #58655d; /* 5,2:1 sobre fondo */
+    --accent: #e9e0cb;
+    --accent-foreground: #0b2b26;
+    --destructive: #8b2e2e; /* bordó, 7,1:1 */
+    --border: #e2d8c1;
+    --hairline: #e2d8c1;
+    --input: #8c8672; /* borde de control, 3,4:1 (WCAG 1.4.11) */
+    --ring: #9a7b1f;
+    --gold: #d4af37;
+    --income: #1a422f;
     --deficit: #8b2e2e;
     --warning: #7a5c12;
-    --warning-surface: #f3ebd6;
+    --warning-surface: #efe3c2;
     --chart-1: #b5653a;
     --chart-2: #3e5c76;
     --chart-3: #4a7a6d;
     --chart-4: #6b4e71;
     --chart-5: #a68a3e;
-    --radius: 8px;
-    --sidebar: #f9f6f0;
-    --sidebar-foreground: #2b1e19;
-    --sidebar-primary: #1b4d3e;
-    --sidebar-primary-foreground: #f9f6f0;
-    --sidebar-accent: #f1ebe0;
-    --sidebar-accent-foreground: #2b1e19;
-    --sidebar-border: #e6dfd3;
+    /* La protagonista es esmeralda en los dos temas: el único lugar con brillo. */
+    --hero: #0b2b26;
+    --hero-glow: #235347;
+    --hero-foreground: #f3ebd6; /* 12,7:1 */
+    --hero-muted: #a9c2b4; /* 8,0:1 */
+    --hero-accent: #8eb69b;
+    --radius: 12px;
+    --sidebar: #f3ecdc;
+    --sidebar-foreground: #0b2b26;
+    --sidebar-primary: #1a422f;
+    --sidebar-primary-foreground: #f3ebd6;
+    --sidebar-accent: #e9e0cb;
+    --sidebar-accent-foreground: #0b2b26;
+    --sidebar-border: #e2d8c1;
     --sidebar-ring: #9a7b1f;
 
     --dur-press: 120ms;
@@ -161,6 +174,57 @@
     --app-nav-gap: 0.5rem;
     --app-nav-offset: calc(var(--app-nav-h) + var(--app-nav-gap) * 2 + env(safe-area-inset-bottom, 0px));
     --kb-inset: 0px;
+}
+
+/*
+  Oscuro "esmeralda" (docs/design/direccion-de-diseno.md §2, ADR-052). Más alto = más claro:
+  #051f20 → #0b2b26 → #163832. Contrastes medidos contra fondo / card.
+*/
+.dark {
+    color-scheme: dark;
+
+    --background: #051f20;
+    --foreground: #daf1de; /* 14,4:1 */
+    --card: #0b2b26;
+    --card-foreground: #daf1de;
+    --popover: #0b2b26;
+    --popover-foreground: #daf1de;
+    --primary: #8eb69b; /* salvia, 6,7:1 sobre card */
+    --primary-foreground: #051f20; /* 7,6:1 */
+    --secondary: #163832;
+    --secondary-foreground: #daf1de;
+    --muted: #163832;
+    --muted-foreground: #9fb8ab; /* 7,2:1 sobre card */
+    --accent: #163832;
+    --accent-foreground: #daf1de;
+    --destructive: #e07a6b; /* terracota, 5,2:1 sobre card */
+    --border: #235347;
+    --hairline: #1c4239;
+    --input: #4f7f72; /* 3,3:1 sobre card */
+    --ring: #d4af37; /* el oro alcanza 7,2:1 en oscuro */
+    --gold: #d4af37;
+    --income: #8eb69b;
+    --deficit: #e07a6b;
+    --warning: #e2bd66;
+    --warning-surface: #2a2c17;
+    --chart-1: #e0956b;
+    --chart-2: #7fa3c4;
+    --chart-3: #7fbfa9;
+    --chart-4: #b394bb;
+    --chart-5: #d8bd6f;
+    --hero: #0b2b26;
+    --hero-glow: #31705e;
+    --hero-foreground: #f3ebd6;
+    --hero-muted: #a9c2b4;
+    --hero-accent: #8eb69b;
+    --sidebar: #051f20;
+    --sidebar-foreground: #daf1de;
+    --sidebar-primary: #8eb69b;
+    --sidebar-primary-foreground: #051f20;
+    --sidebar-accent: #163832;
+    --sidebar-accent-foreground: #daf1de;
+    --sidebar-border: #1c4239;
+    --sidebar-ring: #d4af37;
 }
 
 @media (min-width: 64rem) {
@@ -186,6 +250,19 @@ html[data-keyboard="open"] {
     }
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
         background-color: var(--background);
+    }
+}
+
+/*
+  La superficie protagonista (ADR-052): esmeralda en los dos temas, con el único brillo de la app, un
+  radial desde arriba. Con menos transparencia o contraste alto queda plana.
+*/
+@utility hero {
+    background-color: var(--hero);
+    background-image: radial-gradient(120% 90% at 50% -10%, var(--hero-glow) 0%, transparent 62%);
+    color: var(--hero-foreground);
+    @media (prefers-contrast: more) {
+        background-image: none;
     }
 }
 

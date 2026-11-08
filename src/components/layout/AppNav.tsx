@@ -37,9 +37,10 @@ export function AppNav({ screen, isDesktop }: { screen: Screen | null; isDesktop
     <nav
       aria-label="Principal"
       className={cn(
-        'app-nav chrome fixed z-40 mx-auto flex h-(--app-nav-h) max-w-md overflow-hidden rounded-full border border-hairline',
+        // ADR-052: en el celular, una píldora esmeralda en los dos temas (la misma superficie que la protagonista).
+        'app-nav fixed z-40 mx-auto flex h-(--app-nav-h) max-w-md overflow-hidden rounded-full border border-hero-foreground/10 bg-[color-mix(in_srgb,var(--hero)_94%,transparent)] backdrop-blur-xl',
         'inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] bottom-[calc(env(safe-area-inset-bottom)+var(--app-nav-gap))]',
-        'lg:inset-y-0 lg:right-auto lg:left-0 lg:mx-0 lg:h-auto lg:w-60 lg:max-w-none lg:flex-col lg:overflow-visible lg:rounded-none lg:border-0 lg:border-r lg:bg-background lg:px-4 lg:pb-6 lg:backdrop-filter-none',
+        'lg:inset-y-0 lg:right-auto lg:left-0 lg:mx-0 lg:h-auto lg:w-60 lg:max-w-none lg:flex-col lg:overflow-visible lg:rounded-none lg:border-0 lg:border-r lg:border-hairline lg:bg-background lg:px-4 lg:pb-6 lg:backdrop-filter-none',
       )}
     >
       <div className="hidden px-3 pt-9 pb-8 lg:block">
@@ -54,7 +55,7 @@ export function AppNav({ screen, isDesktop }: { screen: Screen | null; isDesktop
             className="app-nav-indicator pointer-events-none absolute inset-y-1 left-0 w-1/5 p-0.5"
             style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`, opacity: activeIndex < 0 ? 0 : 1 }}
           >
-            <span className="block size-full rounded-full bg-secondary" />
+            <span className="block size-full rounded-full bg-hero-foreground/10" />
           </li>
         )}
         {destinations.map((destination) => (
@@ -92,16 +93,16 @@ function NavItemLink({ screen, destination, label }: { screen: Screen | null; de
       aria-current={isActive ? 'page' : undefined}
       data-testid={navTestId(screen ?? 'register', destination)}
       className={cn(
-        'press relative flex h-(--app-nav-h) flex-col items-center justify-center gap-0.5 text-tab font-medium whitespace-nowrap max-lg:text-[0.625rem] max-lg:tracking-normal text-muted-foreground outline-offset-[-4px]',
-        'lg:h-11 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-lg lg:px-3 lg:text-callout',
-        'hover:text-foreground lg:hover:bg-accent',
-        isActive && 'text-primary lg:bg-muted lg:text-primary',
+        'press relative flex h-(--app-nav-h) flex-col items-center justify-center gap-0.5 text-tab font-medium whitespace-nowrap max-lg:text-[0.625rem] max-lg:tracking-normal text-hero-muted outline-offset-[-4px]',
+        'lg:h-12 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-3 lg:text-callout lg:text-muted-foreground',
+        'hover:text-hero-foreground lg:hover:bg-accent lg:hover:text-foreground',
+        isActive && 'text-hero-foreground lg:bg-secondary lg:text-foreground',
       )}
     >
       {destination === 'register' ? (
         <>
           {/* ADR-048: Registrar es la acción más frecuente; en el celular lleva un botón sólido. */}
-          <span className="grid size-6 place-items-center rounded-full bg-primary text-primary-foreground lg:hidden">
+          <span className="grid size-7 place-items-center rounded-full bg-hero-accent text-hero lg:hidden">
             <Plus aria-hidden="true" className="size-4" strokeWidth={2.4} />
           </span>
           <Icon aria-hidden="true" className="hidden size-5 lg:block" strokeWidth={isActive ? 2 : 1.6} />

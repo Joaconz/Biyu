@@ -90,3 +90,13 @@ export function fitAmountFontSize(text: string): string {
  * ("$999.999.999,99" tiene 15) se apilan para que el monto no quede ilegible (DEF-021).
  */
 export const SIDE_BY_SIDE_AMOUNT_MAX_LENGTH = 14
+
+/**
+ * Parte un monto ya formateado en la parte entera y los centavos (ADR-052): la protagonista muestra
+ * «$436.850» grande y «,50» más chico y apagado. Trabaja sobre el texto de `formatArs`/`formatUsd`,
+ * nunca sobre un número (C2). Sin centavos reconocibles, todo queda en `whole`.
+ */
+export function splitAmountText(text: string): { whole: string; cents: string | null } {
+  const match = /^(.*\d)(,\d{2})$/.exec(text)
+  return match ? { whole: match[1], cents: match[2] } : { whole: text, cents: null }
+}

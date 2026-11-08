@@ -81,7 +81,7 @@ export function BreakdownRow({
           aria-label={link.label}
           // Ids sueltos y no el contenedor: así el lector separa "$60.000,00" de "40,0 %".
           aria-describedby={[link.describedBy, `${valuesId}-amount`, `${valuesId}-percentage`].filter(Boolean).join(' ')}
-          className="press flex min-h-14 items-center gap-3 py-3 pr-3 pl-3.5 outline-offset-[-2px] hover:bg-accent/60"
+          className="press flex min-h-[4.5rem] items-center gap-3.5 py-3 pr-3 pl-4 outline-offset-[-2px] hover:bg-accent/50"
         >
           {content}
           <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-input" strokeWidth={1.8} />
@@ -91,7 +91,7 @@ export function BreakdownRow({
   }
 
   return (
-    <div data-testid={testId} role="listitem" className="flex items-center gap-3 py-3 pr-4 pl-3.5">
+    <div data-testid={testId} role="listitem" className="flex min-h-[4.5rem] items-center gap-3.5 py-3 pr-4 pl-4">
       {content}
     </div>
   )

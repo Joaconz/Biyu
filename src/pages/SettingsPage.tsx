@@ -8,6 +8,9 @@ import { AccountIcon } from '@/components/shared/AccountIcon'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
+import { useTheme } from '@/components/layout/ThemeProvider'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { THEME_OPTIONS } from '@/lib/theme'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -64,6 +67,7 @@ export function SettingsPage() {
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-9">
       <PageHeader title="Ajustes" testId="settings-title" className="pb-0 lg:pb-0" />
+      <AppearanceSection />
       <CategoriesSection />
       <AccountsSection />
       <FxRatesSection />
@@ -84,6 +88,22 @@ export function SettingsPage() {
         <LogoutButton testId="settings-nav-logout" />
       </GroupedCard>
     </div>
+  )
+}
+
+/** ADR-052: claro, oscuro o el del sistema. Se guarda en el dispositivo (localStorage), no en la cuenta. */
+function AppearanceSection() {
+  const { preference, setPreference } = useTheme()
+  return (
+    <GroupedSection title="Apariencia" data-testid="settings-appearance" footer="«Automático» sigue al modo claro u oscuro del teléfono.">
+      <SegmentedControl
+        testId="settings-theme"
+        aria-label="Tema"
+        value={preference}
+        onValueChange={setPreference}
+        options={THEME_OPTIONS.map((option) => ({ ...option, testId: `settings-theme-${option.value}` }))}
+      />
+    </GroupedSection>
   )
 }
 

@@ -1,4 +1,4 @@
-import { ArrowDownLeft, Pencil, Repeat, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowDownLeft, Repeat, RotateCcw, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { formatInstallmentLabel } from '@/domain/installments'
@@ -6,12 +6,12 @@ import { formatArs, formatUsd, parseMoney } from '@/domain/money'
 import { formatDayShort } from '@/domain/period'
 import { sharedExpenseLabel } from '@/domain/sharedDebt'
 import type { DashboardTransaction } from '@/lib/dashboard'
+import { cn } from '@/lib/utils'
 
 interface TransactionItemProps {
   transaction: DashboardTransaction
   testId?: string
-  onDeleteRequest?: (transaction: DashboardTransaction) => void
-  /** US-84: si viene, la fila lleva «Editar» y lleva acá (solo las activas de Movimientos). */
+  /** ADR-052: la fila entera lleva acá (Editar, US-84). Lleva el testid `<testId>-edit`. */
   editHref?: string
   /** Filtro "Eliminados" (DEF-007): en vez de eliminar, se restaura. */
   onRestoreRequest?: (transaction: DashboardTransaction) => void
@@ -22,10 +22,11 @@ interface TransactionItemProps {
 }
 
 /**
- * Fila de movimiento: el ícono dice la categoría, así el renglón secundario queda para la fecha y
- * la cuenta y no se trunca en tres pedazos. El monto es la cuota que impacta en el mes (US-17).
+ * Fila de movimiento (ADR-052): ícono de la categoría en círculo, título y fecha/cuenta a la izquierda, el
+ * monto a la derecha (la cuota que impacta en el mes, US-17). Sin botones: tocar la fila abre Editar, y
+ * Eliminar vive ahí. En «Eliminados» la fila no se edita y conserva Restaurar y Eliminar definitivamente.
  */
-export function TransactionItem({ transaction, testId, onDeleteRequest, onRestoreRequest, onPurgeRequest, editHref, showDate = true }: TransactionItemProps) {
+export function TransactionItem({ transaction, testId, onRestoreRequest, onPurgeRequest, editHref, showDate = true }: TransactionItemProps) {
   const isIncome = transaction.type === 'income'
   const amountArs = formatArs(parseMoney(transaction.entry_amount_ars))
   const installmentLabel = formatInstallmentLabel(transaction.installment_number, transaction.installments_count)
@@ -34,29 +35,42 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
   const meta = [showDate ? formatDayShort(transaction.occurred_on) : null, transaction.account?.name].filter(Boolean).join(' · ')
   const baseTestId = testId ?? 'transaction-item'
 
-  return (
-    <div data-testid={baseTestId} className="flex min-h-16 items-center gap-3 py-2.5 pr-1 pl-3.5">
+  const body = (
+    <>
       {isIncome ? (
         <span
           aria-hidden="true"
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--income)_12%,var(--card))] text-income"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--income)_14%,var(--card))] text-income dark:bg-[color-mix(in_srgb,var(--income)_22%,var(--card))]"
         >
-          <ArrowDownLeft className="size-[1.125rem]" strokeWidth={1.8} />
+          <ArrowDownLeft className="size-5" strokeWidth={1.8} />
         </span>
       ) : (
         <CategoryIcon name={categoryName ?? 'Otros'} color={transaction.category?.color} />
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         {/* Las etiquetas bajan de renglón antes que recortar el título a una letra (US-35 suma una larga). */}
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="max-w-full truncate text-callout font-medium text-foreground">{title}</span>
+          {editHref ? (
+            // Enlace «estirado»: su ::after cubre toda la fila, así se toca en cualquier lado; la marca de
+            // suscripción queda por encima (z-10) y sigue llevando a su detalle (US-61).
+            <Link
+              to={editHref}
+              data-testid={`${baseTestId}-edit`}
+              aria-label={`Editar ${title}`}
+              className="max-w-full truncate text-callout font-semibold text-foreground outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-ring"
+            >
+              {title}
+            </Link>
+          ) : (
+            <span className="max-w-full truncate text-callout font-semibold text-foreground">{title}</span>
+          )}
           {/* DEF-006 (02-behavior-spec, sad path "categoría archivada"): la misma marca que el Resumen. */}
           {transaction.category?.archived_at && (
             <span
               data-testid={`${baseTestId}-archived`}
               aria-label={`Categoría ${categoryName} archivada`}
-              className="shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+              className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
             >
               archivada
             </span>
@@ -65,7 +79,7 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
           {transaction.deleted_at && (
             <span
               data-testid={`${baseTestId}-deleted`}
-              className="shrink-0 rounded-md bg-destructive/10 px-1.5 py-0.5 text-caption font-medium text-destructive"
+              className="shrink-0 rounded-full bg-destructive/12 px-2 py-0.5 text-caption font-medium text-destructive"
             >
               eliminada
             </span>
@@ -74,17 +88,16 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
             <span
               data-testid={`${baseTestId}-installment`}
               aria-label={`Cuota ${transaction.installment_number} de ${transaction.installments_count}`}
-              className="tabular shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+              className="tabular shrink-0 rounded-full bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
             >
               {installmentLabel}
             </span>
           )}
-          {/* US-35: el gasto compartido lo dice en cada cuota, junto a las otras etiquetas. Va última y sin
-            recortar: el nombre es lo que importa, y en el celular baja de renglón. */}
+          {/* US-35: el gasto compartido lo dice en cada cuota. Va última y sin recortar: en el celular baja de renglón. */}
           {transaction.shared_debts.length > 0 && (
             <span
               data-testid={`${baseTestId}-shared`}
-              className="max-w-full rounded-md break-words bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+              className="max-w-full rounded-full break-words bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
             >
               {sharedExpenseLabel(transaction.shared_debts.map((d) => d.person))}
             </span>
@@ -95,7 +108,7 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
               to={`/subscriptions/${transaction.subscription.id}`}
               data-testid={`${baseTestId}-subscription`}
               aria-label={`Suscripción ${transaction.subscription.name}`}
-              className="inline-flex max-w-full items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-caption font-medium break-words text-primary hover:bg-primary/15"
+              className="relative z-10 inline-flex max-w-full items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-caption font-medium break-words text-primary hover:bg-primary/20"
             >
               <Repeat aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.8} />
               {transaction.subscription.name}
@@ -109,7 +122,7 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
         </span>
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+      <div className="flex shrink-0 flex-col items-end gap-1 text-right">
         <span className={`tabular text-callout font-semibold ${isIncome ? 'text-income' : 'text-foreground'}`}>
           {isIncome ? `+${amountArs}` : `-${amountArs}`}
         </span>
@@ -117,49 +130,40 @@ export function TransactionItem({ transaction, testId, onDeleteRequest, onRestor
           <span className="tabular text-footnote text-muted-foreground">{formatUsd(parseMoney(transaction.entry_amount))}</span>
         )}
       </div>
+    </>
+  )
 
+  const rowClass = 'flex min-h-[4.5rem] items-center gap-3.5 px-4 py-3'
+
+  if (editHref) {
+    return (
+      <div data-testid={baseTestId} className={cn(rowClass, 'press relative transition-colors hover:bg-accent/50')}>
+        {body}
+      </div>
+    )
+  }
+
+  return (
+    <div data-testid={baseTestId} className={cn(rowClass, (onRestoreRequest || onPurgeRequest) && 'pr-2')}>
+      {body}
       {onRestoreRequest && (
         <button
           type="button"
           onClick={() => onRestoreRequest(transaction)}
           data-testid={`${baseTestId}-restore`}
           aria-label={`Restaurar ${title}`}
-          className="press -ml-1 flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/8 hover:text-primary"
+          className="press -ml-1 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary"
         >
           <RotateCcw aria-hidden="true" className="size-4" strokeWidth={1.6} />
         </button>
       )}
-
       {onPurgeRequest && (
         <button
           type="button"
           onClick={() => onPurgeRequest(transaction)}
           data-testid={`${baseTestId}-purge`}
           aria-label={`Eliminar definitivamente ${title}`}
-          className="press flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/8 hover:text-destructive"
-        >
-          <Trash2 aria-hidden="true" className="size-4" strokeWidth={1.6} />
-        </button>
-      )}
-
-      {editHref && (
-        <Link
-          to={editHref}
-          data-testid={`${baseTestId}-edit`}
-          aria-label="Editar movimiento"
-          className="press -ml-1 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-primary/8 hover:text-primary"
-        >
-          <Pencil aria-hidden="true" className="size-4" strokeWidth={1.6} />
-        </Link>
-      )}
-
-      {onDeleteRequest && (
-        <button
-          type="button"
-          onClick={() => onDeleteRequest(transaction)}
-          data-testid={`${baseTestId}-delete`}
-          aria-label={`Eliminar ${title}`}
-          className="press -ml-1 flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/8 hover:text-destructive"
+          className="press -ml-1 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2 aria-hidden="true" className="size-4" strokeWidth={1.6} />
         </button>

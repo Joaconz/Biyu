@@ -22,7 +22,7 @@ export function CategoryEvolution({
 }) {
   return (
     <GroupedSection title="Últimos 6 meses" data-testid="category-detail-evolution" className="mt-7">
-      <div className="rounded-xl border border-hairline bg-card px-1.5 pt-4 pb-3 sm:px-3">
+      <div className="rounded-xl bg-card px-1.5 pt-4 pb-3 sm:px-3">
         <div className="grid grid-cols-6 gap-1 sm:gap-2">
           {bars.map((bar) => {
             const key = formatPeriod(bar.period)

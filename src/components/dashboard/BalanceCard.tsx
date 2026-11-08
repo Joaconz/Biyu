@@ -25,6 +25,7 @@ import type { MonthlySummary } from '@/domain/summary'
 import { SM_QUERY, useMediaQuery } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
 import { fitAmountFontSize } from '@/lib/visuals'
+import { Amount } from '@/components/shared/Amount'
 
 type BalanceTone = 'surplus' | 'deficit' | 'zero'
 
@@ -129,55 +130,18 @@ export function BalanceCard({
       </>
     )
 
-  return (
-    <section
-      data-testid="dashboard-balance"
-      aria-labelledby="dashboard-balance-title"
-      className="@container flex flex-col gap-3 rounded-2xl border border-hairline bg-card p-4 sm:p-5"
-    >
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <h2 id="dashboard-balance-title" className="text-footnote font-medium text-muted-foreground first-letter:uppercase">
-            Balance de {monthName}
-          </h2>
-          <span
-            data-testid="dashboard-balance-badge"
-            className={cn('rounded-md px-1.5 py-0.5 text-caption font-semibold', BALANCE_BADGE[tone].className)}
-          >
-            {BALANCE_BADGE[tone].label}
-          </span>
-        </div>
-        <span
-          data-testid="dashboard-total-balance"
-          className={cn(
-            'tabular font-bold whitespace-nowrap text-title-1 [--amount-max:var(--text-title-1)]',
-            BALANCE_TEXT[tone],
-          )}
-          style={{ fontSize: fitAmountFontSize(balanceText) }}
-        >
-          {balanceText}
-        </span>
-        <BalanceOptionsControl
-          formula={formula}
-          options={options}
-          balance={balance}
-          tone={tone}
-          monthName={monthName}
-          amounts={amounts}
-          onOptionsChange={onOptionsChange}
-        />
-      </div>
-
-      <ul data-testid="dashboard-balance-breakdown" aria-label="Qué suma y qué resta" className="flex flex-col border-t border-hairline">
+  // ADR-052: el desglose ya no ocupa la tarjeta; vive en la hoja (o el popover) que abre la fórmula.
+  const breakdown = (
+    <>
+      <ul data-testid="dashboard-balance-breakdown" aria-label="Qué suma y qué resta" className="flex flex-col px-4">
         {included.map((line) => (
           <BreakdownLine key={line.key} line={line} included>
             {line.key === 'pendingSubscriptions' && subscriptionDetail(true)}
           </BreakdownLine>
         ))}
       </ul>
-
       {excluded.length > 0 && (
-        <div data-testid="dashboard-balance-excluded" className="flex flex-col gap-1">
+        <div data-testid="dashboard-balance-excluded" className="flex flex-col gap-1 px-4 pt-2">
           <h3 className="text-caption font-medium text-muted-foreground">Fuera del balance</h3>
           <ul className="flex flex-col">
             {excluded.map((line) => (
@@ -188,6 +152,42 @@ export function BalanceCard({
           </ul>
         </div>
       )}
+    </>
+  )
+
+  return (
+    <section
+      data-testid="dashboard-balance"
+      aria-labelledby="dashboard-balance-title"
+      className="@container flex flex-col gap-3 rounded-2xl bg-card p-5 sm:p-6"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <h2 id="dashboard-balance-title" className="text-footnote font-medium text-muted-foreground first-letter:uppercase">
+          Balance de {monthName}
+        </h2>
+        <span
+          data-testid="dashboard-balance-badge"
+          className={cn('rounded-full px-2.5 py-0.5 text-caption font-semibold', BALANCE_BADGE[tone].className)}
+        >
+          {BALANCE_BADGE[tone].label}
+        </span>
+      </div>
+      <Amount
+        data-testid="dashboard-total-balance"
+        text={balanceText}
+        className={cn('block font-bold whitespace-nowrap text-display [--amount-max:var(--text-display)]', BALANCE_TEXT[tone])}
+        style={{ fontSize: fitAmountFontSize(balanceText) }}
+      />
+      <BalanceOptionsControl
+        formula={formula}
+        options={options}
+        balance={balance}
+        tone={tone}
+        monthName={monthName}
+        amounts={amounts}
+        breakdown={breakdown}
+        onOptionsChange={onOptionsChange}
+      />
     </section>
   )
 }
@@ -219,7 +219,7 @@ function BreakdownLine({ line, included, children }: { line: BalanceLine; includ
       data-testid={LINE_TEST_ID[line.key]}
       data-included={included}
       className={cn(
-        'grid grid-cols-[1rem_minmax(0,1fr)_auto] items-baseline gap-x-2 border-b border-hairline py-2.5 text-callout last:border-b-0',
+        'grid grid-cols-[1rem_minmax(0,1fr)_auto] items-baseline gap-x-2 py-2.5 text-callout',
         !included && 'text-muted-foreground',
       )}
     >
@@ -264,11 +264,13 @@ interface OptionsPanelProps {
   tone: BalanceTone
   monthName: string
   amounts: Record<BalanceOptionKey, Decimal | null>
+  /** ADR-052: qué suma y qué resta, arriba de los interruptores. */
+  breakdown: ReactNode
   onOptionsChange: (next: BalanceOptions) => void
 }
 
 const TRIGGER_CLASS =
-  'press -mx-2 inline-flex min-h-11 max-w-[calc(100%+1rem)] items-center gap-1.5 self-start rounded-md px-2 text-left text-footnote text-muted-foreground transition-colors duration-(--dur-fade) hover:bg-secondary hover:text-foreground data-popup-open:bg-secondary data-popup-open:text-foreground'
+  'press inline-flex min-h-11 max-w-full items-center gap-2 self-start rounded-full bg-secondary px-4 text-left text-footnote font-medium text-secondary-foreground transition-colors duration-(--dur-fade) hover:bg-accent data-popup-open:bg-accent'
 
 /**
  * La fórmula del balance es el botón que abre los interruptores (ADR-051): desde `sm` un popover que nace del
@@ -297,7 +299,7 @@ function BalanceOptionsControl(props: OptionsPanelProps) {
               className="w-full max-h-[85dvh] translate-y-[var(--drawer-swipe-movement-y,0px)] overflow-y-auto overscroll-contain rounded-t-2xl border-t border-border bg-popover pb-[env(safe-area-inset-bottom)] text-popover-foreground outline-none transition-transform duration-[400ms] ease-drawer data-ending-style:translate-y-full data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*300ms)] data-starting-style:translate-y-full data-swiping:duration-0 motion-reduce:transition-opacity motion-reduce:data-ending-style:translate-y-0 motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:translate-y-0 motion-reduce:data-starting-style:opacity-0"
             >
               <div aria-hidden="true" className="mx-auto mt-2 h-1 w-9 rounded-full bg-input" />
-              <OptionsPanel {...props} title={<Drawer.Title className="text-headline font-semibold">Qué entra en el balance</Drawer.Title>} />
+              <OptionsPanel {...props} title={<Drawer.Title className="text-headline font-semibold">Tu balance</Drawer.Title>} />
               <div className="border-t border-hairline px-4 py-3">
                 <Drawer.Close
                   data-testid="dashboard-balance-options-done"
@@ -320,9 +322,9 @@ function BalanceOptionsControl(props: OptionsPanelProps) {
         <Popover.Positioner side="bottom" align="start" sideOffset={6} collisionPadding={16} className="z-50">
           <Popover.Popup
             data-testid="dashboard-balance-options-panel"
-            className="max-h-(--available-height) w-[min(22rem,calc(100vw-2rem))] origin-(--transform-origin) overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground outline-none transition-[transform,opacity] duration-(--dur-fade) ease-out-quick data-ending-style:scale-[0.97] data-ending-style:opacity-0 data-ending-style:duration-100 data-starting-style:scale-[0.97] data-starting-style:opacity-0 motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:scale-100"
+            className="max-h-(--available-height) w-[min(24rem,calc(100vw-2rem))] origin-(--transform-origin) overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground outline-none transition-[transform,opacity] duration-(--dur-fade) ease-out-quick data-ending-style:scale-[0.97] data-ending-style:opacity-0 data-ending-style:duration-100 data-starting-style:scale-[0.97] data-starting-style:opacity-0 motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:scale-100"
           >
-            <OptionsPanel {...props} title={<Popover.Title className="text-headline font-semibold">Qué entra en el balance</Popover.Title>} />
+            <OptionsPanel {...props} title={<Popover.Title className="text-headline font-semibold">Tu balance</Popover.Title>} />
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
@@ -345,7 +347,7 @@ function TriggerContent({ formula }: { formula: string }) {
 }
 
 /** El contenido: título, balance en vivo, «Solo movimientos» y los tres interruptores con su monto del mes. */
-function OptionsPanel({ options, balance, tone, monthName, amounts, onOptionsChange, title }: OptionsPanelProps & { title: ReactNode }) {
+function OptionsPanel({ options, balance, tone, monthName, amounts, breakdown, onOptionsChange, title }: OptionsPanelProps & { title: ReactNode }) {
   const onlyMovements = isOnlyMovements(options)
   return (
     <>
@@ -362,6 +364,7 @@ function OptionsPanel({ options, balance, tone, monthName, amounts, onOptionsCha
           </span>
         </p>
       </div>
+      <div className="border-t border-hairline pt-2 pb-3">{breakdown}</div>
       <div className="border-t border-hairline">
         <button
           type="button"
