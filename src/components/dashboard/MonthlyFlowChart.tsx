@@ -54,7 +54,7 @@ export function MonthlyFlowChart({ months }: { months: readonly FlowMonth[] }) {
                 aria-label={`${formatPeriodLong(m.period)}: ${formatArs(m.expenses)} gastados, ${formatArs(m.income)} de ingresos`}
                 onClick={() => setPicked(key)}
                 className={cn(
-                  'press flex min-w-0 flex-col items-center justify-end gap-1.5 rounded-lg px-0.5 pt-1 pb-1.5',
+                  'press flex min-w-0 flex-col items-center justify-end gap-1.5 rounded-xl px-0.5 pt-1 pb-1.5',
                   selected ? 'bg-accent' : '[@media(hover:hover)]:hover:bg-accent/60',
                 )}
               >

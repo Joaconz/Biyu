@@ -53,7 +53,7 @@ export function PauseSubscriptionDialog({
         {skippedDay !== null && ` Este mes tampoco se cobra si todavía no llegó el día ${skippedDay}, aunque la reanudes antes.`}
       </p>
       {blockedWarning && (
-        <p data-testid="pause-subscription-dialog-blocked-warning" className="rounded-lg bg-warning/10 px-3 py-2 text-foreground">
+        <p data-testid="pause-subscription-dialog-blocked-warning" className="rounded-xl bg-warning/10 px-3 py-2 text-foreground">
           {blockedWarning}
         </p>
       )}

@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 /** Bloque de carga con la forma del contenido (ADR-049): el mismo pulso que ya usa Registrar. */
 export function Skeleton({ className, ...props }: ComponentProps<'div'>) {
-  return <div aria-hidden="true" className={cn('animate-pulse rounded-md bg-muted', className)} {...props} />
+  return <div aria-hidden="true" className={cn('animate-pulse rounded-xl bg-muted', className)} {...props} />
 }
 
 /**

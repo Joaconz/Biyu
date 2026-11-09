@@ -65,7 +65,7 @@ import { useBalanceOptionsSaver } from '@/hooks/useBalanceOptionsSaver'
 
 export function SettingsPage() {
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-9">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-10">
       <PageHeader title="Ajustes" testId="settings-title" className="pb-0 lg:pb-0" />
       <AppearanceSection />
       <CategoriesSection />
@@ -77,7 +77,7 @@ export function SettingsPage() {
         <Link
           to="/setup"
           data-testid="settings-nav-setup"
-          className="press flex min-h-12 w-full items-center gap-3 px-4 text-callout font-medium text-foreground hover:bg-accent"
+          className="press flex min-h-14 w-full items-center gap-3 px-4 text-callout font-medium text-foreground hover:bg-accent"
         >
           <Sparkles aria-hidden="true" className="size-[1.125rem]" strokeWidth={1.8} />
           Volver a hacer la configuración inicial
@@ -189,9 +189,9 @@ function FxRatesSection() {
     >
       {rates && rates.length > 0 && (
         <GroupedCard>
-          <ul data-testid="settings-fx-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+          <ul data-testid="settings-fx-list" className="contents">
             {rates.map((rate) => (
-              <li key={rate.period} className="flex min-h-12 items-center justify-between gap-3 px-4 text-callout">
+              <li key={rate.period} className="flex min-h-14 items-center justify-between gap-3 px-4 text-callout">
                 <span className="first-letter:uppercase">{formatPeriodLong(fromDbDate(rate.period))}</span>
                 <span className="tabular font-medium">$ {formatRate(parseMoney(rate.arsPerUsd))}</span>
               </li>
@@ -199,7 +199,7 @@ function FxRatesSection() {
           </ul>
         </GroupedCard>
       )}
-      <form onSubmit={onSubmit} data-testid="settings-fx-form" className="flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
+      <form onSubmit={onSubmit} data-testid="settings-fx-form" className="flex flex-col gap-4 rounded-2xl bg-card p-5">
         <div className="grid gap-1.5">
           <Label htmlFor="settings-fx-period">Mes</Label>
           <Input
@@ -213,7 +213,6 @@ function FxRatesSection() {
               if (next) setPeriod(next)
             }}
             data-testid="settings-fx-period"
-            className="h-11"
           />
         </div>
         <div className="grid gap-1.5">
@@ -350,7 +349,7 @@ function CategoriesSection() {
   return (
     <GroupedSection title="Categorías">
       <GroupedCard>
-        <ul data-testid="settings-categories-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+        <ul data-testid="settings-categories-list" className="contents">
           {(categories ?? []).map((category) =>
             editingId === category.id ? (
               <CategoryEditRow
@@ -361,20 +360,20 @@ function CategoriesSection() {
                 onCancel={() => startEditing(null)}
               />
             ) : (
-              <li key={category.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
-                <CategoryIcon name={category.name} color={category.color} size="sm" />
-                <span className="min-w-0 flex-1 truncate text-callout font-medium">{category.name}</span>
-                <Button
+              <li key={category.id} className="flex min-h-16 items-center gap-3 py-2 pr-1.5 pl-4">
+                {/* ADR-052: el nombre abre la edición (con el lápiz como pista), así quedan dos íconos y el
+                    nombre entra entero a 360 px. */}
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon"
                   data-testid={`settings-categories-edit-${toTestIdSuffix(category.name)}`}
                   aria-label={`Editar ${category.name}`}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="press -my-2 -ml-2 flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 pl-2 text-left hover:bg-accent/60"
                   onClick={() => startEditing(category.id)}
                 >
-                  <Pencil strokeWidth={1.6} />
-                </Button>
+                  <CategoryIcon name={category.name} color={category.color} />
+                  <span className="min-w-0 flex-1 text-callout font-medium break-words">{category.name}</span>
+                  <Pencil aria-hidden="true" strokeWidth={1.6} className="mr-1 size-4 shrink-0 text-muted-foreground" />
+                </button>
                 <Button
                   type="button"
                   variant="ghost"
@@ -402,7 +401,7 @@ function CategoriesSection() {
           )}
         </ul>
       </GroupedCard>
-      <form onSubmit={onCreate} data-testid="settings-categories-form" className="mt-2 flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
+      <form onSubmit={onCreate} data-testid="settings-categories-form" className="mt-2 flex flex-col gap-4 rounded-2xl bg-card p-5">
         <div className="grid gap-1.5">
           <Label htmlFor="settings-categories-name">Nueva categoría</Label>
           <Input id="settings-categories-name" name="name" required data-testid="settings-categories-name" placeholder="Tecnología" />
@@ -418,11 +417,11 @@ function CategoriesSection() {
         <div className="mt-4 flex flex-col gap-2">
           <h3 className="px-1 text-footnote font-semibold text-muted-foreground">Archivadas</h3>
           <GroupedCard>
-            <ul data-testid="settings-categories-archived-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+            <ul data-testid="settings-categories-archived-list" className="contents">
               {archived.map((category, i) => (
-                <li key={category.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
-                  <CategoryIcon name={category.name} color={category.color} size="sm" />
-                  <span className="min-w-0 flex-1 truncate text-callout font-medium text-muted-foreground">{category.name}</span>
+                <li key={category.id} className="flex min-h-16 items-center gap-3 py-2 pr-1.5 pl-4">
+                  <CategoryIcon name={category.name} color={category.color} />
+                  <span className="min-w-0 flex-1 text-callout font-medium break-words text-muted-foreground">{category.name}</span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -496,7 +495,7 @@ function CategoryEditRow({
   const [name, setName] = useState(category.name)
   const [color, setColor] = useState(category.color ?? CATEGORY_COLOR_PALETTE[0])
   return (
-    <li className="flex flex-col gap-3 bg-secondary/40 p-4">
+    <li className="mx-1.5 my-1 flex flex-col gap-3 rounded-xl bg-secondary/60 p-4">
       <Input
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -550,7 +549,7 @@ function AccountEditRow({
   const [name, setName] = useState(account.name)
   const [type, setType] = useState<AccountType>(account.type)
   return (
-    <li className="flex flex-col gap-3 bg-secondary/40 p-4">
+    <li className="mx-1.5 my-1 flex flex-col gap-3 rounded-xl bg-secondary/60 p-4">
       <Input
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -633,7 +632,7 @@ function ColorSwatchPicker({
           aria-label={color}
           data-testid={`${testId}-${color.slice(1).toLowerCase()}`} // DEF-015
           onClick={() => select(color)}
-          className="press size-8 rounded-full ring-offset-2 ring-offset-card outline-none aria-checked:ring-2 aria-checked:ring-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          className="press size-10 rounded-full ring-offset-2 ring-offset-card outline-none aria-checked:ring-2 aria-checked:ring-foreground focus-visible:ring-2 focus-visible:ring-ring"
           style={{ backgroundColor: color }}
         />
       ))}
@@ -749,7 +748,7 @@ function AccountsSection() {
   return (
     <GroupedSection title="Cuentas">
       <GroupedCard>
-        <ul data-testid="settings-accounts-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+        <ul data-testid="settings-accounts-list" className="contents">
           {(accounts ?? []).map((account) =>
             editingId === account.id ? (
               <AccountEditRow
@@ -761,9 +760,9 @@ function AccountsSection() {
                 onCancel={() => startEditing(null)}
               />
             ) : (
-              <li key={account.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
-                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
-                  <AccountIcon type={account.type} className="size-4" />
+              <li key={account.id} className="flex min-h-16 items-center gap-3 py-2 pr-1.5 pl-4">
+                <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+                  <AccountIcon type={account.type} className="size-5" />
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-callout font-medium">{account.name}</span>
@@ -801,7 +800,7 @@ function AccountsSection() {
           )}
         </ul>
       </GroupedCard>
-      <form onSubmit={onSubmit} data-testid="settings-accounts-form" className="mt-2 flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
+      <form onSubmit={onSubmit} data-testid="settings-accounts-form" className="mt-2 flex flex-col gap-4 rounded-2xl bg-card p-5">
         <div className="grid gap-1.5">
           <Label htmlFor="settings-accounts-name">Nueva cuenta</Label>
           <Input id="settings-accounts-name" name="name" required data-testid="settings-accounts-name" placeholder="Visa BBVA" />
@@ -843,11 +842,11 @@ function AccountsSection() {
         <div className="mt-4 flex flex-col gap-2">
           <h3 className="px-1 text-footnote font-semibold text-muted-foreground">Archivadas</h3>
           <GroupedCard>
-            <ul data-testid="settings-accounts-archived-list" className="contents [&>*+*]:border-t [&>*+*]:border-hairline">
+            <ul data-testid="settings-accounts-archived-list" className="contents">
               {archived.map((account, i) => (
-                <li key={account.id} className="flex min-h-14 items-center gap-3 py-1.5 pr-1.5 pl-3.5">
-                  <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
-                    <AccountIcon type={account.type} className="size-4" />
+                <li key={account.id} className="flex min-h-16 items-center gap-3 py-2 pr-1.5 pl-4">
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+                    <AccountIcon type={account.type} className="size-5" />
                   </span>
                   <span className="min-w-0 flex-1 truncate text-callout font-medium text-muted-foreground">{account.name}</span>
                   {account.currency === 'USD' && <span className="text-footnote font-medium text-muted-foreground">US$</span>}

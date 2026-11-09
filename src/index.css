@@ -213,7 +213,7 @@
     --chart-4: #b394bb;
     --chart-5: #d8bd6f;
     --hero: #0b2b26;
-    --hero-glow: #31705e;
+    --hero-glow: #235347; /* el rótulo apagado queda en 4,6:1 aun sobre el pico del brillo */
     --hero-foreground: #f3ebd6;
     --hero-muted: #a9c2b4;
     --hero-accent: #8eb69b;

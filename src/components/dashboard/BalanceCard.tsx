@@ -296,7 +296,7 @@ function BalanceOptionsControl(props: OptionsPanelProps) {
           <Drawer.Viewport className="fixed inset-0 z-50 flex flex-col justify-end">
             <Drawer.Popup
               data-testid="dashboard-balance-options-panel"
-              className="w-full max-h-[85dvh] translate-y-[var(--drawer-swipe-movement-y,0px)] overflow-y-auto overscroll-contain rounded-t-2xl border-t border-border bg-popover pb-[env(safe-area-inset-bottom)] text-popover-foreground outline-none transition-transform duration-[400ms] ease-drawer data-ending-style:translate-y-full data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*300ms)] data-starting-style:translate-y-full data-swiping:duration-0 motion-reduce:transition-opacity motion-reduce:data-ending-style:translate-y-0 motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:translate-y-0 motion-reduce:data-starting-style:opacity-0"
+              className="w-full max-h-[85dvh] translate-y-[var(--drawer-swipe-movement-y,0px)] overflow-y-auto overscroll-contain rounded-t-3xl bg-popover pb-[env(safe-area-inset-bottom)] text-popover-foreground outline-none transition-transform duration-[400ms] ease-drawer data-ending-style:translate-y-full data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*300ms)] data-starting-style:translate-y-full data-swiping:duration-0 motion-reduce:transition-opacity motion-reduce:data-ending-style:translate-y-0 motion-reduce:data-ending-style:opacity-0 motion-reduce:data-starting-style:translate-y-0 motion-reduce:data-starting-style:opacity-0"
             >
               <div aria-hidden="true" className="mx-auto mt-2 h-1 w-9 rounded-full bg-input" />
               <OptionsPanel {...props} title={<Drawer.Title className="text-headline font-semibold">Tu balance</Drawer.Title>} />
@@ -322,7 +322,7 @@ function BalanceOptionsControl(props: OptionsPanelProps) {
         <Popover.Positioner side="bottom" align="start" sideOffset={6} collisionPadding={16} className="z-50">
           <Popover.Popup
             data-testid="dashboard-balance-options-panel"
-            className="max-h-(--available-height) w-[min(24rem,calc(100vw-2rem))] origin-(--transform-origin) overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground outline-none transition-[transform,opacity] duration-(--dur-fade) ease-out-quick data-ending-style:scale-[0.97] data-ending-style:opacity-0 data-ending-style:duration-100 data-starting-style:scale-[0.97] data-starting-style:opacity-0 motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:scale-100"
+            className="max-h-(--available-height) w-[min(24rem,calc(100vw-2rem))] origin-(--transform-origin) overflow-y-auto rounded-2xl bg-popover shadow-xl ring-1 ring-hairline text-popover-foreground outline-none transition-[transform,opacity] duration-(--dur-fade) ease-out-quick data-ending-style:scale-[0.97] data-ending-style:opacity-0 data-ending-style:duration-100 data-starting-style:scale-[0.97] data-starting-style:opacity-0 motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:scale-100"
           >
             <OptionsPanel {...props} title={<Popover.Title className="text-headline font-semibold">Tu balance</Popover.Title>} />
           </Popover.Popup>

@@ -2,9 +2,9 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from '@/lib/utils'
 
-// ADR-023: 8px, sin sombras, respuesta en pointer-down (`press`). Los tamaños de uso táctil llegan a 44px (NFR-08).
+// ADR-052: píldoras sin sombras, respuesta en pointer-down (`press`). Los tamaños de uso táctil llegan a 44px (NFR-08).
 const buttonVariants = cva(
-  "press group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-transparent font-medium whitespace-nowrap outline-none select-none disabled:pointer-events-none disabled:opacity-45 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-[1.125rem]",
+  "press group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-transparent font-medium whitespace-nowrap outline-none select-none disabled:pointer-events-none disabled:opacity-45 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-[1.125rem]",
   {
     variants: {
       variant: {
@@ -18,9 +18,9 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-11 px-4 text-callout",
-        sm: "h-9 px-3 text-footnote",
-        lg: "h-12 px-5 text-headline",
+        default: "h-12 px-6 text-callout font-semibold",
+        sm: "h-10 px-4 text-footnote font-semibold",
+        lg: "h-14 px-7 text-headline font-semibold",
         icon: "size-11",
         "icon-sm": "size-9",
         "icon-lg": "size-12",

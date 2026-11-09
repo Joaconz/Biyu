@@ -36,7 +36,7 @@ export function CategoryEvolution({
                 aria-current={current ? 'true' : undefined}
                 aria-label={`${formatPeriodLong(bar.period)}: ${formatArs(bar.amount)}`}
                 onClick={() => onSelect(bar.period)}
-                className="press flex h-44 min-w-0 flex-col items-center justify-end gap-1 rounded-lg pt-1 hover:bg-accent/60"
+                className="press flex h-44 min-w-0 flex-col items-center justify-end gap-1 rounded-xl pt-1 hover:bg-accent/60"
               >
                 <span
                   data-testid={`category-detail-evolution-amount-${key}`}

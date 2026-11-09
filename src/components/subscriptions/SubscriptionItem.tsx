@@ -33,12 +33,12 @@ export function SubscriptionItem({
       data-testid="subscriptions-item"
       data-subscription-id={subscription.id}
       data-status={subscription.status}
-      className="press flex min-h-16 items-center gap-3 py-3 pr-3 pl-4 outline-offset-[-2px] hover:bg-accent/60"
+      className="press flex min-h-[4.5rem] items-center gap-3 py-3.5 pr-4 pl-4 outline-offset-[-2px] hover:bg-accent/60"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span
           data-testid="subscriptions-item-name"
-          className={cn('truncate text-callout font-semibold', muted ? 'text-muted-foreground' : 'text-foreground')}
+          className={cn('text-headline font-semibold break-words', muted ? 'text-muted-foreground' : 'text-foreground')}
         >
           {subscription.name}
         </span>

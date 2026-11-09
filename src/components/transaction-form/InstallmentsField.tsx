@@ -47,7 +47,7 @@ export function InstallmentsField({
             value={n}
             aria-label={n === '1' ? '1 cuota' : `${n} cuotas`}
             data-testid={`${testIdPrefix}-installments-chip-${n}`}
-            className="press tabular h-11 rounded-lg border border-hairline bg-card text-callout font-medium text-foreground hover:border-input aria-pressed:border-primary aria-pressed:bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))] aria-pressed:text-primary aria-pressed:ring-1 aria-pressed:ring-primary aria-pressed:ring-inset"
+            className="press tabular h-11 rounded-full border border-hairline bg-card text-callout font-medium text-foreground hover:border-input aria-pressed:border-primary aria-pressed:bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))] aria-pressed:text-primary aria-pressed:ring-1 aria-pressed:ring-primary aria-pressed:ring-inset"
           >
             {n}
           </Toggle>
@@ -58,7 +58,7 @@ export function InstallmentsField({
         {preview && (
           <div
             data-testid={`${testIdPrefix}-installments-preview`}
-            className={`flex gap-3 rounded-lg bg-muted px-3.5 py-3 ${FADE_IN}`}
+            className={`flex gap-3 rounded-xl bg-muted px-3.5 py-3 ${FADE_IN}`}
           >
             <CalendarRange aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-gold" strokeWidth={1.8} />
             <div className="grid gap-0.5">

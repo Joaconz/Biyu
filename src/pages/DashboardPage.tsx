@@ -42,7 +42,7 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col">
-      <PageHeader title="Resumen" testId="dashboard-title" className="flex-wrap items-center">
+      <PageHeader title="Resumen" testId="dashboard-title">
         <PeriodSwitcher screen="dashboard" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
       </PageHeader>
 
@@ -63,7 +63,7 @@ export function DashboardPage() {
       {isEmpty && (
         <div
           data-testid="dashboard-empty"
-          className="flex flex-col items-center rounded-2xl border border-dashed border-input/50 px-6 py-14 text-center"
+          className="flex flex-col items-center rounded-2xl bg-card px-6 py-14 text-center"
         >
           <p data-testid="dashboard-empty-message" className="mb-5 max-w-64 text-callout text-muted-foreground">
             No tenés movimientos registrados en {monthName}.
@@ -76,7 +76,7 @@ export function DashboardPage() {
           <Link
             to={`/transactions?period=${formatPeriod(period)}`}
             data-testid="dashboard-empty-view-transactions"
-            className="press mt-3 inline-flex min-h-11 items-center rounded-md px-2 text-callout font-medium text-primary hover:underline"
+            className="press mt-3 inline-flex min-h-11 items-center rounded-full px-2 text-callout font-medium text-primary hover:underline"
           >
             Ver movimientos
           </Link>
@@ -195,7 +195,7 @@ export function DashboardPage() {
             <Link
               to={`/transactions?period=${formatPeriod(period)}`}
               data-testid="dashboard-transactions-view-all"
-              className="press -my-2 -mr-1 rounded-md px-1 py-2 text-callout font-medium text-primary hover:underline"
+              className="press -my-2 -mr-1 rounded-full px-1 py-2 text-callout font-medium text-primary hover:underline"
             >
               Ver todos
             </Link>

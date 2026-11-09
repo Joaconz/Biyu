@@ -17,7 +17,7 @@ export function SubscriptionsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
-      <PageHeader title="Suscripciones" testId="subscriptions-title" className="items-center">
+      <PageHeader title="Suscripciones" testId="subscriptions-title">
         <Link to="/subscriptions/new" data-testid="subscriptions-new" className={buttonVariants({ size: 'sm' })}>
           Nueva
         </Link>
@@ -47,7 +47,7 @@ export function SubscriptionsPage() {
         (state.subscriptions.length === 0 ? (
           <div
             data-testid="subscriptions-empty"
-            className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-input/50 px-6 py-12 text-center"
+            className="flex flex-col items-center gap-3 rounded-2xl bg-card px-6 py-12 text-center"
           >
             <p className="text-callout text-muted-foreground">
               Todavía no tenés suscripciones. Cargá lo que pagás todos los meses y se registra solo.

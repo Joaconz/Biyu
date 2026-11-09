@@ -51,7 +51,7 @@ export function UpcomingInstallmentsChart({ months }: { months: readonly Upcomin
                   aria-label={`${formatPeriodLong(m.period)}: ${formatArs(m.amount)}`}
                   onClick={() => setPicked(key)}
                   className={cn(
-                    'press flex w-full min-w-0 flex-col items-center justify-end gap-1.5 rounded-lg px-0.5 pt-1 pb-1.5',
+                    'press flex w-full min-w-0 flex-col items-center justify-end gap-1.5 rounded-xl px-0.5 pt-1 pb-1.5',
                     selected ? 'bg-accent' : '[@media(hover:hover)]:hover:bg-accent/60',
                   )}
                 >

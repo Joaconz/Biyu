@@ -170,7 +170,7 @@ export function ImportPage() {
       <Link
         to="/register"
         data-testid="import-back"
-        className="press -ml-1 inline-flex min-h-11 items-center self-start rounded-md px-1 pt-1 text-callout font-medium text-primary hover:underline lg:pt-0"
+        className="press -ml-1 inline-flex min-h-11 items-center self-start rounded-full px-1 pt-1 text-callout font-medium text-primary hover:underline lg:pt-0"
       >
         <span aria-hidden="true">‹&nbsp;</span>Registrar
       </Link>

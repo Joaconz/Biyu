@@ -29,7 +29,7 @@ export function DebtsFilter({ value, onChange }: { value: DebtStatusFilter; onCh
       options={STATUS_OPTIONS}
       value={value}
       onChange={onChange}
-      className="mb-2"
+      className="mb-3"
     />
   )
 }
@@ -49,14 +49,16 @@ export function DebtsDirectionFilter({
       options={DIRECTION_OPTIONS}
       value={value}
       onChange={onChange}
+      variant="chips"
       className="mb-5"
     />
   )
 }
 
 /**
- * Se ve como el control segmentado, pero las historias lo piden como `radiogroup` con
- * `aria-checked`: una sola opción elegida, foco itinerante y flechas para moverse.
+ * Se ve como el control segmentado (o, el de dirección, como fichas en píldora, ADR-052), pero las
+ * historias lo piden como `radiogroup` con `aria-checked`: una sola opción elegida, foco itinerante y
+ * flechas para moverse.
  */
 function RadioFilter<T extends string>({
   label,
@@ -65,6 +67,7 @@ function RadioFilter<T extends string>({
   value,
   onChange,
   className,
+  variant = 'segmented',
 }: {
   label: string
   testId: string
@@ -72,6 +75,7 @@ function RadioFilter<T extends string>({
   value: T
   onChange: (value: T) => void
   className?: string
+  variant?: 'segmented' | 'chips'
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([])
   const index = options.findIndex((o) => o.value === value)
@@ -85,6 +89,41 @@ function RadioFilter<T extends string>({
     refs.current[target]?.focus()
   }
 
+  const optionButton = (option: FilterOption<T>, i: number, optionClass: string) => (
+    <button
+      key={option.value}
+      ref={(el) => {
+        refs.current[i] = el
+      }}
+      type="button"
+      role="radio"
+      aria-checked={option.value === value}
+      tabIndex={option.value === value ? 0 : -1}
+      data-testid={option.testId}
+      onClick={() => onChange(option.value)}
+      className={optionClass}
+    >
+      {option.label}
+    </button>
+  )
+
+  if (variant === 'chips') {
+    return (
+      <div role="radiogroup" aria-label={label} data-testid={testId} onKeyDown={onKeyDown} className={cn('flex flex-wrap gap-2', className)}>
+        {options.map((option, i) =>
+          optionButton(
+            option,
+            i,
+            cn(
+              'press flex min-h-10 items-center rounded-full px-4 text-footnote font-medium transition-colors duration-(--dur-fade)',
+              option.value === value ? 'bg-primary font-semibold text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground',
+            ),
+          ),
+        )}
+      </div>
+    )
+  }
+
   return (
     <div
       role="radiogroup"
@@ -92,32 +131,22 @@ function RadioFilter<T extends string>({
       data-testid={testId}
       onKeyDown={onKeyDown}
       style={{ '--count': options.length, '--index': index } as CSSProperties}
-      className={cn('relative grid w-full auto-cols-fr grid-flow-col rounded-lg bg-muted p-1', className)}
+      className={cn('relative grid w-full auto-cols-fr grid-flow-col rounded-full bg-secondary p-1', className)}
     >
       <span
         aria-hidden="true"
-        className="absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/var(--count))] translate-x-[calc(var(--index)*100%)] rounded-md border border-hairline bg-card transition-[translate] duration-(--dur-spring) ease-spring"
+        className="absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/var(--count))] translate-x-[calc(var(--index)*100%)] rounded-full bg-card transition-[translate] duration-(--dur-spring) ease-spring"
       />
-      {options.map((option, i) => (
-        <button
-          key={option.value}
-          ref={(el) => {
-            refs.current[i] = el
-          }}
-          type="button"
-          role="radio"
-          aria-checked={option.value === value}
-          tabIndex={option.value === value ? 0 : -1}
-          data-testid={option.testId}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            'press relative z-10 flex min-h-10 items-center justify-center rounded-md px-2 text-center text-callout font-medium text-muted-foreground outline-offset-0 transition-colors duration-(--dur-fade)',
+      {options.map((option, i) =>
+        optionButton(
+          option,
+          i,
+          cn(
+            'press relative z-10 flex min-h-10 items-center justify-center rounded-full px-2 text-center text-callout font-medium text-muted-foreground outline-offset-0 transition-colors duration-(--dur-fade)',
             option.value === value && 'font-semibold text-foreground',
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
+          ),
+        ),
+      )}
     </div>
   )
 }

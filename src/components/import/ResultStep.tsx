@@ -15,7 +15,7 @@ export function ResultStep({ result, onImportAnother }: { result: ImportResult; 
   return (
     <div className="flex flex-col gap-5">
       {result.alreadyImported && (
-        <p data-testid="import-result-already" className="rounded-lg bg-accent p-3 text-callout font-medium">
+        <p data-testid="import-result-already" className="rounded-xl bg-accent p-3 text-callout font-medium">
           {ALREADY_IMPORTED_TEXT}
         </p>
       )}
@@ -29,7 +29,7 @@ export function ResultStep({ result, onImportAnother }: { result: ImportResult; 
       </div>
 
       {rejected > 0 && (
-        <div data-testid="import-result-rejected" className="flex flex-col gap-2 rounded-xl border border-hairline bg-card p-4">
+        <div data-testid="import-result-rejected" className="flex flex-col gap-2 rounded-2xl bg-card p-4">
           <p className="text-callout font-semibold">{notImportedHeading(rejected)}</p>
           <ul className="flex flex-col gap-1 text-footnote text-destructive">
             {result.notImported.map((line) => (

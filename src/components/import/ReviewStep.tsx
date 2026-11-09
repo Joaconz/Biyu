@@ -55,7 +55,7 @@ export function ReviewStep({
         )}
       </div>
 
-      <p data-testid="import-duplicates-warning" className="rounded-lg bg-warning-surface p-3 text-footnote text-warning">
+      <p data-testid="import-duplicates-warning" className="rounded-xl bg-warning-surface p-3 text-footnote text-warning">
         Si ya importaste este archivo, los movimientos se van a duplicar.
       </p>
 
@@ -72,7 +72,7 @@ export function ReviewStep({
         />
       </div>
 
-      <ul data-testid="import-rows" className="overflow-hidden rounded-xl border border-hairline bg-card">
+      <ul data-testid="import-rows" className="overflow-hidden rounded-2xl bg-card">
         {visible.map((row) => (
           <ImportRowCard key={row.rowNumber} row={row} />
         ))}
@@ -81,7 +81,7 @@ export function ReviewStep({
       <div className="flex flex-col gap-3 sm:flex-row-reverse sm:items-start">
         <div className="flex flex-col gap-1.5">
           {batchError && (
-            <p role="alert" data-testid="import-batch-error" className="rounded-lg bg-destructive/8 p-3 text-footnote text-destructive">
+            <p role="alert" data-testid="import-batch-error" className="rounded-xl bg-destructive/8 p-3 text-footnote text-destructive">
               {batchError}
             </p>
           )}

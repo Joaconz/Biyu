@@ -16,3 +16,8 @@ export function useTheme(): ThemeContextValue {
   if (!value) throw new Error('useTheme necesita <ThemeProvider>')
   return value
 }
+
+/** Solo el tema resuelto, para colores que se calculan en JS (gráficos). Sin proveedor, claro. */
+export function useResolvedTheme(): 'light' | 'dark' {
+  return useContext(ThemeContext)?.resolved ?? 'light'
+}

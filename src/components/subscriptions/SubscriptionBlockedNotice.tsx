@@ -13,7 +13,7 @@ export function SubscriptionBlockedNotice({ notice }: { notice: BlockedNotice })
     <div
       role="alert"
       data-testid="subscription-detail-blocked"
-      className="mb-4 flex items-start gap-3 rounded-xl border border-warning/40 bg-warning-surface p-4"
+      className="mb-4 flex items-start gap-3 rounded-2xl bg-warning-surface p-4"
     >
       <TriangleAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-warning" />
       <div className="flex min-w-0 flex-col items-start gap-3">

@@ -16,12 +16,12 @@ export function RegisterPage() {
           <span className="sr-only">Cargando…</span>
           {/* Misma forma que el primer paso: barra de progreso, Gasto | Ingreso y el monto. */}
           <div className="h-1 animate-pulse rounded-full bg-muted" />
-          <div className="h-12 animate-pulse rounded-lg bg-muted" />
-          <div className="mx-auto mt-16 h-16 w-40 animate-pulse rounded-lg bg-muted" />
+          <div className="h-12 animate-pulse rounded-xl bg-muted" />
+          <div className="mx-auto mt-16 h-16 w-40 animate-pulse rounded-xl bg-muted" />
         </div>
       )}
       {catalog.status === 'error' && (
-        <p role="alert" data-testid="register-error" className="mx-auto max-w-xl rounded-lg bg-warning-surface p-4 text-callout text-warning">
+        <p role="alert" data-testid="register-error" className="mx-auto max-w-xl rounded-xl bg-warning-surface p-4 text-callout text-warning">
           No se pudieron cargar tus categorías y cuentas: {catalog.message}
         </p>
       )}
@@ -36,7 +36,7 @@ export function RegisterPage() {
             <Link
               to="/import"
               data-testid="register-import"
-              className="press inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-input px-3 text-footnote font-semibold text-foreground hover:bg-accent"
+              className="press inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-card px-4 text-footnote font-semibold text-foreground hover:bg-accent"
             >
               <FileSpreadsheet aria-hidden="true" className="size-4" />
               Importar desde Excel

@@ -51,20 +51,7 @@ export function TransactionItem({ transaction, testId, onRestoreRequest, onPurge
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {/* Las etiquetas bajan de renglón antes que recortar el título a una letra (US-35 suma una larga). */}
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          {editHref ? (
-            // Enlace «estirado»: su ::after cubre toda la fila, así se toca en cualquier lado; la marca de
-            // suscripción queda por encima (z-10) y sigue llevando a su detalle (US-61).
-            <Link
-              to={editHref}
-              data-testid={`${baseTestId}-edit`}
-              aria-label={`Editar ${title}`}
-              className="max-w-full truncate text-callout font-semibold text-foreground outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-ring"
-            >
-              {title}
-            </Link>
-          ) : (
-            <span className="max-w-full truncate text-callout font-semibold text-foreground">{title}</span>
-          )}
+          <span className="max-w-full truncate text-callout font-semibold text-foreground">{title}</span>
           {/* DEF-006 (02-behavior-spec, sad path "categoría archivada"): la misma marca que el Resumen. */}
           {transaction.category?.archived_at && (
             <span
@@ -138,6 +125,14 @@ export function TransactionItem({ transaction, testId, onRestoreRequest, onPurge
   if (editHref) {
     return (
       <div data-testid={baseTestId} className={cn(rowClass, 'press relative transition-colors hover:bg-accent/50')}>
+        {/* La fila entera es el enlace (ADR-052): una capa que la cubre, con el foco en su borde. La marca de
+            suscripción queda por encima (z-10) y sigue llevando a su detalle (US-61). */}
+        <Link
+          to={editHref}
+          data-testid={`${baseTestId}-edit`}
+          aria-label={`Editar ${title}`}
+          className="absolute inset-0 rounded-[inherit] outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+        />
         {body}
       </div>
     )

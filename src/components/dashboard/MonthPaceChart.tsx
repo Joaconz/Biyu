@@ -101,7 +101,7 @@ export function MonthPaceChart({ pace, period, ongoing }: { pace: MonthPace; per
           onPointerDown={(e) => setPickedDay(dayFromPointer(e))}
           onPointerMove={(e) => e.pointerType === 'mouse' && setPickedDay(dayFromPointer(e))}
           onKeyDown={onKeyDown}
-          className="touch-pan-y rounded-md outline-offset-4"
+          className="touch-pan-y rounded-xl outline-offset-4"
         >
           <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
             {/* Escala: piso y techo, un filete recesivo cada uno. */}

@@ -11,6 +11,8 @@ import { formatPercentage } from '@/domain/summary'
 import { useCategoryDetail } from '@/hooks/useCategoryDetail'
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { displayCategoryColor } from '@/lib/visuals'
+import { Amount } from '@/components/shared/Amount'
+import { useResolvedTheme } from '@/components/layout/ThemeProvider'
 
 /**
  * Detalle de una categoría (US-73, ADR-038): total del mes, los últimos 6 meses y sus gastos. Es de
@@ -21,6 +23,7 @@ export function CategoryDetailPage() {
   const { categoryId = '' } = useParams()
   const { period, setPeriod, shift } = usePeriodParam()
   const state = useCategoryDetail(categoryId, period)
+  const theme = useResolvedTheme()
   const refocus = useRefocusAfterReload(state.status)
   // Elegir el mes que ya se ve no recarga nada: no hay foco que devolver.
   const selectPeriod = (next: Period) => {
@@ -34,7 +37,7 @@ export function CategoryDetailPage() {
       <div className="mx-auto flex w-full max-w-2xl flex-col pt-3 lg:pt-0">
         <div
           data-testid="category-detail-not-found"
-          className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-input/50 px-6 py-12 text-center"
+          className="flex flex-col items-center gap-3 rounded-2xl bg-card px-6 py-12 text-center"
         >
           <p className="text-callout text-muted-foreground">No encontramos esta categoría.</p>
           <Link to={summaryHref} data-testid="category-detail-not-found-back" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
@@ -49,7 +52,7 @@ export function CategoryDetailPage() {
     <Link
       to={summaryHref}
       data-testid="category-detail-back"
-      className="press -ml-1 inline-flex min-h-11 items-center self-start rounded-md px-1 text-callout font-medium text-primary hover:underline"
+      className="press -ml-1 inline-flex min-h-11 items-center self-start rounded-full px-1 text-callout font-medium text-primary hover:underline"
     >
       {/* El "‹" es decorativo: el lector anuncia "Resumen" y no el nombre del signo. */}
       <span aria-hidden="true">‹</span>&nbsp;Resumen
@@ -89,7 +92,7 @@ export function CategoryDetailPage() {
   }
 
   const { category, totals, evolution, transactions } = state
-  const color = displayCategoryColor(category.color, category.name)
+  const color = displayCategoryColor(category.color, category.name, theme)
   const periodLong = formatPeriodLong(period)
 
   return (
@@ -103,7 +106,7 @@ export function CategoryDetailPage() {
           {category.archived_at && (
             <span
               data-testid="category-detail-archived"
-              className="shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+              className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
             >
               archivada
             </span>
@@ -118,27 +121,31 @@ export function CategoryDetailPage() {
         />
       </div>
 
-      {/* El filete izquierdo en el color de la categoría la identifica sin competir con la tarjeta verde del Resumen. */}
+      {/* ADR-052: el total es la tarjeta protagonista, como en el Resumen; el punto de color identifica la categoría. */}
       <div
         data-testid="category-detail-total"
-        className="flex flex-col gap-1 rounded-2xl border border-l-4 border-hairline bg-card p-5"
-        style={{ borderLeftColor: color }}
+        className="hero @container flex flex-col items-center gap-1.5 rounded-3xl px-6 py-8 text-center ring-1 ring-hero-foreground/8 ring-inset"
       >
-        <span className="text-footnote font-medium text-muted-foreground first-letter:uppercase">Gastado en {monthName}</span>
-        <span data-testid="category-detail-total-amount" className="tabular text-title-1 font-bold whitespace-nowrap text-foreground">
-          {formatArs(totals.amount)}
+        <span className="flex items-center gap-2 text-footnote font-medium text-hero-muted">
+          <span aria-hidden="true" className="size-2.5 rounded-full ring-2 ring-hero-foreground/20" style={{ backgroundColor: color }} />
+          <span className="first-letter:uppercase">Gastado en {monthName}</span>
         </span>
-        <span data-testid="category-detail-percentage" className="tabular text-footnote text-muted-foreground">
+        <Amount
+          data-testid="category-detail-total-amount"
+          text={formatArs(totals.amount)}
+          className="text-display font-bold tracking-tight whitespace-nowrap"
+        />
+        <span data-testid="category-detail-percentage" className="tabular text-footnote text-hero-muted">
           {formatPercentage(totals.percentage)} del gasto de {monthName}
         </span>
         {totals.expensesUsd.gt(0) && (
-          <span data-testid="category-detail-total-usd" className="tabular text-footnote text-muted-foreground">
+          <span data-testid="category-detail-total-usd" className="tabular mt-1 rounded-full bg-hero-foreground/8 px-3 py-1 text-footnote text-hero-foreground">
             Incluye {formatUsd(totals.expensesUsd)} en dólares
           </span>
         )}
-        <div className="mt-3 border-t border-hairline pt-3 text-footnote text-muted-foreground">
+        <div className="mt-4 w-full border-t border-hero-foreground/10 pt-4 text-footnote text-hero-muted">
           Cuotas de meses anteriores{' '}
-          <span data-testid="category-detail-inherited-amount" className="tabular font-semibold text-foreground">
+          <span data-testid="category-detail-inherited-amount" className="tabular font-semibold text-hero-foreground">
             {formatArs(totals.inheritedInstallments)}
           </span>
         </div>

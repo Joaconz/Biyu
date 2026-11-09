@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORY_PALETTE, categoryIconKey, displayCategoryColor, fitAmountFontSize, sortCategoriesForGrid, splitAmountText } from '@/lib/visuals'
+import { CATEGORY_PALETTE, categoryIconKey, darkCategoryColor, displayCategoryColor, fitAmountFontSize, sortCategoriesForGrid, splitAmountText } from '@/lib/visuals'
 
 describe('displayCategoryColor', () => {
   it('traduce la paleta saturada anterior a la apagada, sin importar mayúsculas', () => {
@@ -49,5 +49,23 @@ describe('splitAmountText (ADR-052)', () => {
   it('sin centavos reconocibles deja todo entero', () => {
     expect(splitAmountText('$436,9 mil')).toEqual({ whole: '$436,9 mil', cents: null })
     expect(splitAmountText('')).toEqual({ whole: '', cents: null })
+  })
+})
+
+describe('darkCategoryColor (ADR-052)', () => {
+  it('aclara el color con 30 % de blanco', () => {
+    expect(darkCategoryColor(CATEGORY_PALETTE.comida)).toBe('#cb9375')
+    expect(darkCategoryColor('#3E5C76')).toBe('#788d9f')
+  })
+
+  it('deja igual lo que no es #rrggbb', () => {
+    expect(darkCategoryColor('var(--input)')).toBe('var(--input)')
+    expect(darkCategoryColor('#abc')).toBe('#abc')
+  })
+
+  it('displayCategoryColor la aplica en el tema oscuro, después de traducir la paleta vieja', () => {
+    expect(displayCategoryColor('#f97316', 'Comida', 'dark')).toBe('#cb9375')
+    expect(displayCategoryColor(null, 'Transporte', 'dark')).toBe('#788d9f')
+    expect(displayCategoryColor(null, 'Transporte', 'light')).toBe(CATEGORY_PALETTE.transporte)
   })
 })

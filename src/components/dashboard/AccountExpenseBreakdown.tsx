@@ -42,7 +42,7 @@ export function AccountExpenseBreakdown({ accounts }: { accounts: AccountExpense
                     {acc.isArchived && (
                       <span
                         data-testid="account-item-archived"
-                        className="shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+                        className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
                       >
                         archivada
                       </span>

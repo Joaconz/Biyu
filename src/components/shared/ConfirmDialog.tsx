@@ -92,12 +92,12 @@ export function ConfirmDialog({
         if (e.target === e.currentTarget && !busy) onClose()
       }}
     >
-      <div ref={panel} className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-5 text-card-foreground shadow-xl">
-        <h2 id={`${testId}-title`} className="text-lg font-semibold tracking-tight">
+      <div ref={panel} className="w-full max-w-sm space-y-5 rounded-3xl bg-card p-6 text-card-foreground shadow-xl dark:ring-1 dark:ring-hairline">
+        <h2 id={`${testId}-title`} className="text-title-2 font-semibold">
           {title}
         </h2>
         {summary && summary.length > 0 && (
-          <dl data-testid={`${testId}-summary`} className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg bg-secondary px-3 py-2.5 text-sm">
+          <dl data-testid={`${testId}-summary`} className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 rounded-xl bg-secondary px-4 py-3 text-footnote">
             {summary.map((item) => (
               <div key={item.label} className="contents">
                 <dt className="text-muted-foreground">{item.label}</dt>
@@ -106,16 +106,15 @@ export function ConfirmDialog({
             ))}
           </dl>
         )}
-        <div className="space-y-2 text-sm text-muted-foreground">{children}</div>
+        <div className="space-y-2 text-callout text-muted-foreground">{children}</div>
         <div className={cn('flex items-center gap-2 pt-2', confirmVariant === 'destructive' ? 'justify-between' : 'justify-end')}>
-          <Button ref={cancel} type="button" variant="outline" size="sm" onClick={onClose} disabled={busy} data-testid={cancelTestId}>
+          <Button ref={cancel} type="button" variant="outline" onClick={onClose} disabled={busy} data-testid={cancelTestId}>
             {cancelLabel}
           </Button>
           {/* US-94: la acción destructiva lleva fondo de peligro, no solo texto bordó. */}
           <Button
             type="button"
             variant={confirmVariant === 'destructive' ? 'destructive-solid' : confirmVariant}
-            size="sm"
             onClick={handleConfirm}
             disabled={busy}
             data-testid={confirmTestId}

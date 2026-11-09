@@ -38,10 +38,10 @@ export function DebtGroupItem({
         aria-expanded={expanded}
         aria-controls={panelId}
         onClick={() => onToggle(group.key)}
-        className="press flex min-h-16 w-full items-center gap-3 py-3 pr-3 pl-4 text-left outline-offset-[-2px]"
+        className="press flex min-h-[4.5rem] w-full items-center gap-3 py-3.5 pr-4 pl-4 text-left outline-offset-[-2px]"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span data-testid="debts-group-name" className="truncate text-callout font-semibold text-foreground">
+          <span data-testid="debts-group-name" className="truncate text-headline font-semibold text-foreground">
             {group.name}
           </span>
           <span data-testid="debts-group-count" className="text-footnote text-muted-foreground">
@@ -54,7 +54,7 @@ export function DebtGroupItem({
               key={net.currency}
               data-testid="debts-group-net-item"
               data-currency={net.currency}
-              className={cn('tabular text-callout font-semibold', net.net.isNegative() && !net.net.isZero() ? 'text-destructive' : 'text-foreground')}
+              className={cn('tabular text-headline font-semibold', net.net.isNegative() && !net.net.isZero() ? 'text-destructive' : 'text-foreground')}
             >
               {groupNetText(net)}
             </span>
@@ -67,7 +67,7 @@ export function DebtGroupItem({
         />
       </button>
       {expanded && (
-        <div id={panelId} data-testid="debts-group-items" className="bg-secondary/40 [&>*+*]:border-t [&>*+*]:border-hairline">
+        <div id={panelId} data-testid="debts-group-items" className="mx-2 mb-2 rounded-xl bg-secondary/50 [&>*+*]:border-t [&>*+*]:border-hairline">
           {group.debts.map((debt) => (
             <DebtItem key={debt.id} debt={debt} busy={busyIds.has(debt.id)} onSettle={onSettle} onReopen={onReopen} onDelete={onDelete} editHref={editHref?.(debt)} />
           ))}
