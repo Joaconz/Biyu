@@ -3,7 +3,7 @@ import { apiSession, signUpAndSkipSetup, uniqueEmail, TEST_PASSWORD } from './su
 
 // Regresión de V3 · Configuración (CFG), Registro (REG), Resumen (DAS) y Resumen por categoría (CAT)
 // (entrega-3/03-seleccion-regresion.md). CP-REG-012 y CP-REG-013 los cubren CP-CUO-009 (regression-cuo.spec.ts) y
-// CP-DEU-015 (regression-deu.spec.ts), que recorren el mismo borrado.
+// CP-DEU-015 (regression-deu.spec.ts), que recorren el mismo borrado; acá se prueba además que sea retroactivo.
 
 type Api = Awaited<ReturnType<typeof apiSession>>
 const ymd = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date())
@@ -134,6 +134,29 @@ test('CP-REG-010 · monto vacío, cero o negativo no se guarda; 0,01 sí; la API
     expect(res.body).toMatchObject({ code: '23514', message: 'I4: el monto debe ser mayor a cero' })
   }
   expect(await count(s.api, 'transactions')).toBe(1)
+})
+
+test('CP-REG-012 y 013 · eliminar una compra en cuotas la saca del total del mes y es retroactivo en los meses cerrados', async ({ page, request }) => {
+  const s = await setup(page, request, 'reg-012')
+  const [y, m] = ymd().split('-').map(Number)
+  const back = (n: number) => {
+    const d = new Date(Date.UTC(y, m - 1 - n, 1))
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
+  }
+  const res = await s.api.rpc('create_transaction', {
+    p_type: 'expense', p_amount: '30000.00', p_currency: 'ARS', p_fx_rate: null, p_category_id: await s.cat('Otros'),
+    p_account_id: await s.acc('Tarjeta de crédito'), p_installments_count: 3, p_occurred_on: `${back(2)}-10`, p_description: null, p_request_id: null,
+  })
+  expect(res.status).toBe(200)
+  for (const n of [2, 1, 0]) {
+    await page.goto(`/dashboard?period=${back(n)}`)
+    await expect(page.getByTestId('dashboard-total-expenses')).toContainText('10.000,00')
+  }
+  expect((await s.api.rpc('delete_transaction', { p_transaction_id: res.body })).status).toBeLessThan(300)
+  for (const n of [2, 1, 0]) {
+    await page.goto(`/dashboard?period=${back(n)}`)
+    await expect(page.getByTestId('dashboard-empty')).toBeVisible()
+  }
 })
 
 test('CP-REG-014 y 015 · otro usuario no lee ni borra una transacción ajena, y no se escribe salteando la RPC', async ({ page, request, browser }) => {
