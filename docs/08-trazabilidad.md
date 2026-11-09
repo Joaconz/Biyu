@@ -194,6 +194,25 @@ P2 entra si alcanza el sprint.
 | Mejoras de UX | [#325](https://github.com/Joaconz/Biyu/issues/325) | V3 | Auditoría [#352](https://github.com/Joaconz/Biyu/issues/352) · US-92 a US-100 ([#353](https://github.com/Joaconz/Biyu/issues/353) a [#361](https://github.com/Joaconz/Biyu/issues/361)) |
 | Calidad V3 | [#326](https://github.com/Joaconz/Biyu/issues/326) | V3 | Casos de V3 ([#338](https://github.com/Joaconz/Biyu/issues/338)), selección de regresión ([#339](https://github.com/Joaconz/Biyu/issues/339)), ejecución y confirmación ([#340](https://github.com/Joaconz/Biyu/issues/340)), reporte final ([#341](https://github.com/Joaconz/Biyu/issues/341)), post-mortem ([#342](https://github.com/Joaconz/Biyu/issues/342)), presentación ([#343](https://github.com/Joaconz/Biyu/issues/343)) · DEF-030 a DEF-037 ([#344](https://github.com/Joaconz/Biyu/issues/344) a [#351](https://github.com/Joaconz/Biyu/issues/351)) |
 
+## Casos de V3: historia → casos
+
+Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especificacion-casos-v3.md) (104 casos, planilla `.xlsx` generada desde `entrega-3/casos/`). Las historias de UX (US-92 a US-100) todavía no tienen casos: se escriben cuando cierre la UX.
+
+| Historia | Casos |
+|---|---|
+| US-80 · Importar una compra empezada | CP-IMP-042 a CP-IMP-052 |
+| US-81 · Guía de importación | CP-IMP-053 a CP-IMP-058 |
+| US-82 · Compartir con varias personas | CP-DEU-085 a CP-DEU-095 |
+| US-83 · Deudas sueltas en el balance | CP-DAS-012 a CP-DAS-020 |
+| US-84 · Editar un movimiento | CP-REG-017 a CP-REG-040 |
+| US-85 · Eliminar definitivamente un movimiento | CP-REG-041 a CP-REG-046 |
+| US-86 · Editar una deuda | CP-DEU-078 a CP-DEU-084 |
+| US-87 · Eliminar una deuda | CP-DEU-062 a CP-DEU-068 |
+| US-88 · Eliminar una suscripción | CP-SUS-049 a CP-SUS-055 |
+| US-89 · Borrar una categoría | CP-CFG-016 a CP-CFG-022 |
+| US-90 · Reactivar una cuenta | CP-CFG-023 a CP-CFG-026 |
+| US-91 · Deudas agrupadas por persona | CP-DEU-073 a CP-DEU-077 |
+
 ## Huecos conocidos
 
 - Catálogo de V1 diseñado en `10-catalogo-casos-v1.md` (68 casos, revisado por `spec-critic`,
