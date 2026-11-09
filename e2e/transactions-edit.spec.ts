@@ -64,7 +64,7 @@ test('CA-1 y CA-26 · cada fila activa tiene «Editar», una eliminada no, y se 
   await expect(rows).toHaveCount(1) // la cuota de H
   await expect(rows.getByTestId('transactions-item-installment')).toHaveText('2/3')
   const edit = page.getByTestId('transactions-item-edit')
-  await expect(edit).toHaveAttribute('aria-label', 'Editar movimiento')
+  await expect(edit).toHaveAttribute('aria-label', /^Editar /) // ADR-052: la fila entera, con el nombre del movimiento
   const box = await edit.boundingBox()
   expect(Math.min(box!.width, box!.height)).toBeGreaterThanOrEqual(44) // CA-30
 

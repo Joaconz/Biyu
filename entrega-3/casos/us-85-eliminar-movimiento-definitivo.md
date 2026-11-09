@@ -19,7 +19,7 @@
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir `/transactions?period=<H>`. | La fila activa tiene «Eliminar» y no tiene «Eliminar definitivamente». |
+| 1 | Abrir `/transactions?period=<H>` y tocar la fila activa. | Abre Editar, que al pie tiene «Eliminar movimiento» (ADR-052); ni la fila ni Editar ofrecen «Eliminar definitivamente». |
 | 2 | API: `purge_transaction` sobre ese gasto. | HTTP 400, `23514`, «Un movimiento activo no se puede eliminar definitivamente»; el gasto sigue ahí. |
 
 ## CP-REG-042 y CP-REG-046 — Dos pasos y cancelar
@@ -27,7 +27,7 @@
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Tocar «Eliminar» en la fila y confirmar. | La fila pasa a «Eliminados» (se puede restaurar, como siempre). |
+| 1 | Tocar la fila, después «Eliminar movimiento» al pie de Editar, y confirmar. | Vuelve a Movimientos y la fila pasa a «Eliminados» (se puede restaurar, como siempre). |
 | 2 | Abrir «Eliminados»: la fila tiene «Restaurar» y «Eliminar definitivamente» (≥44 px). | Las dos acciones. |
 | 3 | Tocar «Eliminar definitivamente». | Diálogo «¿Eliminar definitivamente?» con Gasto $30.000,00, categoría, cuenta, fecha y «3 cuotas»; dice «Se borra para siempre. No se puede restaurar.» y «Se borran también sus 3 cuotas.». |
 | 4 | Tocar «Cancelar». | El diálogo se cierra y la fila sigue en «Eliminados». |

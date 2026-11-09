@@ -57,7 +57,8 @@ test('US-85 CA-2, CA-3 y CA-5 · en dos pasos: Eliminar y después Eliminar defi
   const id = await expense(s.api, { amount: '30000.00', category: s.food, account: s.visa, installments: 3 })
 
   await page.goto(`/transactions?period=${H}`)
-  await page.getByTestId('transactions-item-delete').click()
+  await page.getByTestId('transactions-item-edit').click()
+  await page.getByTestId('edit-transaction-delete').click()
   await page.getByTestId('delete-transaction-confirm').click()
   await expect(page.getByTestId('transactions-empty')).toBeVisible()
 

@@ -1,6 +1,6 @@
 # ADR-023 — Sistema de diseño "heritage moderno", solo modo claro y navegación global
 
-**Estado:** aceptada · **Fecha:** 2026-09
+**Estado:** aceptada, reemplazada en parte por [ADR-052](052-rebranding-esmeralda-claro-oscuro.md) (solo modo claro, sin degradados, radios de 8 px y listas con filetes) · **Fecha:** 2026-09
 
 ## Contexto
 

@@ -42,7 +42,9 @@ test('DEF-007: una transacción eliminada queda en Eliminados, marcada, y se pue
   await page.goto('/transactions')
   const items = page.getByTestId('transactions-item')
   await expect(items).toHaveCount(1)
-  await page.getByTestId('transactions-item-delete').click()
+  // ADR-052: la fila abre Editar, y Eliminar está al pie de esa pantalla.
+  await page.getByTestId('transactions-item-edit').click()
+  await page.getByTestId('edit-transaction-delete').click()
   await expect(page.getByTestId('delete-transaction-dialog')).toContainText('¿Estás seguro de que querés eliminar este movimiento?') // US-94
   await page.getByTestId('delete-transaction-confirm').click()
   await expect(page.getByTestId('transactions-empty')).toBeVisible()
@@ -52,7 +54,7 @@ test('DEF-007: una transacción eliminada queda en Eliminados, marcada, y se pue
   await expect(page).toHaveURL(/view=deleted/)
   await expect(items).toHaveCount(1)
   await expect(page.getByTestId('transactions-item-deleted')).toHaveText('eliminada')
-  await expect(page.getByTestId('transactions-item-delete')).toHaveCount(0)
+  await expect(page.getByTestId('transactions-item-edit')).toHaveCount(0)
 
   await page.getByTestId('transactions-item-restore').click()
   await expect(page.getByTestId('transactions-empty')).toBeVisible()
@@ -82,7 +84,8 @@ test('DEF-024: el diálogo de eliminar transacción toma el foco, lo retiene y l
   await signUpAndSkipSetup(page, 'foco')
   await registerExpense(page, '1500', 'otros')
   await page.goto('/transactions')
-  await page.getByTestId('transactions-item-delete').focus()
+  await page.getByTestId('transactions-item-edit').click()
+  await page.getByTestId('edit-transaction-delete').focus()
   await page.keyboard.press('Enter')
 
   const dialog = page.getByTestId('delete-transaction-dialog')
@@ -94,14 +97,15 @@ test('DEF-024: el diálogo de eliminar transacción toma el foco, lo retiene y l
   }
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
-  await expect(page.getByTestId('transactions-item-delete')).toBeFocused()
+  await expect(page.getByTestId('edit-transaction-delete')).toBeFocused()
 })
 
 test('US-94: la confirmación de eliminar dice qué movimiento se borra, con «Eliminar» separado de «Cancelar»', async ({ page }) => {
   await signUpAndSkipSetup(page, 'confirmacion')
   await registerExpense(page, '1500', 'otros')
   await page.goto('/transactions')
-  await page.getByTestId('transactions-item-delete').click()
+  await page.getByTestId('transactions-item-edit').click()
+  await page.getByTestId('edit-transaction-delete').click()
 
   const dialog = page.getByTestId('delete-transaction-dialog')
   await expect(dialog.getByRole('heading')).toHaveText('¿Eliminar movimiento?')
