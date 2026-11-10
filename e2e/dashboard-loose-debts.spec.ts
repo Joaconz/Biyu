@@ -98,6 +98,8 @@ test('CA-9 · un mes con solo la deuda muestra el Resumen y no el estado vacío'
   await expect(page.getByTestId('dashboard-spent-loose-debts')).toHaveAttribute('data-included', 'false')
   await expect(page.getByTestId('dashboard-income')).toHaveCount(0)
   await page.keyboard.press('Escape')
+  // Esperar el cierre: si se reabre mientras anima, `openSpentOptions` la cree abierta y el interruptor se desmonta.
+  await expect(page.getByTestId('dashboard-spent-options-panel')).toHaveCount(0)
   await includeInSpent(page, ['loose-debts'])
   await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$20.000,00')
   await openSpentOptions(page)
