@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router'
 import { Download } from 'lucide-react'
 import { toast } from 'sonner'
@@ -126,7 +127,8 @@ export function ExportTransactionsDialog({
     }
   }
 
-  return (
+  // Portal a <body>: dentro de <main> una transición de vista (ADR-049) lo deja bajo la barra flotante (z-40).
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* CA-18, CA-23: tocar fuera de la hoja la cierra solo si no está en Exportando…
           El clic lo recibe este fondo, que cubre la pantalla (DEF-030, #344). */}
@@ -274,6 +276,7 @@ export function ExportTransactionsDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
