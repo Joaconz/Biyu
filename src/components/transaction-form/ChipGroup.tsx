@@ -50,10 +50,10 @@ export function ChipGroup<T extends { id: string; name: string; label?: string }
           onClick={() => onPick?.(option.id)}
           data-testid={`${testId}-chip-${toTestIdSuffix(option.name)}`}
           className={cn(
-            'press rounded-lg border border-hairline bg-card text-foreground hover:border-input aria-pressed:border-primary aria-pressed:bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))] aria-pressed:ring-1 aria-pressed:ring-primary aria-pressed:ring-inset',
+            'press border border-hairline bg-card text-foreground hover:border-input aria-pressed:border-primary aria-pressed:bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))] aria-pressed:ring-1 aria-pressed:ring-primary aria-pressed:ring-inset',
             layout === 'tiles'
-              ? 'flex min-h-[5.25rem] flex-col items-center justify-start gap-1.5 px-1 pt-2.5 pb-2'
-              : 'flex min-h-12 min-w-0 items-center gap-2.5 px-3.5 py-2 text-left text-callout leading-tight font-medium aria-pressed:text-primary [&>span]:line-clamp-2',
+              ? 'flex min-h-[5.25rem] flex-col rounded-2xl items-center justify-start gap-1.5 px-1 pt-2.5 pb-2'
+              : 'flex min-h-12 min-w-0 items-center gap-2.5 rounded-full px-4 py-2 text-left text-callout leading-tight font-medium aria-pressed:text-primary [&>span]:line-clamp-2',
           )}
         >
           {renderIcon?.(option)}

@@ -52,7 +52,7 @@ export function ImportGuideDialog({
     >
       <div
         ref={panel}
-        className="relative flex max-h-full w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-xl border border-border bg-card p-5 text-card-foreground"
+        className="relative flex max-h-full w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-3xl bg-card p-6 text-card-foreground shadow-xl dark:ring-1 dark:ring-hairline"
       >
         <button
           ref={close}
@@ -60,7 +60,7 @@ export function ImportGuideDialog({
           aria-label="Cerrar guía"
           onClick={onClose}
           data-testid="import-guide-close"
-          className="absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:bg-accent"
+          className="absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-full text-muted-foreground hover:bg-accent"
         >
           <X aria-hidden="true" className="size-5" />
         </button>
@@ -75,7 +75,7 @@ export function ImportGuideDialog({
         </ol>
         <div className="space-y-2">
           <p className="text-footnote font-semibold">Ejemplo</p>
-          <div className="overflow-x-auto rounded-lg border border-hairline">
+          <div className="overflow-x-auto rounded-xl bg-secondary/50">
             <table data-testid="import-guide-example" className="w-max min-w-full text-left text-footnote">
               <thead className="bg-muted">
                 <tr>

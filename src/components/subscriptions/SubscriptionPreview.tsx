@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
  */
 export function SubscriptionPreview({ preview }: { preview: CalendarPreview }) {
   return (
-    <section data-testid="subscription-form-preview" className="mt-6 flex flex-col gap-3 rounded-xl border border-hairline bg-card p-4">
+    <section data-testid="subscription-form-preview" className="mt-6 flex flex-col gap-3 rounded-2xl bg-card p-5">
       <h2 className="text-headline font-semibold text-foreground">Calendario</h2>
 
       {preview.kind === 'empty' && (

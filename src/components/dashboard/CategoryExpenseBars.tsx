@@ -5,6 +5,7 @@ import { formatArs, type Decimal } from '@/domain/money'
 import { formatPeriod, type Period } from '@/domain/period'
 import type { CategoryExpenseSummary } from '@/domain/summary'
 import { displayCategoryColor } from '@/lib/visuals'
+import { useResolvedTheme } from '@/components/layout/ThemeProvider'
 import { BreakdownRow } from './BreakdownRow'
 import { CategoryDonutChart } from './CategoryDonutChart'
 
@@ -23,6 +24,7 @@ export function CategoryExpenseBars({
   period: Period
 }) {
   const slices = buildCategoryPie(categories, totalExpenses)
+  const theme = useResolvedTheme()
   return (
     <GroupedSection title="Por categoría" data-testid="dashboard-category-bars">
       {categories.length === 0 ? (
@@ -32,12 +34,12 @@ export function CategoryExpenseBars({
       ) : (
         <GroupedCard>
           {slices.length > 0 && (
-            <div className="flex justify-center px-4 pt-5 pb-4">
+            <div className="flex justify-center px-4 pt-6 pb-5">
               <CategoryDonutChart slices={slices} period={period} total={totalExpenses} />
             </div>
           )}
           {/* role="list" explícito: con list-style: none Safari le quita la semántica de lista al <ul>. */}
-          <ul role="list" data-testid="dashboard-categories-list" className="[&>*+*]:border-t [&>*+*]:border-hairline">
+          <ul role="list" data-testid="dashboard-categories-list" className="">
             {categories.map((cat) => (
               <BreakdownRow
                 key={cat.id}
@@ -57,7 +59,7 @@ export function CategoryExpenseBars({
                       <span
                         id={`category-archived-${cat.id}`}
                         data-testid="category-bar-archived"
-                        className="shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+                        className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
                       >
                         archivada
                       </span>
@@ -68,7 +70,7 @@ export function CategoryExpenseBars({
                 amountTestId="category-bar-amount"
                 percentage={cat.percentage}
                 percentageTestId="category-bar-percentage"
-                barColor={displayCategoryColor(cat.color, cat.name)}
+                barColor={displayCategoryColor(cat.color, cat.name, theme)}
                 ariaLabel={`${cat.name}: ${cat.percentage}%`}
               />
             ))}

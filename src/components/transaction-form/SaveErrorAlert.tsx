@@ -10,7 +10,7 @@ export function SaveErrorAlert({ kind, message }: { kind: 'network' | 'rejected'
       role="alert"
       data-testid="transaction-form-save-error"
       data-kind={kind}
-      className="flex gap-2.5 rounded-lg border border-destructive bg-destructive/5 px-3 py-2.5"
+      className="flex gap-2.5 rounded-xl border border-destructive bg-destructive/5 px-3 py-2.5"
     >
       <CircleAlert aria-hidden="true" className="mt-0.5 size-[1.125rem] shrink-0 text-destructive" strokeWidth={2} />
       <div className="text-footnote text-foreground">

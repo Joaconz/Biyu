@@ -22,17 +22,17 @@ export function PeriodSwitcher({
 }) {
   const inputId = `${screen}-period-select`
   const arrow =
-    'press flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground'
+    'press flex size-11 shrink-0 items-center justify-center rounded-full bg-card text-foreground hover:bg-accent'
   return (
-    <div className={cn('flex items-center gap-1', className)}>
+    <div className={cn('flex items-center gap-2', className)}>
       <button type="button" onClick={() => onShift(-1)} data-testid={`${screen}-period-prev`} aria-label="Mes anterior" className={arrow}>
         <ChevronLeft aria-hidden="true" className="size-5" strokeWidth={1.8} />
       </button>
       <label
         htmlFor={inputId}
-        className="press relative flex h-9 min-w-36 cursor-pointer items-center justify-center rounded-full bg-secondary px-4 text-callout font-semibold text-foreground hover:bg-accent"
+        className="press relative flex h-11 min-w-40 cursor-pointer items-center justify-center rounded-full bg-card px-5 text-callout font-semibold text-foreground hover:bg-accent"
       >
-        <span data-testid={`${screen}-period`} data-period={formatPeriod(period)} className="first-letter:uppercase">
+        <span data-testid={`${screen}-period`} data-period={formatPeriod(period)} className="whitespace-nowrap first-letter:uppercase">
           {formatPeriodLong(period)}
         </span>
         <input

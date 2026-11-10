@@ -233,7 +233,9 @@ test('CP-SUS-040, 041 y 042 · eliminar una ocurrencia, su marca en Movimientos 
   const rows = await occurrences(s.api, id)
   await page.goto(`/transactions?period=${period(-1).slice(0, 7)}`)
   await expect(page.getByTestId('transactions-item-subscription')).toBeVisible()
-  await page.getByTestId('transactions-item-delete').click()
+  // ADR-052: la fila abre Editar (bloqueado para una ocurrencia) y Eliminar está al pie.
+  await page.getByTestId('transactions-item-edit').click()
+  await page.getByTestId('edit-transaction-delete').click()
   await expect(page.getByTestId('delete-transaction-subscription-note')).toBeVisible()
   await page.getByRole('dialog').getByRole('button', { name: /Eliminar/ }).last().click()
   await expect.poll(async () => (await occurrences(s.api, id)).filter((r) => r.deleted_at).length).toBe(1)

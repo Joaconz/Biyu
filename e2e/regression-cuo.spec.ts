@@ -122,7 +122,7 @@ test('CP-CUO-009 · borrar una compra en cuotas saca todas sus cuotas de Movimie
   const id = res.body as string
   await page.goto(`/transactions?period=${period(0).slice(0, 7)}`)
   await expect(page.getByTestId('transactions-item')).toHaveCount(1)
-  await expect(page.getByTestId('transactions-item-delete')).toHaveCount(1) // solo se borra la compra entera
+  await expect(page.getByTestId('transactions-item-edit')).toHaveCount(1) // una sola fila: se edita (y se borra) la compra entera
   await s.api.rpc('delete_transaction', { p_transaction_id: id })
   await page.reload()
   await expect(page.getByTestId('transactions-item')).toHaveCount(0)

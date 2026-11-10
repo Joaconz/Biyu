@@ -56,7 +56,7 @@ export function DateSection({ values, errors, touched, onChange, today }: Sectio
           data-testid="transaction-form-date"
           type="date"
           max={today}
-          className="tabular h-12 w-[8.75rem] shrink-0 rounded-lg border border-input bg-card px-2.5 text-callout text-foreground outline-none focus-visible:border-primary"
+          className="tabular h-12 w-[8.75rem] shrink-0 rounded-xl border border-input bg-card px-2.5 text-callout text-foreground outline-none focus-visible:border-primary"
           value={values.occurredOn}
           onChange={(e) => onChange({ occurredOn: e.target.value })}
           aria-invalid={(touched.occurredOn && !!errors.occurredOn) || undefined}

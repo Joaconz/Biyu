@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test'
 import { apiSession, signUpAndSkipSetup } from './support/app.ts'
+import { openBalanceBreakdown } from './support/dashboard.ts'
 
 // US-101 (#371), ADR-051: qué entra en el balance se elige desde la misma tarjeta de Balance del Resumen.
 // El número se recalcula al instante, la elección se guarda en user_preferences y Ajustes muestra lo mismo.
@@ -30,15 +31,16 @@ test('en el celular, la hoja de la tarjeta cambia el balance al instante y la el
 
   // Predeterminados: deudas sueltas adentro, el reembolso afuera con lo que sumaría. 100.000 − 120.000 − 20.000.
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$40.000,00')
+
+  // La fórmula abre los interruptores, con el monto de cada opción y el balance en vivo. El desglose
+  // (ingresos, gastos y lo que entra o queda afuera) está en la misma hoja (ADR-052).
+  await page.getByTestId('dashboard-balance-options').click()
+  await expect(page.getByTestId('dashboard-balance-options-panel')).toBeVisible()
   await expect(page.getByTestId('dashboard-total-income')).toHaveText('$100.000,00')
   await expect(page.getByTestId('dashboard-balance-expenses-amount')).toHaveText('$120.000,00')
   await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveAttribute('data-included', 'true')
   await expect(page.getByTestId('dashboard-balance-reimbursements')).toHaveAttribute('data-included', 'false')
   await expect(page.getByTestId('dashboard-balance-reimbursements-amount')).toHaveText('$60.000,00')
-
-  // La fórmula abre los interruptores, con el monto de cada opción y el balance en vivo.
-  await page.getByTestId('dashboard-balance-options').click()
-  await expect(page.getByTestId('dashboard-balance-options-panel')).toBeVisible()
   await expect(page.getByTestId('dashboard-balance-options-preview')).toHaveText('-$40.000,00')
   await expect(page.getByTestId('dashboard-balance-option-reimbursements-amount')).toHaveText('+$60.000,00 este mes')
   await expect(page.getByTestId('dashboard-balance-option-pending-subscriptions-amount')).toHaveText('Nada este mes')
@@ -64,7 +66,9 @@ test('en el celular, la hoja de la tarjeta cambia el balance al instante y la el
   await expect(page.getByTestId('dashboard-balance-options-panel')).toHaveCount(0)
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$20.000,00')
   await expect(page.getByTestId('dashboard-balance-formula')).toHaveText('Solo movimientos: ingresos − gastos')
+  await openBalanceBreakdown(page)
   await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveAttribute('data-included', 'false')
+  await page.getByTestId('dashboard-balance-options-done').click()
   // Gastado no cambia con las opciones (ADR-047 §2).
   await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$120.000,00')
 

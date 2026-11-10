@@ -46,13 +46,31 @@ const SEEDED: Record<string, { color: string; icon: CategoryIconKey }> = {
 
 export type CategoryIconKey = 'basket' | 'bus' | 'bolt' | 'ticket' | 'health' | 'education' | 'shirt' | 'other'
 
-/** Color con el que se muestra una categoría: traduce la paleta vieja y cubre el color nulo. */
-export function displayCategoryColor(color: string | null | undefined, name: string): string {
+/**
+ * Color con el que se muestra una categoría: traduce la paleta vieja y cubre el color nulo. En el tema
+ * oscuro (ADR-052) lo aclara con `darkCategoryColor`, para que barras y porciones se lean sobre la tarjeta.
+ */
+export function displayCategoryColor(color: string | null | undefined, name: string, theme: 'light' | 'dark' = 'light'): string {
+  let base: string
   if (color) {
     const normalized = color.trim().toLowerCase()
-    return LEGACY_TO_HERITAGE[normalized] ?? normalized
+    base = LEGACY_TO_HERITAGE[normalized] ?? normalized
+  } else {
+    base = SEEDED[toTestIdSuffix(name)]?.color ?? CATEGORY_PALETTE.otros
   }
-  return SEEDED[toTestIdSuffix(name)]?.color ?? CATEGORY_PALETTE.otros
+  return theme === 'dark' ? darkCategoryColor(base) : base
+}
+
+/**
+ * Variante oscura de un color de categoría (ADR-052): 30 % de blanco. Con la paleta apagada queda en
+ * 4,2:1 o más contra la tarjeta oscura (#0b2b26), por encima del 3:1 que piden los gráficos (WCAG 1.4.11).
+ * Un color que no es `#rrggbb` vuelve sin cambios.
+ */
+export function darkCategoryColor(hex: string): string {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!match) return hex
+  const channels = [0, 2, 4].map((i) => parseInt(match[1].slice(i, i + 2), 16))
+  return `#${channels.map((c) => Math.round(c * 0.7 + 255 * 0.3).toString(16).padStart(2, '0')).join('')}`
 }
 
 /** Ícono de una categoría sembrada; null para las creadas por el usuario (se muestra un punto de color). */
@@ -90,3 +108,13 @@ export function fitAmountFontSize(text: string): string {
  * ("$999.999.999,99" tiene 15) se apilan para que el monto no quede ilegible (DEF-021).
  */
 export const SIDE_BY_SIDE_AMOUNT_MAX_LENGTH = 14
+
+/**
+ * Parte un monto ya formateado en la parte entera y los centavos (ADR-052): la protagonista muestra
+ * «$436.850» grande y «,50» más chico y apagado. Trabaja sobre el texto de `formatArs`/`formatUsd`,
+ * nunca sobre un número (C2). Sin centavos reconocibles, todo queda en `whole`.
+ */
+export function splitAmountText(text: string): { whole: string; cents: string | null } {
+  const match = /^(.*\d)(,\d{2})$/.exec(text)
+  return match ? { whole: match[1], cents: match[2] } : { whole: text, cents: null }
+}

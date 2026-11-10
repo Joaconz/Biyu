@@ -14,7 +14,7 @@ const ICONS: Record<CategoryIconKey, LucideIcon> = {
   other: Ellipsis,
 }
 
-/** Baldosa con el ícono de la categoría en su color apagado; las propias muestran un punto de color. */
+/** Círculo con el ícono de la categoría en su color; las propias muestran un punto de color. */
 export function CategoryIcon({
   name,
   color,
@@ -34,10 +34,12 @@ export function CategoryIcon({
       aria-hidden="true"
       style={{ '--tone': tone } as CSSProperties}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--tone)_13%,var(--card))] text-(--tone)',
+        // ADR-052: círculo; en oscuro el tono se aclara para que el ícono se lea sobre esmeralda.
+        'inline-flex shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--tone)_14%,var(--card))] text-(--tone)',
+        'dark:bg-[color-mix(in_srgb,var(--tone)_26%,var(--card))] dark:text-[color-mix(in_oklab,var(--tone)_50%,white)]',
         size === 'sm' && 'size-8 [&_svg]:size-4',
-        size === 'md' && 'size-9 [&_svg]:size-[1.125rem]',
-        size === 'lg' && 'size-10 [&_svg]:size-5',
+        size === 'md' && 'size-11 [&_svg]:size-5',
+        size === 'lg' && 'size-12 [&_svg]:size-[1.375rem]',
         className,
       )}
     >

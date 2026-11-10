@@ -4,7 +4,7 @@ import { FieldError } from '@/components/transaction-form/FieldError'
 import { buttonVariants } from '@/components/ui/button'
 
 export const SELECT_CLASS =
-  'h-11 w-full min-w-0 rounded-lg border border-input bg-card px-3 text-base text-foreground outline-none focus-visible:border-primary disabled:opacity-50 aria-invalid:border-destructive'
+  'h-12 w-full min-w-0 rounded-xl border border-input bg-card px-4 text-base text-foreground outline-none focus-visible:border-primary disabled:opacity-50 aria-invalid:border-destructive'
 
 /** Un campo de los formularios de suscripción: rótulo, control, ayuda, error y pie. */
 export function Field({
@@ -46,7 +46,7 @@ export function Field({
 /** Lista vacía de categorías o medios de pago, con el atajo a Ajustes. */
 export function EmptyCatalog({ testId, message }: { testId: string; message: string }) {
   return (
-    <div data-testid={testId} className="flex items-center justify-between gap-3 rounded-lg border border-input bg-card px-3 py-2.5">
+    <div data-testid={testId} className="flex items-center justify-between gap-3 rounded-xl border border-input bg-card px-4 py-2.5">
       <span className="text-callout text-muted-foreground">{message}</span>
       <Link
         to="/settings"

@@ -291,7 +291,7 @@ function ArchiveToggle({ testId, label, onArchive }: { testId: string; label: st
       aria-label={`Destildar ${label}`}
       data-testid={testId}
       onClick={onArchive}
-      className="press flex size-9 shrink-0 items-center justify-center rounded-lg text-primary"
+      className="press flex size-9 shrink-0 items-center justify-center rounded-full text-primary"
     >
       <Check strokeWidth={2} />
     </button>

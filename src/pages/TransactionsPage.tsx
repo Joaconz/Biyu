@@ -6,7 +6,6 @@ import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard } from '@/components/shared/GroupedList'
 import { PeriodSwitcher } from '@/components/shared/PeriodSwitcher'
-import { DeleteTransactionDialog } from '@/components/transactions/DeleteTransactionDialog'
 import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog'
 import { PurgeTransactionDialog } from '@/components/transactions/PurgeTransactionDialog'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
@@ -27,7 +26,6 @@ export function TransactionsPage() {
   const [params, setParams] = useSearchParams()
   const view: TransactionsView = params.get('view') === 'deleted' ? 'deleted' : 'active'
   const transactionsState = useMonthlyTransactions(period, undefined, view)
-  const [txToDelete, setTxToDelete] = useState<DashboardTransaction | null>(null)
   const [txToPurge, setTxToPurge] = useState<DashboardTransaction | null>(null)
   const [isExportOpen, setIsExportOpen] = useState(false)
   const now = today()
@@ -58,45 +56,44 @@ export function TransactionsPage() {
       <PageHeader
         title="Movimientos"
         testId="transactions-title"
-        className="flex-wrap items-center"
         leading={
           // US-69 · CA-7: Movimientos cuelga del Resumen; se vuelve al mismo mes (C11).
           <Link
             to={`/dashboard?period=${formatPeriod(period)}`}
             data-testid="transactions-back"
-            className="press -ml-1 inline-flex min-h-11 items-center rounded-md px-1 text-callout font-medium text-primary hover:underline"
+            className="press -ml-1 inline-flex min-h-11 items-center rounded-full px-1 text-callout font-medium text-primary hover:underline"
           >
             ‹ Resumen
           </Link>
         }
       >
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            data-testid="transactions-export"
-            disabled={isFuturePeriod}
-            aria-disabled={isFuturePeriod}
-            onClick={() => setIsExportOpen(true)}
-            className="press flex h-9 items-center gap-1.5 rounded-full border border-input px-3 text-footnote font-semibold text-foreground hover:bg-accent disabled:cursor-not-allowed disabled:border-hairline disabled:text-muted-foreground"
-          >
-            <Download className="size-4" aria-hidden="true" />
-            Exportar
-          </button>
-          <PeriodSwitcher screen="transactions" period={period} onShift={shift} onSelect={setPeriod} className="-mr-2" />
-        </div>
+        <button
+          type="button"
+          data-testid="transactions-export"
+          disabled={isFuturePeriod}
+          aria-disabled={isFuturePeriod}
+          onClick={() => setIsExportOpen(true)}
+          className="press flex h-11 shrink-0 items-center gap-2 rounded-full bg-card px-4 text-footnote font-semibold text-foreground hover:bg-accent disabled:cursor-not-allowed disabled:bg-transparent disabled:text-muted-foreground"
+        >
+          <Download className="size-4" aria-hidden="true" />
+          Exportar
+        </button>
       </PageHeader>
+
+      {/* ADR-052: el mes va solo en su renglón, centrado; el filtro, debajo. */}
+      <PeriodSwitcher screen="transactions" period={period} onShift={shift} onSelect={setPeriod} className="mb-4 self-center" />
 
       {isFuturePeriod && (
         <p
           data-testid="transactions-export-future"
-          className="mb-4 rounded-lg bg-warning-surface px-3 py-2 text-footnote text-warning"
+          className="mb-4 rounded-xl bg-warning-surface px-4 py-3 text-footnote text-warning"
         >
           Solo podés exportar el mes actual o meses anteriores.
         </p>
       )}
 
       {/* DEF-007 (FR-08): las eliminadas siguen en el historial, en su propia vista. */}
-      <div role="group" aria-label="Qué movimientos ver" className="mb-5 inline-flex w-fit rounded-lg bg-secondary p-1">
+      <div role="group" aria-label="Qué movimientos ver" className="mb-6 inline-flex w-fit self-center rounded-full bg-secondary p-1">
         {(
           [
             ['active', 'Activos'],
@@ -110,8 +107,8 @@ export function TransactionsPage() {
             data-testid={`transactions-filter-${value}`}
             onClick={() => selectView(value)}
             className={cn(
-              'press rounded-md px-3 py-1.5 text-footnote font-medium text-muted-foreground',
-              view === value && 'bg-card text-foreground shadow-xs',
+              'press min-h-9 rounded-full px-4 py-1.5 text-footnote font-medium text-muted-foreground',
+              view === value && 'bg-card text-foreground',
             )}
           >
             {label}
@@ -130,7 +127,7 @@ export function TransactionsPage() {
       )}
 
       {transactionsState.status === 'ready' && transactionsState.transactions.length === 0 && (
-        <div data-testid="transactions-empty" className="rounded-xl border border-dashed border-input/50 px-6 py-12 text-center">
+        <div data-testid="transactions-empty" className="rounded-xl bg-card px-6 py-14 text-center">
           <p className="text-callout text-muted-foreground">
             {view === 'deleted' ? 'No eliminaste movimientos de este mes.' : 'No hay movimientos en este mes.'}
           </p>
@@ -138,39 +135,30 @@ export function TransactionsPage() {
       )}
 
       {transactionsState.status === 'ready' && transactionsState.transactions.length > 0 && (
-        <div data-testid="transactions-list" className="flex flex-col gap-6">
+        // ADR-052: una sola lista continua; cada día es un rótulo dentro de la tarjeta, no una tarjeta aparte.
+        <GroupedCard data-testid="transactions-list" className="py-2">
           {groupByDay(transactionsState.transactions).map((group) => (
-            <section key={group.date} aria-label={formatDayHeading(group.date, now)} className="flex flex-col gap-2">
-              <h2 className="px-1 text-footnote font-semibold text-muted-foreground first-letter:uppercase">
+            <section key={group.date} aria-label={formatDayHeading(group.date, now)} className="flex flex-col">
+              <h2 className="px-4 pt-4 pb-1 text-footnote font-semibold text-muted-foreground first-letter:uppercase">
                 {formatDayHeading(group.date, now)}
               </h2>
-              <GroupedCard>
-                {group.items.map((tx) => (
-                  <TransactionItem
-                    key={`${tx.id}-${tx.installment_number}`}
-                    transaction={tx}
-                    testId="transactions-item"
-                    showDate={false}
-                    onDeleteRequest={view === 'active' ? setTxToDelete : undefined}
-                    editHref={view === 'active' ? `/transactions/${tx.id}/edit?period=${formatPeriod(period)}` : undefined}
-                    onRestoreRequest={view === 'deleted' ? onRestore : undefined}
-                    onPurgeRequest={
-                      view === 'deleted' && canPurge({ subscriptionName: tx.subscription?.name ?? null }) ? setTxToPurge : undefined
-                    }
-                  />
-                ))}
-              </GroupedCard>
+              {group.items.map((tx) => (
+                <TransactionItem
+                  key={`${tx.id}-${tx.installment_number}`}
+                  transaction={tx}
+                  testId="transactions-item"
+                  showDate={false}
+                  editHref={view === 'active' ? `/transactions/${tx.id}/edit?period=${formatPeriod(period)}` : undefined}
+                  onRestoreRequest={view === 'deleted' ? onRestore : undefined}
+                  onPurgeRequest={
+                    view === 'deleted' && canPurge({ subscriptionName: tx.subscription?.name ?? null }) ? setTxToPurge : undefined
+                  }
+                />
+              ))}
             </section>
           ))}
-        </div>
+        </GroupedCard>
       )}
-
-      <DeleteTransactionDialog
-        transaction={txToDelete}
-        isOpen={txToDelete !== null}
-        onClose={() => setTxToDelete(null)}
-        onDeleted={() => transactionsState.refresh()}
-      />
 
       <PurgeTransactionDialog
         transaction={txToPurge}

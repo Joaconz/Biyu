@@ -22,7 +22,7 @@ export function CategoryEvolution({
 }) {
   return (
     <GroupedSection title="Últimos 6 meses" data-testid="category-detail-evolution" className="mt-7">
-      <div className="rounded-xl border border-hairline bg-card px-1.5 pt-4 pb-3 sm:px-3">
+      <div className="rounded-xl bg-card px-1.5 pt-4 pb-3 sm:px-3">
         <div className="grid grid-cols-6 gap-1 sm:gap-2">
           {bars.map((bar) => {
             const key = formatPeriod(bar.period)
@@ -36,7 +36,7 @@ export function CategoryEvolution({
                 aria-current={current ? 'true' : undefined}
                 aria-label={`${formatPeriodLong(bar.period)}: ${formatArs(bar.amount)}`}
                 onClick={() => onSelect(bar.period)}
-                className="press flex h-44 min-w-0 flex-col items-center justify-end gap-1 rounded-lg pt-1 hover:bg-accent/60"
+                className="press flex h-44 min-w-0 flex-col items-center justify-end gap-1 rounded-xl pt-1 hover:bg-accent/60"
               >
                 <span
                   data-testid={`category-detail-evolution-amount-${key}`}

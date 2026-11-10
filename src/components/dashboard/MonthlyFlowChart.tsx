@@ -23,7 +23,7 @@ export function MonthlyFlowChart({ months }: { months: readonly FlowMonth[] }) {
   const shown = months.find((m) => formatPeriod(m.period) === picked) ?? months.find((m) => m.isCurrent) ?? months[months.length - 1]
   return (
     <GroupedSection title="Gastado vs ingresos" data-testid="dashboard-flow">
-      <div className="flex flex-col gap-3 rounded-xl border border-hairline bg-card px-3 pt-4 pb-3 sm:px-4">
+      <div className="flex flex-col gap-3 rounded-xl bg-card px-4 pt-5 pb-4 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <ul data-testid="dashboard-flow-legend" className="flex items-center gap-4 text-footnote text-muted-foreground">
             <LegendKey color={EXPENSE_COLOR} label="Gastos" />
@@ -54,7 +54,7 @@ export function MonthlyFlowChart({ months }: { months: readonly FlowMonth[] }) {
                 aria-label={`${formatPeriodLong(m.period)}: ${formatArs(m.expenses)} gastados, ${formatArs(m.income)} de ingresos`}
                 onClick={() => setPicked(key)}
                 className={cn(
-                  'press flex min-w-0 flex-col items-center justify-end gap-1.5 rounded-lg px-0.5 pt-1 pb-1.5',
+                  'press flex min-w-0 flex-col items-center justify-end gap-1.5 rounded-xl px-0.5 pt-1 pb-1.5',
                   selected ? 'bg-accent' : '[@media(hover:hover)]:hover:bg-accent/60',
                 )}
               >

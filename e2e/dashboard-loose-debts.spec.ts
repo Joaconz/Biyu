@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test'
 import { apiSession, signUpAndSkipSetup } from './support/app.ts'
+import { openBalanceBreakdown } from './support/dashboard.ts'
 
 // US-83 (#271), ADR-041: las deudas sueltas mueven el balance del mes. CA-1, CA-2, CA-3, CA-8, CA-9, CA-10 y CA-14.
 // Desde ADR-051 la línea es una fila del desglose de la tarjeta de Balance: el signo (suma/resta) va en su
@@ -29,6 +30,7 @@ const transaction = (api: Api, type: 'income' | 'expense', amount: string, categ
 
 /** La fila «Deudas sueltas» del desglose: adentro del balance, con su signo y su monto sin signo. */
 async function expectLooseDebtLine(page: Page, sign: 'suma' | 'resta', amount: string) {
+  await openBalanceBreakdown(page)
   const line = page.getByTestId('dashboard-balance-loose-debts')
   await expect(line).toHaveAttribute('data-included', 'true')
   await expect(line).toContainText(sign)
@@ -74,6 +76,7 @@ test('CA-8 · un gasto compartido no mueve el balance ni muestra la línea', asy
   await transaction(api, 'expense', '120000', category, account, { p_shared_persons: ['Sofía'], p_shared_amounts: ['60000'] })
   await page.goto('/dashboard')
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$120.000,00')
+  await openBalanceBreakdown(page)
   await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveCount(0)
 })
 
@@ -83,6 +86,7 @@ test('CA-9 · un mes con solo la deuda muestra el Resumen y no el estado vacío'
   await page.goto('/dashboard')
   await expect(page.getByTestId('dashboard-empty')).toHaveCount(0)
   await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$0,00')
+  await openBalanceBreakdown(page)
   await expect(page.getByTestId('dashboard-total-income')).toHaveText('$0,00')
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$20.000,00')
   await expect(page.getByTestId('dashboard-balance-badge')).toHaveText('Déficit')

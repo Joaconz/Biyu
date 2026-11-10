@@ -294,7 +294,7 @@ export function SubscriptionForm({
       <SubscriptionPreview preview={preview} />
 
       {/* Fijo abajo, por encima de la barra de navegación, como la acción de Registrar. */}
-      <div className="sticky bottom-(--app-nav-offset) z-20 -mx-5 mt-8 flex flex-col gap-2 border-t border-hairline bg-background px-5 pt-2.5 pb-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
+      <div className="sticky bottom-(--app-nav-offset) z-20 -mx-5 mt-8 flex flex-col gap-2 bg-background px-5 pt-3 pb-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-2xl lg:bg-card lg:p-3">
         {saveError && (
           <p role="alert" data-testid="subscription-form-error" className="text-footnote text-destructive">
             {saveError}

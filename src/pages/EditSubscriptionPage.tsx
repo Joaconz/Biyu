@@ -49,7 +49,7 @@ export function EditSubscriptionPage() {
       {state.status === 'ready' && !subscription && (
         <p
           data-testid="subscription-form-not-found"
-          className="rounded-xl border border-dashed border-input/50 px-6 py-12 text-center text-callout text-muted-foreground"
+          className="rounded-2xl bg-card px-6 py-12 text-center text-callout text-muted-foreground"
         >
           {NOT_FOUND_TEXT}
         </p>

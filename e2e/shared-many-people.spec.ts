@@ -122,7 +122,8 @@ test('CA-11 · el diálogo de borrado lista las deudas de las tres personas', as
 
   await page.goto('/transactions')
   await expect(page.getByTestId('transactions-item-shared').first()).toHaveText('Compartido con Ana y 2 más')
-  await page.getByTestId('transactions-item-delete').first().click()
+  await page.getByTestId('transactions-item-edit').first().click()
+  await page.getByTestId('edit-transaction-delete').click()
   await expect(page.getByTestId('delete-transaction-debt-warning')).toHaveText(
     'También dejan de contar las deudas con Ana, Juan y Sofía por $90.000,00 en total.',
   )

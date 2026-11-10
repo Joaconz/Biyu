@@ -163,7 +163,7 @@ function EditDebtForm({ debt, backTo }: { debt: EditableDebt; backTo: string }) 
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col">
-      <div data-testid="edit-debt-readonly" className="mb-6 grid gap-1.5 rounded-lg bg-secondary px-3.5 py-3">
+      <div data-testid="edit-debt-readonly" className="mb-6 grid gap-1.5 rounded-xl bg-secondary px-3.5 py-3">
         <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-callout text-foreground">
           <span data-testid="edit-debt-currency-readonly" className="font-medium">
             {debt.currency === 'USD' ? 'US$' : 'ARS'}
@@ -236,7 +236,7 @@ function EditDebtForm({ debt, backTo }: { debt: EditableDebt; backTo: string }) 
               data-testid="edit-debt-date"
               type="date"
               max={todayIso}
-              className="tabular h-11 w-full rounded-lg border border-input bg-card px-3 text-base text-foreground outline-none focus-visible:border-primary aria-invalid:border-destructive"
+              className="tabular h-12 w-full rounded-xl border border-input bg-card px-4 text-base text-foreground outline-none focus-visible:border-primary aria-invalid:border-destructive"
               value={values.incurredOn}
               onChange={(e) => change({ incurredOn: e.target.value }, ['incurredOn'])}
               aria-invalid={!!shown('incurredOn') || undefined}
@@ -258,7 +258,7 @@ function EditDebtForm({ debt, backTo }: { debt: EditableDebt; backTo: string }) 
       </fieldset>
 
       {saveError && (
-        <p role="alert" data-testid="edit-debt-error" className="mt-6 rounded-lg bg-destructive/10 px-3.5 py-3 text-callout text-destructive">
+        <p role="alert" data-testid="edit-debt-error" className="mt-6 rounded-xl bg-destructive/10 px-3.5 py-3 text-callout text-destructive">
           {saveError}
         </p>
       )}

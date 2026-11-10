@@ -144,7 +144,7 @@ export function ExportTransactionsDialog({
         aria-modal="true"
         aria-labelledby="export-dialog-title"
         data-testid="transactions-export-dialog"
-        className="w-full max-w-md flex flex-col gap-3.5 rounded-t-2xl sm:rounded-2xl border border-hairline bg-card p-4 pb-6 sm:p-5"
+        className="w-full max-w-md flex flex-col gap-3.5 rounded-t-3xl sm:rounded-3xl bg-card p-5 pb-7 shadow-xl sm:p-6 dark:ring-1 dark:ring-hairline"
       >
         <div className="mx-auto h-1 w-9 rounded-full bg-hairline" aria-hidden="true" />
         <h2
@@ -158,7 +158,7 @@ export function ExportTransactionsDialog({
           role="radiogroup"
           aria-label="Período a exportar"
           className={cn(
-            'overflow-hidden rounded-xl border border-hairline bg-background',
+            'overflow-hidden rounded-xl bg-secondary/60',
             busy && 'opacity-50 pointer-events-none',
           )}
         >
@@ -245,7 +245,7 @@ export function ExportTransactionsDialog({
             onClick={onClose}
             disabled={busy}
             data-testid="transactions-export-cancel"
-            className="press flex h-11 flex-1 items-center justify-center rounded-xl border border-input text-callout font-semibold text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="press flex h-12 flex-1 items-center justify-center rounded-full border border-input text-callout font-semibold text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancelar
           </button>
@@ -255,7 +255,7 @@ export function ExportTransactionsDialog({
             disabled={busy}
             aria-busy={busy}
             data-testid="transactions-export-submit"
-            className="press flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary text-callout font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-70 disabled:cursor-default"
+            className="press flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary text-callout font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-70 disabled:cursor-default"
           >
             {busy ? (
               <>

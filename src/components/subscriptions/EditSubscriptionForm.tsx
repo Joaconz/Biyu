@@ -116,7 +116,7 @@ export function EditSubscriptionForm({
     <form data-testid="subscription-form" onSubmit={onSubmit} noValidate className="flex flex-col">
       <p
         data-testid="subscription-form-notice"
-        className="mb-5 rounded-lg bg-secondary px-3 py-2.5 text-callout text-muted-foreground"
+        className="mb-5 rounded-xl bg-secondary px-3 py-2.5 text-callout text-muted-foreground"
       >
         {EDIT_NOTICE_TEXT}
       </p>
@@ -151,7 +151,7 @@ export function EditSubscriptionForm({
             <span className="text-footnote font-medium text-muted-foreground">Moneda</span>
             <p
               data-testid="subscription-form-currency-readonly"
-              className="flex h-11 items-center rounded-lg bg-secondary px-3 text-base text-muted-foreground"
+              className="flex h-11 items-center rounded-xl bg-secondary px-3 text-base text-muted-foreground"
             >
               {subscription.currency}
             </p>
@@ -236,7 +236,7 @@ export function EditSubscriptionForm({
             <span className="text-footnote font-medium text-muted-foreground">Mes de inicio</span>
             <p
               data-testid="subscription-form-start-period-readonly"
-              className="flex h-11 items-center rounded-lg bg-secondary px-3 text-base text-muted-foreground"
+              className="flex h-11 items-center rounded-xl bg-secondary px-3 text-base text-muted-foreground"
             >
               {formatPeriodLong(subscription.startPeriod)}
             </p>
@@ -290,14 +290,14 @@ export function EditSubscriptionForm({
         <p
           aria-live="polite"
           data-testid="subscription-form-next-charge"
-          className="mt-6 rounded-lg bg-secondary px-3 py-2.5 text-callout text-foreground"
+          className="mt-6 rounded-xl bg-secondary px-3 py-2.5 text-callout text-foreground"
         >
           {nextCharge}
         </p>
       )}
 
       {/* Fijo abajo, por encima de la barra de navegación, como en el alta. */}
-      <div className="sticky bottom-(--app-nav-offset) z-20 -mx-5 mt-8 flex flex-col gap-2 border-t border-hairline bg-background px-5 pt-2.5 pb-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
+      <div className="sticky bottom-(--app-nav-offset) z-20 -mx-5 mt-8 flex flex-col gap-2 bg-background px-5 pt-3 pb-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-2xl lg:bg-card lg:p-3">
         {saveError && (
           <p role="alert" data-testid="subscription-form-error" className="text-footnote text-destructive">
             {saveError}

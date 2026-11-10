@@ -57,7 +57,7 @@ export function CancelSubscriptionDialog({
     >
       <p>{cancelWarningText(kept)}</p>
       {blockedWarning && (
-        <p data-testid="cancel-subscription-dialog-blocked-warning" className="rounded-lg bg-warning/10 px-3 py-2 text-foreground">
+        <p data-testid="cancel-subscription-dialog-blocked-warning" className="rounded-xl bg-warning/10 px-3 py-2 text-foreground">
           {blockedWarning}
         </p>
       )}

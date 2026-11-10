@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { apiSession, signUpAndSkipSetup } from './support/app.ts'
+import { openBalanceBreakdown } from './support/dashboard.ts'
 
 // US-101 (#371), ADR-047: qué entra en el balance del Resumen, elegido en Ajustes.
 
@@ -45,6 +46,7 @@ test('los predeterminados son los de hoy y cada interruptor cambia solo el balan
   await expect(page.getByTestId('settings-summary-reimbursements')).toHaveAttribute('aria-checked', 'true')
   await page.goto('/dashboard')
   await expect(page.getByTestId('dashboard-total-balance')).toHaveText('$40.000,00')
+  await openBalanceBreakdown(page)
   await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveAttribute('data-included', 'false')
   await expect(page.getByTestId('dashboard-balance-formula')).toHaveText('Ingresos − gastos + reembolsos')
 })

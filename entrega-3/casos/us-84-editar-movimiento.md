@@ -37,7 +37,7 @@
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir `/transactions?period=<H>`. | La fila «2/3» tiene el botón «Editar movimiento» (`transactions-item-edit`) de al menos 44×44 px. |
+| 1 | Abrir `/transactions?period=<H>`. | Toda la fila «2/3» es el enlace «Editar» (`transactions-item-edit`, ADR-052), de al menos 44 px de alto. |
 | 2 | Tocar «Editar movimiento». | URL `/transactions/<id>/edit?period=<H>`; Monto muestra `30.000,00` (el total, no la cuota), Fecha la del movimiento y las cuotas en 3. La barra inferior marca «Resumen». |
 | 3 | Tocar «Cancelar» sin cambiar nada. | Vuelve a `/transactions?period=<H>` sin diálogo. |
 | 4 | Eliminar el movimiento y abrir `/transactions?period=<H>&view=deleted`. | La fila eliminada no tiene el botón «Editar». |

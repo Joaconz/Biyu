@@ -9,7 +9,6 @@ import { DebtsTotals } from '@/components/debts/DebtsTotals'
 import { SettledNotice } from '@/components/debts/SettledNotice'
 import { DeleteDebtDialog } from '@/components/debts/DeleteDebtDialog'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { GroupedCard } from '@/components/shared/GroupedList'
 import { buttonVariants } from '@/components/ui/button'
 import {
   debtTotals,
@@ -156,8 +155,8 @@ export function DebtsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
-      <PageHeader title="Deudas" testId="debts-title" className="items-center">
-        <Link to="/debts/new" data-testid="debts-new" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
+      <PageHeader title="Deudas" testId="debts-title">
+        <Link to="/debts/new" data-testid="debts-new" className={buttonVariants({ size: 'sm' })}>
           Nueva deuda
         </Link>
       </PageHeader>
@@ -193,7 +192,7 @@ export function DebtsPage() {
           {debts.length === 0 ? (
             <div
               data-testid="debts-empty"
-              className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-input/50 px-6 py-12 text-center"
+              className="flex flex-col items-center gap-4 rounded-2xl bg-card px-6 py-14 text-center"
             >
               <p className="text-callout text-muted-foreground">{empty.message}</p>
               {empty.offerNew && (
@@ -203,7 +202,8 @@ export function DebtsPage() {
               )}
             </div>
           ) : (
-            <GroupedCard data-testid="debts-list">
+            // ADR-052: cada deuda (o persona agrupada) en su tarjeta, con sus acciones al pie.
+            <div data-testid="debts-list" className="flex flex-col gap-3 [&>*]:overflow-hidden [&>*]:rounded-2xl [&>*]:bg-card">
               {entries.map((entry) =>
                 entry.kind === 'group' ? (
                   <DebtGroupItem
@@ -229,7 +229,7 @@ export function DebtsPage() {
                   />
                 ),
               )}
-            </GroupedCard>
+            </div>
           )}
         </>
       )}

@@ -95,7 +95,7 @@ export function FileStep({
           id="import-file-error"
           role="alert"
           data-testid="import-file-error"
-          className="rounded-lg bg-destructive/8 p-4 text-callout text-destructive"
+          className="rounded-xl bg-destructive/8 p-4 text-callout text-destructive"
         >
           {error}
         </p>

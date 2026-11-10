@@ -10,7 +10,7 @@ export function NotFoundPage() {
       <Wordmark className="text-headline text-primary" />
       <div
         data-testid="not-found"
-        className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-input/50 px-8 py-12"
+        className="flex flex-col items-center gap-3 rounded-2xl bg-card px-8 py-12"
       >
         <Compass aria-hidden="true" strokeWidth={1.7} className="size-9 text-muted-foreground" />
         <p className="text-title-2 font-semibold">Esta página no existe</p>

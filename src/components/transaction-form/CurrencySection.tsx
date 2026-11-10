@@ -26,7 +26,7 @@ export function CurrencySection({ values, errors, touched, onChange, referenceRa
   const arsEquivalent = draft.amount && draft.fxRate && !errors.amount && !errors.fxRate ? formatArs(convertToArs(draft.amount, draft.fxRate)) : null
 
   return (
-    <div className="grid gap-2 rounded-lg border border-hairline bg-card p-4 starting:opacity-0 transition-opacity duration-(--dur-fade)">
+    <div className="grid gap-2 rounded-2xl bg-card p-4 starting:opacity-0 transition-opacity duration-(--dur-fade)">
       <div className="flex items-baseline justify-between gap-3">
         <Label htmlFor="transaction-form-fx-rate">Tipo de cambio (ARS por US$)</Label>
         {arsEquivalent && (
@@ -62,7 +62,7 @@ export function CurrencySection({ values, errors, touched, onChange, referenceRa
         </p>
       )}
       {(referenceRateStatus === 'missing' || referenceRateStatus === 'error') && (
-        <div className="flex gap-3 rounded-lg bg-warning-surface p-3 text-warning">
+        <div className="flex gap-3 rounded-xl bg-warning-surface p-3 text-warning">
           <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" strokeWidth={1.8} />
           <div className="grid gap-1">
             <p className="text-footnote">

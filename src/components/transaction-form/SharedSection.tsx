@@ -68,7 +68,7 @@ export function SharedSection({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-hairline bg-card">
+    <div className="overflow-hidden rounded-2xl bg-card">
       <div className="flex min-h-12 items-center gap-3 px-4 py-2.5">
         <span id="transaction-form-shared-label" className="text-callout font-semibold">
           Gasto compartido
@@ -127,7 +127,7 @@ export function SharedSection({
                       aria-label={name ? `Quitar a ${name}` : `Quitar persona ${index}`}
                       onMouseDown={keepFocus}
                       onClick={() => removeRow(i)}
-                      className="press inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent"
+                      className="press inline-flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent"
                     >
                       <X aria-hidden="true" className="size-5" />
                     </button>

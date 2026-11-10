@@ -50,7 +50,7 @@ export function PendingDraftsNotice({
                   data-testid="register-pending-draft-restore"
                   disabled={verifying}
                   onClick={() => onRestore(draft)}
-                  className="press min-h-11 flex-1 rounded-lg bg-primary px-3 text-callout font-semibold text-primary-foreground disabled:opacity-60"
+                  className="press min-h-11 flex-1 rounded-full bg-primary px-3 text-callout font-semibold text-primary-foreground disabled:opacity-60"
                 >
                   {verifying ? 'Verificando…' : 'Recuperar'}
                 </button>
@@ -60,7 +60,7 @@ export function PendingDraftsNotice({
                   disabled={verifying}
                   onClick={() => onDiscard(draft)}
                   className={cn(
-                    'press min-h-11 flex-1 rounded-lg border border-input bg-card px-3 text-callout font-semibold text-foreground hover:bg-accent',
+                    'press min-h-11 flex-1 rounded-full border border-input bg-card px-3 text-callout font-semibold text-foreground hover:bg-accent',
                     'disabled:opacity-50',
                   )}
                 >

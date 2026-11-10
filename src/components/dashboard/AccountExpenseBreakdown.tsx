@@ -30,7 +30,7 @@ export function AccountExpenseBreakdown({ accounts }: { accounts: AccountExpense
                 key={acc.id}
                 testId={`dashboard-account-item-${acc.id}`}
                 icon={
-                  <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
                     <AccountIcon type={acc.type} />
                   </span>
                 }
@@ -42,7 +42,7 @@ export function AccountExpenseBreakdown({ accounts }: { accounts: AccountExpense
                     {acc.isArchived && (
                       <span
                         data-testid="account-item-archived"
-                        className="shrink-0 rounded-md bg-secondary px-1.5 py-0.5 text-caption font-medium text-muted-foreground"
+                        className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
                       >
                         archivada
                       </span>

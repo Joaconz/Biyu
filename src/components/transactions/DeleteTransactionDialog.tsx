@@ -107,7 +107,7 @@ export function DeleteTransactionDialog({
           </p>
           <div
             data-testid="delete-transaction-affected-periods"
-            className="space-y-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs"
+            className="space-y-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs"
           >
             {impact.affectedPeriods.map((p) => (
               <div key={formatPeriod(p.period)} className="flex items-center justify-between">

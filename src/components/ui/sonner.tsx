@@ -1,11 +1,13 @@
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
+import { useTheme } from "@/components/layout/ThemeProvider"
 
-// Solo modo claro (ADR-023): con theme="system" los toasts se volvían oscuros con el teléfono en modo oscuro.
+// ADR-052: los toasts siguen el tema elegido en Biyu, no el del teléfono.
 const Toaster = ({ ...props }: ToasterProps) => {
+  const { resolved } = useTheme()
   return (
     <Sonner
-      theme="light"
+      theme={resolved}
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4 text-primary" />,

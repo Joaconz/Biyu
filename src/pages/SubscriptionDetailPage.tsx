@@ -39,7 +39,7 @@ export function SubscriptionDetailPage() {
             data-testid="subscription-detail-status"
             data-status={subscription.status}
             className={cn(
-              'shrink-0 rounded-md px-2 py-1 text-caption font-medium',
+              'shrink-0 rounded-full px-2.5 py-1 text-caption font-medium',
               subscription.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground',
             )}
           >
@@ -73,7 +73,7 @@ export function SubscriptionDetailPage() {
       {state.status === 'ready' && !subscription && (
         <div
           data-testid="subscription-detail-not-found"
-          className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-input/50 px-6 py-12 text-center"
+          className="flex flex-col items-center gap-4 rounded-2xl bg-card px-6 py-14 text-center"
         >
           <p className="text-callout text-muted-foreground">No encontramos esta suscripción.</p>
           <Link
@@ -179,7 +179,7 @@ function Occurrences({ occurrences, nextCharge }: { occurrences: SubscriptionOcc
                 {occurrence.deleted && (
                   <span
                     data-testid="subscription-detail-occurrence-deleted"
-                    className="rounded-md bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
+                    className="rounded-full bg-secondary px-2 py-0.5 text-caption font-medium text-muted-foreground"
                   >
                     Eliminado
                   </span>

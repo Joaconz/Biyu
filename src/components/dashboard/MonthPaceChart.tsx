@@ -61,7 +61,7 @@ export function MonthPaceChart({ pace, period, ongoing }: { pace: MonthPace; per
 
   return (
     <GroupedSection title="Ritmo del mes" data-testid="dashboard-pace">
-      <div className="flex flex-col gap-3 rounded-xl border border-hairline bg-card px-4 pt-4 pb-3">
+      <div className="flex flex-col gap-3 rounded-xl bg-card px-5 pt-5 pb-4 sm:px-6">
         <p data-testid="dashboard-pace-summary" data-direction={direction} className="text-callout text-foreground">
           {direction === 'none' && (
             <span className="text-muted-foreground">
@@ -101,7 +101,7 @@ export function MonthPaceChart({ pace, period, ongoing }: { pace: MonthPace; per
           onPointerDown={(e) => setPickedDay(dayFromPointer(e))}
           onPointerMove={(e) => e.pointerType === 'mouse' && setPickedDay(dayFromPointer(e))}
           onKeyDown={onKeyDown}
-          className="touch-pan-y rounded-md outline-offset-4"
+          className="touch-pan-y rounded-xl outline-offset-4"
         >
           <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
             {/* Escala: piso y techo, un filete recesivo cada uno. */}

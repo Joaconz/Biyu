@@ -273,7 +273,7 @@ export function DebtFormPage() {
             data-testid="debt-form-date"
             type="date"
             max={todayIso}
-            className="tabular h-11 w-full rounded-lg border border-input bg-card px-3 text-base text-foreground outline-none focus-visible:border-primary disabled:opacity-50 aria-invalid:border-destructive"
+            className="tabular h-12 w-full rounded-xl border border-input bg-card px-4 text-base text-foreground outline-none focus-visible:border-primary disabled:opacity-50 aria-invalid:border-destructive"
             value={values.incurredOn}
             onChange={(e) => change({ incurredOn: e.target.value })}
             onBlur={blur('incurredOn')}
@@ -297,7 +297,7 @@ export function DebtFormPage() {
       </fieldset>
 
       {/* Fijo abajo, por encima de la barra de navegación y del teclado, como en Registrar. */}
-      <div className="sticky z-20 -mx-5 mt-8 flex flex-col gap-2 border-t border-hairline bg-background px-5 pt-2.5 pb-3 [bottom:calc(var(--app-nav-offset)+var(--kb-inset))] sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
+      <div className="sticky z-20 -mx-5 mt-8 flex flex-col gap-2 bg-background px-5 pt-3 pb-3 [bottom:calc(var(--app-nav-offset)+var(--kb-inset))] sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-2xl lg:bg-card lg:p-3">
         {firstError && (
           <p id="debt-form-hint" data-testid="debt-form-hint" className="text-center text-footnote text-muted-foreground">
             {firstError}

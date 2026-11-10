@@ -171,7 +171,7 @@ export function EditTransactionForm({
         </h1>
       </div>
 
-      <div data-testid="edit-transaction-readonly" className="mb-6 grid gap-2 rounded-lg bg-secondary px-3.5 py-3">
+      <div data-testid="edit-transaction-readonly" className="mb-6 grid gap-2 rounded-xl bg-secondary px-3.5 py-3">
         <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-callout text-foreground">
           <span data-testid="edit-transaction-type-readonly" className="font-medium">
             {isExpense ? 'Gasto' : 'Ingreso'}
@@ -228,7 +228,7 @@ export function EditTransactionForm({
             onChange={(e) => change({ occurredOn: e.target.value })}
             aria-invalid={(touched.occurredOn && !!errors.occurredOn) || undefined}
             aria-describedby={errors.occurredOn ? 'edit-transaction-date-error' : undefined}
-            className="tabular h-12 w-full rounded-lg border border-input bg-card px-3 text-callout text-foreground outline-none focus-visible:border-primary"
+            className="tabular h-12 w-full rounded-xl border border-input bg-card px-4 text-callout text-foreground outline-none focus-visible:border-primary"
           />
           <FieldError id="edit-transaction-date-error" message={errors.occurredOn} active={!!touched.occurredOn} />
         </div>
@@ -292,7 +292,7 @@ export function EditTransactionForm({
       </fieldset>
 
       {saveError && (
-        <p role="alert" data-testid="edit-transaction-error" className="mt-6 rounded-lg bg-destructive/10 px-3.5 py-3 text-callout text-destructive">
+        <p role="alert" data-testid="edit-transaction-error" className="mt-6 rounded-xl bg-destructive/10 px-3.5 py-3 text-callout text-destructive">
           {saveError}
         </p>
       )}
@@ -324,7 +324,7 @@ export function EditTransactionForm({
         onConfirm={save}
         onClose={() => setClosedChanges(null)}
       >
-        <ul className="space-y-1.5 rounded-lg bg-secondary px-3 py-2.5">
+        <ul className="space-y-1.5 rounded-xl bg-secondary px-3 py-2.5">
           {(closedChanges ?? []).map((change) => (
             <li key={change.key} data-testid={`edit-transaction-closed-period-${change.key}`} className="tabular text-foreground">
               <span className="font-medium">{change.label}</span>: {change.text}

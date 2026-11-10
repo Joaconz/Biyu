@@ -4,6 +4,7 @@ import type { Decimal } from '@/domain/money'
 import { formatPeriod, formatPeriodLong, type Period } from '@/domain/period'
 import { donutSlicePath } from '@/lib/pie'
 import { displayCategoryColor } from '@/lib/visuals'
+import { useResolvedTheme } from '@/components/layout/ThemeProvider'
 
 const SIZE = 176
 const RADIUS = SIZE / 2
@@ -24,6 +25,7 @@ export function CategoryDonutChart({
   period: Period
   total: Decimal
 }) {
+  const theme = useResolvedTheme()
   // Un solo tramo no lleva filete: no hay nada que separar (CA-13).
   const stroke = slices.length > 1 ? 'var(--card)' : 'none'
   return (
@@ -50,7 +52,7 @@ export function CategoryDonutChart({
             // Los ángulos ya vienen redondeados del dominio; toNumber es solo para la trigonometría.
             d={donutSlicePath(s.startAngle.toNumber(), s.endAngle.toNumber(), RADIUS, INNER_RADIUS)}
             fillRule="evenodd"
-            fill={s.isRest ? 'var(--input)' : displayCategoryColor(s.color, s.name)}
+            fill={s.isRest ? 'var(--input)' : displayCategoryColor(s.color, s.name, theme)}
             stroke={stroke}
             strokeWidth={2}
             strokeLinejoin="round"
