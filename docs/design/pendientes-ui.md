@@ -3,6 +3,9 @@
 Notas del rediseño de V1 (ADR-023) que quedaron para la última etapa. Al retomarlas, trabajarlas
 con las skills `emil-design-eng` y `apple-design`.
 
+La etapa visual siguiente (referencias, modo oscuro, qué aplicar ahora y features para después
+del MVP) está en `docs/design/direccion-de-diseno.md`.
+
 ## 1. Tipografía — hecho
 
 Se pasó a la fuente del sistema con Inter de respaldo y se sacó Playfair (ADR-023). Problema original:

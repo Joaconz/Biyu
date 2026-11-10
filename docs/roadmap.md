@@ -142,3 +142,8 @@ Listadas para saber que existen, no para construirlas. Cualquiera necesita su pr
 | Pagos parciales de deudas | Historial de pagos por deuda |
 | Aplicación instalable (PWA) | Ícono en la pantalla de inicio |
 | Presupuestos por categoría, patrimonio neto, inversiones | Cambian el propósito del sistema: pasa de informar a controlar |
+| Metas de ahorro | Monto objetivo y fecha, con anillo de progreso (`docs/design/direccion-de-diseno.md` §4) |
+| «Te alcanza hasta el día…» | Proyección del balance al cierre con el ritmo de gasto y lo comprometido; sin schema |
+| Calendario de gastos y comparativa por categoría vs. el mes anterior | Solo lectura sobre imputaciones; sin schema |
+| Búsqueda de movimientos y reporte anual | Filtros en la URL (C11); el reporte arranca con un segmentado 6M / 1A |
+| Notificaciones | Suscripción por cobrar, cuota alta o tope de presupuesto. Depende de la PWA (ADR-022) |
