@@ -8,6 +8,7 @@ import {
   argentinaDateOf,
   currentPeriod,
   daysInMonth,
+  formatDayHeading,
   formatDisplayDate,
   formatPeriod,
   formatPeriodLong,
@@ -29,6 +30,8 @@ export interface SubscriptionRecord {
   currency: Currency
   categoryId: string
   categoryName: string
+  /** Color de la categoría (`#rrggbb`), para el gráfico por categoría; null si no se pidió o no tiene. */
+  categoryColor?: string | null
   accountId: string
   accountName: string
   billingDay: number
@@ -704,4 +707,178 @@ export function sortOccurrences(occurrences: readonly SubscriptionOccurrence[]):
 export function occurrencesEmptyText(nextCharge: string | null): string {
   const base = 'Todavía no se cargó ningún gasto.'
   return nextCharge ? `${base} El primero se carga el ${formatDisplayDate(nextCharge)}.` : base
+}
+
+// ---------------------------------------------------------------------------
+// Gráficos de Suscripciones: cobros del mes y comprometido por categoría
+// ---------------------------------------------------------------------------
+
+/** Lo que los gráficos necesitan de una suscripción: las mismas columnas que `committedMonthlyTotal` y el rótulo. */
+export type ChartSubscription = Pick<
+  SubscriptionRecord,
+  'id' | 'name' | 'status' | 'amount' | 'currency' | 'billingDay' | 'generateFromPeriod' | 'endPeriod' | 'categoryId' | 'categoryName'
+> & { categoryColor?: string | null }
+
+/** Un cobro del mes, ya ubicado en su día (R4) y marcado como cobrado o por cobrar (R5). */
+export interface ScheduleCharge {
+  id: string
+  name: string
+  amount: Decimal
+  currency: Currency
+  /** Pesos del cobro con la regla de `committedMonthlyTotal`; null si es USD y el mes no tiene tipo de cambio. */
+  amountArs: Decimal | null
+  /** Día del mes, 1 a 31 (R4: el día de cobro recortado al último día). */
+  day: number
+  /** El día de cobro ya llegó (hoy incluido): lo que la puesta al día ya cargó o bloqueó, no un pendiente (R5). */
+  charged: boolean
+}
+
+export interface ScheduleDay {
+  day: number
+  isToday: boolean
+  charges: ScheduleCharge[]
+}
+
+export interface MonthChargeSchedule {
+  period: Period
+  /** Uno por día del mes, también los que no tienen cobros. */
+  days: ScheduleDay[]
+  /** El día de hoy dentro del mes; null si `today` cae en otro mes. */
+  todayDay: number | null
+  /** El próximo cobro de este mes (según `nextChargeDate`); null si no queda ninguno. */
+  nextChargeDay: number | null
+  /** Lo cobrado y lo que falta, con los mismos criterios que el héroe (ADR-033): juntos suman `committedMonthlyTotal`. */
+  charged: CommittedMonthly
+  pending: CommittedMonthly
+  /** Las USD del mes sin tipo de cambio, cobradas y por cobrar juntas, sin convertir; null si no hay. */
+  usdPending: Decimal | null
+}
+
+/**
+ * Calendario de cobros de un mes (ADR-053): cada suscripción activa que entra en el mes, en el día que se
+ * va a cobrar. "Cobrado" es que el día ya llegó (`hoy >= día`, R5), no que exista la transacción: igual que
+ * el total comprometido, es una estimación que no lee transacciones. `charged` + `pending` son
+ * `committedMonthlyTotal` partido en dos, así el héroe y este gráfico no pueden discrepar. `today` entra
+ * por parámetro (C1); `period` es el mes que se dibuja (el corriente en la pantalla).
+ */
+export function monthChargeSchedule(
+  subscriptions: ReadonlyArray<ChartSubscription>,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal>,
+  period: Period,
+  today: Date,
+): MonthChargeSchedule {
+  const last = daysInMonth(period)
+  const rate = fxRatesByPeriod.get(formatPeriod(period)) ?? null
+  const currentOfToday = currentPeriod(today)
+  const todayDay = isSamePeriod(period, currentOfToday) ? today.getDate() : null
+  const days: ScheduleDay[] = Array.from({ length: last }, (_, i) => ({ day: i + 1, isToday: i + 1 === todayDay, charges: [] }))
+  // `committedMonthlyTotal` mira el período de la fecha que recibe: se le pasa el primer día de `period`
+  // (construido de parámetros, no del reloj: C1).
+  const monthStart = new Date(period.year, period.month - 1, 1)
+  const chargedSubs: ChartSubscription[] = []
+  const pendingSubs: ChartSubscription[] = []
+  const upcoming: number[] = []
+
+  for (const subscription of subscriptions) {
+    if (subscription.status !== 'active') continue
+    if (isPeriodBefore(period, subscription.generateFromPeriod)) continue
+    if (subscription.endPeriod && isPeriodBefore(subscription.endPeriod, period)) continue
+    const day = Number(occurrenceDate(period, subscription.billingDay).slice(8))
+    const charged = hasFallenDue(period, subscription.billingDay, today)
+    const amount = parseMoney(subscription.amount)
+    days[day - 1].charges.push({
+      id: subscription.id,
+      name: subscription.name,
+      amount,
+      currency: subscription.currency,
+      amountArs: subscription.currency === 'USD' ? (rate ? convertToArs(amount, rate) : null) : amount,
+      day,
+      charged,
+    })
+    ;(charged ? chargedSubs : pendingSubs).push(subscription)
+    const next = nextChargeDate(subscription, new Set(), today)
+    if (next && next.startsWith(`${formatPeriod(period)}-`)) upcoming.push(Number(next.slice(8)))
+  }
+  for (const d of days) d.charges.sort((a, b) => a.name.localeCompare(b.name, 'es'))
+  const charged = committedMonthlyTotal(chargedSubs, fxRatesByPeriod, monthStart)
+  const pending = committedMonthlyTotal(pendingSubs, fxRatesByPeriod, monthStart)
+
+  return {
+    period,
+    days,
+    todayDay,
+    nextChargeDay: upcoming.length ? Math.min(...upcoming) : null,
+    charged,
+    pending,
+    usdPending: charged.usdPending && pending.usdPending ? charged.usdPending.plus(pending.usdPending) : (charged.usdPending ?? pending.usdPending),
+  }
+}
+
+export interface CategoryCommitment {
+  categoryId: string
+  name: string
+  color: string | null
+  /** Pesos comprometidos en el mes por la categoría (regla de `committedMonthlyTotal`). */
+  totalArs: Decimal
+  /** Suscripciones de la categoría que entran en el mes, también las USD sin tipo de cambio. */
+  count: number
+  /** Parte del total en pesos, con un decimal (0 a 100). */
+  percentage: Decimal
+  /** La suma sin convertir de las USD de la categoría sin tipo de cambio; null si no hay. */
+  usdPending: Decimal | null
+}
+
+/**
+ * Comprometido del mes por categoría, de mayor a menor (desempata el nombre). Cada fila usa
+ * `committedMonthlyTotal` sobre sus suscripciones, así que la suma de las filas es el total del héroe
+ * (ADR-033) y las USD sin tipo de cambio quedan en `usdPending`, fuera de la barra. Sin suscripciones
+ * que entren en el mes devuelve [].
+ */
+export function committedByCategory(
+  subscriptions: ReadonlyArray<ChartSubscription>,
+  fxRatesByPeriod: ReadonlyMap<string, Decimal>,
+  today: Date,
+): CategoryCommitment[] {
+  const byCategory = new Map<string, ChartSubscription[]>()
+  for (const subscription of subscriptions) {
+    byCategory.set(subscription.categoryId, [...(byCategory.get(subscription.categoryId) ?? []), subscription])
+  }
+  const rows = [...byCategory.entries()]
+    .map(([categoryId, subs]) => ({ categoryId, subs, committed: committedMonthlyTotal(subs, fxRatesByPeriod, today) }))
+    .filter((row) => row.committed.count > 0)
+  const total = rows.reduce((sum, row) => sum.plus(row.committed.totalArs), new Decimal(0))
+  return rows
+    .map(({ categoryId, subs, committed }) => ({
+      categoryId,
+      name: subs[0].categoryName,
+      color: subs[0].categoryColor ?? null,
+      totalArs: committed.totalArs,
+      count: committed.count,
+      percentage: total.isZero() ? new Decimal(0) : committed.totalArs.div(total).times(100).toDecimalPlaces(1, Decimal.ROUND_HALF_UP),
+      usdPending: committed.usdPending,
+    }))
+    .sort((a, b) => b.totalArs.comparedTo(a.totalArs) || a.name.localeCompare(b.name, 'es'))
+}
+
+/** "Cobros de octubre": el mes en minúscula, sin el año. */
+export function chargeScheduleTitle(period: Period): string {
+  return `Cobros de ${formatPeriodLong(period).split(' ')[0]}`
+}
+
+/** "Día 5: Netflix, Spotify". Vacío si el día no tiene cobros. */
+export function scheduleDayText(day: ScheduleDay): string {
+  if (day.charges.length === 0) return `Día ${day.day}: sin cobros`
+  return `Día ${day.day}: ${day.charges.map((c) => c.name).join(', ')}`
+}
+
+/** Encabezado del día elegido: "Hoy" o "jueves 14 de octubre" (C1: `today` por parámetro). */
+export function scheduleDayHeading(period: Period, day: number, today: Date): string {
+  return formatDayHeading(`${formatPeriod(period)}-${String(day).padStart(2, '0')}`, today)
+}
+
+/** Qué día se muestra al abrir: el próximo cobro del mes o, si ya pasaron todos, el último; null sin cobros. */
+export function defaultScheduleDay(schedule: Pick<MonthChargeSchedule, 'days' | 'nextChargeDay'>): number | null {
+  if (schedule.nextChargeDay !== null) return schedule.nextChargeDay
+  const withCharges = schedule.days.filter((d) => d.charges.length > 0)
+  return withCharges.length ? withCharges[withCharges.length - 1].day : null
 }
