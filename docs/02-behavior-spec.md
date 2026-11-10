@@ -37,7 +37,7 @@ Decisiones que tomé sin confirmación explícita. Revisá esta lista: si alguna
 1. **Multi-tenant desde el registro público.** Cualquiera con el link puede crear una cuenta en `/signup`. El aislamiento por `user_id` lo aplica Row Level Security en cada consulta (ver [ADR-019](adr/019-vuelta-a-supabase.md) y ADR-004). Reemplaza la decisión original de ADR-004 (usuario único creado a mano) — ver ADR-011.
 2. **El ciclo de cierre de la tarjeta se ignora.** Una compra imputa al mes de su fecha, no al mes en que la cobra el resumen. Modelar el cierre real requeriría configurar día de cierre por tarjeta y desplazar imputaciones — complejidad que no aporta al objetivo primario.
 3. **Cuotas sin interés.** El monto total de la transacción se reparte en partes iguales. No se modela recargo por financiación.
-4. **El dashboard muestra bruto.** El neto de reembolsos es un KPI secundario, no el número grande.
+4. **El número grande del dashboard es el gasto, bruto por defecto.** El neto de reembolsos es un KPI secundario; el usuario puede incluirlo, junto con otras partes, en el número grande (gasto neto del Resumen, ADR-053).
 5. **Las deudas no tienen pagos parciales.** Están pendientes o saldadas.
 6. **Los ingresos no van en cuotas.** `installments_count > 1` solo se permite para `type = expense` sobre cuentas de tipo tarjeta de crédito.
 7. **No hay borrado físico de transacciones.** Se marcan como eliminadas (soft delete) para que el historial de un mes cerrado no cambie por accidente. Se pueden ocultar del dashboard, no evaporar.
@@ -85,7 +85,7 @@ Decisiones que tomé sin confirmación explícita. Revisá esta lista: si alguna
 26. Como usuario, quiero cambiar de mes con un selector, para revisar meses anteriores o ver cuotas futuras.
 27. Como usuario, quiero ver el gasto desagregado por categoría en un gráfico de barras, para identificar dónde se concentra.
 28. Como usuario, quiero ver el gasto desagregado por cuenta, para saber qué tarjeta está cargada.
-29. Como usuario, quiero ver el total de ingresos del mes y el balance (ingresos menos gastos), para saber si el mes cerró en positivo.
+29. Como usuario, quiero ver el total de ingresos del mes y el balance (ingresos menos gastos), para saber si el mes cerró en positivo. *(Desde ADR-053 no hay tarjeta de balance: los ingresos son una opción del número principal, y con ellos incluidos el gasto neto es el balance con el signo al revés. Los casos CP-DAS-006 y CP-DAS-007 están pendientes de reescritura.)*
 30. Como usuario, quiero ver el gasto neto de reembolsos (pendientes o saldados) como dato secundario, para saber cuánto es realmente mío.
 31. Como usuario, quiero ver las últimas transacciones del mes con un acceso a la lista completa, para verificar lo que cargué.
 32. Como usuario, quiero ver cuántos días del mes tienen al menos un registro, para saber si estoy siendo consistente.
@@ -172,10 +172,10 @@ informativa: no son metas ni presupuestos (Out of Scope)._
 
 1. El usuario entra a `/dashboard`.
 2. El sistema resuelve el período actual y suma todas las imputaciones de ese período.
-3. Muestra: total gastado ARS (con USD convertido a su `fx_rate` congelado), total ingresos, balance, gasto neto de reembolsos, y cuánto del total corresponde a cuotas iniciadas en meses anteriores.
-   El balance se muestra como un solo número; tocar su fórmula abre una hoja con su desglose (ingresos,
-   gastos y lo que el usuario sume: deudas sueltas, reembolsos, suscripciones por cobrar) y qué entra en él
-   (US-101, ADR-047, ADR-051, ADR-052).
+3. Muestra: total gastado ARS (con USD convertido a su `fx_rate` congelado), neto de reembolsos, y cuánto del total corresponde a cuotas iniciadas en meses anteriores.
+   El número principal es el gasto neto del Resumen: sin opciones es lo gastado y puede incluir, a elección, los ingresos
+   (que lo restan y pueden dejarlo negativo), las deudas sueltas, los reembolsos y las suscripciones por cobrar;
+   tocar su fórmula abre una hoja con su desglose y qué entra en él (US-101, ADR-047, ADR-052, ADR-053).
 4. Debajo: barras por categoría, desglose por cuenta, últimas 10 transacciones, y días con registro.
 
 ### Sad path — monto inválido

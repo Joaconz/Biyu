@@ -1,6 +1,6 @@
--- US-101 (#371), ADR-047: user_preferences (C7). Cada usuario ve y escribe solo su fila; anon no ve nada.
+-- US-101 (#371), ADR-047, ADR-053: user_preferences (C7). Cada usuario ve y escribe solo su fila; anon no ve nada.
 begin;
-select plan(14);
+select plan(15);
 
 insert into auth.users (id, instance_id, aud, role, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','00000000-0000-0000-0000-000000000000','authenticated','authenticated','a@test.local'),
@@ -12,15 +12,16 @@ set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","r
 select is((select count(*) from user_preferences), 0::bigint, 'sin fila al principio: valen los predeterminados');
 select lives_ok($$insert into user_preferences (balance_reimbursements) values (true)$$, 'A guarda su fila (user_id sale de auth.uid())');
 select results_eq(
-  $$select user_id, balance_loose_debts, balance_reimbursements, balance_pending_subscriptions from user_preferences$$,
-  $$values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, true, true, false)$$,
-  'los predeterminados son: deudas sueltas sí, reembolsos y suscripciones no');
-select lives_ok($$update user_preferences set balance_loose_debts = false, balance_pending_subscriptions = true where user_id = auth.uid()$$, 'A cambia sus opciones');
+  $$select user_id, balance_income, balance_loose_debts, balance_reimbursements, balance_pending_subscriptions from user_preferences$$,
+  $$values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, false, false, true, false)$$,
+  'el predeterminado es solo gastos: ninguna opción incluida salvo la que A eligió (ADR-053)');
+select lives_ok($$update user_preferences set balance_income = true, balance_pending_subscriptions = true where user_id = auth.uid()$$, 'A cambia sus opciones');
 select results_eq(
-  $$select balance_loose_debts, balance_reimbursements, balance_pending_subscriptions from user_preferences$$,
-  $$values (false, true, true)$$, 'los cambios quedan guardados');
+  $$select balance_income, balance_loose_debts, balance_reimbursements, balance_pending_subscriptions from user_preferences$$,
+  $$values (true, false, true, true)$$, 'los cambios quedan guardados');
 select throws_ok($$insert into user_preferences (user_id) values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')$$, '42501', null, 'A no puede insertar una fila a nombre de B');
 select throws_ok($$insert into user_preferences (balance_loose_debts) values (null)$$, '23502', null, 'una opción no puede ser nula');
+select throws_ok($$insert into user_preferences (balance_income) values (null)$$, '23502', null, 'restar ingresos tampoco puede ser nulo');
 select throws_ok($$delete from user_preferences$$, '42501', null, 'nadie borra su fila directo');
 
 -- B es otra sesión: no ve ni cambia la fila de A.

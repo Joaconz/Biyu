@@ -1,6 +1,6 @@
 # ADR-047 — El usuario elige qué entra en el balance del Resumen
 
-**Estado:** aceptada; los puntos 7 y 4 (último guion) los reemplaza [ADR-051](051-balance-desglosado-y-configurable-desde-el-resumen.md) · **Fecha:** 2026-11
+**Estado:** aceptada; los puntos 7 y 4 (último guion) los reemplaza [ADR-051](051-balance-desglosado-y-configurable-desde-el-resumen.md) y los puntos 1, 2 y 3 (qué entra por defecto, que los ingresos quedan siempre y la fórmula), [ADR-053](053-un-solo-numero-de-gasto-neto-en-el-resumen.md) · **Fecha:** 2026-11
 **Relacionada:** ADR-001, ADR-006, ADR-025, ADR-037, ADR-041, ADR-045 · US-101 ([#371](https://github.com/Joaconz/Biyu/issues/371))
 
 ## Contexto

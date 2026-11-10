@@ -157,11 +157,12 @@ Estado: `pending` o `settled`. No hay pagos parciales.
 ### Deuda vinculada
 Una deuda que nació de una transacción concreta (`transaction_id` presente). El monto de una deuda vinculada no puede superar el monto de la transacción de origen.
 
-### Gasto bruto vs. gasto neto
+### Gasto bruto, neto de reembolsos y gasto neto del Resumen
 - **Bruto**: la suma de todas las imputaciones de gasto del período, sin descontar nada.
-- **Neto de reembolsos**: el bruto menos las deudas `owed_to_me` pendientes o saldadas que están vinculadas a transacciones de ese período.
+- **Neto de reembolsos**: el bruto menos las deudas `owed_to_me` pendientes o saldadas que están vinculadas a transacciones de ese período. Se nombra siempre completo, no como «gasto neto».
+- **Gasto neto del Resumen**: el número principal del dashboard (ADR-053). Parte del bruto y, según lo que el usuario incluya, resta los ingresos y los reembolsos y suma las deudas sueltas prestadas y las suscripciones por cobrar. Sin ninguna opción es igual al bruto; con más ingresos que gastos puede ser negativo. Es lo que antes se llamaba «balance» (con ingresos incluidos, el mismo valor con el signo al revés): «balance» ya no es un término del Resumen.
 
-El dashboard muestra **bruto como número principal** y neto como KPI secundario. Razón: el bruto es lo que efectivamente salió de la cuenta, y un reembolso que nunca llega no debe desaparecer silenciosamente de la vista (ver ADR-006).
+El dashboard muestra **el gasto neto del Resumen como número principal**, que por defecto es el bruto, y el neto de reembolsos como KPI secundario. Razón: el bruto es lo que efectivamente salió de la cuenta, y un reembolso que nunca llega no debe desaparecer silenciosamente de la vista (ver ADR-006): por eso los reembolsos son una opción apagada por defecto.
 
 ---
 

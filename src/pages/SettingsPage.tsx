@@ -108,8 +108,8 @@ function AppearanceSection() {
 }
 
 /**
- * US-101: qué entra en el balance del Resumen. Los mismos interruptores y el mismo guardado que la tarjeta de
- * Balance del Resumen (ADR-051): cada uno guarda al tocarlo y no reescribe ningún movimiento.
+ * US-101: qué entra en el gasto neto del Resumen. Los mismos interruptores y el mismo guardado que la tarjeta
+ * verde del Resumen (ADR-053): cada uno guarda al tocarlo y no reescribe ningún movimiento.
  */
 function SummarySection() {
   const [stored, setStored] = useState<BalanceOptions | null>(null)
@@ -128,7 +128,7 @@ function SummarySection() {
     <GroupedSection
       title="Resumen"
       data-testid="settings-summary"
-      footer="Qué entra en el balance. También lo podés cambiar desde la tarjeta de Balance del Resumen. No modifica ningún movimiento."
+      footer="Qué entra en el número de gasto del Resumen. También lo podés cambiar desde la tarjeta verde del Resumen. No modifica ningún movimiento."
     >
       {error && <p role="alert" data-testid="settings-summary-error" className="px-1 text-sm text-destructive">{error}</p>}
       <GroupedCard>
