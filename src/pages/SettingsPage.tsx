@@ -1,12 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Archive, ArchiveRestore, Pencil, Sparkles, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, ChevronRight, Pencil, Sparkles, Tags, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Link } from 'react-router'
 import { LogoutButton } from '@/components/LogoutButton'
 import { BalanceOptionsList } from '@/components/balance/BalanceOptionsList'
 import { AccountIcon } from '@/components/shared/AccountIcon'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
-import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { useTheme } from '@/components/layout/ThemeProvider'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -37,22 +36,10 @@ import {
   type AccountCurrency,
   type AccountType,
 } from '@/lib/accounts'
-import {
-  archiveCategory,
-  CATEGORY_COLOR_PALETTE,
-  countCategoryUsage,
-  createCategory,
-  deleteCategory,
-  listActiveCategories,
-  listArchivedCategories,
-  unarchiveCategory,
-  updateCategory,
-  type Category,
-} from '@/lib/categories'
+import { countActiveCategories } from '@/lib/categories'
 import { isUniqueViolation } from '@/lib/errors'
 import { today } from '@/lib/clock'
 import { toTestIdSuffix } from '@/lib/utils'
-import { categoryDeletionSummary } from '@/domain/deletion'
 import { DEFAULT_BALANCE_OPTIONS, type BalanceOptions } from '@/domain/balance'
 import { validateFxRateInput } from '@/domain/fx'
 import { formatRate, parseMoney } from '@/domain/money'
@@ -68,7 +55,7 @@ export function SettingsPage() {
     <div className="mx-auto flex w-full max-w-xl flex-col gap-10">
       <PageHeader title="Ajustes" testId="settings-title" className="pb-0 lg:pb-0" />
       <AppearanceSection />
-      <CategoriesSection />
+      <CategoriesLink />
       <AccountsSection />
       <FxRatesSection />
       <SummarySection />
@@ -104,6 +91,32 @@ function AppearanceSection() {
         options={THEME_OPTIONS.map((option) => ({ ...option, testId: `settings-theme-${option.value}` }))}
       />
     </GroupedSection>
+  )
+}
+
+/** ADR-055: las categorías tienen su propia pantalla; acá queda la fila que lleva a ella, con cuántas hay. */
+function CategoriesLink() {
+  const [active, setActive] = useState<number | null>(null)
+  useEffect(() => {
+    countActiveCategories().then(setActive).catch(() => {})
+  }, [])
+  return (
+    <GroupedCard>
+      <Link
+        to="/settings/categories"
+        data-testid="settings-nav-categories"
+        className="press flex min-h-14 w-full items-center gap-3 px-4 text-callout font-medium text-foreground hover:bg-accent"
+      >
+        <Tags aria-hidden="true" className="size-[1.125rem]" strokeWidth={1.8} />
+        <span className="min-w-0 flex-1">Categorías</span>
+        {active !== null && (
+          <span data-testid="settings-categories-active-count" className="text-footnote font-normal text-muted-foreground">
+            {active} {active === 1 ? 'activa' : 'activas'}
+          </span>
+        )}
+        <ChevronRight aria-hidden="true" strokeWidth={1.6} className="size-4 shrink-0 text-muted-foreground" />
+      </Link>
+    </GroupedCard>
   )
 }
 
@@ -237,296 +250,13 @@ function FxRatesSection() {
   )
 }
 
-function CategoriesSection() {
-  const [categories, setCategories] = useState<Category[] | null>(null)
-  const [archived, setArchived] = useState<Category[]>([])
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  // DEF-025: el error de la edición va en la fila que se edita, no en el formulario de alta.
-  const [editError, setEditError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  // US-89: la categoría que se quiere borrar y cuánto la usa, para la confirmación.
-  const [deleting, setDeleting] = useState<{ category: Category; transactions: number; subscriptions: number } | null>(null)
-
-  useEffect(() => {
-    listActiveCategories().then(setCategories).catch((e: Error) => setError(e.message))
-    listArchivedCategories().then(setArchived).catch(() => {})
-  }, [])
-
-  function startEditing(id: string | null) {
-    setEditError(null)
-    setEditingId(id)
-  }
-
-  // DEF-026: reactivar deshace el archivado; si ya hay una activa con ese nombre, lo dice.
-  async function onUnarchive(category: Category) {
-    setError(null)
-    try {
-      await unarchiveCategory(category.id)
-      setArchived((prev) => prev.filter((c) => c.id !== category.id))
-      setCategories((prev) => [...(prev ?? []), { ...category, archived_at: null }].sort((a, b) => a.name.localeCompare(b.name)))
-    } catch (err) {
-      setError(isUniqueViolation(err) ? `Ya hay una categoría activa llamada «${category.name}»` : 'No se pudo reactivar la categoría')
-    }
-  }
-
-  // US-89: cuenta el uso antes de confirmar; la regla real (rechazar con uso) la aplica Postgres (C6).
-  async function onAskDelete(category: Category) {
-    setError(null)
-    try {
-      setDeleting({ category, ...(await countCategoryUsage(category.id)) })
-    } catch {
-      setError('No se pudo consultar el uso de la categoría')
-    }
-  }
-
-  async function onConfirmDelete() {
-    if (!deleting) return
-    try {
-      await deleteCategory(deleting.category.id)
-      const id = deleting.category.id
-      setCategories((prev) => prev?.filter((c) => c.id !== id) ?? null)
-      setArchived((prev) => prev.filter((c) => c.id !== id))
-      setDeleting(null)
-      toast.success('Categoría eliminada', { testId: 'settings-categories-deleted' })
-    } catch (err) {
-      setDeleting(null)
-      setError((err as { message?: string }).message || 'No se pudo eliminar la categoría')
-    }
-  }
-
-  async function onCreate(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError(null)
-    // e.currentTarget queda null después del primer await (fin del dispatch nativo);
-    // se guarda la referencia acá para poder resetear el form más abajo.
-    const formEl = e.currentTarget
-    const form = new FormData(formEl)
-    const name = String(form.get('name')).trim()
-    const color = String(form.get('color') || CATEGORY_COLOR_PALETTE[0])
-    if (!name) return setError('El nombre es obligatorio')
-    setSubmitting(true)
-    try {
-      const category = await createCategory({ name, color })
-      setCategories((prev) => [...(prev ?? []), category].sort((a, b) => a.name.localeCompare(b.name)))
-      formEl.reset()
-    } catch (err) {
-      setError(isUniqueViolation(err) ? 'Ya existe una categoría activa con ese nombre' : 'No se pudo guardar la categoría')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  async function onSave(id: string, changes: { name: string; color: string }) {
-    setEditError(null)
-    try {
-      await updateCategory(id, changes)
-      setCategories(
-        (prev) =>
-          prev
-            ?.map((c) => (c.id === id ? { ...c, ...changes } : c))
-            .sort((a, b) => a.name.localeCompare(b.name)) ?? null,
-      )
-      setEditingId(null)
-    } catch (err) {
-      setEditError(isUniqueViolation(err) ? 'Ya existe una categoría activa con ese nombre' : 'No se pudo guardar la categoría')
-    }
-  }
-
-  async function onArchive(id: string) {
-    setError(null)
-    try {
-      const archivedAt = today().toISOString()
-      await archiveCategory(id, archivedAt)
-      const category = categories?.find((c) => c.id === id)
-      if (category) setArchived((prev) => [...prev, { ...category, archived_at: archivedAt }].sort((a, b) => a.name.localeCompare(b.name)))
-      setCategories((prev) => prev?.filter((c) => c.id !== id) ?? null)
-    } catch {
-      setError('No se pudo archivar la categoría')
-    }
-  }
-
-  return (
-    <GroupedSection title="Categorías">
-      <GroupedCard>
-        <ul data-testid="settings-categories-list" className="contents">
-          {(categories ?? []).map((category) =>
-            editingId === category.id ? (
-              <CategoryEditRow
-                key={category.id}
-                category={category}
-                error={editError}
-                onSave={(changes) => onSave(category.id, changes)}
-                onCancel={() => startEditing(null)}
-              />
-            ) : (
-              <li key={category.id} className="flex min-h-16 items-center gap-3 py-2 pr-1.5 pl-4">
-                {/* ADR-052: el nombre abre la edición (con el lápiz como pista), así quedan dos íconos y el
-                    nombre entra entero a 360 px. */}
-                <button
-                  type="button"
-                  data-testid={`settings-categories-edit-${toTestIdSuffix(category.name)}`}
-                  aria-label={`Editar ${category.name}`}
-                  className="press -my-2 -ml-2 flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl py-2 pl-2 text-left hover:bg-accent/60"
-                  onClick={() => startEditing(category.id)}
-                >
-                  <CategoryIcon name={category.name} color={category.color} />
-                  <span className="min-w-0 flex-1 text-callout font-medium break-words">{category.name}</span>
-                  <Pencil aria-hidden="true" strokeWidth={1.6} className="mr-1 size-4 shrink-0 text-muted-foreground" />
-                </button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  data-testid={`settings-categories-archive-${toTestIdSuffix(category.name)}`}
-                  aria-label={`Archivar ${category.name}`}
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={() => onArchive(category.id)}
-                >
-                  <Archive strokeWidth={1.6} />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  data-testid={`settings-categories-delete-${toTestIdSuffix(category.name)}`}
-                  aria-label={`Eliminar ${category.name}`}
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => onAskDelete(category)}
-                >
-                  <Trash2 strokeWidth={1.6} />
-                </Button>
-              </li>
-            ),
-          )}
-        </ul>
-      </GroupedCard>
-      <form onSubmit={onCreate} data-testid="settings-categories-form" className="mt-2 flex flex-col gap-4 rounded-2xl bg-card p-5">
-        <div className="grid gap-1.5">
-          <Label htmlFor="settings-categories-name">Nueva categoría</Label>
-          <Input id="settings-categories-name" name="name" required data-testid="settings-categories-name" placeholder="Tecnología" />
-        </div>
-        <ColorSwatchPicker name="color" defaultColor={CATEGORY_COLOR_PALETTE[0]} testId="settings-categories-color" />
-        {error && <p role="alert" data-testid="settings-categories-error" className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" disabled={submitting} data-testid="settings-categories-submit">
-          Crear categoría
-        </Button>
-      </form>
-      {/* DEF-026: sin esto, archivar era de ida. */}
-      {archived.length > 0 && (
-        <div className="mt-4 flex flex-col gap-2">
-          <h3 className="px-1 text-footnote font-semibold text-muted-foreground">Archivadas</h3>
-          <GroupedCard>
-            <ul data-testid="settings-categories-archived-list" className="contents">
-              {archived.map((category, i) => (
-                <li key={category.id} className="flex min-h-16 items-center gap-3 py-2 pr-1.5 pl-4">
-                  <CategoryIcon name={category.name} color={category.color} />
-                  <span className="min-w-0 flex-1 text-callout font-medium break-words text-muted-foreground">{category.name}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    data-testid={uniqueTestId(`settings-categories-unarchive-${toTestIdSuffix(category.name)}`, archived, i)}
-                    aria-label={`Reactivar ${category.name}`}
-                    className="text-muted-foreground hover:text-foreground"
-                    onClick={() => onUnarchive(category)}
-                  >
-                    <ArchiveRestore strokeWidth={1.6} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    data-testid={uniqueTestId(`settings-categories-delete-archived-${toTestIdSuffix(category.name)}`, archived, i)}
-                    aria-label={`Eliminar ${category.name}`}
-                    className="text-muted-foreground hover:text-destructive"
-                    onClick={() => onAskDelete(category)}
-                  >
-                    <Trash2 strokeWidth={1.6} />
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </GroupedCard>
-        </div>
-      )}
-      <ConfirmDialog
-        isOpen={deleting !== null}
-        title="¿Eliminar categoría?"
-        summary={deleting ? categoryDeletionSummary(deleting.category.name, deleting) : undefined}
-        confirmLabel="Eliminar"
-        busyLabel="Eliminando…"
-        testId="settings-categories-delete-dialog"
-        onConfirm={onConfirmDelete}
-        onClose={() => setDeleting(null)}
-      >
-        {deleting && (deleting.transactions > 0 || deleting.subscriptions > 0) ? (
-          <p data-testid="settings-categories-delete-impact" className="font-medium text-destructive">
-            No se puede eliminar una categoría en uso. Archivala si no la querés ver más.
-          </p>
-        ) : (
-          <p data-testid="settings-categories-delete-impact">Se borra para siempre y su nombre queda libre.</p>
-        )}
-      </ConfirmDialog>
-    </GroupedSection>
-  )
-}
-
 /**
- * Puede haber dos archivadas con el mismo nombre (archivar "Salud", crear otra "Salud" y archivarla):
- * la segunda lleva un sufijo para que su data-testid siga siendo único (DEF-015).
+ * Puede haber dos archivadas con el mismo nombre (archivar "Efectivo", crear otra y archivarla): la segunda
+ * lleva un sufijo para que su data-testid siga siendo único (DEF-015).
  */
 function uniqueTestId(base: string, items: readonly { name: string }[], index: number): string {
   const repeats = items.slice(0, index).filter((item) => toTestIdSuffix(item.name) === toTestIdSuffix(items[index].name)).length
   return repeats === 0 ? base : `${base}-${repeats + 1}`
-}
-
-function CategoryEditRow({
-  category,
-  error,
-  onSave,
-  onCancel,
-}: {
-  category: Category
-  error: string | null
-  onSave: (changes: { name: string; color: string }) => void
-  onCancel: () => void
-}) {
-  const [name, setName] = useState(category.name)
-  const [color, setColor] = useState(category.color ?? CATEGORY_COLOR_PALETTE[0])
-  return (
-    <li className="mx-1.5 my-1 flex flex-col gap-3 rounded-xl bg-secondary/60 p-4">
-      <Input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        data-testid="settings-categories-edit-name"
-        aria-label="Nombre de la categoría"
-      />
-      <ColorSwatchPicker
-        value={color}
-        onChange={setColor}
-        testId="settings-categories-edit-color"
-      />
-      {error && (
-        <p role="alert" data-testid="settings-categories-edit-error" className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" size="sm" onClick={onCancel} data-testid="settings-categories-cancel">
-          Cancelar
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => name.trim() && onSave({ name: name.trim(), color })}
-          data-testid="settings-categories-save"
-        >
-          Guardar
-        </Button>
-      </div>
-    </li>
-  )
 }
 
 /**
@@ -598,45 +328,6 @@ function AccountEditRow({
         </Button>
       </div>
     </li>
-  )
-}
-
-function ColorSwatchPicker({
-  name,
-  value,
-  defaultColor,
-  onChange,
-  testId,
-}: {
-  name?: string
-  value?: string
-  defaultColor?: string
-  onChange?: (color: string) => void
-  testId: string
-}) {
-  const [internal, setInternal] = useState(value ?? defaultColor ?? CATEGORY_COLOR_PALETTE[0])
-  const current = value ?? internal
-  function select(color: string) {
-    setInternal(color)
-    onChange?.(color)
-  }
-  return (
-    <div className="flex flex-wrap gap-2.5" data-testid={testId} role="radiogroup" aria-label="Color">
-      {name && <input type="hidden" name={name} value={current} />}
-      {CATEGORY_COLOR_PALETTE.map((color) => (
-        <button
-          key={color}
-          type="button"
-          role="radio"
-          aria-checked={current === color}
-          aria-label={color}
-          data-testid={`${testId}-${color.slice(1).toLowerCase()}`} // DEF-015
-          onClick={() => select(color)}
-          className="press size-10 rounded-full ring-offset-2 ring-offset-card outline-none aria-checked:ring-2 aria-checked:ring-foreground focus-visible:ring-2 focus-visible:ring-ring"
-          style={{ backgroundColor: color }}
-        />
-      ))}
-    </div>
   )
 }
 

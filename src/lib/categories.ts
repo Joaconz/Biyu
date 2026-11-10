@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type { Database } from './database.types'
+import { addMonths, toDbDate, type Period } from '@/domain/period'
 import { CATEGORY_PALETTE } from './visuals'
 
 export type Category = Database['public']['Tables']['categories']['Row']
@@ -18,13 +19,13 @@ export async function listActiveCategories(): Promise<Category[]> {
   return data
 }
 
-export async function createCategory(input: { name: string; color: string }): Promise<Category> {
+export async function createCategory(input: { name: string; color: string; icon: string | null }): Promise<Category> {
   const { data, error } = await supabase.from('categories').insert(input).select().single()
   if (error) throw error
   return data
 }
 
-export async function updateCategory(id: string, changes: { name?: string; color?: string }): Promise<void> {
+export async function updateCategory(id: string, changes: { name?: string; color?: string; icon?: string | null }): Promise<void> {
   const { error } = await supabase.from('categories').update(changes).eq('id', id)
   if (error) throw error
 }
@@ -70,4 +71,32 @@ export async function countCategoryUsage(id: string): Promise<{ transactions: nu
 export async function deleteCategory(id: string): Promise<void> {
   const { error } = await supabase.rpc('delete_category', { p_category_id: id })
   if (error) throw error
+}
+
+/**
+ * Cuántos movimientos tiene cada categoría en el mes, para la pantalla de Categorías. Cuenta por `occurred_on` y
+ * deja afuera los dados de baja (C10, I10). Devuelve `category_id → cantidad`; las que no aparecen tienen cero.
+ */
+export async function countCategoryMovementsInPeriod(period: Period): Promise<Record<string, number>> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('category_id')
+    .gte('occurred_on', toDbDate(period))
+    .lt('occurred_on', toDbDate(addMonths(period, 1)))
+    .is('deleted_at', null)
+    .not('category_id', 'is', null)
+  if (error) throw error
+  const counts: Record<string, number> = {}
+  for (const row of data) if (row.category_id) counts[row.category_id] = (counts[row.category_id] ?? 0) + 1
+  return counts
+}
+
+/** Cuántas categorías activas hay, para la fila de Ajustes («8 activas»). */
+export async function countActiveCategories(): Promise<number> {
+  const { count, error } = await supabase
+    .from('categories')
+    .select('id', { count: 'exact', head: true })
+    .is('archived_at', null)
+  if (error) throw error
+  return count ?? 0
 }

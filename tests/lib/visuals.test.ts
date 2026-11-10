@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORY_PALETTE, categoryIconKey, darkCategoryColor, displayCategoryColor, fitAmountFontSize, sortCategoriesForGrid, splitAmountText } from '@/lib/visuals'
+import { CATEGORY_ICON_KEYS, CATEGORY_PALETTE, categoryIconKey, categoryMonthMovementsLabel, resolveCategoryIconKey, darkCategoryColor, displayCategoryColor, fitAmountFontSize, sortCategoriesForGrid, splitAmountText } from '@/lib/visuals'
 
 describe('displayCategoryColor', () => {
   it('traduce la paleta saturada anterior a la apagada, sin importar mayúsculas', () => {
@@ -19,9 +19,39 @@ describe('displayCategoryColor', () => {
 
 describe('categoryIconKey', () => {
   it('ícono para las sembradas, normalizando acentos; null para las propias', () => {
-    expect(categoryIconKey('Educación')).toBe('education')
-    expect(categoryIconKey('Comida y supermercado')).toBe('basket')
+    expect(categoryIconKey('Educación')).toBe('graduation-cap')
+    expect(categoryIconKey('Comida y supermercado')).toBe('shopping-basket')
     expect(categoryIconKey('Mascotas')).toBeNull()
+  })
+})
+
+describe('resolveCategoryIconKey (ADR-055)', () => {
+  it('el ícono guardado manda sobre el nombre', () => {
+    expect(resolveCategoryIconKey('paw-print', 'Mascotas')).toBe('paw-print')
+    expect(resolveCategoryIconKey('car', 'Salud')).toBe('car')
+  })
+
+  it('sin ícono guardado, el de la sembrada por nombre; si no, null (punto de color)', () => {
+    expect(resolveCategoryIconKey(null, 'Salud')).toBe('heart-pulse')
+    expect(resolveCategoryIconKey(undefined, 'Educación')).toBe('graduation-cap')
+    expect(resolveCategoryIconKey(null, 'Mascotas')).toBeNull()
+  })
+
+  it('una clave que el catálogo no conoce no rompe: cae al nombre o al punto', () => {
+    expect(resolveCategoryIconKey('no-existe', 'Transporte')).toBe('bus')
+    expect(resolveCategoryIconKey('no-existe', 'Mascotas')).toBeNull()
+  })
+
+  it('todas las claves del catálogo tienen la forma que acepta Postgres', () => {
+    for (const key of CATEGORY_ICON_KEYS) expect(key).toMatch(/^[a-z0-9-]{1,40}$/)
+  })
+})
+
+describe('categoryMonthMovementsLabel', () => {
+  it('singular, plural y sin movimientos', () => {
+    expect(categoryMonthMovementsLabel(0, 'octubre')).toBe('Sin movimientos en octubre')
+    expect(categoryMonthMovementsLabel(1, 'octubre')).toBe('1 movimiento en octubre')
+    expect(categoryMonthMovementsLabel(12, 'octubre')).toBe('12 movimientos en octubre')
   })
 })
 

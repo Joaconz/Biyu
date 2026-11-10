@@ -23,8 +23,8 @@ export function CategorySection({
         // DEF-026: si archivó todas, no se vuelven a sembrar (DEF-010); hay que decir dónde se arregla.
         <p data-testid="transaction-form-category-empty" className="text-callout text-muted-foreground">
           No tenés categorías activas. Creá una o reactivá una archivada en{' '}
-          <Link to="/settings" data-testid="transaction-form-category-empty-settings" className="font-medium text-primary underline">
-            Ajustes
+          <Link to="/settings/categories" data-testid="transaction-form-category-empty-settings" className="font-medium text-primary underline">
+            Categorías
           </Link>
           .
         </p>
@@ -38,7 +38,7 @@ export function CategorySection({
           value={values.categoryId}
           onChange={(id) => onChange({ categoryId: id })}
           onPick={onPick}
-          renderIcon={(category) => <CategoryIcon name={category.name} color={category.color} />}
+          renderIcon={(category) => <CategoryIcon name={category.name} color={category.color} icon={category.icon} />}
         />
       )}
       <FieldError id={errorId} message={errors.categoryId} active={!!touched.categoryId} />

@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthForm } from '@/pages/AuthForm'
+import { CategoriesPage } from '@/pages/CategoriesPage'
 import { CategoryDetailPage } from '@/pages/CategoryDetailPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { DebtFormPage } from '@/pages/DebtFormPage'
@@ -49,6 +50,8 @@ export const router = installViewTransitions(createBrowserRouter([
           { path: '/subscriptions/:id', element: <SubscriptionDetailPage /> },
           { path: '/subscriptions/:id/edit', element: <EditSubscriptionPage /> },
           { path: '/settings', element: <SettingsPage /> },
+          // ADR-055: las categorías, bajo /settings, así la barra sigue marcando Ajustes.
+          { path: '/settings/categories', element: <CategoriesPage /> },
         ],
       },
     ],

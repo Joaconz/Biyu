@@ -3,7 +3,7 @@
 **Estado:** propuesta · **Fecha:** 2026-11
 **Relacionada:** ADR-023 (reemplaza sus puntos «Solo modo claro», «Sin sombras ni degradados», los radios de
 8 px y la lista con filetes), ADR-048 (cambia el color de la barra, no su forma), ADR-051 (el desglose del
-Balance pasa a la hoja) · US-25, US-38, US-84, US-101
+Balance pasa a la hoja), ADR-055 (reemplaza, en el punto 6, la fila de categoría en Ajustes) · US-25, US-38, US-84, US-101
 
 ## Contexto
 
@@ -43,7 +43,8 @@ protagonista por tarjeta, superficies grandes y redondeadas, poco texto, filas a
    siempre (US-94). La marca de suscripción queda por encima y sigue llevando a su detalle (US-61). En
    «Eliminados» la fila conserva Restaurar y Eliminar definitivamente (US-85). En Deudas las acciones van
    en un renglón al pie de cada tarjeta. En Ajustes, el nombre de la categoría abre su edición (el lápiz
-   queda como pista), así entra entero a 360 px.
+   queda como pista), así entra entero a 360 px. _ADR-055 reemplaza esto último: las categorías pasan a su
+   propia pantalla y el renglón entero abre una hoja de edición._
 7. **Movimientos es una lista continua.** Una sola tarjeta con el día como rótulo de cada tramo. El mes y el
    filtro Activos/Eliminados van centrados debajo del título, y «‹ Resumen» sube arriba del título grande.
 8. **Colores de categoría en oscuro.** La paleta apagada se aclara con 30 % de blanco

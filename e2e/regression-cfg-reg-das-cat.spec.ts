@@ -32,6 +32,8 @@ const count = async (api: Api, table: string) => ((await api.select(table, 'sele
 test('CP-CFG-001 · crear una categoría con nombre y color', async ({ page, request }) => {
   const s = await setup(page, request, 'cfg-001')
   await page.goto('/settings')
+  await page.getByTestId('settings-nav-categories').click()
+  await page.getByTestId('settings-categories-new').click()
   await page.getByTestId('settings-categories-name').fill('Mascotas')
   await page.getByTestId('settings-categories-color').getByRole('radio').nth(2).click()
   await page.getByTestId('settings-categories-submit').click()
