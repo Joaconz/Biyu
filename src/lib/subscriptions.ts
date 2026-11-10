@@ -10,7 +10,7 @@ import { supabase } from './supabase'
 const SUBSCRIPTION_COLUMNS = `
   id, name, amount_text:amount::text, currency, category_id, account_id, billing_day, start_period, end_period, generate_from_period, status,
   paused_at, cancelled_at, description,
-  category:categories!subscriptions_category_fk (name),
+  category:categories!subscriptions_category_fk (name, color),
   account:accounts!subscriptions_account_fk (name)
 `
 
@@ -29,7 +29,7 @@ interface SubscriptionRow {
   paused_at: string | null
   cancelled_at: string | null
   description: string | null
-  category: { name: string } | null
+  category: { name: string; color: string | null } | null
   account: { name: string } | null
 }
 
@@ -42,6 +42,7 @@ function toRecord(row: SubscriptionRow): SubscriptionRecord {
     currency: row.currency,
     categoryId: row.category_id,
     categoryName: row.category?.name ?? '',
+    categoryColor: row.category?.color ?? null,
     accountId: row.account_id,
     accountName: row.account?.name ?? '',
     billingDay: row.billing_day,

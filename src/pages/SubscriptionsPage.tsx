@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { CommittedCard } from '@/components/subscriptions/CommittedCard'
+import { SubscriptionCharts } from '@/components/subscriptions/SubscriptionCharts'
 import { SubscriptionItem } from '@/components/subscriptions/SubscriptionItem'
 import { buttonVariants } from '@/components/ui/button'
 import { committedMonthlyTotal, groupSubscriptions } from '@/domain/subscriptions'
@@ -60,9 +61,12 @@ export function SubscriptionsPage() {
           <>
             {/* Es una estimación: si hay USD y no se pudieron leer los tipos de cambio, no se muestra (ADR-031). */}
             {(state.fxRates || !state.subscriptions.some((s) => s.currency === 'USD')) && (
-              <CommittedCard
-                committed={committedMonthlyTotal(state.subscriptions, state.fxRates ?? new Map(), today)}
-              />
+              <>
+                <CommittedCard
+                  committed={committedMonthlyTotal(state.subscriptions, state.fxRates ?? new Map(), today)}
+                />
+                <SubscriptionCharts subscriptions={state.subscriptions} fxRates={state.fxRates ?? new Map()} today={today} />
+              </>
             )}
             <div className="flex flex-col gap-6">
               {groupSubscriptions(state.subscriptions).map((group) => (
