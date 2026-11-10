@@ -1,9 +1,9 @@
 # ADR-052 — Rebranding esmeralda, con tema claro y oscuro
 
-**Estado:** propuesta · **Fecha:** 2026-11
+**Estado:** propuesta; lo que dice del Balance (su tarjeta con número e insignia) lo reemplaza [ADR-053](053-un-solo-numero-de-gasto-neto-en-el-resumen.md) · **Fecha:** 2026-11
 **Relacionada:** ADR-023 (reemplaza sus puntos «Solo modo claro», «Sin sombras ni degradados», los radios de
 8 px y la lista con filetes), ADR-048 (cambia el color de la barra, no su forma), ADR-051 (el desglose del
-Balance pasa a la hoja) · US-25, US-38, US-84, US-101
+Balance pasa a la hoja), ADR-053 (la tarjeta de Balance desaparece) · US-25, US-38, US-84, US-101
 
 ## Contexto
 

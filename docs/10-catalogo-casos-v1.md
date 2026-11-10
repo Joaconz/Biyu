@@ -366,12 +366,12 @@ Resultado esperado: Un total por cuenta que coincide con la suma manual de sus t
 **CP-DAS-006** — US-29 · FR-20 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Media · Automatizable: Sí
 Precondiciones: Ingresos de $200.000 y gastos de $150.000 en el mes.
 Pasos: 1) Ver ingresos y balance.
-Resultado esperado: Ingresos = $200.000, balance = +$50.000.
+Resultado esperado: Ingresos = $200.000, balance = +$50.000. *(Desactualizado por ADR-053: ya no hay tarjeta de balance. Con los ingresos incluidos, el gasto neto del héroe es −$50.000. Pendiente de reescritura.)*
 
 **CP-DAS-007** — US-29 · FR-20 · Inv.: — · Técnica: Valores límite · Tipo: Límite · Prioridad: Baja · Automatizable: Sí
 Precondiciones: Gastos de $200.000 e ingresos de $50.000.
 Pasos: 1) Ver el balance.
-Resultado esperado: Balance = -$150.000, mostrado con signo negativo explícito, no como un total confuso.
+Resultado esperado: Balance = -$150.000, mostrado con signo negativo explícito, no como un total confuso. *(Desactualizado por ADR-053: con los ingresos incluidos, el gasto neto del héroe es +$150.000. Pendiente de reescritura.)*
 
 **CP-DAS-008** — US-31 · FR-20 · Inv.: — · Técnica: Caso de uso · Tipo: Positivo · Prioridad: Media · Automatizable: Sí
 Precondiciones: 15 transacciones en el mes.

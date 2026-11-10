@@ -2,9 +2,9 @@ import type { ReactNode } from 'react'
 import { CalendarCheck, CirclePlus, FileSpreadsheet, Plus, ReceiptText, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router'
 import { AccountExpenseBreakdown } from '@/components/dashboard/AccountExpenseBreakdown'
-import { BalanceCard } from '@/components/dashboard/BalanceCard'
 import { CategoryExpenseBars } from '@/components/dashboard/CategoryExpenseBars'
 import { DashboardTrends } from '@/components/dashboard/DashboardTrends'
+import { SpentHero } from '@/components/dashboard/SpentHero'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Amount } from '@/components/shared/Amount'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
@@ -13,7 +13,7 @@ import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { PendingSubscriptionsCard } from '@/components/dashboard/PendingSubscriptionsCard'
 import { DashboardSkeleton, ListSkeleton } from '@/components/skeletons/Skeleton'
 import { buttonVariants } from '@/components/ui/button'
-import { formatArs, formatUsd } from '@/domain/money'
+import { formatArs } from '@/domain/money'
 import { daysElapsedInPeriod, formatPeriod, formatPeriodLong } from '@/domain/period'
 import { useBalanceOptionsSaver } from '@/hooks/useBalanceOptionsSaver'
 import { useDashboardTrends } from '@/hooks/useDashboardTrends'
@@ -23,19 +23,18 @@ import { usePendingSubscriptionCharges } from '@/hooks/usePendingSubscriptionCha
 import { usePeriodParam } from '@/hooks/usePeriodParam'
 import { today } from '@/lib/clock'
 import { cn } from '@/lib/utils'
-import { fitAmountFontSize } from '@/lib/visuals'
 
 export function DashboardPage() {
   const { period, setPeriod, shift } = usePeriodParam()
-  // ADR-051: la tarjeta de Balance cambia qué entra en el balance; el resumen se recalcula con eso al instante.
+  // ADR-053: el héroe cambia qué entra en el gasto neto; el resumen se recalcula con eso al instante.
   const balanceSaver = useBalanceOptionsSaver()
   const summaryState = useMonthlySummary(period, balanceSaver.edited)
   const transactionsState = useMonthlyTransactions(period, 10)
   const trendsState = useDashboardTrends(period)
   const pendingCharges = usePendingSubscriptionCharges(period)
   // US-33: un mes sin imputaciones muestra el acceso al registro en vez de un dashboard de ceros.
-  // ADR-051: un mes con deudas sueltas que el usuario dejó afuera tampoco es vacío: la tarjeta de Balance las
-  // muestra «fuera del balance» y sacarlas no hace desaparecer la tarjeta que se está tocando.
+  // ADR-053: un mes con deudas sueltas que el usuario dejó afuera tampoco es vacío: el héroe las muestra
+  // «fuera del número» y sacarlas no hace desaparecer la tarjeta que se está tocando.
   const isEmpty =
     summaryState.status === 'ready' && !summaryState.summary.hasData && !summaryState.summary.looseDebtActivity
   const monthName = formatPeriodLong(period).split(' ')[0]
@@ -47,8 +46,8 @@ export function DashboardPage() {
       </PageHeader>
 
       {/*
-        ADR-045: lo que las suscripciones todavía van a cobrar. Con el Resumen cargado es una línea de la
-        tarjeta de Balance (ADR-051); la tarjeta suelta queda para el mes vacío o si el resumen no cargó.
+        ADR-045: lo que las suscripciones todavía van a cobrar. Con el Resumen cargado es una línea del
+        desglose del héroe (ADR-053); la tarjeta suelta queda para el mes vacío o si el resumen no cargó.
       */}
       {(isEmpty || summaryState.status === 'error') && <PendingSubscriptionsCard pending={pendingCharges} period={period} />}
 
@@ -86,55 +85,28 @@ export function DashboardPage() {
       {summaryState.status === 'ready' && !isEmpty && (() => {
         const { summary, daysWithTransactions, balanceOptions } = summaryState
         const elapsed = daysElapsedInPeriod(period, today())
-        const expensesText = formatArs(summary.expenses)
         const periodParam = formatPeriod(period)
         return (
           <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-start lg:gap-5">
             {/*
-              ADR-052: la protagonista. Un solo número (lo gastado, US-25) sobre la única superficie con brillo,
-              esmeralda en los dos temas, y los accesos de todos los días debajo.
+              ADR-052/ADR-053: la protagonista. Un solo número (lo gastado, US-25, o el gasto neto si el usuario
+              incluye ingresos, deudas, reembolsos o suscripciones por cobrar) sobre la única superficie con
+              brillo, y los accesos de todos los días debajo. El balance de antes ya no tiene tarjeta.
             */}
-            <section
-              data-testid="dashboard-total"
-              aria-labelledby="dashboard-total-label"
-              className="hero @container flex flex-col items-center gap-7 rounded-3xl px-6 pt-8 pb-6 text-center ring-1 ring-hero-foreground/8 ring-inset lg:row-span-2 lg:px-10 lg:pt-12 lg:pb-8"
-            >
-              <div className="flex w-full flex-col items-center gap-2">
-                <span id="dashboard-total-label" className="text-footnote font-medium text-hero-muted first-letter:uppercase">
-                  Gastado en {monthName}
-                </span>
-                <Amount
-                  data-testid="dashboard-total-expenses"
-                  text={expensesText}
-                  className="block max-w-full font-bold whitespace-nowrap text-amount [--amount-max:var(--text-amount)] lg:[--amount-max:4.5rem]"
-                  // DEF-021: achica según el largo del total para que entre en una línea a cualquier ancho.
-                  style={{ fontSize: fitAmountFontSize(expensesText) }}
-                />
-                {summary.expensesUsd.gt(0) && (
-                  <span
-                    data-testid="dashboard-total-usd"
-                    className="tabular mt-1 rounded-full bg-hero-foreground/8 px-3 py-1 text-footnote text-hero-muted"
-                  >
-                    Incluye {formatUsd(summary.expensesUsd)} en dólares
-                  </span>
-                )}
-              </div>
-              <nav aria-label="Accesos rápidos" className="grid w-full max-w-xs grid-cols-3 gap-2">
-                <QuickAction to="/register" testId="dashboard-action-register" icon={Plus} label="Registrar" primary />
-                <QuickAction to={`/transactions?period=${periodParam}`} testId="dashboard-action-transactions" icon={ReceiptText} label="Movimientos" />
-                <QuickAction to="/import" testId="dashboard-action-import" icon={FileSpreadsheet} label="Importar" />
-              </nav>
-            </section>
-
-            {/* US-29, US-101, ADR-051/052: el balance como un número; su desglose y qué entra se abren desde la fórmula. */}
-            <BalanceCard
+            <SpentHero
               summary={summary}
               options={balanceOptions}
               pending={pendingCharges}
               period={period}
               monthName={monthName}
               onOptionsChange={(next) => balanceSaver.save(next, balanceOptions)}
-            />
+            >
+              <nav aria-label="Accesos rápidos" className="grid w-full max-w-xs grid-cols-3 gap-2">
+                <QuickAction to="/register" testId="dashboard-action-register" icon={Plus} label="Registrar" primary />
+                <QuickAction to={`/transactions?period=${periodParam}`} testId="dashboard-action-transactions" icon={ReceiptText} label="Movimientos" />
+                <QuickAction to="/import" testId="dashboard-action-import" icon={FileSpreadsheet} label="Importar" />
+              </nav>
+            </SpentHero>
 
             {/* Lo que antes se apilaba en la protagonista, en datos chicos: un rótulo y un número cada uno. */}
             <div className="grid grid-cols-2 gap-4">

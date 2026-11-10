@@ -7,6 +7,7 @@ import {
   type SummaryEntry,
 } from '@/domain/summary'
 import { generateLedgerEntries } from '@/domain/installments'
+import { ONLY_EXPENSES } from '@/domain/balance'
 import { Decimal } from '@/domain/money'
 import { formatPeriod } from '@/domain/period'
 
@@ -16,27 +17,29 @@ const entry = (o: Partial<SummaryEntry> & { tx?: Partial<SummaryEntry['transacti
   ...o,
 })
 const P = { year: 2026, month: 9 }
+// ADR-053: con los ingresos incluidos el número es gastos − ingresos (el balance de antes, con el signo al revés).
+const WITH_INCOME = { ...ONLY_EXPENSES, income: true }
 
 describe('computeMonthlySummary', () => {
   it('período vacío: todo en cero y hasData en false', () => {
     const s = computeMonthlySummary([], [], P)
     expect(s.expenses.toFixed(2)).toBe('0.00')
     expect(s.expensesUsd.toFixed(2)).toBe('0.00')
-    expect(s.balance.toFixed(2)).toBe('0.00')
+    expect(s.netSpent.toFixed(2)).toBe('0.00')
     expect(s.byCategory.size).toBe(0)
     expect(s.hasData).toBe(false)
     expect(hasMonthlyData(s)).toBe(false)
   })
-  it('gastos, ingresos y balance; ignora otros períodos', () => {
+  it('gastos, ingresos y gasto neto; ignora otros períodos', () => {
     const s = computeMonthlySummary([
       entry({ amount_ars: '300.10' }),
       entry({ amount_ars: '0.20', tx: { category_id: 'c2' } }),
       entry({ amount_ars: '1000', tx: { type: 'income', category_id: null } }),
       entry({ period: '2026-08-01', amount_ars: '999' }),
-    ], [], P)
+    ], [], P, [], WITH_INCOME)
     expect(s.expenses.toFixed(2)).toBe('300.30')
     expect(s.income.toFixed(2)).toBe('1000.00')
-    expect(s.balance.toFixed(2)).toBe('699.70')
+    expect(s.netSpent.toFixed(2)).toBe('-699.70')
     expect(s.byCategory.get('c2')!.toFixed(2)).toBe('0.20')
   })
   it('las transacciones borradas no cuentan (I10)', () => {
@@ -463,7 +466,7 @@ describe('computeMonthlySummary', () => {
     expect(s.accountExpenses[1].isArchived).toBe(true)
   })
 
-  it('US-29: total de ingresos y balance (ingresos - gastos) positivo cuando ingresos > gastos', () => {
+  it('US-29, ADR-053: con ingresos incluidos y ingresos > gastos el gasto neto es negativo (sobra plata)', () => {
     const s = computeMonthlySummary(
       [
         // Ingreso sueldo: 350.000
@@ -475,16 +478,18 @@ describe('computeMonthlySummary', () => {
       ],
       [],
       P,
+      [],
+      WITH_INCOME,
     )
 
-    // Ingresos: 400.000, Gastos: 120.000, Balance: 280.000
+    // Ingresos: 400.000, Gastos: 120.000, gasto neto: 120.000 − 400.000 = −280.000
     expect(s.income.toFixed(2)).toBe('400000.00')
     expect(s.expenses.toFixed(2)).toBe('120000.00')
-    expect(s.balance.toFixed(2)).toBe('280000.00')
-    expect(s.balance.isPositive()).toBe(true)
+    expect(s.netSpent.toFixed(2)).toBe('-280000.00')
+    expect(s.netSpent.isNegative()).toBe(true)
   })
 
-  it('US-29: balance negativo cuando gastos > ingresos (déficit)', () => {
+  it('US-29, ADR-053: con ingresos incluidos y gastos > ingresos el gasto neto es positivo (déficit)', () => {
     const s = computeMonthlySummary(
       [
         // Ingreso: 100.000
@@ -494,13 +499,15 @@ describe('computeMonthlySummary', () => {
       ],
       [],
       P,
+      [],
+      WITH_INCOME,
     )
 
-    // Ingresos: 100.000, Gastos: 150.000, Balance: -50.000
+    // Ingresos: 100.000, Gastos: 150.000, gasto neto: 150.000 − 100.000 = 50.000
     expect(s.income.toFixed(2)).toBe('100000.00')
     expect(s.expenses.toFixed(2)).toBe('150000.00')
-    expect(s.balance.toFixed(2)).toBe('-50000.00')
-    expect(s.balance.isNegative()).toBe(true)
+    expect(s.netSpent.toFixed(2)).toBe('50000.00')
+    expect(s.netSpent.isPositive()).toBe(true)
   })
 
   it('US-29: ingresos ignora transacciones borradas (I10) y de otros períodos', () => {
@@ -515,11 +522,13 @@ describe('computeMonthlySummary', () => {
       ],
       [],
       P,
+      [],
+      WITH_INCOME,
     )
 
     expect(s.income.toFixed(2)).toBe('200000.00')
     expect(s.expenses.toFixed(2)).toBe('0.00')
-    expect(s.balance.toFixed(2)).toBe('200000.00')
+    expect(s.netSpent.toFixed(2)).toBe('-200000.00')
   })
 })
 

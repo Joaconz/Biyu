@@ -17,8 +17,8 @@ imputaciones, y las imputaciones de una suscripción son imputaciones normales. 
 cálculo mensual cambia por esta feature. Eso es intencional y es lo que la hace barata.
 
 Una sola excepción, de solo lectura (ADR-045): el Resumen muestra aparte una tarjeta con lo que las
-suscripciones activas todavía van a cobrar en el mes y un balance proyectado. No es una imputación: el
-gastado y el balance siguen saliendo solo de las imputaciones.
+suscripciones activas todavía van a cobrar en el mes y el gasto neto con ellas incluidas. No es una imputación:
+el gastado y el gasto neto sin esa opción siguen saliendo solo de las imputaciones (ADR-053).
 
 No es: una suscripción de pago de la app (planes, cobro, límites). Ver "Lo que esto no es",
 al final.

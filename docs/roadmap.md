@@ -31,7 +31,7 @@ de pruebas completo, gana el catálogo.
 | Registro | Monto, moneda ARS/USD, tipo gasto/ingreso, categoría en chips, cuenta, fecha, descripción |
 | Cuotas | 1 a 12, solo sobre tarjeta de crédito, con previsualización del impacto mensual |
 | Monedas | Tipo de cambio por transacción, congelado. Tipo de cambio de referencia por período |
-| Dashboard | Total gastado, ingresos, balance, cuotas heredadas, barras por categoría, desglose por cuenta, últimas transacciones, días con registro, estado vacío |
+| Dashboard | Gasto neto (gastado, y a elección ingresos, deudas, reembolsos y suscripciones por cobrar; ADR-053), cuotas heredadas, barras por categoría, desglose por cuenta, últimas transacciones, días con registro, estado vacío |
 | Baja | Soft delete con aviso de que altera meses cerrados |
 
 ### Fuera de V1, a propósito

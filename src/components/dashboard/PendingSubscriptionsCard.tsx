@@ -10,7 +10,7 @@ import {
 
 /**
  * Lo que las suscripciones activas todavía van a cobrar este mes (ADR-045), en una tarjeta suelta. Con el
- * Resumen cargado esto es una línea de la tarjeta de Balance (ADR-051): la tarjeta suelta queda para el mes
+ * Resumen cargado esto es una línea del héroe del Resumen (ADR-053): la tarjeta suelta queda para el mes
  * sin movimientos (y para cuando el resumen no carga), donde no hay balance que desglosar. Sin cobros
  * pendientes no se dibuja.
  */

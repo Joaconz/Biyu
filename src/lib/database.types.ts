@@ -418,6 +418,7 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          balance_income: boolean
           balance_loose_debts: boolean
           balance_pending_subscriptions: boolean
           balance_reimbursements: boolean
@@ -425,6 +426,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          balance_income?: boolean
           balance_loose_debts?: boolean
           balance_pending_subscriptions?: boolean
           balance_reimbursements?: boolean
@@ -432,6 +434,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          balance_income?: boolean
           balance_loose_debts?: boolean
           balance_pending_subscriptions?: boolean
           balance_reimbursements?: boolean
