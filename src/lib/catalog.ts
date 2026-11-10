@@ -4,13 +4,14 @@ import { supabase } from './supabase'
 // Categorías y cuentas del usuario para el formulario de registro. RLS (C7) ya filtra por
 // user_id; acá solo se sacan las archivadas, que no se ofrecen para registrar (US-06, US-44).
 
-export type Category = Pick<Tables<'categories'>, 'id' | 'name' | 'color'>
+// `icon` es opcional: la opción «(archivada)» de Editar movimiento se arma a mano y no la trae (ADR-055).
+export type Category = Pick<Tables<'categories'>, 'id' | 'name' | 'color'> & Partial<Pick<Tables<'categories'>, 'icon'>>
 export type Account = Pick<Tables<'accounts'>, 'id' | 'name' | 'type' | 'currency'>
 
 export async function fetchActiveCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from('categories')
-    .select('id, name, color')
+    .select('id, name, color, icon')
     .is('archived_at', null)
     .order('name')
   if (error) throw error

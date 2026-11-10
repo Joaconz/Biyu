@@ -24,39 +24,76 @@ async function signUpAndSkipSetup(page: Page, tag: string) {
   await expect(page).toHaveURL(/\/register$/)
 }
 
-test('DEF-015: todo elemento interactivo de Ajustes tiene un data-testid propio', async ({ page }) => {
-  await signUpAndSkipSetup(page, 'testids')
-  await page.goto('/settings')
-  await expect(page.getByTestId('settings-categories-list').locator('li').first()).toBeVisible()
-  await expect(page.getByTestId('settings-accounts-list').locator('li').first()).toBeVisible()
-
-  const { missing, duplicated } = await page.evaluate(() => {
-    const interactive = [...document.querySelectorAll('main button, main a[href], main input:not([type="hidden"]):not([aria-hidden="true"]), main select, main textarea, main [role="radio"]')]
+/** Los elementos interactivos de `root` que no tienen `data-testid`, y los que lo repiten. */
+async function auditTestIds(page: Page, root: string) {
+  return page.evaluate((rootSelector) => {
+    const interactive = [...document.querySelectorAll(rootSelector)].flatMap((el) => [
+      ...el.querySelectorAll('button, a[href], input:not([type="hidden"]):not([aria-hidden="true"]), select, textarea, [role="radio"]'),
+    ])
     const ids = interactive.map((el) => el.getAttribute('data-testid'))
     return {
+      count: interactive.length,
       missing: interactive.filter((el) => !el.getAttribute('data-testid')).map((el) => el.outerHTML.slice(0, 120)),
       duplicated: [...new Set(ids.filter((id, i) => id && ids.indexOf(id) !== i))],
     }
-  })
-  expect(missing).toEqual([])
-  expect(duplicated).toEqual([])
+  }, root)
+}
+
+test('DEF-015: todo elemento interactivo de Ajustes tiene un data-testid propio', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'testids')
+  await page.goto('/settings')
+  await expect(page.getByTestId('settings-nav-categories')).toBeVisible()
+  await expect(page.getByTestId('settings-accounts-list').locator('li').first()).toBeVisible()
+  const settings = await auditTestIds(page, 'main')
+  expect(settings.missing).toEqual([])
+  expect(settings.duplicated).toEqual([])
+
+  // ADR-055: las categorías, en su pantalla y en su hoja (que vive fuera de <main>).
+  await page.getByTestId('settings-nav-categories').click()
+  await expect(page).toHaveURL(/\/settings\/categories/)
+  await expect(page.getByTestId('settings-categories-list').locator('li').first()).toBeVisible()
+  const categories = await auditTestIds(page, 'main')
+  expect(categories.missing).toEqual([])
+  expect(categories.duplicated).toEqual([])
+  await page.getByTestId('settings-categories-edit-transporte').click()
+  await expect(page.getByTestId('settings-categories-sheet')).toBeVisible()
+  const sheet = await auditTestIds(page, '[data-testid="settings-categories-sheet"]')
+  expect(sheet.count).toBeGreaterThan(30) // íconos, colores y acciones
+  expect(sheet.missing).toEqual([])
+  expect(sheet.duplicated).toEqual([])
 })
+
+/** Abre Categorías desde Ajustes, como lo hace el usuario. */
+async function openCategories(page: Page) {
+  await page.goto('/settings')
+  await page.getByTestId('settings-nav-categories').click()
+  await expect(page.getByTestId('settings-categories-title')).toBeVisible()
+}
+
+/** Archiva todas las categorías activas, una por una desde su hoja. */
+async function archiveAllCategories(page: Page) {
+  const rows = page.getByTestId('settings-categories-list').locator('li')
+  await expect(rows.first()).toBeVisible()
+  const sheet = page.getByTestId('settings-categories-sheet')
+  while ((await rows.count()) > 0) {
+    const before = await rows.count()
+    await rows.first().getByRole('button').click()
+    await sheet.getByRole('button', { name: /^Archivar/ }).click()
+    await expect(rows).toHaveCount(before - 1)
+    await expect(sheet).toHaveCount(0)
+  }
+}
 
 test('DEF-010: archivar todas las categorías no hace que se vuelvan a sembrar', async ({ page }) => {
   await signUpAndSkipSetup(page, 'archivar')
-  await page.goto('/settings')
+  await openCategories(page)
+  await archiveAllCategories(page)
   const rows = page.getByTestId('settings-categories-list').locator('li')
-  await expect(rows.first()).toBeVisible()
-  while ((await rows.count()) > 0) {
-    const before = await rows.count()
-    await rows.first().getByRole('button', { name: /^Archivar / }).click()
-    await expect(rows).toHaveCount(before - 1)
-  }
 
   await page.goto('/register')
   await expect(page.getByTestId('transaction-form')).toBeVisible()
-  await page.goto('/settings')
-  await expect(page.getByTestId('settings-accounts-list').locator('li').first()).toBeVisible()
+  await page.goto('/settings/categories')
+  await expect(page.getByTestId('settings-categories-empty')).toBeVisible()
   await expect(rows).toHaveCount(0)
 })
 
@@ -145,9 +182,9 @@ test('DEF-024: el diálogo de eliminar cuenta toma el foco, lo retiene y lo devu
 test('DEF-025: el error al editar aparece en la fila que se edita', async ({ page }) => {
   await signUpAndSkipSetup(page, 'error-edicion')
   await registerExpense(page, '9000', 'tarjeta-de-credito', 3)
-  await page.goto('/settings')
+  await openCategories(page)
 
-  // Categoría: renombrar a un nombre activo con otras mayúsculas (DEF-019).
+  // Categoría: renombrar a un nombre activo con otras mayúsculas (DEF-019); el error queda en la hoja.
   await page.getByTestId('settings-categories-edit-transporte').click()
   await page.getByTestId('settings-categories-edit-name').fill('OTROS')
   await page.getByTestId('settings-categories-save').click()
@@ -157,6 +194,7 @@ test('DEF-025: el error al editar aparece en la fila que se edita', async ({ pag
   await expect(page.getByTestId('settings-categories-edit-error')).toHaveCount(0)
 
   // Cuenta: sacar de crédito una tarjeta con cuotas (I6, DEF-009).
+  await page.goto('/settings')
   await page.getByTestId('settings-accounts-edit-tarjeta-de-credito').click()
   await page.getByTestId('settings-accounts-edit-type').click()
   await page.getByTestId('settings-accounts-edit-type-cash').click()
@@ -167,24 +205,20 @@ test('DEF-025: el error al editar aparece en la fila que se edita', async ({ pag
 
 test('DEF-026: sin categorías activas hay salida, y las archivadas se pueden reactivar', async ({ page }) => {
   await signUpAndSkipSetup(page, 'sin-categorias')
-  await page.goto('/settings')
-  const rows = page.getByTestId('settings-categories-list').locator('li')
-  await expect(rows.first()).toBeVisible()
-  while ((await rows.count()) > 0) {
-    const before = await rows.count()
-    await rows.first().getByRole('button', { name: /^Archivar / }).click()
-    await expect(rows).toHaveCount(before - 1)
-  }
+  await openCategories(page)
+  await archiveAllCategories(page)
 
-  // Registrar explica qué hacer y lleva a Ajustes.
+  // Registrar explica qué hacer y lleva a Categorías.
   await page.goto('/register')
   await page.getByTestId('transaction-form-amount').fill('500')
   await page.getByTestId('transaction-form-next').click()
   await expect(page.getByTestId('transaction-form-category-empty')).toBeVisible()
   await page.getByTestId('transaction-form-category-empty-settings').click()
-  await expect(page).toHaveURL(/\/settings/)
+  await expect(page).toHaveURL(/\/settings\/categories/)
 
-  // En Ajustes, las archivadas se ven y se reactivan.
+  // Las archivadas están plegadas: se despliegan y se reactivan.
+  await expect(page.getByTestId('settings-categories-unarchive-salud')).toHaveCount(0)
+  await page.getByTestId('settings-categories-archived-toggle').click()
   await page.getByTestId('settings-categories-unarchive-salud').click()
   await expect(page.getByTestId('settings-categories-edit-salud')).toBeVisible()
   await expect(page.getByTestId('settings-categories-unarchive-salud')).toHaveCount(0)
@@ -197,49 +231,92 @@ test('DEF-026: sin categorías activas hay salida, y las archivadas se pueden re
 
 test('DEF-026: el paso de categorías del setup no queda vacío sin explicación', async ({ page }) => {
   await signUpAndSkipSetup(page, 'setup-vacio')
+  await openCategories(page)
+  await archiveAllCategories(page)
   await page.goto('/settings')
-  const rows = page.getByTestId('settings-categories-list').locator('li')
-  await expect(rows.first()).toBeVisible()
-  while ((await rows.count()) > 0) {
-    const before = await rows.count()
-    await rows.first().getByRole('button', { name: /^Archivar / }).click()
-    await expect(rows).toHaveCount(before - 1)
-  }
   await page.getByTestId('settings-nav-setup').click()
   await page.getByTestId('setup-reason-skip').click()
   await expect(page.getByTestId('setup-categories-empty')).toBeVisible()
 })
 
+/** Crea una categoría desde «Nueva categoría»; `icon` es la clave del ícono, si se quiere elegir uno. */
+async function createCategory(page: Page, name: string, icon?: string) {
+  await page.getByTestId('settings-categories-new').click()
+  await page.getByTestId('settings-categories-name').fill(name)
+  if (icon) await page.getByTestId(`settings-categories-icon-${icon}`).click()
+  await page.getByTestId('settings-categories-submit').click()
+  await expect(page.getByTestId('settings-categories-sheet')).toHaveCount(0)
+}
+
+/** Abre la hoja de una categoría y toca Eliminar. */
+async function deleteFromSheet(page: Page, slug: string) {
+  await page.getByTestId(`settings-categories-edit-${slug}`).click()
+  await page.getByTestId(`settings-categories-delete-${slug}`).click()
+}
+
 test('US-89: una categoría sin uso se borra con confirmación; una en uso se rechaza', async ({ page }) => {
   await signUpAndSkipSetup(page, 'borrar-categoria')
-  await page.goto('/settings')
+  await openCategories(page)
 
   // Una categoría nueva, sin uso: cancelar no borra; confirmar sí, y el nombre queda libre.
-  await page.getByTestId('settings-categories-name').fill('Tecnología')
-  await page.getByTestId('settings-categories-submit').click()
+  await createCategory(page, 'Tecnología')
   await expect(page.getByTestId('settings-categories-edit-tecnologia')).toBeVisible()
 
-  await page.getByTestId('settings-categories-delete-tecnologia').click()
+  await deleteFromSheet(page, 'tecnologia')
   const dialog = page.getByTestId('settings-categories-delete-dialog')
   await expect(page.getByTestId('settings-categories-delete-dialog-summary')).toContainText('Sin uso')
   await page.getByTestId('settings-categories-delete-dialog-cancel').click()
   await expect(dialog).toHaveCount(0)
   await expect(page.getByTestId('settings-categories-edit-tecnologia')).toBeVisible()
 
-  await page.getByTestId('settings-categories-delete-tecnologia').click()
+  await deleteFromSheet(page, 'tecnologia')
   await page.getByTestId('settings-categories-delete-dialog-confirm').click()
   await expect(page.getByTestId('settings-categories-edit-tecnologia')).toHaveCount(0)
 
-  await page.getByTestId('settings-categories-name').fill('Tecnología')
-  await page.getByTestId('settings-categories-submit').click()
+  await createCategory(page, 'Tecnología')
   await expect(page.getByTestId('settings-categories-edit-tecnologia')).toBeVisible()
 
   // «Otros» recibe un gasto: la confirmación dice cuánto la usa y la RPC rechaza con ese mensaje.
   await registerExpense(page, '500', 'efectivo')
-  await page.goto('/settings')
-  await page.getByTestId('settings-categories-delete-otros').click()
+  await openCategories(page)
+  await expect(page.getByTestId('settings-categories-count-otros')).toContainText('1 movimiento')
+  await deleteFromSheet(page, 'otros')
   await expect(page.getByTestId('settings-categories-delete-dialog-summary')).toContainText('1 movimiento')
   await page.getByTestId('settings-categories-delete-dialog-confirm').click()
   await expect(page.getByTestId('settings-categories-error')).toContainText('Archivala')
   await expect(page.getByTestId('settings-categories-edit-otros')).toBeVisible()
+})
+
+test('ADR-055: el ícono y el color elegidos se ven en la lista y en Registrar, y se pueden cambiar', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'icono-categoria')
+  await openCategories(page)
+
+  // La vista previa de la hoja sigue lo que se elige, antes de guardar.
+  await page.getByTestId('settings-categories-new').click()
+  await page.getByTestId('settings-categories-name').fill('Mascotas')
+  await page.getByTestId('settings-categories-icon-paw-print').click()
+  await expect(page.getByTestId('settings-categories-preview').locator('[data-icon]')).toHaveAttribute('data-icon', 'paw-print')
+  await page.getByTestId('settings-categories-submit').click()
+  await expect(page.getByTestId('settings-categories-sheet')).toHaveCount(0)
+
+  const row = page.getByTestId('settings-categories-edit-mascotas')
+  await expect(row.locator('[data-icon]')).toHaveAttribute('data-icon', 'paw-print')
+  await expect(page.getByTestId('settings-categories-count-mascotas')).toContainText('Sin movimientos')
+
+  // En Registrar, la categoría nueva trae su ícono (el del picker).
+  await page.goto('/register')
+  await page.getByTestId('transaction-form-amount').fill('1000')
+  await page.getByTestId('transaction-form-next').click()
+  await expect(page.getByTestId('transaction-form-category-chip-mascotas').locator('[data-icon]')).toHaveAttribute('data-icon', 'paw-print')
+
+  // Editar: cambiar el ícono se guarda; una sembrada sin ícono guardado se abre con el suyo.
+  await openCategories(page)
+  await page.getByTestId('settings-categories-edit-transporte').click()
+  await expect(page.getByTestId('settings-categories-edit-icon-bus')).toHaveAttribute('aria-checked', 'true')
+  await page.getByTestId('settings-categories-edit-icon-car').click()
+  await page.getByTestId('settings-categories-save').click()
+  await expect(page.getByTestId('settings-categories-sheet')).toHaveCount(0)
+  await expect(page.getByTestId('settings-categories-edit-transporte').locator('[data-icon]')).toHaveAttribute('data-icon', 'car')
+  await page.reload()
+  await expect(page.getByTestId('settings-categories-edit-transporte').locator('[data-icon]')).toHaveAttribute('data-icon', 'car')
 })

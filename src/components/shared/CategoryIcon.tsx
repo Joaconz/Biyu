@@ -1,37 +1,64 @@
-import { Bus, Ellipsis, GraduationCap, HeartPulse, Shirt, ShoppingBasket, Ticket, Zap, type LucideIcon } from 'lucide-react'
+import {
+  BookOpen, Briefcase, Bus, Car, Coffee, Dumbbell, Ellipsis, Fuel, Gamepad2, Gift, GraduationCap, HeartPulse, House,
+  Music, PawPrint, Pill, Plane, Shirt, ShoppingBasket, Smartphone, Ticket, Utensils, Wifi, Zap, type LucideIcon,
+} from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
-import { categoryIconKey, displayCategoryColor, type CategoryIconKey } from '@/lib/visuals'
+import { displayCategoryColor, resolveCategoryIconKey, type CategoryIconKey } from '@/lib/visuals'
 
-const ICONS: Record<CategoryIconKey, LucideIcon> = {
-  basket: ShoppingBasket,
+/** Clave de `categories.icon` → ícono de lucide. Las claves son las de `CATEGORY_ICON_KEYS` (ADR-055). */
+export const CATEGORY_ICONS: Record<CategoryIconKey, LucideIcon> = {
+  'shopping-basket': ShoppingBasket,
+  utensils: Utensils,
+  coffee: Coffee,
   bus: Bus,
-  bolt: Zap,
+  car: Car,
+  fuel: Fuel,
+  plane: Plane,
+  zap: Zap,
+  house: House,
+  wifi: Wifi,
+  smartphone: Smartphone,
   ticket: Ticket,
-  health: HeartPulse,
-  education: GraduationCap,
+  'gamepad-2': Gamepad2,
+  music: Music,
+  'heart-pulse': HeartPulse,
+  pill: Pill,
+  'graduation-cap': GraduationCap,
+  'book-open': BookOpen,
   shirt: Shirt,
-  other: Ellipsis,
+  gift: Gift,
+  'paw-print': PawPrint,
+  dumbbell: Dumbbell,
+  briefcase: Briefcase,
+  ellipsis: Ellipsis,
 }
 
-/** Círculo con el ícono de la categoría en su color; las propias muestran un punto de color. */
+/**
+ * Círculo con el ícono de la categoría en su color. El ícono sale de `icon` (el que eligió el usuario), si no
+ * del nombre de las sembradas, y si no es un punto de color (ADR-055).
+ */
 export function CategoryIcon({
   name,
   color,
+  icon,
   size = 'md',
   className,
 }: {
   name: string
   color: string | null | undefined
+  /** `categories.icon`: la clave guardada; ausente o desconocida cae al de las sembradas. */
+  icon?: string | null
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }) {
   const tone = displayCategoryColor(color, name)
-  const key = categoryIconKey(name)
-  const Icon = key ? ICONS[key] : null
+  const key = resolveCategoryIconKey(icon, name)
+  const Icon = key ? CATEGORY_ICONS[key] : null
   return (
     <span
       aria-hidden="true"
+      data-icon={key ?? 'dot'}
       style={{ '--tone': tone } as CSSProperties}
       className={cn(
         // ADR-052: círculo; en oscuro el tono se aclara para que el ícono se lea sobre esmeralda.

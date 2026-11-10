@@ -34,17 +34,59 @@ const LEGACY_TO_HERITAGE: Record<string, string> = {
 
 /** Categorías sembradas (FR-04), por su nombre normalizado. */
 const SEEDED: Record<string, { color: string; icon: CategoryIconKey }> = {
-  'comida-y-supermercado': { color: CATEGORY_PALETTE.comida, icon: 'basket' },
+  'comida-y-supermercado': { color: CATEGORY_PALETTE.comida, icon: 'shopping-basket' },
   transporte: { color: CATEGORY_PALETTE.transporte, icon: 'bus' },
-  servicios: { color: CATEGORY_PALETTE.servicios, icon: 'bolt' },
+  servicios: { color: CATEGORY_PALETTE.servicios, icon: 'zap' },
   entretenimiento: { color: CATEGORY_PALETTE.entretenimiento, icon: 'ticket' },
-  salud: { color: CATEGORY_PALETTE.salud, icon: 'health' },
-  educacion: { color: CATEGORY_PALETTE.educacion, icon: 'education' },
+  salud: { color: CATEGORY_PALETTE.salud, icon: 'heart-pulse' },
+  educacion: { color: CATEGORY_PALETTE.educacion, icon: 'graduation-cap' },
   indumentaria: { color: CATEGORY_PALETTE.indumentaria, icon: 'shirt' },
-  otros: { color: CATEGORY_PALETTE.otros, icon: 'other' },
+  otros: { color: CATEGORY_PALETTE.otros, icon: 'ellipsis' },
 }
 
-export type CategoryIconKey = 'basket' | 'bus' | 'bolt' | 'ticket' | 'health' | 'education' | 'shirt' | 'other'
+/**
+ * Íconos que se ofrecen al crear o editar una categoría (ADR-055): claves de lucide en kebab-case, que son
+ * lo que guarda `categories.icon`. Postgres solo valida la forma de la clave (C6); este es el catálogo.
+ * `CategoryIcon` mapea cada clave a su componente.
+ */
+export const CATEGORY_ICON_KEYS = [
+  'shopping-basket', 'utensils', 'coffee', 'bus', 'car', 'fuel',
+  'plane', 'zap', 'house', 'wifi', 'smartphone', 'ticket',
+  'gamepad-2', 'music', 'heart-pulse', 'pill', 'graduation-cap', 'book-open',
+  'shirt', 'gift', 'paw-print', 'dumbbell', 'briefcase', 'ellipsis',
+] as const
+
+export type CategoryIconKey = (typeof CATEGORY_ICON_KEYS)[number]
+
+const ICON_KEY_SET: ReadonlySet<string> = new Set(CATEGORY_ICON_KEYS)
+
+/** Nombre accesible de cada ícono, para la grilla del selector. */
+export const CATEGORY_ICON_LABELS: Record<CategoryIconKey, string> = {
+  'shopping-basket': 'Compras',
+  utensils: 'Comida',
+  coffee: 'Café',
+  bus: 'Colectivo',
+  car: 'Auto',
+  fuel: 'Nafta',
+  plane: 'Viajes',
+  zap: 'Luz',
+  house: 'Casa',
+  wifi: 'Internet',
+  smartphone: 'Celular',
+  ticket: 'Entradas',
+  'gamepad-2': 'Juegos',
+  music: 'Música',
+  'heart-pulse': 'Salud',
+  pill: 'Farmacia',
+  'graduation-cap': 'Estudio',
+  'book-open': 'Libros',
+  shirt: 'Ropa',
+  gift: 'Regalos',
+  'paw-print': 'Mascotas',
+  dumbbell: 'Gimnasio',
+  briefcase: 'Trabajo',
+  ellipsis: 'Otros',
+}
 
 /**
  * Color con el que se muestra una categoría: traduce la paleta vieja y cubre el color nulo. En el tema
@@ -76,6 +118,22 @@ export function darkCategoryColor(hex: string): string {
 /** Ícono de una categoría sembrada; null para las creadas por el usuario (se muestra un punto de color). */
 export function categoryIconKey(name: string): CategoryIconKey | null {
   return SEEDED[toTestIdSuffix(name)]?.icon ?? null
+}
+
+/**
+ * Ícono con el que se muestra una categoría (ADR-055): el que eligió el usuario, si es una clave que el
+ * catálogo conoce; si no, el de la sembrada por su nombre; si no, null (punto de color). Una clave guardada
+ * que el catálogo ya no ofrece cae al siguiente paso en vez de romper la pantalla.
+ */
+export function resolveCategoryIconKey(icon: string | null | undefined, name: string): CategoryIconKey | null {
+  if (icon && ICON_KEY_SET.has(icon)) return icon as CategoryIconKey
+  return categoryIconKey(name)
+}
+
+/** «3 movimientos en octubre»: la línea de cada categoría en su pantalla de administración. */
+export function categoryMonthMovementsLabel(count: number, monthName: string): string {
+  if (count === 0) return `Sin movimientos en ${monthName}`
+  return `${count} ${count === 1 ? 'movimiento' : 'movimientos'} en ${monthName}`
 }
 
 /** Orden de la grilla de Registrar: alfabético, con "Otros" siempre al final. */

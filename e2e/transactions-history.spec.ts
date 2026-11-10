@@ -71,9 +71,12 @@ test('DEF-006: un movimiento de una categoría archivada lleva la marca de archi
   await signUpAndSkipSetup(page, 'archivada')
   await registerExpense(page, '2500', 'salud')
 
+  // ADR-055: archivar está en la hoja de la categoría, dentro de Ajustes → Categorías.
   await page.goto('/settings')
-  await page.getByRole('button', { name: 'Archivar Salud' }).click()
-  await expect(page.getByRole('button', { name: 'Archivar Salud' })).toHaveCount(0)
+  await page.getByTestId('settings-nav-categories').click()
+  await page.getByTestId('settings-categories-edit-salud').click()
+  await page.getByTestId('settings-categories-archive-salud').click()
+  await expect(page.getByTestId('settings-categories-edit-salud')).toHaveCount(0)
 
   await page.goto('/transactions')
   await expect(page.getByTestId('transactions-item')).toHaveCount(1)

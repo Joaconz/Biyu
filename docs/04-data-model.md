@@ -38,7 +38,7 @@ users
 | user_id | uuid FK → users | not null |
 | name | text | not null |
 | color | text | hex |
-| icon | text | nombre del ícono |
+| icon | text | clave del ícono de lucide en kebab-case (`paw-print`); null = punto de color. `check` de forma `^[a-z0-9-]{1,40}$` (ADR-055) |
 | archived_at | timestamptz | null = activa |
 | created_at | timestamptz | default now() |
 

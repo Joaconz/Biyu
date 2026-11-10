@@ -244,7 +244,7 @@ export function EditTransactionForm({
               options={categoryOptions}
               value={values.categoryId}
               onChange={(id) => change({ categoryId: id })}
-              renderIcon={(category) => <CategoryIcon name={category.name} color={category.color} />}
+              renderIcon={(category) => <CategoryIcon name={category.name} color={category.color} icon={category.icon} />}
             />
             <FieldError id="edit-transaction-category-error" message={errors.categoryId} active={!!touched.categoryId} />
           </div>
