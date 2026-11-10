@@ -34,42 +34,48 @@ export function AppNav({ screen, isDesktop }: { screen: Screen | null; isDesktop
   const active = activeNavScreen(screen)
   const activeIndex = active ? destinations.indexOf(active) : -1
   return (
-    <nav
-      aria-label="Principal"
-      className={cn(
-        // ADR-052: en el celular, una píldora esmeralda en los dos temas (la misma superficie que la protagonista).
-        'app-nav fixed z-40 mx-auto flex h-(--app-nav-h) max-w-md overflow-hidden rounded-full border border-hero-foreground/10 bg-[color-mix(in_srgb,var(--hero)_94%,transparent)] backdrop-blur-xl',
-        'inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] bottom-[calc(env(safe-area-inset-bottom)+var(--app-nav-gap))]',
-        'lg:inset-y-0 lg:right-auto lg:left-0 lg:mx-0 lg:h-auto lg:w-60 lg:max-w-none lg:flex-col lg:overflow-visible lg:rounded-none lg:border-0 lg:border-r lg:border-hairline lg:bg-background lg:px-4 lg:pb-6 lg:backdrop-filter-none',
-      )}
-    >
-      <div className="hidden px-3 pt-9 pb-8 lg:block">
-        <Wordmark rule className="text-title-1" />
-      </div>
-      <ul className="relative grid flex-1 grid-cols-5 lg:flex lg:flex-none lg:flex-col lg:gap-1">
-        {!isDesktop && (
-          <li
-            aria-hidden="true"
-            data-testid="app-nav-indicator"
-            data-index={activeIndex}
-            className="app-nav-indicator pointer-events-none absolute inset-y-1 left-0 w-1/5 p-0.5"
-            style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`, opacity: activeIndex < 0 ? 0 : 1 }}
-          >
-            <span className="block size-full rounded-full bg-hero-foreground/10" />
-          </li>
+    <>
+      {/* B1: franja fija de ancho completo detrás de la píldora. Se traga los toques del aire que la rodea
+          (y el de entre ella y los pies sticky), que si no llegarían al contenido de atrás. Mide lo mismo que
+          --app-nav-offset, que <main> ya reserva abajo, así que no tapa nada. */}
+      {!isDesktop && <div aria-hidden="true" data-testid="app-nav-shield" className="app-nav-shield" />}
+      <nav
+        aria-label="Principal"
+        className={cn(
+          // ADR-052: en el celular, una píldora esmeralda en los dos temas (la misma superficie que la protagonista).
+          'app-nav fixed z-40 mx-auto flex h-(--app-nav-h) max-w-md overflow-hidden rounded-full border border-hero-foreground/10 bg-[color-mix(in_srgb,var(--hero)_94%,transparent)] backdrop-blur-xl',
+          'inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] bottom-[calc(env(safe-area-inset-bottom)+var(--app-nav-gap))]',
+          'lg:inset-y-0 lg:right-auto lg:left-0 lg:mx-0 lg:h-auto lg:w-60 lg:max-w-none lg:flex-col lg:overflow-visible lg:rounded-none lg:border-0 lg:border-r lg:border-hairline lg:bg-background lg:px-4 lg:pb-6 lg:backdrop-filter-none',
         )}
-        {destinations.map((destination) => (
-          <li key={destination}>
-            <NavItemLink screen={screen} destination={destination} label={SCREEN_LABELS[destination]} />
-          </li>
-        ))}
-      </ul>
-      {isDesktop && (
-        <div className="mt-auto">
-          <NavItemLink screen={screen} destination="settings" label={SCREEN_LABELS.settings} />
+      >
+        <div className="hidden px-3 pt-9 pb-8 lg:block">
+          <Wordmark rule className="text-title-1" />
         </div>
-      )}
-    </nav>
+        <ul className="relative grid flex-1 grid-cols-5 lg:flex lg:flex-none lg:flex-col lg:gap-1">
+          {!isDesktop && (
+            <li
+              aria-hidden="true"
+              data-testid="app-nav-indicator"
+              data-index={activeIndex}
+              className="app-nav-indicator pointer-events-none absolute inset-y-1 left-0 w-1/5 p-0.5"
+              style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`, opacity: activeIndex < 0 ? 0 : 1 }}
+            >
+              <span className="block size-full rounded-full bg-hero-foreground/10" />
+            </li>
+          )}
+          {destinations.map((destination) => (
+            <li key={destination}>
+              <NavItemLink screen={screen} destination={destination} label={SCREEN_LABELS[destination]} />
+            </li>
+          ))}
+        </ul>
+        {isDesktop && (
+          <div className="mt-auto">
+            <NavItemLink screen={screen} destination="settings" label={SCREEN_LABELS.settings} />
+          </div>
+        )}
+      </nav>
+    </>
   )
 }
 

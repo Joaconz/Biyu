@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Download, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,7 +40,8 @@ export function ImportGuideDialog({
   }, [isOpen, onClose])
 
   if (!isOpen) return null
-  return (
+  // Portal a <body>: dentro de <main> una transición de vista (ADR-049) lo deja bajo la barra flotante (z-40).
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -111,6 +113,7 @@ export function ImportGuideDialog({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
