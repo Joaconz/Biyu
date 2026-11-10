@@ -10,7 +10,7 @@ decisiones necesitan ADR antes de tocar código. Al trabajarlo, usar las skills 
 
 Parte de lo que sigue ya está en marcha: barra flotante con Registrar al centro (ADR-048, #392),
 transiciones y skeletons (ADR-049, #394), dona y tarjetas de tendencia en el Resumen (ADR-050, #393)
-y el balance configurable desde su propia tarjeta (sesión aparte, en curso).
+y un solo número de gasto neto configurable desde el héroe (ADR-053, que reemplazó la tarjeta de Balance).
 
 ---
 
@@ -21,7 +21,7 @@ Patrones que se repiten en el tablero, y cómo se traducen a Biyu:
 | Patrón | Qué se ve en las referencias | En Biyu |
 |---|---|---|
 | **Número héroe arriba** | Un solo monto grande (saldo o balance) con una línea de variación debajo («+12,5 % vs. el mes pasado») | El «Gastado en {mes}» ya es el héroe. Sumarle la **variación contra el mes anterior** con flecha y color |
-| **Tarjetas KPI con sparkline** | Dos tarjetas chicas lado a lado (Ahorrado / Gastado, Gasto / Ingreso) con una línea mínima de tendencia | Ingresos y Balance ya son tarjetas: sumarles un **sparkline de 6 meses** sin ejes |
+| **Tarjetas KPI con sparkline** | Dos tarjetas chicas lado a lado (Ahorrado / Gastado, Gasto / Ingreso) con una línea mínima de tendencia | Los datos chicos del Resumen (ingresos del mes, gastado): sumarles un **sparkline de 6 meses** sin ejes. Ya no hay tarjeta de Balance (ADR-053) |
 | **Barras pareadas finas** | Ingreso y gasto como dos barras delgadas por mes, redondeadas, con un acento brillante para una de las dos | Estilo para «Gastado vs. ingresos» de ADR-050: barras finas, la del gasto en el acento, la del ingreso en tono apagado |
 | **Selector segmentado** | Día / Semana / Mes o 1S / 1M / 1A sobre cada gráfico | Hoy todo es mensual (C11). Un segmentado **6M / 1A** en los gráficos de tendencia, en la URL |
 | **Tooltip al tocar** | Línea vertical y globo con el valor del punto tocado | Gráficos de tendencia «scrubbeables» al tocar. Cuidar que el valor también esté en texto (accesibilidad) |
@@ -107,7 +107,7 @@ Ordenado por impacto sobre esfuerzo. Ninguno cambia el modelo de datos.
 | 1 | **Modo oscuro esmeralda** | `src/index.css`, `index.html`, Ajustes | ADR nuevo (§2). Es el más vistoso y casi todo son tokens |
 | 2 | **Movimientos agrupados por día** con el total del día | `TransactionsPage`, «Últimos movimientos» | Total del día en `decimal.js` desde `src/domain/`, testid `transactions-day-total` |
 | 3 | **Variación contra el mes anterior** en el héroe | `DashboardPage` | Función pura `(actual, anterior) → % o null`; sin datos del mes anterior no se muestra |
-| 4 | **Sparklines** en Ingresos y Balance | `src/components/dashboard/` | Reusa la serie de 6 meses de ADR-050; SVG propio (ADR-038 §5) |
+| 4 | **Sparklines** en los datos chicos del Resumen | `src/components/dashboard/` | Reusa la serie de 6 meses de ADR-050; SVG propio (ADR-038 §5) |
 | 5 | **Estilo de barras pareadas finas** en «Gastado vs. ingresos» | El componente de #393 | Solo estilo, una vez mergeado #393 |
 | 6 | **Accesos rápidos** bajo el héroe | `DashboardPage` → `/register?type=…` | El tipo en la URL (C11). Revisar US-01 y NFR-07: no puede sumar pasos |
 | 7 | **Íconos en baldosa** con el mismo tamaño y radio en todas las listas | `CategoryIcon`, `AccountIcon` | Pulido visual |

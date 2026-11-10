@@ -39,8 +39,8 @@ type LoadState = { status: 'loading' } | { status: 'error'; message: string } | 
  * Vuelve a cargar si cambia el período. Las deudas del neto de reembolsos (US-30) vienen en la
  * misma carga, igual que las deudas sueltas y las preferencias del balance (US-83, US-101): si falla cualquier parte, se ve el error y ningún número a medias.
  *
- * `balanceOptions`, si viene, reemplaza a las guardadas: la tarjeta de Balance las cambia y el resumen se
- * recalcula al instante con los datos ya cargados, sin volver a pedirlos (ADR-051).
+ * `balanceOptions`, si viene, reemplaza a las guardadas: el héroe del Resumen las cambia y el resumen se
+ * recalcula al instante con los datos ya cargados, sin volver a pedirlos (ADR-051, ADR-053).
  */
 export function useMonthlySummary(
   period: Period,

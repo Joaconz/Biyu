@@ -4,7 +4,7 @@ import type { BalanceOptions } from '@/domain/balance'
 import { saveBalanceOptions } from '@/lib/preferences'
 
 /**
- * Cambiar qué entra en el balance (US-101, ADR-051), igual desde la tarjeta del Resumen y desde Ajustes.
+ * Cambiar qué entra en el gasto neto (US-101, ADR-053), igual desde la tarjeta del Resumen y desde Ajustes.
  *
  * El cambio se ve al instante (`edited`) y se guarda atrás, en orden: varios toques seguidos se escriben uno
  * detrás del otro y la fila termina igual a lo último que se ve. Si falla el último guardado, vuelve a lo
@@ -32,7 +32,7 @@ export function useBalanceOptionsSaver() {
           if (seq !== latest.current) return
           setEdited(persisted.current)
           setError(e.message ?? 'No se pudo guardar')
-          toast.error('No se pudo guardar qué entra en el balance')
+          toast.error('No se pudo guardar qué entra en el gasto')
         },
       ),
     )

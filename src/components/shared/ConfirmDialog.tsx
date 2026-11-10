@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { useModalFocus } from '@/hooks/useModalFocus'
 import { cn } from '@/lib/utils'
@@ -81,7 +82,8 @@ export function ConfirmDialog({
     }
   }
 
-  return (
+  // Portal a <body>: dentro de <main> una transición de vista (ADR-049) lo deja bajo la barra flotante (z-40).
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -123,6 +125,7 @@ export function ConfirmDialog({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

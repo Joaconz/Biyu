@@ -1,5 +1,7 @@
 # Casos de prueba V3 — Las deudas sueltas mueven el balance del mes (US-83)
 
+> **Desactualizado por [ADR-053](../../docs/adr/053-un-solo-numero-de-gasto-neto-en-el-resumen.md):** el Resumen ya no muestra un balance sino un gasto neto (el mismo valor con el signo al revés cuando se incluyen ingresos y deudas sueltas, que además arrancan apagados) y los testids `dashboard-balance-*` pasaron a `dashboard-spent-*`. Los e2e (`e2e/dashboard-loose-debts.spec.ts`) y los tests de dominio ya están adaptados; falta reescribir estos casos.
+
 **Historia:** [#271](https://github.com/Joaconz/Biyu/issues/271) · ADR-041 (modifica ADR-037 §6 y US-36 · CA-12) · US-29, US-33, US-36, US-39, US-40 · C1, C5, C11.
 **Oráculo:** balance = ingresos − gastos + movimiento de deudas sueltas del período. Cada evento suma su `amount_ars` congelado en el período del día en que pasó (hora de Argentina): el alta en `incurred_on` («Me deben» resta, «Debo» suma) y el saldado en `settled_at` (al revés). Reabrir borra el evento «saldada». Las deudas vinculadas a un gasto no generan eventos. Gastado, Ingresos, el neto de reembolsos y los desgloses no cambian.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). H es el mes de hoy en Argentina y H−1 el anterior; saldar ocurre hoy, en H. Cada caso arranca con un usuario sin movimientos. Montos ficticios (C14).

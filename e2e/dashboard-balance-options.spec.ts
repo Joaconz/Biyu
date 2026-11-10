@@ -1,8 +1,8 @@
 import { expect, type Page, test } from '@playwright/test'
 import { apiSession, signUpAndSkipSetup } from './support/app.ts'
-import { openBalanceBreakdown } from './support/dashboard.ts'
+import { openSpentOptions } from './support/dashboard.ts'
 
-// US-101 (#371), ADR-051: qué entra en el balance se elige desde la misma tarjeta de Balance del Resumen.
+// US-101 (#371), ADR-053: qué entra en el número del Resumen (el gasto neto) se elige desde la misma tarjeta verde.
 // El número se recalcula al instante, la elección se guarda en user_preferences y Ajustes muestra lo mismo.
 
 function firstOfMonth(): string {
@@ -25,80 +25,106 @@ async function seed(page: Page, request: Parameters<typeof apiSession>[0], tag: 
 const saved = (page: Page) =>
   page.waitForResponse((r) => r.url().includes('/rest/v1/user_preferences') && r.request().method() === 'POST' && r.ok())
 
-test('en el celular, la hoja de la tarjeta cambia el balance al instante y la elección queda guardada', async ({ page, request }) => {
-  await seed(page, request, 'adr051-sheet')
+test('en el celular, la hoja del héroe cambia el número al instante y la elección queda guardada', async ({ page, request }) => {
+  await seed(page, request, 'adr053-sheet')
   await page.goto('/dashboard')
 
-  // Predeterminados: deudas sueltas adentro, el reembolso afuera con lo que sumaría. 100.000 − 120.000 − 20.000.
-  await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$40.000,00')
+  // Predeterminado: solo gastos. Los ingresos, las deudas sueltas y el reembolso están afuera.
+  await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$120.000,00')
+  await expect(page.getByTestId('dashboard-spent-formula')).toHaveText('Solo gastos')
 
-  // La fórmula abre los interruptores, con el monto de cada opción y el balance en vivo. El desglose
-  // (ingresos, gastos y lo que entra o queda afuera) está en la misma hoja (ADR-052).
-  await page.getByTestId('dashboard-balance-options').click()
-  await expect(page.getByTestId('dashboard-balance-options-panel')).toBeVisible()
+  // La pill abre los interruptores, con lo que cada opción mueve el número y el número en vivo. El desglose
+  // está en la misma hoja.
+  await openSpentOptions(page)
+  await expect(page.getByTestId('dashboard-spent-expenses-amount')).toHaveText('$120.000,00')
+  await expect(page.getByTestId('dashboard-spent-expenses')).toHaveAttribute('data-included', 'true')
+  await expect(page.getByTestId('dashboard-income')).toHaveAttribute('data-included', 'false')
   await expect(page.getByTestId('dashboard-total-income')).toHaveText('$100.000,00')
-  await expect(page.getByTestId('dashboard-balance-expenses-amount')).toHaveText('$120.000,00')
-  await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveAttribute('data-included', 'true')
-  await expect(page.getByTestId('dashboard-balance-reimbursements')).toHaveAttribute('data-included', 'false')
-  await expect(page.getByTestId('dashboard-balance-reimbursements-amount')).toHaveText('$60.000,00')
-  await expect(page.getByTestId('dashboard-balance-options-preview')).toHaveText('-$40.000,00')
-  await expect(page.getByTestId('dashboard-balance-option-reimbursements-amount')).toHaveText('+$60.000,00 este mes')
-  await expect(page.getByTestId('dashboard-balance-option-pending-subscriptions-amount')).toHaveText('Nada este mes')
+  await expect(page.getByTestId('dashboard-spent-loose-debts')).toHaveAttribute('data-included', 'false')
+  await expect(page.getByTestId('dashboard-spent-reimbursements')).toHaveAttribute('data-included', 'false')
+  await expect(page.getByTestId('dashboard-spent-reimbursements-amount')).toHaveText('$60.000,00')
+  await expect(page.getByTestId('dashboard-spent-options-preview')).toHaveText('$120.000,00')
+  await expect(page.getByTestId('dashboard-spent-option-income-amount')).toHaveText('-$100.000,00 este mes')
+  await expect(page.getByTestId('dashboard-spent-option-loose-debts-amount')).toHaveText('+$20.000,00 este mes')
+  await expect(page.getByTestId('dashboard-spent-option-reimbursements-amount')).toHaveText('-$60.000,00 este mes')
+  await expect(page.getByTestId('dashboard-spent-option-pending-subscriptions-amount')).toHaveText('Nada este mes')
 
-  // Incluir el reembolso suma los $60.000 sin esperar a la base.
+  // Restar los ingresos baja el número sin esperar a la base: 120.000 − 100.000.
+  const incomeSaved = saved(page)
+  await page.getByTestId('dashboard-spent-option-income').click()
+  await expect(page.getByTestId('dashboard-spent-option-income')).toHaveAttribute('aria-checked', 'true')
+  await expect(page.getByTestId('dashboard-spent-options-preview')).toHaveText('$20.000,00')
+  await expect(page.getByTestId('dashboard-spent-formula')).toHaveText('Gastos − ingresos')
+  await incomeSaved
+
+  // Con el reembolso el número pasa a negativo: entró más de lo que salió.
   const reimbursementsSaved = saved(page)
-  await page.getByTestId('dashboard-balance-option-reimbursements').click()
-  await expect(page.getByTestId('dashboard-balance-option-reimbursements')).toHaveAttribute('aria-checked', 'true')
-  await expect(page.getByTestId('dashboard-balance-options-preview')).toHaveText('$20.000,00')
-  await expect(page.getByTestId('dashboard-balance-formula')).toHaveText('Ingresos − gastos + deudas sueltas + reembolsos')
+  await page.getByTestId('dashboard-spent-option-reimbursements').click()
+  await expect(page.getByTestId('dashboard-spent-options-preview')).toHaveText('-$40.000,00')
   await reimbursementsSaved
 
-  // «Solo movimientos» apaga las tres de un toque: ingresos − gastos.
+  // Las deudas sueltas (Juan me debe $20.000) suman a lo que salió.
+  const looseSaved = saved(page)
+  await page.getByTestId('dashboard-spent-option-loose-debts').click()
+  await expect(page.getByTestId('dashboard-spent-options-preview')).toHaveText('-$20.000,00')
+  await expect(page.getByTestId('dashboard-spent-formula')).toHaveText('Gastos − ingresos + deudas sueltas − reembolsos')
+  await looseSaved
+
+  // «Solo gastos» apaga todas de un toque.
   const onlySaved = saved(page)
-  await page.getByTestId('dashboard-balance-options-only-movements').click()
-  await expect(page.getByTestId('dashboard-balance-options-only-movements')).toHaveAttribute('aria-pressed', 'true')
-  for (const slug of ['loose-debts', 'reimbursements', 'pending-subscriptions']) {
-    await expect(page.getByTestId(`dashboard-balance-option-${slug}`)).toHaveAttribute('aria-checked', 'false')
+  await page.getByTestId('dashboard-spent-options-only-expenses').click()
+  await expect(page.getByTestId('dashboard-spent-options-only-expenses')).toHaveAttribute('aria-pressed', 'true')
+  for (const slug of ['income', 'loose-debts', 'reimbursements', 'pending-subscriptions']) {
+    await expect(page.getByTestId(`dashboard-spent-option-${slug}`)).toHaveAttribute('aria-checked', 'false')
   }
-  await expect(page.getByTestId('dashboard-balance-options-preview')).toHaveText('-$20.000,00')
+  await expect(page.getByTestId('dashboard-spent-options-preview')).toHaveText('$120.000,00')
   await onlySaved
-  await page.getByTestId('dashboard-balance-options-done').click()
-  await expect(page.getByTestId('dashboard-balance-options-panel')).toHaveCount(0)
-  await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$20.000,00')
-  await expect(page.getByTestId('dashboard-balance-formula')).toHaveText('Solo movimientos: ingresos − gastos')
-  await openBalanceBreakdown(page)
-  await expect(page.getByTestId('dashboard-balance-loose-debts')).toHaveAttribute('data-included', 'false')
-  await page.getByTestId('dashboard-balance-options-done').click()
-  // Gastado no cambia con las opciones (ADR-047 §2).
-  await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$120.000,00')
+
+  // Se deja solo «restar ingresos», se cierra y el héroe muestra el número neto.
+  const finalSaved = saved(page)
+  await page.getByTestId('dashboard-spent-option-income').click()
+  await finalSaved
+  await page.getByTestId('dashboard-spent-options-done').click()
+  await expect(page.getByTestId('dashboard-spent-options-panel')).toHaveCount(0)
+  await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$20.000,00')
+  await expect(page.getByTestId('dashboard-spent-formula')).toHaveText('Gastos − ingresos')
 
   // Guardado: sigue así al recargar y Ajustes muestra lo mismo.
   await page.reload()
-  await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$20.000,00')
+  await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$20.000,00')
   await page.goto('/settings')
+  await expect(page.getByTestId('settings-summary-income')).toHaveAttribute('aria-checked', 'true')
   for (const slug of ['loose-debts', 'reimbursements', 'pending-subscriptions']) {
     await expect(page.getByTestId(`settings-summary-${slug}`)).toHaveAttribute('aria-checked', 'false')
   }
 })
 
+test('el ícono de la esquina abre la misma hoja', async ({ page, request }) => {
+  await seed(page, request, 'adr053-icon')
+  await page.goto('/dashboard')
+  await page.getByTestId('dashboard-spent-options-button').click()
+  await expect(page.getByTestId('dashboard-spent-options-panel')).toBeVisible()
+  await expect(page.getByTestId('dashboard-spent-options-preview')).toHaveText('$120.000,00')
+})
+
 test.describe('en la compu', () => {
   test.use({ viewport: { width: 1280, height: 900 } })
 
-  test('el popover nace de la fórmula, Escape lo cierra y el foco vuelve al botón', async ({ page, request }) => {
-    await seed(page, request, 'adr051-popover')
+  test('el popover nace de la pill, Escape lo cierra y el foco vuelve al botón', async ({ page, request }) => {
+    await seed(page, request, 'adr053-popover')
     await page.goto('/dashboard')
-    await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$40.000,00')
+    await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$120.000,00')
 
-    const trigger = page.getByTestId('dashboard-balance-options')
+    const trigger = page.getByTestId('dashboard-spent-options')
     await trigger.click()
-    await expect(page.getByTestId('dashboard-balance-options-panel')).toBeVisible()
+    await expect(page.getByTestId('dashboard-spent-options-panel')).toBeVisible()
     const looseSaved = saved(page)
-    await page.getByTestId('dashboard-balance-option-loose-debts').click()
-    await expect(page.getByTestId('dashboard-total-balance')).toHaveText('-$20.000,00')
+    await page.getByTestId('dashboard-spent-option-loose-debts').click()
+    await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$140.000,00')
     await looseSaved
 
     await page.keyboard.press('Escape')
-    await expect(page.getByTestId('dashboard-balance-options-panel')).toHaveCount(0)
+    await expect(page.getByTestId('dashboard-spent-options-panel')).toHaveCount(0)
     await expect(trigger).toBeFocused()
   })
 })

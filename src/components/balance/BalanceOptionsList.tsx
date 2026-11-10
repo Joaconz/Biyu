@@ -3,8 +3,13 @@ import { BALANCE_OPTION_KEYS, type BalanceOptionKey, type BalanceOptions } from 
 import { formatSignedArs, type Decimal } from '@/domain/money'
 import { cn } from '@/lib/utils'
 
-/** El nombre de cada opción del balance y qué es, igual en la tarjeta del Resumen y en Ajustes (US-101, ADR-051). */
+/** El nombre de cada opción del gasto neto y qué es, igual en la tarjeta del Resumen y en Ajustes (US-101, ADR-053). */
 export const BALANCE_OPTION_COPY: Record<BalanceOptionKey, { slug: string; label: string; hint: string }> = {
+  income: {
+    slug: 'income',
+    label: 'Ingresos',
+    hint: 'Se restan del gasto: si entró más de lo que salió, el número queda negativo.',
+  },
   looseDebts: {
     slug: 'loose-debts',
     label: 'Deudas sueltas',
@@ -23,10 +28,10 @@ export const BALANCE_OPTION_COPY: Record<BalanceOptionKey, { slug: string; label
 }
 
 /**
- * Los tres interruptores de qué entra en el balance. Cada uno es `<testIdPrefix>-<slug>`, por ejemplo
- * `settings-summary-loose-debts` o `dashboard-balance-option-loose-debts`.
+ * Los interruptores de qué entra en el gasto neto. Cada uno es `<testIdPrefix>-<slug>`, por ejemplo
+ * `settings-summary-loose-debts` o `dashboard-spent-option-loose-debts`.
  *
- * Con `amounts`, cada fila dice cuánto mueve el balance de este mes (con signo; `null` si el mes no tiene
+ * Con `amounts`, cada fila dice cuánto mueve el número de este mes (con signo; `null` si el mes no tiene
  * nada de eso) en vez de la explicación: es la vista de la tarjeta, donde lo concreto se entiende más rápido.
  */
 export function BalanceOptionsList({

@@ -254,17 +254,20 @@ puede absorber un resto.
 
 ## `user_preferences`
 
-Una fila por usuario, creada al primer cambio en Ajustes o en la tarjeta de Balance del Resumen (US-101, ADR-047, ADR-051). Sin fila valen los
-predeterminados. Se escribe directo bajo RLS (`user_id = auth.uid()`, C7), sin RPC, y no toca ninguna
-transacción: solo cambia cómo se suma el balance al leer.
+Una fila por usuario, creada al primer cambio en Ajustes o en el héroe del Resumen (US-101, ADR-047, ADR-051, ADR-053). Sin fila valen los
+predeterminados (solo gastos). Se escribe directo bajo RLS (`user_id = auth.uid()`, C7), sin RPC, y no toca ninguna
+transacción: solo cambia cómo se suma el gasto neto al leer.
 
 | Columna | Tipo | Notas |
 |---|---|---|
 | user_id | uuid PK FK → auth.users | `default auth.uid()`; `on delete cascade` |
-| balance_loose_debts | boolean | not null, default `true`: el movimiento de las deudas sueltas entra al balance (ADR-041) |
-| balance_reimbursements | boolean | not null, default `false`: suma al balance lo que descuenta el neto de reembolsos (ADR-006) |
-| balance_pending_subscriptions | boolean | not null, default `false`: resta las suscripciones por cobrar del mes (ADR-045) |
+| balance_income | boolean | not null, default `false`: resta los ingresos del mes al gasto neto; con más ingresos que gastos el número queda negativo (ADR-053) |
+| balance_loose_debts | boolean | not null, default `false` (era `true` hasta ADR-053): el movimiento de las deudas sueltas entra al gasto neto (ADR-041) |
+| balance_reimbursements | boolean | not null, default `false`: resta lo que descuenta el neto de reembolsos (ADR-006) |
+| balance_pending_subscriptions | boolean | not null, default `false`: suma las suscripciones por cobrar del mes (ADR-045) |
 | updated_at | timestamptz | not null, default `now()` |
+
+Los nombres `balance_*` se conservan aunque el Resumen ya no muestre un balance (ADR-053): renombrarlos no aportaba nada.
 
 ## `imports`
 
@@ -399,16 +402,19 @@ parten de otra tabla — está indicado en cada una.
    de agosto en 12 cuotas tiene imputación en diciembre, y ese día de agosto no es un día
    con registro *de diciembre*. Esta consulta mide hábito de registro, no impacto mensual.
 8. **Movimiento de deudas sueltas** — parte de `debts` con `transaction_id is null` (US-83, ADR-041). El
-   balance del período es ingresos − gastos + este movimiento, que suma el `amount_ars` congelado de cada
+   gasto neto del período suma este movimiento con el signo invertido (consulta 9), que suma el `amount_ars` congelado de cada
    *evento* cuyo día cae en el período, en hora de Argentina: el alta (`incurred_on`) resta si la deuda es
    `owed_to_me` y suma si es `i_owe`; la saldada (`settled_at`, con `status = 'settled'`) hace lo contrario.
    Reabrir pone `settled_at` en nulo y el evento desaparece. Gastado, ingresos, el desglose y el neto de
    reembolsos no cambian. Se calcula en `src/domain/summary.ts` (`looseDebtMovement`).
-9. **Balance según las preferencias** (US-101, ADR-047) — ingresos − gastos, más el movimiento de las deudas
-   sueltas (consulta 8) si `balance_loose_debts`, más lo que descuenta el neto de reembolsos (consulta 6) si
-   `balance_reimbursements`, menos lo que las suscripciones activas todavía van a cobrar si
-   `balance_pending_subscriptions`. Las tres partes son disjuntas. Se calcula en `src/domain/balance.ts`, que también
-   arma el desglose de la tarjeta (`balanceBreakdown`, ADR-051): las líneas incluidas suman exactamente el balance.
+9. **Gasto neto según las preferencias** (US-101, ADR-047, ADR-053) — `gastos − Σ aporte(opción incluida)`, donde el
+   aporte de cada opción al resultado «ingresos − gastos» es: `+ingresos` si `balance_income`; el movimiento de las
+   deudas sueltas (consulta 8, con signo) si `balance_loose_debts`; `+` lo que descuenta el neto de reembolsos
+   (consulta 6) si `balance_reimbursements`; y `−` lo que las suscripciones activas todavía van a cobrar si
+   `balance_pending_subscriptions`. En la práctica: los ingresos y los reembolsos restan, las deudas prestadas y las
+   suscripciones por cobrar suman. Las cuatro partes son disjuntas. Sin ninguna opción es lo gastado. Se calcula en
+   `src/domain/balance.ts` (`computeNetSpent`, `spentView`), que también arma el desglose de la hoja del héroe
+   (`spentBreakdown`, ADR-053): las líneas incluidas suman exactamente el número.
 
 ## Vista de integridad
 

@@ -1,6 +1,6 @@
 # ADR-045 — El Resumen muestra aparte lo que las suscripciones todavía van a cobrar
 
-**Estado:** propuesta; dónde se muestra lo cambia [ADR-051](051-balance-desglosado-y-configurable-desde-el-resumen.md) §6 (línea del desglose del Balance) · **Fecha:** 2026-11
+**Estado:** propuesta; dónde se muestra lo cambia [ADR-051](051-balance-desglosado-y-configurable-desde-el-resumen.md) §6 (línea del desglose del Balance) y [ADR-053](053-un-solo-numero-de-gasto-neto-en-el-resumen.md) (línea del desglose del gasto neto; el «balance proyectado» pasa a «con ellas quedaría en») · **Fecha:** 2026-11
 **Relacionada:** ADR-001, ADR-017, ADR-031, ADR-033, ADR-041 · Matiza `docs/06-suscripciones.md` («el dashboard no sabe que las suscripciones existen»)
 
 ## Contexto

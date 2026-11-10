@@ -1,5 +1,5 @@
 import { formatPeriod, type Period } from './period'
-import { type BalanceOptions, type BalanceParts, computeBalance, DEFAULT_BALANCE_OPTIONS } from './balance'
+import { type BalanceOptions, type BalanceParts, computeNetSpent, DEFAULT_BALANCE_OPTIONS } from './balance'
 import { argentinaDateOf } from './debts'
 import { Decimal, parseMoney } from './money'
 
@@ -42,7 +42,7 @@ export interface SummaryDebt {
   transaction_deleted_at: string | null
 }
 
-/** Una deuda suelta (sin gasto de origen) para el movimiento del balance (US-83, ADR-041). */
+/** Una deuda suelta (sin gasto de origen) para el movimiento de las deudas sueltas (US-83, ADR-041). */
 export interface LooseDebt {
   direction: 'owed_to_me' | 'i_owe'
   /** Pesos congelados al crear la deuda (C5); texto porque PostgREST manda numeric como número (C2). */
@@ -75,17 +75,17 @@ export interface MonthlySummary {
   expensesUsd: Decimal // subtotal en USD de las imputaciones en dólares (US-24)
   income: Decimal
   /**
-   * Ingresos − gastos más lo que el usuario eligió incluir (US-83, US-101, ADR-047), sin las suscripciones
-   * por cobrar: esas se descuentan en la pantalla con `computeBalance(balanceParts, …)`, porque viven en otra carga.
+   * Lo gastado más o menos lo que el usuario eligió incluir (US-83, US-101, ADR-053), sin las suscripciones
+   * por cobrar: esas se suman en la pantalla con `computeNetSpent(balanceParts, …)`, porque viven en otra carga.
    */
-  balance: Decimal
-  /** Las partes del balance, para recalcularlo con las suscripciones por cobrar. */
+  netSpent: Decimal
+  /** Las partes del gasto neto, para recalcularlo con las suscripciones por cobrar. */
   balanceParts: BalanceParts
-  /** Lo que las deudas sueltas suman al balance: con signo, negativo si salió más plata de la que entró. */
+  /** El movimiento de las deudas sueltas: con signo, negativo si salió más plata de la que entró. */
   looseDebtMovement: Decimal
   /** Si el período tiene al menos un evento de una deuda suelta y el usuario las incluye: si no, la línea no se muestra. */
   hasLooseDebtEvents: boolean
-  /** Si el período tiene algún evento de una deuda suelta, se incluyan o no (ADR-051: la línea «fuera del balance»). */
+  /** Si el período tiene algún evento de una deuda suelta, se incluyan o no (ADR-053: la línea «fuera del número»). */
   looseDebtActivity: boolean
   inheritedInstallments: Decimal // cuotas con installment_number > 1
   /** Total gastado menos las deudas que cuentan para el neto (US-30); puede ser negativo. */
@@ -232,7 +232,7 @@ export function computeMonthlySummary(
     expenses,
     expensesUsd,
     income,
-    balance: computeBalance(balanceParts, options),
+    netSpent: computeNetSpent(balanceParts, options),
     balanceParts,
     looseDebtMovement: loose.movement,
     hasLooseDebtEvents: includesLoose,

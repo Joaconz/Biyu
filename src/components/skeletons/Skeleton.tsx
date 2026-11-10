@@ -30,14 +30,17 @@ export function ListSkeleton({ rows = 4, testId, label }: { rows?: number; testI
   )
 }
 
-/** El Resumen mientras carga: la tarjeta del total, Ingresos y Balance, y el bloque de categorías. */
+/** El Resumen mientras carga: el héroe del gasto, los datos chicos y el bloque de categorías (ADR-053). */
 export function DashboardSkeleton() {
   return (
     <div data-testid="dashboard-loading" role="status" aria-busy="true" className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
       <span className="sr-only">Cargando…</span>
-      <Skeleton className="h-52 rounded-2xl sm:h-56" />
-      {/* La tarjeta de Balance con su desglose (ADR-051), que incluye los ingresos. */}
-      <Skeleton className="h-64 rounded-2xl" />
+      <Skeleton className="h-64 rounded-3xl sm:h-72" />
+      {/* Los datos chicos de debajo del héroe: cuotas de meses anteriores y días con registro. */}
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton className="h-20 rounded-xl" />
+        <Skeleton className="h-20 rounded-xl" />
+      </div>
       <div className="mt-5 flex flex-col gap-2 lg:col-span-2">
         <Skeleton className="h-5 w-32" />
         <Skeleton className="h-56 rounded-xl" />

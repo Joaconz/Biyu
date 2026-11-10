@@ -1,6 +1,6 @@
 # ADR-051 — El balance se desglosa y se configura desde su tarjeta del Resumen
 
-**Estado:** propuesta · **Fecha:** 2026-11
+**Estado:** propuesta; los puntos 1 a 6 y 8 (y los testids de Consecuencias) los reemplaza [ADR-053](053-un-solo-numero-de-gasto-neto-en-el-resumen.md) · **Fecha:** 2026-11
 **Relacionada:** ADR-023, ADR-041, ADR-045, ADR-047 (lo extiende y reemplaza sus puntos 7 y 4, último guion) · US-29, US-83, US-101 ([#371](https://github.com/Joaconz/Biyu/issues/371)) · El punto 1 (desglose debajo del número) lo cambia [ADR-052](052-rebranding-esmeralda-claro-oscuro.md): el desglose está en la hoja.
 
 ## Contexto
