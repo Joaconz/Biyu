@@ -111,7 +111,7 @@ Ejecución en GitHub Actions ante cada push y cada pull request, levantando el s
 
 - **CRUD completo** ([#324](https://github.com/Joaconz/Biyu/issues/324)): editar un movimiento (US-84) y una deuda (US-86); borrado definitivo de movimientos, deudas, suscripciones y categorías (US-85, US-87 a US-89), con confirmación y un ADR nuevo porque contradice el soft delete de C10 (ADR-044, [#327](https://github.com/Joaconz/Biyu/issues/327)); reactivar una cuenta archivada (US-90).
 - **Deudas agrupadas por persona** (US-91, [#333](https://github.com/Joaconz/Biyu/issues/333)): el listado junta los nombres que solo difieren en mayúsculas, tildes o espacios y muestra el neto por persona. No cambia datos.
-- **Mejoras de UX** ([#325](https://github.com/Joaconz/Biyu/issues/325)): salen de la auditoría [#352](https://github.com/Joaconz/Biyu/issues/352) (US-92 a US-100).
+- **Mejoras de UX** ([#325](https://github.com/Joaconz/Biyu/issues/325)): salen de la auditoría [#352](https://github.com/Joaconz/Biyu/issues/352). Se implementaron de otra forma de la que pedían las historias (barra flotante con Ajustes dentro, rebranding con tema claro y oscuro, Resumen con dona y tendencias, gráficos de Suscripciones, categorías con ícono): las historias US-92 a US-94, US-97 y US-98 se adaptaron y se sumaron US-102 a US-105. US-95, US-96, US-99 y US-100 quedaron sin implementar.
 - **Lo que no llegó a V2**: US-80 a US-83 (importar compras empezadas, guía del archivo, compartir con varias personas, deudas sueltas en el balance).
 - **Defectos de V2**: DEF-030 a DEF-037 se corrigen y se confirman en V3 ([#326](https://github.com/Joaconz/Biyu/issues/326)).
 

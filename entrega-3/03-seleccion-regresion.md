@@ -21,17 +21,17 @@ Respecto de la Entrega 2 se dejan de lado sus reglas 2 a 4 (Media de los módulo
 
 | Módulo | Versión | Casos | Seleccionados | Qué de V3 lo puede romper |
 |---|---|---|---|---|
-| Acceso (ACC) | V1 | 12 | 9 | US-92 (barra inferior) y US-96 (tamaño de los controles) cambian la navegación que recorren |
-| Configuración (CFG) | V1 | 15 | 6 | US-89 (borrar categoría), US-90 (reactivar cuenta) y US-93 (Ajustes por secciones) |
-| Registro (REG) | V1 | 16 | 6 | US-84 (editar un movimiento), US-98 (chips) y US-99 (separador de miles al escribir el monto) |
+| Acceso (ACC) | V1 | 12 | 9 | US-92 (barra inferior flotante, con Ajustes dentro) cambia la navegación que recorren |
+| Configuración (CFG) | V1 | 15 | 6 | US-89 (borrar categoría), US-90 (reactivar cuenta) y US-93 (Ajustes en tarjetas) y US-105 (categorías en su pantalla) |
+| Registro (REG) | V1 | 16 | 6 | US-84 (editar un movimiento) y US-98 (baldosas de categoría legibles) |
 | Cuotas (CUO) | V1 | 13 | 10 | US-84 regenera las imputaciones al editar (ADR-009) y US-85 las borra |
-| Monedas (MON) | V1 | 7 | 5 | US-84 (el tipo de cambio sigue congelado al editar) y US-99 |
-| Resumen (DAS) | V1 | 11 | 3 | Todo borrado o edición cambia los totales; US-92 y US-97 cambian la pantalla |
-| Deudas (DEU) | V2 | 61 | 47 | US-82, US-83, US-86, US-87, US-91, US-100 y DEF-037 |
-| Navegación (NAV) | V2 | 25 | 15 | US-92 (quinto ítem en la barra), US-96 y US-97 |
+| Monedas (MON) | V1 | 7 | 5 | US-84 (el tipo de cambio sigue congelado al editar) |
+| Resumen (DAS) | V1 | 11 | 3 | Todo borrado o edición cambia los totales; US-92, US-97 y US-103 (dona y tendencias) cambian la pantalla |
+| Deudas (DEU) | V2 | 61 | 47 | US-82, US-83, US-86, US-87, US-91 y DEF-037 |
+| Navegación (NAV) | V2 | 25 | 15 | US-92 (barra flotante de cinco destinos) y US-97 (transiciones) |
 | Exportar CSV (EXP) | V2 | 31 | 27 | US-85 (lo borrado definitivamente no se exporta) y DEF-030 a DEF-032 |
 | Importar Excel (IMP) | V2 | 41 | 15 | US-80, US-81 y DEF-033 |
-| Suscripciones (SUS) | V2 | 48 | 31 | US-88 (borrar una suscripción), US-95 (US$, «Cuenta» y chips) y DEF-034 a DEF-036 |
+| Suscripciones (SUS) | V2 | 48 | 31 | US-88 (borrar una suscripción), US-104 (gráficos de cobros) y DEF-034 a DEF-036 |
 | Resumen por categoría (CAT) | V2 | 6 | 3 | US-85 y US-89 (categorías y movimientos que se borran) |
 | **Total** | | **286** | **177** | |
 
@@ -47,7 +47,7 @@ Respecto de la Entrega 2 se dejan de lado sus reglas 2 a 4 (Media de los módulo
 
 ## Antes de ejecutar
 
-- Cada caso se revisa contra V3. Si una historia de V3 cambió un paso o un texto (por ejemplo, «USD» pasa a «US$» con US-95, la barra inferior suma Movimientos con US-92, la confirmación de borrado cambia con US-94), se corrige el caso y se anota el cambio en «Cambios a la selección». El resultado esperado no se relaja para que pase.
+- Cada caso se revisa contra V3. Si una historia de V3 cambió un paso o un texto (por ejemplo, el engranaje pasa a la barra inferior con US-92, la confirmación de borrado cambia con US-94), se corrige el caso y se anota el cambio en «Cambios a la selección». El resultado esperado no se relaja para que pase.
 - Los IDs son los vigentes (V2 renumerado el 2026-10-27, ver `entrega-2/equivalencia-ids.md`).
 - Cada caso usa su propio usuario de prueba (PR-01 de `docs/12-procedimientos-de-prueba.md`).
 
