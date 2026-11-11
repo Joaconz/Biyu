@@ -3,7 +3,7 @@
 **Historia:** [#358](https://github.com/Joaconz/Biyu/issues/358) · ADR-049 · NFR-06.
 **Oráculo:** los criterios CA-1 a CA-4 de la historia adaptada. Las cuatro pantallas con listado muestran esqueletos con la forma del contenido; las navegaciones se animan con View Transitions según su clase (`none`, `tab`, `forward`, `back`) y el movimiento reducido deja solo el fundido.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). Para ver el esqueleto, en DevTools → Network elegir «Slow 4G» o demorar las llamadas a `/rest/v1/`. Para ver las transiciones, Chrome (View Transitions). Montos ficticios (C14).
-**Automatización:** `e2e/ux-navegacion.spec.ts` (CP-NAV-033 a 036) y `tests/lib/viewTransitions.test.ts` (clasificación). CP-NAV-037 es de inspección manual.
+**Automatización:** `e2e/ux-navegacion.spec.ts` (CP-NAV-033 a 036) y `tests/lib/viewTransitions.test.ts` (clasificación). CP-NAV-037 también está automatizado (`e2e/ux-navegacion.spec.ts`).
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|
@@ -11,7 +11,7 @@
 | CP-NAV-034 | Cambiar de mes o de filtro no dispara transición | CA-2 | Particiones | Negativo | UI | Media | Sí |
 | CP-NAV-035 | Cambiar de pestaña funde y entrar a un detalle o volver desplaza y funde | CA-1 | Transición de estados | Positivo | UI | Media | Sí |
 | CP-NAV-036 | Con movimiento reducido no hay desplazamiento ni pulso, solo fundido | CA-3 | Valores límite | Límite | UI | Media | Sí |
-| CP-NAV-037 | El «atrás» del navegador no usa la dirección de la navegación anterior | CA-4 | Adivinación de errores | Negativo | UI | Baja | No |
+| CP-NAV-037 | El «atrás» del navegador no usa la dirección de la navegación anterior | CA-4 | Adivinación de errores | Negativo | UI | Baja | Sí |
 
 ## CP-NAV-033 — Esqueleto y contenido
 **Pre-requisitos:** PR-01 con `esqueleto-033@biyu.test`; un gasto, una deuda y una suscripción; red en «Slow 4G».

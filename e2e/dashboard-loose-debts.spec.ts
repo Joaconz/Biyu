@@ -105,3 +105,20 @@ test('CA-9 · un mes con solo la deuda muestra el Resumen y no el estado vacío'
   await openSpentOptions(page)
   await expect(page.getByTestId('dashboard-spent-loose-debts')).toBeVisible()
 })
+
+test('CP-DAS-020 · el mes viene de la URL y, si falla la lectura de las deudas, no hay números', async ({ page, request }) => {
+  const { api } = await seed(page, request, 'cp-das-020')
+  expect((await debt(api, 'owed_to_me', 'Lucas', '20000')).status).toBe(200)
+
+  // Paso 1: el mes de la URL manda (C11).
+  const [year, month] = dayOfMonth().split('-').map(Number)
+  const previous = month === 1 ? `${year - 1}-12` : `${year}-${String(month - 1).padStart(2, '0')}`
+  await page.goto(`/dashboard?period=${previous}-01`)
+  await expect(page).toHaveURL(new RegExp(`period=${previous}`))
+
+  // Paso 3: la lectura de las deudas falla y el Resumen no muestra ningún número.
+  await page.route(/\/rest\/v1\/debts\?/, (route) => route.abort('failed'))
+  await page.goto(`/dashboard?period=${dayOfMonth()}`)
+  await expect(page.getByTestId('dashboard-error')).toBeVisible({ timeout: 25_000 })
+  await expect(page.getByTestId('dashboard-total-expenses')).toHaveCount(0)
+})

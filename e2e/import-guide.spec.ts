@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import writeXlsxFile from 'write-excel-file/universal'
 import { signUpAndSkipSetup } from './support/app.ts'
 
 // US-81 (#269): guía "Cómo armar el archivo". CA-1 a CA-4, CA-5 (nombre), CA-8, CA-9 y CA-10.
@@ -80,4 +81,41 @@ test('CA-9 · a 390 px entra con 16 px de margen y la tabla scrollea por dentro'
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
   const table = page.getByTestId('import-guide-example')
   expect(await table.evaluate((t) => t.parentElement!.scrollWidth > t.parentElement!.clientWidth)).toBe(true)
+})
+
+test('CP-IMP-057 · abrir y cerrar la guía no cambia el archivo, el resumen, el filtro ni la URL', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'cp-imp-057')
+  const blob = await writeXlsxFile([{ sheet: 'Movimientos', data: [
+    ['Fecha', 'Tipo', 'Monto', 'Moneda', 'Tipo de cambio', 'Categoría', 'Cuenta', 'Cuotas', 'Cuotas pendientes', 'Nota'],
+    ['01/01/2020', 'Gasto', 1000, 'ARS', '', 'Otros', 'Efectivo', '', '', 'Bien'],
+    ['01/01/2020', 'Gasto', 0, 'ARS', '', 'Otros', 'Efectivo', '', '', 'Monto en cero'],
+  ] }]).toBlob()
+  await page.goto('/import')
+  await page.getByTestId('import-file-input').setInputFiles({
+    name: 'mixto.xlsx',
+    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    buffer: Buffer.from(await blob.arrayBuffer()),
+  })
+  await expect(page.getByTestId('import-summary')).toBeVisible()
+  await page.getByTestId('import-filter-errors').click()
+
+  const before = {
+    file: await page.getByTestId('import-file-name').innerText(),
+    summary: await page.getByTestId('import-summary').innerText(),
+    rows: await page.getByTestId('import-rows').locator('li').count(),
+    filter: await page.getByTestId('import-filter-errors').getAttribute('aria-checked'),
+    url: page.url(),
+  }
+  expect(before.filter).toBe('true')
+
+  await page.getByTestId('import-guide-open').click()
+  await expect(page.getByTestId('import-guide-dialog')).toBeVisible()
+  await page.getByTestId('import-guide-done').click()
+  await expect(page.getByTestId('import-guide-dialog')).toHaveCount(0)
+
+  expect(await page.getByTestId('import-file-name').innerText()).toBe(before.file)
+  expect(await page.getByTestId('import-summary').innerText()).toBe(before.summary)
+  expect(await page.getByTestId('import-rows').locator('li').count()).toBe(before.rows)
+  expect(await page.getByTestId('import-filter-errors').getAttribute('aria-checked')).toBe(before.filter)
+  expect(page.url()).toBe(before.url)
 })

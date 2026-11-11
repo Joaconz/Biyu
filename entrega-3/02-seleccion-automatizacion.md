@@ -36,7 +36,7 @@ Todos los casos de V2 ya están marcados como automatizables en `entrega-2/casos
 | Por la API (negativos, autorización cruzada, rol `anon`) | Playwright `request` contra PostgREST | Con el token del usuario de prueba (PR-04), como se ejecutaron en V2 |
 | Por la base (invariantes, concurrencia) | pgTAP (`supabase/tests/database/`) | Los que ya indican pgTAP en su caso |
 
-- El título de cada test empieza con el ID del caso (`CP-DEU-012 · …`), así el reporte se cruza con el catálogo.
+- El título de cada test de la regresión y de los casos de UX empieza con el ID del caso (`CP-DEU-012 · …`). Los tests de US-80 a US-91 se escribieron por criterio de aceptación, sin el ID en el título: el cruce entre caso y prueba (Playwright, pgTAP y Vitest) está en [`04-ejecucion.md`](04-ejecucion.md) y se genera con `entrega-3/fuentes/generar_ejecucion.py`.
 - Los pasos y el resultado esperado salen del caso escrito. Si el caso está mal o es ambiguo, se corrige el caso y se anota, como se hizo con CP-DEU-001, 003 y 011 en la Entrega 2.
 - La suite corre contra Vite y Supabase local, en la CI en cada PR ([#334](https://github.com/Joaconz/Biyu/issues/334)), y publica el reporte como artefacto ([#337](https://github.com/Joaconz/Biyu/issues/337)).
 

@@ -1,0 +1,1344 @@
+{
+ "stats": {
+  "expected": 257,
+  "unexpected": 9,
+  "flaky": 0,
+  "skipped": 0
+ },
+ "suites": [
+  {
+   "specs": [
+    {
+     "file": "access.spec.ts",
+     "title": "crear la cuenta lleva a la configuración inicial aunque la siembra tarde (DEF-023)",
+     "ok": true
+    },
+    {
+     "file": "access.spec.ts",
+     "title": "una cuenta nueva siempre llega a Registrar con sus cuentas, aunque la siembra tarde (DEF-028)",
+     "ok": true
+    },
+    {
+     "file": "access.spec.ts",
+     "title": "al iniciar sesión vuelve al destino original con su período (DEF-008)",
+     "ok": true
+    },
+    {
+     "file": "accounts-unarchive.spec.ts",
+     "title": "US-90 CA-1 · una cuenta archivada se ve en «Archivadas», se reactiva y vuelve a Registrar",
+     "ok": true
+    },
+    {
+     "file": "accounts-unarchive.spec.ts",
+     "title": "US-90 CA-2 · si ya hay una cuenta activa con ese nombre no se reactiva y lo avisa",
+     "ok": true
+    },
+    {
+     "file": "accounts-unarchive.spec.ts",
+     "title": "US-90 CA-3 · los movimientos viejos de la cuenta no cambian al archivarla y reactivarla",
+     "ok": true
+    },
+    {
+     "file": "accounts-unarchive.spec.ts",
+     "title": "US-90 CA-4 · por la API, un usuario no puede reactivar la cuenta archivada de otro (C7)",
+     "ok": true
+    },
+    {
+     "file": "catchup-banner-dismiss.spec.ts",
+     "title": "la franja de la puesta al día que falló se cierra con la X y no vuelve al recargar",
+     "ok": true
+    },
+    {
+     "file": "dashboard-amounts.spec.ts",
+     "title": "los montos más grandes entran en sus tarjetas del Resumen a 360 px (DEF-021)",
+     "ok": true
+    },
+    {
+     "file": "dashboard-balance-options.spec.ts",
+     "title": "el popover nace de la pill, Escape lo cierra y el foco vuelve al botón",
+     "ok": true
+    },
+    {
+     "file": "dashboard-balance-options.spec.ts",
+     "title": "en el celular, la hoja del héroe cambia el número al instante y la elección queda guardada",
+     "ok": true
+    },
+    {
+     "file": "dashboard-balance-options.spec.ts",
+     "title": "el ícono de la esquina abre la misma hoja",
+     "ok": true
+    },
+    {
+     "file": "dashboard-loose-debts.spec.ts",
+     "title": "CA-1, CA-3 y CA-14 · «me deben» suma al gasto neto, saldarla lo deja en -$100.000 y la línea sigue",
+     "ok": true
+    },
+    {
+     "file": "dashboard-loose-debts.spec.ts",
+     "title": "CA-2 · «debo» baja el gasto neto",
+     "ok": true
+    },
+    {
+     "file": "dashboard-loose-debts.spec.ts",
+     "title": "CA-8 · un gasto compartido no mueve las deudas sueltas ni muestra la línea",
+     "ok": true
+    },
+    {
+     "file": "dashboard-loose-debts.spec.ts",
+     "title": "CA-9 · un mes con solo la deuda muestra el Resumen y no el estado vacío",
+     "ok": true
+    },
+    {
+     "file": "dashboard-loose-debts.spec.ts",
+     "title": "CP-DAS-020 · el mes viene de la URL y, si falla la lectura de las deudas, no hay números",
+     "ok": true
+    },
+    {
+     "file": "debt-form.spec.ts",
+     "title": "CP-DEU-024 · el primer clic en «US$» selecciona la moneda y muestra el tipo de cambio (DEF-037)",
+     "ok": true
+    },
+    {
+     "file": "debt-form.spec.ts",
+     "title": "CP-DEU-021 · dejar «Persona» vacía y pasar a «Monto» muestra su error y deshabilita «Guardar deuda»",
+     "ok": true
+    },
+    {
+     "file": "debt-form.spec.ts",
+     "title": "con el teclado, salir de «Persona» vacía muestra el error enseguida",
+     "ok": true
+    },
+    {
+     "file": "debts-delete.spec.ts",
+     "title": "US-87: eliminar una deuda suelta con confirmación; cancelar no borra",
+     "ok": true
+    },
+    {
+     "file": "debts-delete.spec.ts",
+     "title": "US-87: una deuda saldada no ofrece «Eliminar» hasta volver a pendiente",
+     "ok": true
+    },
+    {
+     "file": "debts-delete.spec.ts",
+     "title": "US-87: si la baja falla el diálogo sigue abierto y permite reintentar",
+     "ok": true
+    },
+    {
+     "file": "debts-edit.spec.ts",
+     "title": "US-86 CA-1 · se edita una deuda suelta desde el listado y vuelve con los mismos filtros",
+     "ok": false
+    },
+    {
+     "file": "debts-edit.spec.ts",
+     "title": "US-86 CA-2 · en US$ el tipo de cambio sigue congelado y la moneda es texto",
+     "ok": true
+    },
+    {
+     "file": "debts-edit.spec.ts",
+     "title": "US-86 CA-3 y CA-4 · la deuda de un gasto edita persona, monto y nota, con el tope del gasto",
+     "ok": true
+    },
+    {
+     "file": "debts-edit.spec.ts",
+     "title": "US-86 CA-5 · las validaciones de la pantalla tienen los mensajes de «Nueva deuda»",
+     "ok": true
+    },
+    {
+     "file": "debts-edit.spec.ts",
+     "title": "US-86 CA-6 · una deuda saldada no se edita: primero se vuelve a pendiente",
+     "ok": true
+    },
+    {
+     "file": "debts-edit.spec.ts",
+     "title": "US-86 CA-7 · si falla guardar se muestra el error, se conserva lo escrito y reintentar guarda",
+     "ok": true
+    },
+    {
+     "file": "debts-edit.spec.ts",
+     "title": "US-86 CA-8 · otro usuario y anon no pueden editar la deuda ajena (C7)",
+     "ok": true
+    },
+    {
+     "file": "debts-grouping.spec.ts",
+     "title": "US-91 CA-1 · «Juan», «juan» y «Juán» quedan en un solo grupo, plegado, que se despliega al tocarlo",
+     "ok": true
+    },
+    {
+     "file": "debts-grouping.spec.ts",
+     "title": "US-91 CA-2 · el neto de un grupo con ARS y US$ muestra las dos monedas, sin convertir",
+     "ok": true
+    },
+    {
+     "file": "debts-grouping.spec.ts",
+     "title": "US-91 CA-3 · con «Saldadas» el grupo solo cuenta las saldadas y el filtro vive en la URL",
+     "ok": true
+    },
+    {
+     "file": "debts-grouping.spec.ts",
+     "title": "US-91 CA-4 · los totales por dirección y el estado vacío no cambian, y saldar desde el grupo funciona",
+     "ok": true
+    },
+    {
+     "file": "debts-grouping.spec.ts",
+     "title": "US-91 · una persona con una sola deuda se ve como fila común, y el listado no tiene grupos sin deudas repetidas",
+     "ok": true
+    },
+    {
+     "file": "export-sheet.spec.ts",
+     "title": "CP-EXP-003 · el alcance mensual descarga biyu-movimientos-2026-09.csv y la hoja se puede reabrir",
+     "ok": true
+    },
+    {
+     "file": "export-sheet.spec.ts",
+     "title": "CP-EXP-027 · tocar fuera de la hoja la cierra sin descargar (DEF-030)",
+     "ok": true
+    },
+    {
+     "file": "export-sheet.spec.ts",
+     "title": "CP-EXP-028 · «Atrás» y «Adelante» con la hoja abierta la cierran y cambian el período (DEF-031)",
+     "ok": true
+    },
+    {
+     "file": "export-sheet.spec.ts",
+     "title": "CP-EXP-029 · «Atrás» durante «Exportando…» cancela la descarga (DEF-032)",
+     "ok": true
+    },
+    {
+     "file": "harness.spec.ts",
+     "title": "PR-01 y PR-04: alta con setup salteado y lectura por la API con el token del usuario",
+     "ok": true
+    },
+    {
+     "file": "import-guide.spec.ts",
+     "title": "CA-1 y CA-2 · cerrada por defecto; se abre con el contenido exacto",
+     "ok": false
+    },
+    {
+     "file": "import-guide.spec.ts",
+     "title": "CA-3 y CA-4 · se cierra por cuatro vías, el foco vuelve y Tab no sale",
+     "ok": true
+    },
+    {
+     "file": "import-guide.spec.ts",
+     "title": "CA-5 · la plantilla del diálogo baja el mismo archivo que la del paso 1",
+     "ok": true
+    },
+    {
+     "file": "import-guide.spec.ts",
+     "title": "CA-9 · a 390 px entra con 16 px de margen y la tabla scrollea por dentro",
+     "ok": false
+    },
+    {
+     "file": "import-guide.spec.ts",
+     "title": "CP-IMP-057 · abrir y cerrar la guía no cambia el archivo, el resumen, el filtro ni la URL",
+     "ok": true
+    },
+    {
+     "file": "import-started-purchase.spec.ts",
+     "title": "CA-2, CA-3, CA-13 y CA-17 · una compra de 6 cuotas con 3 pendientes se imputa desde este mes",
+     "ok": true
+    },
+    {
+     "file": "import-started-purchase.spec.ts",
+     "title": "CA-7 · las cuotas pendientes en una compra de una cuota se rechazan",
+     "ok": true
+    },
+    {
+     "file": "nav-shield.spec.ts",
+     "title": "CP-NAV-030 · B1: un toque en la franja de la barra no navega ni activa nada de atrás",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-001 · sin sesión, la app redirige al login",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-002 · una ruta privada abierta sin sesión conserva el destino",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-003 · crear una cuenta con email y contraseña válidos",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-004 · las contraseñas que no cumplen los criterios se rechazan, por la pantalla y por la API",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-005 · no se puede crear una cuenta con un email ya registrado",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-008 · una cuenta nueva tiene el catálogo inicial sembrado",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-009 · cerrar sesión y no poder volver con «atrás»",
+     "ok": false
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-011 · aislamiento entre usuarios en todas las tablas (par de autorización)",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-ACC-012 · contraseña y confirmación distintas bloquean el alta",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-010 · tocar Registrar en Registrar conserva el paso 3 y el borrador",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-011 y 025 · guardar muestra la confirmación completa y un doble toque envía una sola RPC",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-012 y 013 · un fallo offline conserva los datos y Reintentar guarda una sola vez",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-014 · a los 15 segundos de espera aparece el error reintentable",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-015 · un reintento con commit previo no duplica",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-016 · la misma clave secuencial devuelve el mismo id",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-017 · dos llamadas simultáneas con la misma clave crean una fila",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-018 · la misma clave de dos usuarios no colisiona",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-019 · archivar la categoría entre la revisión y el guardado produce un rechazo sin pendiente",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-020 · la API rechaza una categoría archivada con el código de integridad",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-021 y 023 · volver a Registrar muestra el pendiente y descartar lo elimina aunque se recargue",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-022 · Recuperar detecta una transacción activa que ya se había guardado",
+     "ok": true
+    },
+    {
+     "file": "regression-acc-nav.spec.ts",
+     "title": "CP-NAV-024 · cerrar sesión borra todos los pendientes del usuario",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CFG-001 · crear una categoría con nombre y color",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CFG-004 · archivar una categoría con historia",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CFG-006 · crear una cuenta de tarjeta de crédito",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CFG-008 · la siembra concurrente no duplica el catálogo",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CFG-009 · cargar y actualizar el tipo de cambio de referencia del mes sin duplicar la fila",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CFG-011 · después de crear la cuenta aparece la configuración inicial",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-REG-001 · el registro es la pantalla de inicio, en el paso del monto",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-REG-010 · monto vacío, cero o negativo no se guarda; 0,01 sí; la API rechaza 0 y -500",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-REG-012 y 013 · eliminar una compra en cuotas la saca del total del mes y es retroactivo en los meses cerrados",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-REG-014 y 015 · otro usuario no lee ni borra una transacción ajena, y no se escribe salteando la RPC",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-DAS-001 y 002 · el Resumen abre en el mes actual y el mes elegido vive en la URL",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-DAS-011 · el Resumen de un usuario nunca muestra datos de otro",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CAT-001 y 002 · la torta tiene una porción por categoría con monto y porcentaje, sin ingresos ni eliminados",
+     "ok": true
+    },
+    {
+     "file": "regression-cfg-reg-das-cat.spec.ts",
+     "title": "CP-CAT-004 · tocar una categoría del Resumen abre su detalle del mes",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-001 · una compra en 12 cuotas genera 12 imputaciones consecutivas",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-002 · la previsualización muestra el impacto mensual antes de guardar",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-003 · cambiar a una cuenta que no es crédito resetea las cuotas; la API rechaza la combinación",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-004 · 12 cuotas iguales: cada una de $10.000,00 y la suma es el total",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-005 · el resto lo absorbe la última cuota",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-006 · cantidad de cuotas: 0, 1, 2, 12 y 13",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-009 · borrar una compra en cuotas saca todas sus cuotas de Movimientos",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-011 · otro usuario no ve las cuotas de una compra ajena",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-012 · un ingreso no admite cuotas aunque la cuenta sea crédito",
+     "ok": true
+    },
+    {
+     "file": "regression-cuo.spec.ts",
+     "title": "CP-CUO-013 · un fallo a mitad de create_transaction no deja datos parciales",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-001 · el interruptor «Gasto compartido» se enciende y se apaga, y el gasto se guarda sin deuda",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-002 · un gasto compartido de $120.000 en 12 cuotas guarda el gasto y la deuda vinculada de Sofía",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-003 · un gasto compartido en dólares avisa en dólares y congela el tipo de cambio",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-005, 006, 008, 010 · no se puede compartir sin monto, sin persona, con nombre de espacios ni con 0",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-007 · un ingreso no se puede compartir",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-011 y 012 · una deuda igual al gasto se acepta y un centavo más no se puede guardar",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-013 y 057 · por API, una deuda mayor que el gasto o deudas que suman más se rechazan y no se guarda nada",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-015 y 016 · eliminar el gasto oculta la deuda y restaurarlo la devuelve con su estado",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-017 y 018 · una deuda suelta «Me deben» y otra «Debo» se guardan con su dirección",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-019 y 038 · una deuda en US$ guarda el tipo de cambio de referencia y no cambia si la referencia cambia",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-022 · un monto igual a 0 muestra «El monto debe ser mayor a cero»",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-025 · con US$ un tipo de cambio de 0 muestra «El tipo de cambio debe ser mayor a cero» (DEF-037)",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-026 · una fecha posterior a hoy muestra «La fecha no puede ser futura» y deshabilita «Guardar deuda»",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-027, 029, 031, 033 · directo contra create_debt se rechazan persona vacía, monto 0, US$ sin tipo de cambio y fecha futura",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-034, 035, 045 · sin sesión no se crea ni se lee, y el POST directo a /debts responde 42501",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-036, 037 y 039 · totales, neto «En contra» y filtro de estado en la URL",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-043, 044, 049, 050, 051 · autorización y estados: otro usuario no ve ni salda, saldar dos veces y modificar directo se rechazan",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-046, 047, 052 · saldar, deshacer y volver a pendiente",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-054 · filtro por dirección: Todas, Te deben y Debés",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-055 y 056 · compartir con varias personas: agregar, quitar y hasta 10",
+     "ok": true
+    },
+    {
+     "file": "regression-deu.spec.ts",
+     "title": "CP-DEU-058 a 061 · Resumen: gasto bruto y neto de reembolsos, que no cambia al saldar ni por una deuda suelta ni por el tipo de cambio",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-002 · el mes siguiente está bloqueado",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-004 y 005 · el primer día del mes se incluye y el día posterior se excluye",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-006 y 007 · el 1 de enero se incluye en el año y el día posterior al año se excluye",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-008 · una transacción eliminada queda fuera",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-009 y 010 · el archivo empieza con BOM UTF-8, CRLF y el encabezado de doce columnas exactas",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-011 y 012 · doce cuotas salen en una sola fila por el total y ARS con dos decimales exactos",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-013 · USD conserva cuatro decimales del tipo de cambio",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-014 a 017 · la coma obliga a entrecomillar, las comillas se duplican y el = inicial se neutraliza",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-018 · 1.500 transacciones se exportan sin faltantes ni repetidas",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-019 y 020 · el CSV y la API de A no traen movimientos de B",
+     "ok": false
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-023 · un doble click inicia una sola descarga",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-025 y 026 · sin conexión muestra el error exacto y el reintento descarga completo",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-030 · una alta concurrente no deja descargar un año incompleto",
+     "ok": true
+    },
+    {
+     "file": "regression-exp.spec.ts",
+     "title": "CP-EXP-031 · un HTTP 500 muestra el error y no descarga",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-014 · F8: un monto cero se rechaza en la revisión",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-024 · nombres, tipo y moneda aceptan espacios y mayúsculas (DEF-033)",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-027 · el resumen del archivo de ejemplo suma solo las siete filas listas",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-030 · confirmar importa solo las filas listas con todos sus campos",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-031 · la compra de 240.000 en seis cuotas crea seis imputaciones exactas",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-032 · un rechazo tardío de categoría no impide las otras filas",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-033 · quinientas filas de doce cuotas terminan en menos de diez segundos",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-034 y 035 · la RPC procesa una válida y rechaza tres inválidas, y rechaza un lote de 501",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-036 y 037 · anon no puede importar y otro usuario no ve transacciones ni imports ajenos",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-038 y 039 · el reintento con el mismo import_id reconoce lo guardado y es idempotente",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-040 · sin respuesta se conserva la revisión y se ofrece reintentar",
+     "ok": true
+    },
+    {
+     "file": "regression-imp.spec.ts",
+     "title": "CP-IMP-041 · una sesión vencida ofrece volver a entrar",
+     "ok": true
+    },
+    {
+     "file": "regression-mon.spec.ts",
+     "title": "CP-MON-001 · un gasto en US$ con el tipo de cambio sugerido se guarda a 1250 y $125.000",
+     "ok": true
+    },
+    {
+     "file": "regression-mon.spec.ts",
+     "title": "CP-MON-002 · tabla de decisión de moneda y tipo de cambio",
+     "ok": true
+    },
+    {
+     "file": "regression-mon.spec.ts",
+     "title": "CP-MON-004 · cambiar la referencia no altera lo ya guardado",
+     "ok": true
+    },
+    {
+     "file": "regression-mon.spec.ts",
+     "title": "CP-MON-005 · el total del mes en pesos incluye lo gastado en dólares",
+     "ok": true
+    },
+    {
+     "file": "regression-mon.spec.ts",
+     "title": "CP-MON-007 · otro usuario no lee ni modifica el tipo de cambio ajeno",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-001 · dar de alta una suscripción desde hace 2 meses genera los gastos vencidos al guardar",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-006 y 007 · el nombre igual al de otra activa se rechaza por la pantalla y por la API sin distinguir mayúsculas ni espacios",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-008 y 009 · un monto 0 se rechaza por la pantalla y por la API",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-017 y 018 · una categoría ajena y un INSERT directo se rechazan",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-020 y 021 · la suscripción de otro usuario no se ve ni se lee",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-024 · la puesta al día al entrar a la app genera los períodos vencidos y muestra el aviso",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-025 y 026 · la puesta al día es idempotente y una pausada no genera",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-027, 028 y 029 · el día de cobro 31 se ajusta al fin de mes y el cobro de hoy sí y el de mañana no se genera",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-030 y 031 · pausar avisa del mes sin cobrar, queda «Pausada» con piso en el mes siguiente y genera lo vencido antes",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-033 · reanudar pasa a «Activa», limpia paused_at, conserva el piso y no genera el mes actual",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-034 · cancelar mantiene el historial y oculta las acciones",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-035 y 037 · editar el monto no cambia lo generado, moneda y mes de inicio son de solo lectura y no se puede repetir un nombre",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-040, 041 y 042 · eliminar una ocurrencia, su marca en Movimientos y lo que suma en el Resumen",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-043 · en US$ sin tipo de cambio en un mes solo se genera el que lo tiene y se avisa «Falta tipo de cambio»",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-044 y 045 · el total mensual comprometido suma pesos y dólares al tipo de cambio del mes",
+     "ok": true
+    },
+    {
+     "file": "regression-sus.spec.ts",
+     "title": "CP-SUS-047 · la vista previa muestra los meses que se cargan al guardar",
+     "ok": true
+    },
+    {
+     "file": "settings-summary.spec.ts",
+     "title": "el predeterminado es solo gastos y cada interruptor cambia solo el número del Resumen",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "DEF-015: todo elemento interactivo de Ajustes tiene un data-testid propio",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "DEF-010: archivar todas las categorías no hace que se vuelvan a sembrar",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "DEF-011: editar, archivar y eliminar cuentas, con confirmación al eliminar",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "DEF-024: el diálogo de eliminar cuenta toma el foco, lo retiene y lo devuelve",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "DEF-025: el error al editar aparece en la fila que se edita",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "DEF-026: sin categorías activas hay salida, y las archivadas se pueden reactivar",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "DEF-026: el paso de categorías del setup no queda vacío sin explicación",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "US-89: una categoría sin uso se borra con confirmación; una en uso se rechaza",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "ADR-055: el ícono y el color elegidos se ven en la lista y en Registrar, y se pueden cambiar",
+     "ok": true
+    },
+    {
+     "file": "settings.spec.ts",
+     "title": "CP-CFG-017 · una categoría archivada sin uso se borra desde «Archivadas»",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "una cuenta nueva ve el setup, lo saltea y queda adentro de la app aunque recargue",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "completar el setup con el primer gasto lleva a la app",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "después de completarlo, volver a iniciar sesión no muestra el setup",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "si guardar el setup falla, igual se entra a la app",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "si leer el estado del setup falla, se entra a la app",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "una cuenta sin fila de setup (anterior a US-68) entra directo a la app",
+     "ok": true
+    },
+    {
+     "file": "shared-many-people.spec.ts",
+     "title": "CA-1, CA-3 y CA-7 · agregar, dividir en partes iguales y quitar filas",
+     "ok": true
+    },
+    {
+     "file": "shared-many-people.spec.ts",
+     "title": "CA-4, CA-5 y CA-6 · la suma, el tope de 10 y la persona repetida",
+     "ok": true
+    },
+    {
+     "file": "shared-many-people.spec.ts",
+     "title": "CA-2, CA-10, CA-11 y CA-12 · se guarda con una sola llamada y se ve en Movimientos, el borrado y Deudas",
+     "ok": true
+    },
+    {
+     "file": "shared-many-people.spec.ts",
+     "title": "CA-11 · el diálogo de borrado lista las deudas de las tres personas",
+     "ok": true
+    },
+    {
+     "file": "shared-many-people.spec.ts",
+     "title": "CP-DEU-095 · cambiar el paso 1 con filas cargadas: otra moneda vacía los montos y pasar a ingreso apaga el interruptor",
+     "ok": true
+    },
+    {
+     "file": "shared-many-people.spec.ts",
+     "title": "CP-DEU-095 · bajar el gasto con filas cargadas marca la suma y después el tope por fila, sin ajustar las deudas",
+     "ok": true
+    },
+    {
+     "file": "smoke.spec.ts",
+     "title": "alta, gasto en 3 cuotas con tarjeta de crédito y total del mes en el dashboard",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-charts.spec.ts",
+     "title": "sin suscripciones activas no se dibuja ningún gráfico",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-charts.spec.ts",
+     "title": "los gráficos reparten lo comprometido por día de cobro y por categoría con los números del héroe",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-defects.spec.ts",
+     "title": "CP-SUS-032 · pausar la suscripción de otro usuario responde 404 «Suscripción no encontrada» (DEF-034)",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-defects.spec.ts",
+     "title": "CP-SUS-022 · sin sesión, create_subscription responde 401 con 42501 (DEF-035)",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-defects.spec.ts",
+     "title": "CP-SUS-048 · la vista previa marca data-blocked en cada mes vencido según tenga tipo de cambio (DEF-036)",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-delete.spec.ts",
+     "title": "US-88: eliminar una suscripción activa deja sus gastos como movimientos sueltos; volver no borra",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-delete.spec.ts",
+     "title": "US-88: una cancelada solo ofrece «Eliminar definitivamente» y se puede borrar",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-delete.spec.ts",
+     "title": "US-88: la suscripción de otro usuario responde 404 y no se borra",
+     "ok": true
+    },
+    {
+     "file": "subscriptions-delete.spec.ts",
+     "title": "CP-SUS-052 · una pausada se borra y el diálogo avisa que deja de generar",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-1 y CA-26 · cada fila activa tiene «Editar», una eliminada no, y se vuelve al mismo período",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-2 · tipo, moneda y tipo de cambio se ven como texto y la RPC no recibe esos parámetros",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-3 · cambiar el monto de un gasto de este mes se guarda sin diálogo y el Resumen lo muestra",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-4 · el resto de las cuotas se reparte con C3 y la vista previa lo muestra antes de guardar",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-5 · de 6 cuotas a 3: exactamente 3 imputaciones numeradas de 1 a 3",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-6 y CA-7 · una fecha a un mes cerrado y un monto en un mes cerrado abren el aviso; «Cancelar» no guarda",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-8 a CA-11 · categoría, monto y categoría, y cuenta en un mes cerrado",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-12 y CA-13 · solo la nota, o moverse dentro del mismo mes, se guarda sin aviso",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-15 y CA-16 · en USD el tipo de cambio sigue congelado y el aviso va en pesos",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-17 · un ingreso no muestra categoría ni cuotas y se edita; por la API, con cuotas se rechaza",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-18 · pasar una compra en cuotas a efectivo reinicia las cuotas a 1 y lo avisa; por la API, se rechaza",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-19 · las validaciones de la pantalla tienen los mensajes de Registrar y no llaman a la base",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-20 · una categoría archivada se ve con «(archivada)», se puede guardar sin tocarla y no se ofrece otra",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-21 · eliminado, de una suscripción y compartido muestran su aviso y no el formulario",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-21 · una compra empezada (US-80) muestra su aviso y la base la rechaza",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-22 · «Guardar cambios» sigue los cambios y atrás pide confirmar si hay algo sin guardar",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-23 · si falla guardar se muestra el error, se conserva lo escrito y reintentar guarda",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-24 y CA-25 · por la API, editar dos veces o dos a la vez deja una sola versión consistente",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-27 · con la sesión de otro usuario no se encuentra el movimiento ni se puede editar por la API (C7)",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-28 · el movimiento eliminado no suma y el editado sí, en su mes",
+     "ok": true
+    },
+    {
+     "file": "transactions-edit.spec.ts",
+     "title": "CA-30 · en 390 px no hay scroll horizontal y el diálogo devuelve el foco al botón que lo abrió",
+     "ok": true
+    },
+    {
+     "file": "transactions-history.spec.ts",
+     "title": "DEF-007: una transacción eliminada queda en Eliminados, marcada, y se puede restaurar",
+     "ok": true
+    },
+    {
+     "file": "transactions-history.spec.ts",
+     "title": "DEF-006: un movimiento de una categoría archivada lleva la marca de archivada",
+     "ok": true
+    },
+    {
+     "file": "transactions-history.spec.ts",
+     "title": "DEF-024: el diálogo de eliminar transacción toma el foco, lo retiene y lo devuelve",
+     "ok": true
+    },
+    {
+     "file": "transactions-history.spec.ts",
+     "title": "US-94: la confirmación de eliminar dice qué movimiento se borra, con «Eliminar» separado de «Cancelar»",
+     "ok": true
+    },
+    {
+     "file": "transactions-purge.spec.ts",
+     "title": "US-85 CA-1 · una fila activa no ofrece «Eliminar definitivamente» y la RPC la rechaza",
+     "ok": true
+    },
+    {
+     "file": "transactions-purge.spec.ts",
+     "title": "US-85 CA-2, CA-3 y CA-5 · en dos pasos: Eliminar y después Eliminar definitivamente, con sus cuotas",
+     "ok": true
+    },
+    {
+     "file": "transactions-purge.spec.ts",
+     "title": "US-85 CA-3 · un gasto compartido se borra con su deuda vinculada",
+     "ok": true
+    },
+    {
+     "file": "transactions-purge.spec.ts",
+     "title": "ADR-044 §2 · el movimiento de una suscripción eliminado no ofrece borrado definitivo y la RPC lo rechaza",
+     "ok": false
+    },
+    {
+     "file": "transactions-purge.spec.ts",
+     "title": "US-85 CA-4 · otro usuario y anon no pueden borrar para siempre el movimiento ajeno (C7)",
+     "ok": false
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-027 · las tarjetas de Ajustes están en el orden indicado y «Cerrar sesión» es la última, aparte",
+     "ok": false
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-028 · «Categorías» abre su pantalla, la barra sigue marcando Ajustes y se vuelve con atrás",
+     "ok": false
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-029 · todo elemento interactivo de Ajustes tiene un data-testid propio y sin repetir",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-030 · «Volver a hacer la configuración inicial» abre /setup",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-031 · elegir «Oscuro» cambia el tema al instante y queda al recargar",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-032 · «Automático» sigue al tema del sistema",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-033 · la elección no se guarda en la base y otro dispositivo conserva la suya",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-035 · crear una categoría con nombre, ícono y color la muestra en la lista con esa baldosa",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-036 · editar una categoría sembrada preselecciona su ícono y al guardar queda escrito",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-037 · archivar, reactivar y eliminar desde la hoja, con confirmación al eliminar",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-038 · Postgres rechaza una clave de ícono con mayúsculas o de más de 40 caracteres",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-039 · otro usuario no ve ni modifica las categorías ajenas",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-REG-047 · el diálogo de un movimiento dice «¿Eliminar movimiento?» y muestra su detalle",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-REG-048 · una compra en cuotas con deuda vinculada muestra las cuotas y la deuda en el detalle",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-REG-049 · el botón de confirmar tiene estilo de peligro, está separado de «Cancelar» y «Cancelar» no borra, en los cuatro diálogos",
+     "ok": true
+    },
+    {
+     "file": "ux-ajustes.spec.ts",
+     "title": "CP-CFG-034 · en claro y en oscuro el texto cumple el contraste y la tarjeta protagonista conserva su degradado",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-026 · a 390 px la barra tiene cinco destinos en orden y el encabezado no tiene engranaje",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-027 · el indicador se desliza bajo el ítem activo y una ruta inexistente no muestra la barra",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-028 · Movimientos se abre desde el Resumen y la barra sigue marcando Resumen",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-029 · a 1023 px hay píldora y a 1024 px barra lateral con Ajustes al pie, sin data-testid repetidos",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-031 · en una ruta hija de Ajustes la barra marca Ajustes",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-032 · el orden de tabulación de la barra coincide con el orden visual",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-033 · el Resumen, Movimientos, Deudas y Suscripciones muestran un esqueleto y después el contenido",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-034 · cambiar de mes o de filtro no dispara transición",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-035 · cambiar de pestaña funde y entrar a un detalle o volver desplaza y funde",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-036 · con movimiento reducido no hay desplazamiento ni pulso, solo fundido",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-REG-050 · las ocho categorías sembradas se leen completas, sin cortar palabras",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-REG-051 · un nombre largo ocupa como máximo dos líneas y la grilla no se desalinea",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-REG-052 · los chips de cuenta miden al menos 48 px de alto",
+     "ok": true
+    },
+    {
+     "file": "ux-navegacion.spec.ts",
+     "title": "CP-NAV-037 · el «atrás» del navegador no repite la dirección de la navegación anterior y el atributo se borra",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-DAS-021 · un monto con centavos se lee igual en pantalla, con lector y en los tests",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-DAS-022 · la dona tiene una porción por categoría con monto y porcentaje y el total compacto en el hueco",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-DAS-023 · «Gastado vs ingresos» muestra 6 meses con dos columnas por mes en una sola escala",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-DAS-024 · «Ritmo del mes» termina en el total de lo gastado y se corta en hoy",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-DAS-025 · «Cuotas que vienen» suma solo imputaciones de gastos no eliminados ya existentes",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-DAS-026 · si falla la lectura de las tendencias, el resto del Resumen sigue visible",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-SUS-057 · lo cobrado más lo que falta es el total de la tarjeta",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-SUS-058 · un día de cobro anterior a hoy figura como cobrado y uno posterior, como falta",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-SUS-059 · «Por categoría» ordena de mayor a menor y los porcentajes salen del total en pesos",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-SUS-060 · una suscripción en US$ sin tipo de cambio del mes se avisa y no entra a la barra",
+     "ok": true
+    },
+    {
+     "file": "ux-resumen.spec.ts",
+     "title": "CP-SUS-061 · sin suscripciones activas en el mes no se dibuja ninguno de los dos gráficos",
+     "ok": true
+    }
+   ]
+  }
+ ]
+}
