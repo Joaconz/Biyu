@@ -55,7 +55,14 @@ jobs:
           supabase status -o env | sed -nE 's/^(API_URL|ANON_KEY)="?([^"]*)"?$/\1=\2/p' > /tmp/sb.env
           grep -q '^ANON_KEY=' /tmp/sb.env
           sed -nE 's/^API_URL=(.*)/SUPABASE_URL=\1/p; s/^ANON_KEY=(.*)/SUPABASE_ANON_KEY=\1/p' /tmp/sb.env >> "$GITHUB_ENV"
-      - run: npx playwright install --with-deps chromium
+      # Los espejos de apt del runner a veces no resuelven DNS: se reintenta antes de dar la corrida por rota.
+      - name: Instalar Chromium
+        run: |
+          for intento in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "Intento $intento fallido"; sleep 20
+          done
+          exit 1
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
