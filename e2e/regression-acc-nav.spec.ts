@@ -15,6 +15,13 @@ const ACCOUNT = 'Tarjeta de crédito'
 const SAVED = `$12.500,00 · ${CATEGORY} · ${ACCOUNT}`
 const NETWORK_MESSAGE = 'Revisá tu conexión y tocá Reintentar. Lo que cargaste sigue acá.'
 
+// El alta por la API de Auth necesita la URL y la clave del stack local (o las de SUPABASE_URL y SUPABASE_ANON_KEY).
+function authTarget() {
+  const { supabaseUrl, anonKey } = e2eTarget()
+  if (!supabaseUrl || !anonKey) throw new Error('Para llamar a la API contra un deploy pasá SUPABASE_URL y SUPABASE_ANON_KEY.')
+  return { supabaseUrl, anonKey }
+}
+
 async function signUpManually(page: Page, email: string) {
   await page.goto('/login')
   await page.getByTestId('login-form-switch').click()
@@ -109,7 +116,7 @@ test('CP-ACC-004 · las contraseñas que no cumplen los criterios se rechazan, p
   await page.getByTestId('signup-form-submit').click()
   await expect(page).toHaveURL(/\/setup$/, { timeout: 15_000 })
 
-  const { supabaseUrl, anonKey } = e2eTarget()
+  const { supabaseUrl, anonKey } = authTarget()
   const res = await request.post(`${supabaseUrl}/auth/v1/signup`, { headers: { apikey: anonKey }, data: { email: uniqueEmail('acc-004-api'), password: 'abcd1234' } })
   expect(res.status(), 'FR-01: el servidor también valida la contraseña').toBeGreaterThanOrEqual(400)
   expect(res.status()).toBeLessThan(500)
@@ -117,7 +124,7 @@ test('CP-ACC-004 · las contraseñas que no cumplen los criterios se rechazan, p
 
 test('CP-ACC-005 · no se puede crear una cuenta con un email ya registrado', async ({ page, request }) => {
   const email = uniqueEmail('acc-005')
-  const { supabaseUrl, anonKey } = e2eTarget()
+  const { supabaseUrl, anonKey } = authTarget()
   const first = await request.post(`${supabaseUrl}/auth/v1/signup`, { headers: { apikey: anonKey }, data: { email, password: TEST_PASSWORD } })
   expect(first.status()).toBe(200)
 
