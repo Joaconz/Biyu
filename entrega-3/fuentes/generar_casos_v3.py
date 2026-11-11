@@ -14,7 +14,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 ROOT = Path(__file__).resolve().parent.parent
-CASOS = sorted((ROOT / 'casos').glob('us-*.md'))
+CASOS = sorted((ROOT / 'casos').glob('us-*.md'), key=lambda p: int(re.match(r'us-(\d+)', p.name).group(1)))
 OUT = ROOT / '01-especificacion-casos-v3.xlsx'
 
 LABEL = PatternFill('solid', fgColor='FFFFFFCC')
