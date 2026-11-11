@@ -5,7 +5,7 @@ import { apiSession, signUpAndSkipSetup, TEST_PASSWORD } from './support/app.ts'
 import { e2eTarget } from './support/env.ts'
 
 // Casos de las historias de UX de V3 sobre Ajustes: US-93 (CP-CFG-027 a 030), US-102 (CP-CFG-031 a 033),
-// US-105 (CP-CFG-035 a 039) y US-94 (CP-REG-047 a 049). CP-CFG-034 (contraste) es de inspección manual.
+// US-105 (CP-CFG-035 a 039) y US-94 (CP-REG-047 a 049). CP-CFG-034 es el contraste de los dos temas.
 
 const ymd = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date())
 
@@ -344,3 +344,69 @@ test('CP-REG-049 · el botón de confirmar tiene estilo de peligro, está separa
   expect(((await s.api.select('categories', 'select=id&name=eq.Mascotas')) as { body: unknown[] }).body).toHaveLength(1)
 })
 
+/** Luminancia relativa y razón de contraste de WCAG 2.2 sobre colores que el navegador ya resolvió a sRGB. */
+async function contrastReport(page: Page) {
+  return page.evaluate(() => {
+    const toRgb = (css: string): [number, number, number, number] => {
+      const c = document.createElement('canvas')
+      c.width = c.height = 1
+      const ctx = c.getContext('2d', { willReadFrequently: true })!
+      ctx.clearRect(0, 0, 1, 1)
+      ctx.fillStyle = css
+      ctx.fillRect(0, 0, 1, 1)
+      const d = ctx.getImageData(0, 0, 1, 1).data
+      return [d[0], d[1], d[2], d[3] / 255]
+    }
+    const lum = ([r, g, b]: number[]) => {
+      const f = (v: number) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4 }
+      return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+    }
+    const ratio = (a: number[], b: number[]) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05) }
+    // Fondo efectivo: se apilan las capas con transparencia desde el elemento hasta la primera opaca.
+    const bgOf = (el: Element): number[] => {
+      const layers: number[][] = []
+      for (let n: Element | null = el; n; n = n.parentElement) {
+        const [r, g, b, a] = toRgb(getComputedStyle(n).backgroundColor)
+        if (a > 0) layers.push([r, g, b, a])
+        if (a > 0.99) break
+      }
+      let acc = [255, 255, 255]
+      for (const [r, g, b, a] of layers.reverse()) acc = [r, g, b].map((v, i) => v * a + acc[i] * (1 - a))
+      return acc
+    }
+
+    const out: { text: string; ratio: number; large: boolean }[] = []
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const text = node.textContent?.trim()
+      const el = node.parentElement
+      if (!text || !el || !/[\p{L}\p{N}]/u.test(text) || !el.checkVisibility()) continue
+      const cs = getComputedStyle(el)
+      if (cs.opacity === '0' || cs.visibility === 'hidden') continue
+      const bg = bgOf(el)
+      const [r, g, b, a] = toRgb(cs.color)
+      const fg = [0, 1, 2].map((i) => [r, g, b][i] * a + bg[i] * (1 - a))
+      const px = parseFloat(cs.fontSize)
+      const bold = Number(cs.fontWeight) >= 700
+      out.push({ text: text.slice(0, 30), ratio: ratio(fg, bg), large: px >= 24 || (px >= 18.66 && bold) })
+    }
+    const hero = document.querySelector('.hero')
+    return { items: out, hero: hero ? getComputedStyle(hero).backgroundImage : null }
+  })
+}
+
+test('CP-CFG-034 · en claro y en oscuro el texto cumple el contraste y la tarjeta protagonista conserva su degradado', async ({ page, request }) => {
+  const s = await setup(page, request, 'cfg-034')
+  expect((await expense(s)).status).toBe(200)
+  for (const scheme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: scheme })
+    await page.goto('/dashboard')
+    await expect(page.getByTestId('dashboard-total-expenses')).toBeVisible()
+    expect(await html(page).evaluate((el) => el.classList.contains('dark'))).toBe(scheme === 'dark')
+    const { items, hero } = await contrastReport(page)
+    expect(items.length).toBeGreaterThan(5)
+    const bad = items.filter((i) => i.ratio < (i.large ? 3 : 4.5))
+    expect(bad, `${scheme}: ${JSON.stringify(bad.slice(0, 6))}`).toEqual([])
+    expect(hero ?? '').toContain('gradient')
+  }
+})

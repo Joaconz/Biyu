@@ -287,3 +287,28 @@ test('CP-REG-052 · los chips de cuenta miden al menos 48 px de alto', async ({ 
     expect(box).toBeGreaterThanOrEqual(47.5)
   }
 })
+
+test('CP-NAV-037 · el «atrás» del navegador no repite la dirección de la navegación anterior y el atributo se borra', async ({ page, request }) => {
+  const s = await seedExpense(page, request, 'nav-037')
+  const cat = ((await s.api.select('categories', 'select=id&name=eq.Servicios')).body as { id: string }[])[0].id
+  const acc = ((await s.api.select('accounts', 'select=id&name=eq.Efectivo')).body as { id: string }[])[0].id
+  const day = Math.min(28, Number(ymd().slice(8, 10)))
+  expect((await s.api.rpc('create_subscription', {
+    p_name: 'Netflix', p_amount: '5000.00', p_currency: 'ARS', p_category_id: cat, p_account_id: acc,
+    p_billing_day: day, p_start_period: `${ymd().slice(0, 7)}-01`, p_end_period: null, p_description: null,
+  })).status).toBe(200)
+
+  await page.goto('/subscriptions')
+  await page.getByTestId('subscriptions-item').first().click()
+  await expect(page).toHaveURL(/\/subscriptions\/[0-9a-f-]+$/)
+  await nav(page).getByRole('link', { name: 'Deudas' }).click()
+  await expect(page).toHaveURL(/\/debts/)
+
+  await watchNavKinds(page)
+  await page.goBack()
+  await expect(page).toHaveURL(/\/subscriptions\/[0-9a-f-]+$/)
+  const kinds = await navKinds(page)
+  expect(kinds).not.toContain('forward')
+  expect(kinds).not.toContain('tab')
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.nav ?? ''), { timeout: 2_000 }).toBe('')
+})

@@ -33,7 +33,7 @@ Los casos de las historias de V3 que ya están implementadas: las que pasaron de
 | US-105 · Categorías con ícono | [#413](https://github.com/Joaconz/Biyu/issues/413) | [`us-105`](casos/us-105-categorias-con-icono.md) | 5 | CP-CFG-035 a 039 |
 | **Total** | | | **146** | |
 
-Por módulo: REG 36, DEU 30, CFG 24, IMP 17, DAS 15, SUS 12, NAV 12. Por prioridad: 88 Alta, 57 Media y 1 Baja. Los 104 de US-80 a US-91 son automatizables y están automatizados (cada archivo dice en qué spec de Playwright, test pgTAP o test de Vitest). Los 42 de las historias de UX (US-92 a US-105) están automatizados en `e2e/ux-navegacion.spec.ts`, `e2e/ux-ajustes.spec.ts` y `e2e/ux-resumen.spec.ts`, salvo 2 de inspección manual (CP-NAV-037, el «atrás» del navegador, y CP-CFG-034, el contraste).
+Por módulo: REG 36, DEU 30, CFG 24, IMP 17, DAS 15, SUS 12, NAV 12. Por prioridad: 88 Alta, 57 Media y 1 Baja. Los 146 son automatizables y están automatizados: los 104 de US-80 a US-91 en Playwright, pgTAP o Vitest (cada archivo lo dice) y los 42 de las historias de UX (US-92 a US-105) en `e2e/ux-navegacion.spec.ts`, `e2e/ux-ajustes.spec.ts` y `e2e/ux-resumen.spec.ts`. Qué prueba cubre cada caso y su resultado está en [`04-ejecucion.md`](04-ejecucion.md).
 
 ## Qué no está acá
 

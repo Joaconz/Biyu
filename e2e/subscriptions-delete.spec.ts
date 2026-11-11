@@ -70,3 +70,14 @@ test('US-88: la suscripción de otro usuario responde 404 y no se borra', async 
   const anon = await a.api.rpc('delete_subscription', { p_subscription_id: b.subId }, { asAnon: true })
   expect(anon.status).toBe(401)
 })
+
+test('CP-SUS-052 · una pausada se borra y el diálogo avisa que deja de generar', async ({ page, request }) => {
+  const { api, subId } = await userWithSubscription(page, request, 'cp-sus-052')
+  expect((await api.rpc('pause_subscription', { p_subscription_id: subId })).status).toBe(200)
+  await page.goto(`/subscriptions/${subId}`)
+  await page.getByTestId('subscription-detail-delete').click()
+  await expect(page.getByTestId('delete-subscription-dialog')).toContainText('Deja de generar gastos.')
+  await page.getByTestId('delete-subscription-dialog-confirm').click()
+  await expect(page).toHaveURL(/\/subscriptions$/)
+  expect((await api.select('subscriptions', `select=id&id=eq.${subId}`)).body).toHaveLength(0)
+})

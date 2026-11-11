@@ -1,0 +1,224 @@
+{
+ "numTotalTests": 1088,
+ "numPassedTests": 1088,
+ "numFailedTests": 0,
+ "numTotalTestSuites": 260,
+ "testResults": [
+  {
+   "name": "tests/domain/architecture.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/balance.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/category-chart.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/category-detail.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/committed-total.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/dashboard-trends.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/debt-draft.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/debt-edit.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/debts.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/deletion.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/display-format.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/draft.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/exportCsv.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/import-failure.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/import-file.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/import-guide.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/import-result.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/import-rows.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/installment-deletion.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/installments-paid.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/installments.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/loose-debts-balance.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/pending-subscription-charges.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/period-fx-money.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/save-retry.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/shared-debt.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/subscription-blocked.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/subscription-charts.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/subscriptionEdit.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/subscriptionOccurrences.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/subscriptionOperations.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/subscriptions.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/summary.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/transaction-edit.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/transaction-purge.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/domain/validation.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/authErrors.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/clock.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/errors.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/generatedPeriods.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/navigation.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/passwordPolicy.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/pie.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/postAuthDestination.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/registerSteps.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/seedPlan.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/setupGate.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/theme.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/timeout.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/transactionGroups.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/transactionSubscription.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/viewTransitions.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/visuals.test.ts",
+   "status": "passed"
+  },
+  {
+   "name": "tests/lib/xlsx.test.ts",
+   "status": "passed"
+  }
+ ]
+}

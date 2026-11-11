@@ -3,14 +3,14 @@
 **Historia:** [#410](https://github.com/Joaconz/Biyu/issues/410) · ADR-052 · NFR-06.
 **Oráculo:** los criterios CA-1 a CA-4 de la historia. Ajustes → Apariencia ofrece Automático, Claro y Oscuro; la elección se guarda en el dispositivo (`localStorage`, clave `biyu-theme`), no en la base, y se aplica antes del primer pintado. Un monto grande muestra los centavos más chicos pero el texto es el mismo.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). Para «Automático», DevTools → Rendering → «Emulate CSS prefers-color-scheme». Montos ficticios (C14).
-**Automatización:** `e2e/ux-ajustes.spec.ts` (CP-CFG-031 a 033), `e2e/ux-resumen.spec.ts` (CP-DAS-021) y `tests/lib/theme.test.ts` (lógica de la preferencia). CP-CFG-034 (contraste) es de inspección manual.
+**Automatización:** `e2e/ux-ajustes.spec.ts` (CP-CFG-031 a 034), `e2e/ux-resumen.spec.ts` (CP-DAS-021) y `tests/lib/theme.test.ts` (lógica de la preferencia).
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|
 | CP-CFG-031 | Elegir «Oscuro» cambia el tema al instante y queda al recargar | CA-1 | Casos de uso | Positivo | UI | Alta | Sí |
 | CP-CFG-032 | «Automático» sigue al tema del sistema | CA-1 | Transición de estados | Positivo | UI | Media | Sí |
 | CP-CFG-033 | La elección no se guarda en la base y otro dispositivo conserva la suya | CA-2 | Adivinación de errores | Negativo | UI y API | Media | Sí |
-| CP-CFG-034 | En los dos temas el texto cumple contraste y la tarjeta protagonista conserva su degradado | CA-3 | Particiones | Positivo | UI | Media | No |
+| CP-CFG-034 | En los dos temas el texto cumple contraste y la tarjeta protagonista conserva su degradado | CA-3 | Particiones | Positivo | UI | Media | Sí |
 | CP-DAS-021 | Un monto con centavos se lee igual en pantalla, con lector y en los tests | CA-4 | Valores límite | Límite | UI | Media | Sí |
 
 ## CP-CFG-031 — Oscuro y recarga

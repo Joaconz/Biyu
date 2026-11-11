@@ -320,3 +320,19 @@ test('ADR-055: el ícono y el color elegidos se ven en la lista y en Registrar, 
   await page.reload()
   await expect(page.getByTestId('settings-categories-edit-transporte').locator('[data-icon]')).toHaveAttribute('data-icon', 'car')
 })
+
+test('CP-CFG-017 · una categoría archivada sin uso se borra desde «Archivadas»', async ({ page }) => {
+  await signUpAndSkipSetup(page, 'cp-cfg-017')
+  await openCategories(page)
+  await createCategory(page, 'Salud mental')
+  await page.getByTestId('settings-categories-edit-salud-mental').click()
+  await page.getByTestId('settings-categories-archive-salud-mental').click()
+  await expect(page.getByTestId('settings-categories-edit-salud-mental')).toHaveCount(0)
+  await page.getByTestId('settings-categories-archived-toggle').click()
+
+  await page.getByTestId('settings-categories-edit-salud').click()
+  await page.getByTestId('settings-categories-delete-salud').click()
+  await expect(page.getByTestId('settings-categories-delete-dialog-summary')).toContainText('Sin uso')
+  await page.getByTestId('settings-categories-delete-dialog-confirm').click()
+  await expect(page.getByTestId('settings-categories-edit-salud')).toHaveCount(0)
+})
