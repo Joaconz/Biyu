@@ -3,7 +3,7 @@
 **Historia:** [#413](https://github.com/Joaconz/Biyu/issues/413) · ADR-055, ADR-044 §4 · C6, C7 · US-89, US-94.
 **Oráculo:** los criterios CA-1 a CA-5 de la historia. `/settings/categories` lista las categorías con su baldosa; crear y editar usan una hoja con nombre, 24 íconos más «Sin ícono», diez colores y vista previa; el ícono se guarda en `categories.icon` y Postgres valida `^[a-z0-9-]{1,40}$`.
 **Convenciones:** PR-01 crea el usuario y PR-04 su token (`docs/12-procedimientos-de-prueba.md`). Montos ficticios (C14).
-**Automatización:** `tests/lib/visuals.test.ts` (catálogo) y `supabase/tests/database/` (check del ícono). La UI, por escribir.
+**Automatización:** `e2e/ux-ajustes.spec.ts` (CP-CFG-035 a 039), `tests/lib/visuals.test.ts` (catálogo) y `supabase/tests/database/` (check del ícono).
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|

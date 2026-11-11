@@ -6,7 +6,7 @@ import { signUpAndSkipSetup } from './support/app.ts'
 // B1 (UX): el aire alrededor de la píldora flotante y el que la separa de los pies sticky deja pasar los
 // toques al contenido de atrás. Una franja fija de ancho completo (`app-nav-shield`) se los traga.
 // Es un test de la barra móvil: el proyecto local corre a 390 px.
-test('B1: un toque en la franja de la barra no navega ni activa nada de atrás', async ({ page }) => {
+test('CP-NAV-030 · B1: un toque en la franja de la barra no navega ni activa nada de atrás', async ({ page }) => {
   await signUpAndSkipSetup(page, 'nav-shield')
   await page.goto('/settings')
   const shield = page.getByTestId('app-nav-shield')
@@ -27,7 +27,8 @@ test('B1: un toque en la franja de la barra no navega ni activa nada de atrás',
     { name: 'a la izquierda', x: nav!.x - 5, y: nav!.y + nav!.height / 2 },
     { name: 'a la derecha', x: nav!.x + nav!.width + 5, y: nav!.y + nav!.height / 2 },
   ]
-  const url = page.url()
+  // Ajustes agrega ?period= al cargar las categorías (C11): lo que no puede cambiar es la ruta.
+  const path = new URL(page.url()).pathname
   for (const point of points) {
     await page.evaluate(({ x, y }) => {
       document.getElementById('shield-probe')?.remove()
@@ -40,6 +41,6 @@ test('B1: un toque en la franja de la barra no navega ni activa nada de atrás',
     }, point)
     await page.mouse.click(point.x, point.y)
     expect(await page.locator('#shield-probe').getAttribute('data-clicks'), `toque ${point.name} de la píldora`).toBe('0')
-    expect(page.url(), `toque ${point.name} de la píldora`).toBe(url)
+    expect(new URL(page.url()).pathname, `toque ${point.name} de la píldora`).toBe(path)
   }
 })

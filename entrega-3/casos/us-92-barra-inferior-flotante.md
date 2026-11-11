@@ -3,12 +3,12 @@
 **Historia:** [#353](https://github.com/Joaconz/Biyu/issues/353) · ADR-048, ADR-023 · C11 · US-69.
 **Oráculo:** los criterios CA-1 a CA-6 de la historia adaptada. En el celular (menos de 1024 px) la barra es una píldora flotante con Resumen · Deudas · Registrar · Suscripciones · Ajustes; desde 1024 px es una barra lateral con Ajustes al pie. Movimientos no tiene ítem propio: cuelga del Resumen.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). Viewport de 390 px salvo que el caso diga otra cosa. Montos ficticios (C14).
-**Automatización:** `e2e/nav-shield.spec.ts` (CP-NAV-030), `tests/lib/navigation.test.ts` (orden y ruta activa) y `e2e/regression-acc-nav.spec.ts` (CP-NAV-010, tocar el ítem actual). El resto, por escribir.
+**Automatización:** `e2e/ux-navegacion.spec.ts` (CP-NAV-026 a 029, 031 y 032), `e2e/nav-shield.spec.ts` (CP-NAV-030) y `tests/lib/navigation.test.ts` (orden y ruta activa).
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|
 | CP-NAV-026 | A 390 px la barra tiene cinco destinos en orden y el encabezado no tiene engranaje | CA-1 | Particiones | Positivo | UI | Alta | Sí |
-| CP-NAV-027 | El indicador se desliza bajo el ítem activo y no se ve en pantallas sin ítem | CA-2 | Transición de estados | Positivo | UI | Media | Sí |
+| CP-NAV-027 | El indicador se desliza bajo el ítem activo y una ruta inexistente no muestra la barra | CA-2 | Transición de estados | Positivo | UI | Media | Sí |
 | CP-NAV-028 | Movimientos se abre desde el Resumen y la barra sigue marcando Resumen | CA-3 | Casos de uso | Positivo | UI | Alta | Sí |
 | CP-NAV-029 | A 1023 px hay píldora y a 1024 px barra lateral con Ajustes al pie, sin `data-testid` repetidos | CA-4 | Valores límite | Límite | UI | Alta | Sí |
 | CP-NAV-030 | Un toque en el aire alrededor de la píldora no navega ni activa nada de atrás | CA-5 | Adivinación de errores | Negativo | UI | Media | Sí |
@@ -32,7 +32,8 @@
 | 1 | Abrir `/dashboard`. | El indicador (`app-nav-indicator`) está bajo «Resumen». |
 | 2 | Tocar «Suscripciones». | El indicador se desliza hasta «Suscripciones» y la pantalla cambia. |
 | 3 | Tocar «Deudas» a mitad del movimiento. | El indicador se reencauza hacia «Deudas» sin saltos. |
-| 4 | Abrir `/transactions` y después una pantalla sin ítem propio (por ejemplo, `/debts/new`). | En `/transactions` el indicador está bajo «Resumen». En la pantalla sin ítem no se ve. |
+| 4 | Abrir `/transactions`. | El indicador está bajo «Resumen». |
+| 5 | Abrir una ruta que no existe (por ejemplo, `/nada`). | Aparece «Esta página no existe» sin barra inferior ni indicador. |
 
 ## CP-NAV-028 — Movimientos desde el Resumen
 **Pre-requisitos:** PR-01 con `barra-028@biyu.test`; un gasto de $1.000,00 en H.
