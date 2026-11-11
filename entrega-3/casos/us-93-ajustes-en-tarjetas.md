@@ -3,7 +3,7 @@
 **Historia:** [#354](https://github.com/Joaconz/Biyu/issues/354) · ADR-052, ADR-055 · US-64, US-68, DEF-015.
 **Oráculo:** los criterios CA-1 a CA-4 de la historia adaptada. Ajustes son tarjetas agrupadas (Apariencia, Categorías, Cuentas, Tipo de cambio, Resumen, configuración inicial) y «Cerrar sesión» queda última, en su propia tarjeta.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). Montos ficticios (C14).
-**Automatización:** `e2e/settings.spec.ts` (CP-CFG-029, DEF-015). El resto, por escribir.
+**Automatización:** `e2e/ux-ajustes.spec.ts` (CP-CFG-027 a 030).
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|

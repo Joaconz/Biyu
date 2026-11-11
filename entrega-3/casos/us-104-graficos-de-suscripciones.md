@@ -3,7 +3,7 @@
 **Historia:** [#412](https://github.com/Joaconz/Biyu/issues/412) · ADR-053 (gráficos de Suscripciones), ADR-033 · C1, C2 · US-63.
 **Oráculo:** los criterios CA-1 a CA-5 de la historia. «Cobrado» es que el día de cobro ya llegó (hoy incluido, R5), no que exista la transacción; cobrado + falta = el total comprometido de la tarjeta. Las suscripciones en US$ se convierten al tipo de cambio del mes.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). H es el mes de hoy en Argentina. Los casos con día de cobro entre hoy y el fin de mes se deben ajustar a la fecha de ejecución. Montos ficticios (C14).
-**Automatización:** `e2e/subscriptions-charts.spec.ts` y `tests/domain/subscription-charts.test.ts`.
+**Automatización:** `e2e/ux-resumen.spec.ts` (CP-SUS-057 a 061), `e2e/subscriptions-charts.spec.ts` y `tests/domain/subscription-charts.test.ts`.
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|

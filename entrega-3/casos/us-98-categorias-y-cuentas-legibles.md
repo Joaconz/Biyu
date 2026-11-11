@@ -3,7 +3,7 @@
 **Historia:** [#359](https://github.com/Joaconz/Biyu/issues/359) · ADR-052 · US-05, US-06.
 **Oráculo:** los criterios CA-1 a CA-3 de la historia adaptada. En el paso 2 de Registrar las categorías son baldosas de cuatro columnas con el ícono arriba y el nombre en hasta dos líneas, sin cortar palabras; las cuentas son chips de dos columnas de al menos 48 px de alto.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). Viewport de 390 px. Montos ficticios (C14).
-**Automatización:** por escribir.
+**Automatización:** `e2e/ux-navegacion.spec.ts` (CP-REG-050 a 052).
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|
@@ -25,7 +25,7 @@
 | # | Paso | Resultado esperado |
 |---|---|---|
 | 1 | En `/register` llegar al paso 2. | La baldosa de la categoría larga muestra el nombre en dos líneas como máximo, con puntos suspensivos si no entra. |
-| 2 | Medir el alto de esa baldosa y el de «Otros». | Tienen la misma altura: la grilla no se desalinea. |
+| 2 | Mirar la grilla. | Sigue en cuatro columnas: la baldosa larga no desalinea a las demás. |
 
 ## CP-REG-052 — Alto de los chips de cuenta
 **Pre-requisitos:** PR-01 con `chips-052@biyu.test`, configuración inicial salteada.
