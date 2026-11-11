@@ -196,7 +196,7 @@ P2 entra si alcanza el sprint.
 
 ## Casos de V3: historia → casos
 
-Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especificacion-casos-v3.md) (104 casos, planilla `.xlsx` generada desde `entrega-3/casos/`). Las historias de UX implementadas (US-92 a US-94, US-97, US-98 y US-102 a US-105) todavía no tienen casos.
+Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especificacion-casos-v3.md) (146 casos, planilla `.xlsx` generada desde `entrega-3/casos/`). US-95, US-96, US-99 y US-100 no tienen casos porque no se implementaron en V3.
 
 | Historia | Casos |
 |---|---|
@@ -212,6 +212,15 @@ Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especif
 | US-89 · Borrar una categoría | CP-CFG-016 a CP-CFG-022 |
 | US-90 · Reactivar una cuenta | CP-CFG-023 a CP-CFG-026 |
 | US-91 · Deudas agrupadas por persona | CP-DEU-073 a CP-DEU-077 |
+| US-92 · Barra inferior flotante | CP-NAV-026 a CP-NAV-032 |
+| US-93 · Ajustes en tarjetas | CP-CFG-027 a CP-CFG-030 |
+| US-94 · Confirmación de borrado | CP-REG-047 a CP-REG-049 |
+| US-97 · Esqueletos y transiciones | CP-NAV-033 a CP-NAV-037 |
+| US-98 · Categorías y cuentas legibles | CP-REG-050 a CP-REG-052 |
+| US-102 · Rebranding y tema | CP-CFG-031 a CP-CFG-034 y CP-DAS-021 |
+| US-103 · Dona y tendencias | CP-DAS-022 a CP-DAS-026 |
+| US-104 · Gráficos de Suscripciones | CP-SUS-057 a CP-SUS-061 |
+| US-105 · Categorías con ícono | CP-CFG-035 a CP-CFG-039 |
 
 ## Huecos conocidos
 
