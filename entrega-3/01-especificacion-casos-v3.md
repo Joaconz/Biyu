@@ -1,19 +1,19 @@
 # Entrega 3 · Especificación de casos de prueba (V3)
 
-Planilla: [`01-especificacion-casos-v3.xlsx`](01-especificacion-casos-v3.xlsx) (un «Índice» con los 146 casos y una hoja por sección de cada archivo, con el formato de la cátedra: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos, pasos y resultado esperado). Issue [#338](https://github.com/Joaconz/Biyu/issues/338), épica [#326](https://github.com/Joaconz/Biyu/issues/326).
+Planilla: [`01-especificacion-casos-v3.xlsx`](01-especificacion-casos-v3.xlsx) (un «Índice» con los 165 casos y una hoja por sección de cada archivo, con el formato de la cátedra: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos, pasos y resultado esperado). Issue [#338](https://github.com/Joaconz/Biyu/issues/338), épica [#326](https://github.com/Joaconz/Biyu/issues/326).
 
 La fuente de cada caso es su archivo de [`casos/`](casos/). La planilla se genera con `python3 entrega-3/fuentes/generar_casos_v3.py` (necesita `openpyxl`): si cambia un `.md`, se vuelve a correr.
 
 ## Alcance
 
-Los casos de las historias de V3 que ya están implementadas: las que pasaron de V2 a V3 (US-80 a US-83), el CRUD completo (US-84 a US-90) y deudas por persona (US-91).
+Los casos de las historias de V3 que ya están implementadas: las que pasaron de V2 a V3 (US-80 a US-83), el CRUD completo (US-84 a US-90), deudas por persona (US-91), las mejoras de UX (US-92 a US-105) y lo que sumó el equipo sin historia de V3 propia: US-101 (qué entra en el número del Resumen), las suscripciones por cobrar (ADR-045), la franja de la puesta al día (US-53 · CA-4) y la configuración inicial (US-68).
 
 | Historia | Issue | Archivo | Casos | Rango |
 |---|---|---|---|---|
 | US-80 · Importar una compra empezada | [#268](https://github.com/Joaconz/Biyu/issues/268) | [`us-80`](casos/us-80-importar-compra-empezada.md) | 11 | CP-IMP-042 a 052 |
 | US-81 · Guía de importación | [#269](https://github.com/Joaconz/Biyu/issues/269) | [`us-81`](casos/us-81-guia-importacion.md) | 6 | CP-IMP-053 a 058 |
 | US-82 · Compartir con varias personas | [#270](https://github.com/Joaconz/Biyu/issues/270) | [`us-82`](casos/us-82-compartir-varias-personas.md) | 11 | CP-DEU-085 a 095 |
-| US-83 · Deudas sueltas en el balance | [#271](https://github.com/Joaconz/Biyu/issues/271) | [`us-83`](casos/us-83-deudas-sueltas-balance.md) | 9 | CP-DAS-012 a 020 |
+| US-83 · Deudas sueltas en el gasto neto (reescrito por ADR-053) | [#271](https://github.com/Joaconz/Biyu/issues/271) | [`us-83`](casos/us-83-deudas-sueltas-balance.md) | 9 | CP-DAS-012 a 020 |
 | US-84 · Editar un movimiento | [#284](https://github.com/Joaconz/Biyu/issues/284) | [`us-84`](casos/us-84-editar-movimiento.md) | 24 | CP-REG-017 a 040 |
 | US-85 · Eliminar definitivamente un movimiento | [#328](https://github.com/Joaconz/Biyu/issues/328) | [`us-85`](casos/us-85-eliminar-movimiento-definitivo.md) | 6 | CP-REG-041 a 046 |
 | US-86 · Editar una deuda | [#285](https://github.com/Joaconz/Biyu/issues/285) | [`us-86`](casos/us-86-editar-deuda.md) | 7 | CP-DEU-078 a 084 |
@@ -31,9 +31,13 @@ Los casos de las historias de V3 que ya están implementadas: las que pasaron de
 | US-103 · Dona y tendencias | [#411](https://github.com/Joaconz/Biyu/issues/411) | [`us-103`](casos/us-103-dona-y-tendencias.md) | 5 | CP-DAS-022 a 026 |
 | US-104 · Gráficos de Suscripciones | [#412](https://github.com/Joaconz/Biyu/issues/412) | [`us-104`](casos/us-104-graficos-de-suscripciones.md) | 5 | CP-SUS-057 a 061 |
 | US-105 · Categorías con ícono | [#413](https://github.com/Joaconz/Biyu/issues/413) | [`us-105`](casos/us-105-categorias-con-icono.md) | 5 | CP-CFG-035 a 039 |
-| **Total** | | | **146** | |
+| US-101 · Qué entra en el número del Resumen | [#371](https://github.com/Joaconz/Biyu/issues/371) | [`us-101`](casos/us-101-gasto-neto-a-eleccion.md) | 8 | CP-DAS-027 a 032 y CP-CFG-040 a 041 |
+| ADR-045 · Suscripciones por cobrar en el Resumen | PR [#370](https://github.com/Joaconz/Biyu/pull/370) | [`adr-045`](casos/adr-045-suscripciones-por-cobrar.md) | 5 | CP-SUS-062 a 066 |
+| US-53 · Franja de la puesta al día (CA-4) | [#211](https://github.com/Joaconz/Biyu/issues/211) | [`us-53`](casos/us-53-franja-de-la-puesta-al-dia.md) | 2 | CP-SUS-067 a 068 |
+| US-68 · Configuración inicial | [#159](https://github.com/Joaconz/Biyu/issues/159) | [`us-68`](casos/us-68-configuracion-inicial.md) | 4 | CP-ACC-013 a 016 |
+| **Total** | | | **165** | |
 
-Por módulo: REG 36, DEU 30, CFG 24, IMP 17, DAS 15, SUS 12, NAV 12. Por prioridad: 88 Alta, 57 Media y 1 Baja. Los 146 son automatizables y están automatizados: los 104 de US-80 a US-91 en Playwright, pgTAP o Vitest (cada archivo lo dice) y los 42 de las historias de UX (US-92 a US-105) en `e2e/ux-navegacion.spec.ts`, `e2e/ux-ajustes.spec.ts` y `e2e/ux-resumen.spec.ts`. Qué prueba cubre cada caso y su resultado está en [`04-ejecucion.md`](04-ejecucion.md).
+Por módulo: REG 36, DEU 30, CFG 26, DAS 21, SUS 19, IMP 17, NAV 12, ACC 4. Por prioridad: 99 Alta, 65 Media y 1 Baja. Los 165 son automatizables y están automatizados: los 104 de US-80 a US-91 en Playwright, pgTAP o Vitest (cada archivo lo dice) y los 42 de las historias de UX (US-92 a US-105) en `e2e/ux-navegacion.spec.ts`, `e2e/ux-ajustes.spec.ts` y `e2e/ux-resumen.spec.ts`; los 19 de US-101, suscripciones por cobrar, la franja y el setup, en `e2e/dashboard-balance-options.spec.ts`, `e2e/settings-summary.spec.ts`, `e2e/pending-subscriptions.spec.ts`, `e2e/catchup-banner-dismiss.spec.ts` y `e2e/setup.spec.ts`, con pgTAP y Vitest en el tramo de API y de dominio. Qué prueba cubre cada caso y su resultado está en [`04-ejecucion.md`](04-ejecucion.md).
 
 ## Qué no está acá
 

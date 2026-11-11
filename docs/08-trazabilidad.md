@@ -196,14 +196,14 @@ P2 entra si alcanza el sprint.
 
 ## Casos de V3: historia → casos
 
-Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especificacion-casos-v3.md) (146 casos, planilla `.xlsx` generada desde `entrega-3/casos/`). US-95, US-96, US-99 y US-100 no tienen casos porque no se implementaron en V3.
+Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especificacion-casos-v3.md) (165 casos, planilla `.xlsx` generada desde `entrega-3/casos/`). US-95, US-96, US-99 y US-100 no tienen casos porque no se implementaron en V3.
 
 | Historia | Casos |
 |---|---|
 | US-80 · Importar una compra empezada | CP-IMP-042 a CP-IMP-052 |
 | US-81 · Guía de importación | CP-IMP-053 a CP-IMP-058 |
 | US-82 · Compartir con varias personas | CP-DEU-085 a CP-DEU-095 |
-| US-83 · Deudas sueltas en el balance | CP-DAS-012 a CP-DAS-020 |
+| US-83 · Deudas sueltas en el gasto neto (casos reescritos por ADR-053) | CP-DAS-012 a CP-DAS-020 |
 | US-84 · Editar un movimiento | CP-REG-017 a CP-REG-040 |
 | US-85 · Eliminar definitivamente un movimiento | CP-REG-041 a CP-REG-046 |
 | US-86 · Editar una deuda | CP-DEU-078 a CP-DEU-084 |
@@ -221,6 +221,10 @@ Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especif
 | US-103 · Dona y tendencias | CP-DAS-022 a CP-DAS-026 |
 | US-104 · Gráficos de Suscripciones | CP-SUS-057 a CP-SUS-061 |
 | US-105 · Categorías con ícono | CP-CFG-035 a CP-CFG-039 |
+| US-101 · Qué entra en el número del Resumen | CP-DAS-027 a CP-DAS-032 y CP-CFG-040 a CP-CFG-041 |
+| ADR-045 · Suscripciones por cobrar en el Resumen | CP-SUS-062 a CP-SUS-066 |
+| US-53 · Franja de la puesta al día (CA-4) | CP-SUS-067 a CP-SUS-068 |
+| US-68 · Configuración inicial | CP-ACC-013 a CP-ACC-016 |
 
 ## Huecos conocidos
 
@@ -232,8 +236,9 @@ Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especif
   [#162](https://github.com/Joaconz/Biyu/pull/162) y confirmado. La Entrega 1 ejecutó el catálogo
   completo, más 6 casos nuevos (74 en total), incluido CP-REG-013 con reloj simulado:
   **V1 cumple sus criterios de salida** (`entrega-1/05-reporte-de-ejecucion.md` §6).
-- US-68 ([#159](https://github.com/Joaconz/Biyu/issues/159)) sin casos y con decisiones
-  abiertas antes de implementar: dónde se guarda que el setup se hizo, su ruta frente a US-01 y a los
-  casos CP-ACC-003 y CP-ACC-008 (qué se ve justo después del signup), y la siembra de US-43 que a veces queda incompleta al crear la cuenta.
+- US-68 ([#159](https://github.com/Joaconz/Biyu/issues/159)) está implementada (ADR-025) y sus casos son
+  CP-ACC-013 a CP-ACC-016 (`entrega-3/casos/us-68-configuracion-inicial.md`), automatizados en `e2e/setup.spec.ts`.
+- Los casos de V1 CP-DAS-006 y CP-DAS-007 (ingresos y balance) miden la tarjeta de Balance que ADR-053 quitó: quedan
+  desactualizados (llevan el aviso en `10-catalogo-casos-v1.md`) y no están en la regresión. Los de US-83 se reescribieron.
 - Historias 34 a 41 (deudas) sin issue propio hasta el sprint de V2. Las de suscripciones (52 a 63 y 75)
   ya tienen issue (#210 a #222) y están implementadas; sus casos `CP-SUS-nnn` se diseñan aparte.

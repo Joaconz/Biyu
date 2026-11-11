@@ -9,7 +9,7 @@ function firstOfMonth(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
 }
 
-test('el predeterminado es solo gastos y cada interruptor cambia solo el número del Resumen', async ({ page, request }) => {
+test('CP-CFG-040 · el predeterminado es solo gastos y cada interruptor cambia solo el número del Resumen', async ({ page, request }) => {
   const { email } = await signUpAndSkipSetup(page, 'us101-balance')
   const api = await apiSession(request, email)
   const category = ((await api.select('categories', 'select=id&name=eq.Otros')).body as { id: string }[])[0].id

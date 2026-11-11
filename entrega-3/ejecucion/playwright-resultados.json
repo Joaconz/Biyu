@@ -1,6 +1,6 @@
 {
  "stats": {
-  "expected": 266,
+  "expected": 272,
   "unexpected": 0,
   "flaky": 0,
   "skipped": 0
@@ -44,28 +44,8 @@
      "ok": true
     },
     {
-     "file": "catchup-banner-dismiss.spec.ts",
-     "title": "la franja de la puesta al día que falló se cierra con la X y no vuelve al recargar",
-     "ok": true
-    },
-    {
      "file": "dashboard-amounts.spec.ts",
      "title": "los montos más grandes entran en sus tarjetas del Resumen a 360 px (DEF-021)",
-     "ok": true
-    },
-    {
-     "file": "dashboard-balance-options.spec.ts",
-     "title": "el popover nace de la pill, Escape lo cierra y el foco vuelve al botón",
-     "ok": true
-    },
-    {
-     "file": "dashboard-balance-options.spec.ts",
-     "title": "en el celular, la hoja del héroe cambia el número al instante y la elección queda guardada",
-     "ok": true
-    },
-    {
-     "file": "dashboard-balance-options.spec.ts",
-     "title": "el ícono de la esquina abre la misma hoja",
      "ok": true
     },
     {
@@ -819,11 +799,6 @@
      "ok": true
     },
     {
-     "file": "settings-summary.spec.ts",
-     "title": "el predeterminado es solo gastos y cada interruptor cambia solo el número del Resumen",
-     "ok": true
-    },
-    {
      "file": "settings.spec.ts",
      "title": "DEF-015: todo elemento interactivo de Ajustes tiene un data-testid propio",
      "ok": true
@@ -871,36 +846,6 @@
     {
      "file": "settings.spec.ts",
      "title": "CP-CFG-017 · una categoría archivada sin uso se borra desde «Archivadas»",
-     "ok": true
-    },
-    {
-     "file": "setup.spec.ts",
-     "title": "una cuenta nueva ve el setup, lo saltea y queda adentro de la app aunque recargue",
-     "ok": true
-    },
-    {
-     "file": "setup.spec.ts",
-     "title": "completar el setup con el primer gasto lleva a la app",
-     "ok": true
-    },
-    {
-     "file": "setup.spec.ts",
-     "title": "después de completarlo, volver a iniciar sesión no muestra el setup",
-     "ok": true
-    },
-    {
-     "file": "setup.spec.ts",
-     "title": "si guardar el setup falla, igual se entra a la app",
-     "ok": true
-    },
-    {
-     "file": "setup.spec.ts",
-     "title": "si leer el estado del setup falla, se entra a la app",
-     "ok": true
-    },
-    {
-     "file": "setup.spec.ts",
-     "title": "una cuenta sin fila de setup (anterior a US-68) entra directo a la app",
      "ok": true
     },
     {
@@ -1336,6 +1281,91 @@
     {
      "file": "ux-resumen.spec.ts",
      "title": "CP-SUS-061 · sin suscripciones activas en el mes no se dibuja ninguno de los dos gráficos",
+     "ok": true
+    },
+    {
+     "file": "catchup-banner-dismiss.spec.ts",
+     "title": "CP-SUS-067 · la franja de la puesta al día que falló se cierra con la X y no vuelve al cambiar de pantalla ni al recargar",
+     "ok": true
+    },
+    {
+     "file": "catchup-banner-dismiss.spec.ts",
+     "title": "CP-SUS-068 · «Reintentar» llama de nuevo y, si anda, la franja desaparece",
+     "ok": true
+    },
+    {
+     "file": "dashboard-balance-options.spec.ts",
+     "title": "CP-DAS-031 · el popover nace de la pill, Escape lo cierra y el foco vuelve al botón",
+     "ok": true
+    },
+    {
+     "file": "dashboard-balance-options.spec.ts",
+     "title": "CP-DAS-027 a 030 · en el celular, la hoja del héroe cambia el número al instante y la elección queda guardada",
+     "ok": true
+    },
+    {
+     "file": "dashboard-balance-options.spec.ts",
+     "title": "CP-DAS-031 · el ícono de la esquina abre la misma hoja",
+     "ok": true
+    },
+    {
+     "file": "dashboard-balance-options.spec.ts",
+     "title": "CP-DAS-032 · el rótulo cambia a «Gastado neto» con una opción y el número negativo lleva el signo menos",
+     "ok": true
+    },
+    {
+     "file": "pending-subscriptions.spec.ts",
+     "title": "CP-SUS-062 · una suscripción activa que todavía no cobró aparece como por cobrar con su total y su cuenta de cobros",
+     "ok": true
+    },
+    {
+     "file": "pending-subscriptions.spec.ts",
+     "title": "CP-SUS-063 · las pausadas y las canceladas no cuentan como por cobrar",
+     "ok": true
+    },
+    {
+     "file": "pending-subscriptions.spec.ts",
+     "title": "CP-SUS-064 · una suscripción en US$ sin tipo de cambio del mes se informa aparte y no entra al total",
+     "ok": true
+    },
+    {
+     "file": "pending-subscriptions.spec.ts",
+     "title": "CP-SUS-065 · si no se pueden leer las suscripciones, el Resumen se ve igual y sin la tarjeta",
+     "ok": true
+    },
+    {
+     "file": "settings-summary.spec.ts",
+     "title": "CP-CFG-040 · el predeterminado es solo gastos y cada interruptor cambia solo el número del Resumen",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "CP-ACC-013 · una cuenta nueva ve el setup, lo saltea y queda adentro de la app aunque recargue",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "CP-ACC-014 · completar el setup con el primer gasto lleva a la app",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "CP-ACC-014 · después de completarlo, volver a iniciar sesión no muestra el setup",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "CP-ACC-015 · si guardar el setup falla, igual se entra a la app",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "CP-ACC-015 · si leer el estado del setup falla, se entra a la app",
+     "ok": true
+    },
+    {
+     "file": "setup.spec.ts",
+     "title": "CP-ACC-016 · una cuenta sin fila de setup (anterior a US-68) entra directo a la app",
      "ok": true
     }
    ]

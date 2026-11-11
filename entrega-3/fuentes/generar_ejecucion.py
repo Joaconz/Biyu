@@ -40,6 +40,8 @@ EVIDENCIA_MANUAL = {
     'CP-IMP-057': [E('CP-IMP-057 · abrir y cerrar la guía no cambia el archivo, el resumen, el filtro ni la URL')],
     'CP-DEU-093': [D('shared_expense_many_people.test.sql')],
     'CP-DEU-094': [D('shared_expense_many_people.test.sql'), D('shared_expense.test.sql')],
+    'CP-CFG-041': [D('user_preferences.test.sql')],
+    'CP-SUS-066': [U('tests/domain/pending-subscription-charges.test.ts')],
     'CP-DEU-095': [E('CP-DEU-095 · cambiar el paso 1 con filas cargadas: otra moneda vacía los montos y pasar a ingreso apaga el interruptor'),
                    E('CP-DEU-095 · bajar el gasto con filas cargadas marca la suma y después el tope por fila, sin ajustar las deudas')],
     'CP-DAS-015': [U('tests/domain/loose-debts-balance.test.ts')], 'CP-DAS-016': [U('tests/domain/loose-debts-balance.test.ts')],
@@ -69,6 +71,7 @@ EVIDENCIA_MANUAL = {
 }
 # Casos de UI y API cuyo tramo de API lo cubre pgTAP además de Playwright.
 EVIDENCIA_EXTRA = {
+    'CP-DAS-028': [U('tests/domain/balance.test.ts')], 'CP-DAS-030': [U('tests/domain/balance.test.ts')],
     'CP-REG-031': [D('update_transaction.test.sql')], 'CP-REG-033': [D('update_transaction.test.sql')],
     'CP-REG-037': [D('update_transaction.test.sql')],
     'CP-REG-041': [D('purge_transaction.test.sql')], 'CP-REG-045': [D('purge_transaction.test.sql')],
@@ -107,8 +110,10 @@ def estado(ev, e2e, unit, db):
 
 def casos_v3():
     filas = {}
-    for p in sorted((RAIZ / 'entrega-3' / 'casos').glob('us-*.md'), key=lambda p: int(re.match(r'us-(\d+)', p.name).group(1))):
-        us = int(re.match(r'us-(\d+)', p.name).group(1))
+    archivos = [*(RAIZ / 'entrega-3' / 'casos').glob('us-*.md'), *(RAIZ / 'entrega-3' / 'casos').glob('adr-*.md')]
+    for p in sorted(archivos, key=lambda p: int(re.match(r'(?:us|adr)-(\d+)', p.name).group(1))):
+        tipo = re.match(r'(us|adr)-', p.name).group(1).upper()
+        us = int(re.match(r'(?:us|adr)-(\d+)', p.name).group(1))
         cab = None
         for linea in p.read_text(encoding='utf-8').splitlines():
             if linea.startswith('| ID |') and cab is None:
@@ -119,7 +124,7 @@ def casos_v3():
                 celdas = [c.strip() for c in linea.strip().strip('|').split('|')]
                 d = dict(zip(cab, celdas))
                 filas[m.group(1)] = dict(
-                    id=m.group(1), us=f'US-{us}', titulo=re.sub(r'`', '', d.get('Título', '')),
+                    id=m.group(1), us=f'ADR-{us:03d}' if tipo == 'ADR' else f'US-{us}', titulo=re.sub(r'`', '', d.get('Título', '')),
                     prioridad=d.get('Prioridad', ''), tecnica=d.get('Técnica', ''), tipo=d.get('Tipo', ''), canal=d.get('Canal', ''))
     return filas
 
