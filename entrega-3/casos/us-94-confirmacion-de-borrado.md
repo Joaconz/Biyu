@@ -3,7 +3,7 @@
 **Historia:** [#355](https://github.com/Joaconz/Biyu/issues/355) · ADR-044 · C4, C10.
 **Oráculo:** la confirmación de eliminar usa el vocabulario de la UI («movimiento»), muestra el detalle de lo que se borra, y su botón de confirmar tiene estilo de peligro y está separado de «Cancelar». Es el mismo componente (`ConfirmDialog`) en los borrados de movimiento, deuda, suscripción y categoría.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). H es el mes de hoy en Argentina. Montos ficticios (C14). Los diálogos de deuda, suscripción y categoría ya tienen su caso en US-87, US-88 y US-89: acá se prueba lo común.
-**Automatización:** `e2e/transactions-edit.spec.ts` y `e2e/transactions-history.spec.ts` recorren el diálogo de movimiento. El resto, por escribir.
+**Automatización:** `e2e/ux-ajustes.spec.ts` (CP-REG-047 a 049); `e2e/transactions-history.spec.ts` recorre además el diálogo de movimiento.
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|
@@ -34,5 +34,5 @@
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | Abrir el diálogo de eliminar de cada uno de los cuatro. | Todos tienen el mismo formato: título, resumen, botón «Eliminar» con estilo de peligro (destructivo) y botón «Cancelar» aparte, sin que se puedan confundir. |
+| 1 | Abrir el diálogo de eliminar de cada uno de los cuatro. | Todos tienen el mismo formato: título, resumen, botón «Eliminar» con estilo de peligro (destructivo) y botón «Cancelar» aparte, a al menos 8 px de distancia, sin que se puedan confundir. |
 | 2 | En cada diálogo tocar «Cancelar» (y repetir con Escape). | Se cierra sin borrar nada. |

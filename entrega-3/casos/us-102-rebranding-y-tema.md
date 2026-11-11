@@ -3,7 +3,7 @@
 **Historia:** [#410](https://github.com/Joaconz/Biyu/issues/410) · ADR-052 · NFR-06.
 **Oráculo:** los criterios CA-1 a CA-4 de la historia. Ajustes → Apariencia ofrece Automático, Claro y Oscuro; la elección se guarda en el dispositivo (`localStorage`, clave `biyu-theme`), no en la base, y se aplica antes del primer pintado. Un monto grande muestra los centavos más chicos pero el texto es el mismo.
 **Convenciones:** PR-01 crea el usuario (`docs/12-procedimientos-de-prueba.md`). Para «Automático», DevTools → Rendering → «Emulate CSS prefers-color-scheme». Montos ficticios (C14).
-**Automatización:** `tests/lib/theme.test.ts` cubre la lógica de la preferencia. El resto, por escribir.
+**Automatización:** `e2e/ux-ajustes.spec.ts` (CP-CFG-031 a 033), `e2e/ux-resumen.spec.ts` (CP-DAS-021) y `tests/lib/theme.test.ts` (lógica de la preferencia). CP-CFG-034 (contraste) es de inspección manual.
 
 | ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
 |---|---|---|---|---|---|---|---|
@@ -36,7 +36,7 @@
 
 | # | Paso | Resultado esperado |
 |---|---|---|
-| 1 | En el primer navegador elegir «Oscuro» y mirar DevTools → Network. | No sale ninguna llamada a `/rest/v1/` por el cambio de tema. |
+| 1 | En el primer navegador elegir «Oscuro» y mirar DevTools → Network. | No sale ninguna escritura (POST ni PATCH) a `/rest/v1/` por el cambio de tema. |
 | 2 | Abrir el segundo navegador con la misma cuenta. | Conserva su propio tema, no el del primero. |
 | 3 | API con el token del usuario: `GET /rest/v1/user_preferences?select=*`. | La respuesta no tiene ningún campo de tema. |
 
