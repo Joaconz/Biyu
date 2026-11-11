@@ -28,7 +28,7 @@ Por módulo: REG 30, DEU 30, IMP 17, CFG 11, DAS 9, SUS 7. Por prioridad: 70 Alt
 
 ## Qué no está acá
 
-- **Mejoras de UX (US-92 a US-100, épica [#325](https://github.com/Joaconz/Biyu/issues/325)).** Las implementa Joaquín y todavía están cambiando la pantalla. Sus casos se escriben cuando cierre la UX, y los de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) se revisan al mismo tiempo.
+- **Mejoras de UX (épica [#325](https://github.com/Joaconz/Biyu/issues/325)).** Se implementaron de otra forma de la que pedían las historias, así que se adaptaron: US-92, US-93, US-94, US-97 y US-98, más las nuevas US-102 a US-105 (rebranding y tema, dona y tendencias, gráficos de Suscripciones, categorías con ícono). Sus casos se escriben aparte. US-95, US-96, US-99 y US-100 no se implementaron en V3 y no tienen casos. Los casos de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) ya están automatizados contra la UX final.
 - **Casos de confirmación de DEF-030 a DEF-037.** No se escriben casos nuevos: cada defecto lo detectó un caso de V2, y ese caso (corregido cuando el defecto era del caso: DEF-035 y DEF-036) está en la selección de regresión ([`03-seleccion-regresion.md`](03-seleccion-regresion.md)) y en la automatización.
 
 ## Cómo se arma la planilla
