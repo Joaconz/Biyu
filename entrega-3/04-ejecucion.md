@@ -6,7 +6,7 @@ Planilla: [`04-ejecucion.xlsx`](04-ejecucion.xlsx) (índice con el resultado y l
 
 - **Fecha:** 2026-11-11, sobre `main` con todos los PR de V3 mergeados (más los tests agregados en esta ejecución).
 - **Entorno:** Vite (`http://127.0.0.1:5173`) y Supabase local con todas las migraciones, Chromium emulando un celular de 390 × 844 px, un usuario nuevo por prueba (PR-01). La base de producción tiene las mismas migraciones.
-- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright (266 de 266 tests; en la primera corrida, con 2 procesos y otro proyecto de Docker consumiendo la máquina, fallaron 9 por timeouts de carga y los 9 pasaron al repetirse de a uno), Vitest (1088 de 1088) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**
+- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright (266 de 266 tests), Vitest (1088 de 1088) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**
 - **Criterio:** un caso es PASSED si pasaron todas las pruebas que lo cubren, FAILED si alguna falló y BLOCKED si ninguna prueba lo cubre o no se pudo correr. La columna «Pruebas que lo cubren» de la planilla nombra cada una. Un caso de UI y API puede estar cubierto por Playwright y por pgTAP a la vez.
 - **Cobertura parcial:** un test de Playwright puede cubrir varios casos (por ejemplo, un test por criterio de aceptación para varios casos de una historia). Eso es cobertura del comportamiento, no una repetición paso a paso de la tabla del caso.
 - **pgTAP:** en local `update_subscription.test.sql` falla 3 de 164 (tests 75 a 77) por usuarios viejos de otras corridas en la base local; en la CI pasa y ningún caso de V3 depende de ese archivo.

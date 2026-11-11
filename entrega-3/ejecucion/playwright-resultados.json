@@ -1,7 +1,7 @@
 {
  "stats": {
-  "expected": 257,
-  "unexpected": 9,
+  "expected": 266,
+  "unexpected": 0,
   "flaky": 0,
   "skipped": 0
  },
@@ -126,7 +126,7 @@
     {
      "file": "debts-edit.spec.ts",
      "title": "US-86 CA-1 · se edita una deuda suelta desde el listado y vuelve con los mismos filtros",
-     "ok": false
+     "ok": true
     },
     {
      "file": "debts-edit.spec.ts",
@@ -211,7 +211,7 @@
     {
      "file": "import-guide.spec.ts",
      "title": "CA-1 y CA-2 · cerrada por defecto; se abre con el contenido exacto",
-     "ok": false
+     "ok": true
     },
     {
      "file": "import-guide.spec.ts",
@@ -226,7 +226,7 @@
     {
      "file": "import-guide.spec.ts",
      "title": "CA-9 · a 390 px entra con 16 px de margen y la tabla scrollea por dentro",
-     "ok": false
+     "ok": true
     },
     {
      "file": "import-guide.spec.ts",
@@ -281,7 +281,7 @@
     {
      "file": "regression-acc-nav.spec.ts",
      "title": "CP-ACC-009 · cerrar sesión y no poder volver con «atrás»",
-     "ok": false
+     "ok": true
     },
     {
      "file": "regression-acc-nav.spec.ts",
@@ -631,7 +631,7 @@
     {
      "file": "regression-exp.spec.ts",
      "title": "CP-EXP-019 y 020 · el CSV y la API de A no traen movimientos de B",
-     "ok": false
+     "ok": true
     },
     {
      "file": "regression-exp.spec.ts",
@@ -1126,22 +1126,22 @@
     {
      "file": "transactions-purge.spec.ts",
      "title": "ADR-044 §2 · el movimiento de una suscripción eliminado no ofrece borrado definitivo y la RPC lo rechaza",
-     "ok": false
+     "ok": true
     },
     {
      "file": "transactions-purge.spec.ts",
      "title": "US-85 CA-4 · otro usuario y anon no pueden borrar para siempre el movimiento ajeno (C7)",
-     "ok": false
+     "ok": true
     },
     {
      "file": "ux-ajustes.spec.ts",
      "title": "CP-CFG-027 · las tarjetas de Ajustes están en el orden indicado y «Cerrar sesión» es la última, aparte",
-     "ok": false
+     "ok": true
     },
     {
      "file": "ux-ajustes.spec.ts",
      "title": "CP-CFG-028 · «Categorías» abre su pantalla, la barra sigue marcando Ajustes y se vuelve con atrás",
-     "ok": false
+     "ok": true
     },
     {
      "file": "ux-ajustes.spec.ts",

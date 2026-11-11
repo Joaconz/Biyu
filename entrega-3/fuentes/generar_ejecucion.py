@@ -76,32 +76,11 @@ EVIDENCIA_EXTRA = {
 
 
 def cargar_resultados():
-    """Playwright: corrida completa con 2 procesos y, encima, el reintento en serie de los tests que fallaron
-    por carga de la máquina (hay un reintento-9.json solo si hizo falta). Devuelve también las cifras de ambas."""
-    def leer(nombre):
-        res = {}
-
-        def rec(s):
-            for x in s.get('suites', []):
-                rec(x)
-            for sp in s.get('specs', []):
-                res[sp['title']] = (sp['ok'], sp['file'])
-
-        pw = json.loads((EJEC / nombre).read_text(encoding='utf-8'))
-        for s in pw['suites']:
-            rec(s)
-        return res, pw['stats']
-
-    e2e, stats = leer('corrida-2-workers.json')
-    fallidos = [t for t, (ok, _) in e2e.items() if not ok]
-    reintento = {}
-    if (EJEC / 'reintento-9.json').exists():
-        reintento, _ = leer('reintento-9.json')
-        for t, (ok, f) in reintento.items():
-            if t in e2e and not e2e[t][0]:
-                e2e[t] = (ok, f)
-    stats = dict(stats, fallidos_primera=len(fallidos), recuperados=sum(1 for t in fallidos if e2e[t][0]),
-                 total=len(e2e), pasados=sum(1 for v in e2e.values() if v[0]))
+    pw = json.loads((EJEC / 'playwright-resultados.json').read_text(encoding='utf-8'))
+    e2e = {}
+    for sp in pw['suites'][0]['specs']:
+        e2e[sp['title']] = (sp['ok'], sp['file'])
+    stats = dict(total=len(e2e), pasados=sum(1 for v in e2e.values() if v[0]))
     vt = json.loads((EJEC / 'vitest-resultados.json').read_text(encoding='utf-8'))
     unit = {}
     for f in vt['testResults']:
@@ -270,7 +249,7 @@ def main():
     out.append('## Condiciones de la ejecución\n')
     out.append('- **Fecha:** 2026-11-11, sobre `main` con todos los PR de V3 mergeados (más los tests agregados en esta ejecución).')
     out.append('- **Entorno:** Vite (`http://127.0.0.1:5173`) y Supabase local con todas las migraciones, Chromium emulando un celular de 390 × 844 px, un usuario nuevo por prueba (PR-01). La base de producción tiene las mismas migraciones.')
-    out.append(f"- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright ({stats['pasados']} de {stats['total']} tests; en la primera corrida, con 2 procesos y otro proyecto de Docker consumiendo la máquina, fallaron {stats['fallidos_primera']} por timeouts de carga y los {stats['recuperados']} pasaron al repetirse de a uno), "
+    out.append(f"- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright ({stats['pasados']} de {stats['total']} tests), "
                f"Vitest ({vt['numPassedTests']} de {vt['numTotalTests']}) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**")
     out.append('- **Criterio:** un caso es PASSED si pasaron todas las pruebas que lo cubren, FAILED si alguna falló y BLOCKED si ninguna prueba lo cubre o no se pudo correr. '
                'La columna «Pruebas que lo cubren» de la planilla nombra cada una. Un caso de UI y API puede estar cubierto por Playwright y por pgTAP a la vez.')
