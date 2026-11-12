@@ -40,6 +40,24 @@ Planilla: [`04-ejecucion.xlsx`](04-ejecucion.xlsx) (índice con el resultado y l
 
 Ninguno: todos los casos de V3 y de la regresión están en PASSED.
 
+## Confirmación de defectos
+
+Testeo de confirmación: cada defecto de V2 (DEF-030 a DEF-037) y el DEF-023 de V1 (intermitente, sin confirmar en la Entrega 2) se repite con el test que reproduce sus pasos. Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso. DEF-023 era intermitente: el test demora la siembra a propósito y verifica que nada vuelva a `/register`, que es la causa corregida; no prueba que la pantalla en blanco no pueda reaparecer.
+
+| Defecto | Severidad | Caso | Arreglo | Qué se confirma | Resultado | Tests |
+|---|---|---|---|---|---|---|
+| DEF-030 | Media | CP-EXP-027 | PR #365 | Tocar fuera de la hoja «Exportar movimientos» la cierra sin descargar | **PASSED** | 1 |
+| DEF-031 | Media | CP-EXP-028 | PR #365 | «Atrás» y «Adelante» cierran la hoja y cambian el período | **PASSED** | 1 |
+| DEF-032 | Media | CP-EXP-029 | PR #365 | «Atrás» durante «Exportando…» cancela la descarga | **PASSED** | 1 |
+| DEF-033 | Baja | CP-IMP-024 | PR #366 | La tarjeta de la fila muestra los nombres de Biyu (también en `import-rows.test.ts`) | **PASSED** | 1 |
+| DEF-034 | Baja | CP-SUS-032 | PR #368 | Operar sobre la suscripción de otro usuario responde 404 | **PASSED** | 1 |
+| DEF-035 | Baja | CP-SUS-022 | PR #368 | Sin sesión la API responde 401 con `42501` (el defecto era del caso) | **PASSED** | 1 |
+| DEF-036 | Baja | CP-SUS-048 | PR #368 | La vista previa marca `data-blocked` en cada mes (el defecto era del caso) | **PASSED** | 1 |
+| DEF-037 | Media | CP-DEU-024 y CP-DEU-025 | PR #367 | El primer clic en «US$» selecciona la moneda; un tipo de cambio de 0 muestra su error | **PASSED** | 2 |
+| DEF-023 | Alta | sin caso (V1, intermitente) | PR #198 (V1) | Con la siembra demorada, crear la cuenta lleva a `/setup` y nada vuelve a `/register`; los casos CP-ACC-013 a 016 cubren el alta | **PASSED** | 1 |
+
+**9 de 9 confirmados** (corregidos); 0 siguen fallando y 0 no se pudieron confirmar.
+
 ## Resultado por caso de V3
 
 | ID | Prioridad | Título | Historia | Status | Cubierto por |

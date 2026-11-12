@@ -169,6 +169,32 @@ def evidencia_v3(e2e, unit, db):
     return ev
 
 
+# Confirmación de defectos: (defecto, severidad, caso que lo detectó, marca del título del test, arreglo, qué se verifica)
+DEFECTOS = [
+    ('DEF-030', 'Media', 'CP-EXP-027', 'CP-EXP-027 ·', 'PR #365', 'Tocar fuera de la hoja «Exportar movimientos» la cierra sin descargar'),
+    ('DEF-031', 'Media', 'CP-EXP-028', 'CP-EXP-028 ·', 'PR #365', '«Atrás» y «Adelante» cierran la hoja y cambian el período'),
+    ('DEF-032', 'Media', 'CP-EXP-029', 'CP-EXP-029 ·', 'PR #365', '«Atrás» durante «Exportando…» cancela la descarga'),
+    ('DEF-033', 'Baja', 'CP-IMP-024', 'CP-IMP-024 ·', 'PR #366', 'La tarjeta de la fila muestra los nombres de Biyu (también en `import-rows.test.ts`)'),
+    ('DEF-034', 'Baja', 'CP-SUS-032', 'CP-SUS-032 ·', 'PR #368', 'Operar sobre la suscripción de otro usuario responde 404'),
+    ('DEF-035', 'Baja', 'CP-SUS-022', 'CP-SUS-022 ·', 'PR #368', 'Sin sesión la API responde 401 con `42501` (el defecto era del caso)'),
+    ('DEF-036', 'Baja', 'CP-SUS-048', 'CP-SUS-048 ·', 'PR #368', 'La vista previa marca `data-blocked` en cada mes (el defecto era del caso)'),
+    ('DEF-037', 'Media', 'CP-DEU-024 y CP-DEU-025', 'DEF-037', 'PR #367', 'El primer clic en «US$» selecciona la moneda; un tipo de cambio de 0 muestra su error'),
+    ('DEF-023', 'Alta', 'sin caso (V1, intermitente)', 'aunque la siembra tarde (DEF-023)', 'PR #198 (V1)', 'Con la siembra demorada, crear la cuenta lleva a `/setup` y nada vuelve a `/register`; los casos CP-ACC-013 a 016 cubren el alta'),
+]
+
+
+def confirmacion_defectos(e2e):
+    filas = []
+    for d, sev, caso, marca, arreglo, que in DEFECTOS:
+        tests = [t for t in e2e if marca in t]
+        if not tests:
+            est = 'BLOCKED'
+        else:
+            est = 'PASSED' if all(e2e[t][0] for t in tests) else 'FAILED'
+        filas.append((d, sev, caso, arreglo, que, est, len(tests)))
+    return filas
+
+
 def main():
     e2e, unit, db, stats, vt = cargar_resultados()
     v3, reg = casos_v3(), casos_regresion()
@@ -238,6 +264,15 @@ def main():
     for c in rs[1]:
         c.font = Font(bold=True)
     rs.column_dimensions['A'].width = 22
+    cd = wb.create_sheet('Defectos')
+    cd.append(['Defecto', 'Severidad', 'Caso', 'Arreglo', 'Qué se confirma', 'Resultado', 'Tests'])
+    for c in cd[1]:
+        c.font = Font(bold=True)
+    for f in confirmacion_defectos(e2e):
+        cd.append(list(f))
+        cd.cell(cd.max_row, 6).fill = PatternFill('solid', fgColor=colores[f[5]])
+    for col, w in zip('ABCDEFG', (10, 10, 26, 14, 90, 11, 7)):
+        cd.column_dimensions[col].width = w
     wb.save(RAIZ / 'entrega-3' / '04-ejecucion.xlsx')
 
     # ------------------------------------------------------------ md
@@ -280,6 +315,15 @@ def main():
             out.append(f'| {c} | {st} | {motivo or "falló una prueba"}: {titulo} |')
     else:
         out.append('Ninguno: todos los casos de V3 y de la regresión están en PASSED.')
+    conf = confirmacion_defectos(e2e)
+    out.append('\n## Confirmación de defectos\n')
+    out.append('Testeo de confirmación: cada defecto de V2 (DEF-030 a DEF-037) y el DEF-023 de V1 (intermitente, sin confirmar en la Entrega 2) se repite con el test que reproduce sus pasos. '
+               'Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso. DEF-023 era intermitente: el test demora la siembra a propósito y verifica que nada vuelva a `/register`, que es la causa corregida; no prueba que la pantalla en blanco no pueda reaparecer.\n')
+    out.append('| Defecto | Severidad | Caso | Arreglo | Qué se confirma | Resultado | Tests |\n|---|---|---|---|---|---|---|')
+    for d, sev, caso, arreglo, que, est, n in conf:
+        out.append(f'| {d} | {sev} | {caso} | {arreglo} | {que} | **{est}** | {n} |')
+    cc = Counter(c[5] for c in conf)
+    out.append(f"\n**{cc['PASSED']} de {len(conf)} confirmados** (corregidos); {cc['FAILED']} siguen fallando y {cc['BLOCKED']} no se pudieron confirmar.")
     out.append('\n## Resultado por caso de V3\n')
     out.append('| ID | Prioridad | Título | Historia | Status | Cubierto por |\n|---|---|---|---|---|---|')
     for cid, m in v3.items():
