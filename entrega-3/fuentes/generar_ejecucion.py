@@ -318,7 +318,7 @@ def main():
     conf = confirmacion_defectos(e2e)
     out.append('\n## Confirmación de defectos\n')
     out.append('Testeo de confirmación: cada defecto de V2 (DEF-030 a DEF-037) y el DEF-023 de V1 (intermitente, sin confirmar en la Entrega 2) se repite con el test que reproduce sus pasos. '
-               'Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso.\n')
+               'Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso. DEF-023 era intermitente: el test demora la siembra a propósito y verifica que nada vuelva a `/register`, que es la causa corregida; no prueba que la pantalla en blanco no pueda reaparecer.\n')
     out.append('| Defecto | Severidad | Caso | Arreglo | Qué se confirma | Resultado | Tests |\n|---|---|---|---|---|---|---|')
     for d, sev, caso, arreglo, que, est, n in conf:
         out.append(f'| {d} | {sev} | {caso} | {arreglo} | {que} | **{est}** | {n} |')

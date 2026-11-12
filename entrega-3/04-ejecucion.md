@@ -42,7 +42,7 @@ Ninguno: todos los casos de V3 y de la regresión están en PASSED.
 
 ## Confirmación de defectos
 
-Testeo de confirmación: cada defecto de V2 (DEF-030 a DEF-037) y el DEF-023 de V1 (intermitente, sin confirmar en la Entrega 2) se repite con el test que reproduce sus pasos. Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso.
+Testeo de confirmación: cada defecto de V2 (DEF-030 a DEF-037) y el DEF-023 de V1 (intermitente, sin confirmar en la Entrega 2) se repite con el test que reproduce sus pasos. Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso. DEF-023 era intermitente: el test demora la siembra a propósito y verifica que nada vuelva a `/register`, que es la causa corregida; no prueba que la pantalla en blanco no pueda reaparecer.
 
 | Defecto | Severidad | Caso | Arreglo | Qué se confirma | Resultado | Tests |
 |---|---|---|---|---|---|---|
