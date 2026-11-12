@@ -20,7 +20,7 @@ def ids_de(path):
 
 
 v3 = set()
-for p in (RAIZ / 'entrega-3' / 'casos').glob('us-*.md'):
+for p in [*(RAIZ / 'entrega-3' / 'casos').glob('us-*.md'), *(RAIZ / 'entrega-3' / 'casos').glob('adr-*.md')]:
     texto = p.read_text(encoding='utf-8')
     v3 |= set(re.findall(r'^\| (CP-[A-Z]+-\d{3}) \|', texto, re.M))
 regresion = set(re.findall(r'^\| (CP-[A-Z]+-\d{3}) \|', (RAIZ / 'entrega-3' / '03-seleccion-regresion.md').read_text(encoding='utf-8'), re.M))

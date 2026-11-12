@@ -6,7 +6,7 @@ Planilla: [`04-ejecucion.xlsx`](04-ejecucion.xlsx) (índice con el resultado y l
 
 - **Fecha:** 2026-11-11, sobre `main` con todos los PR de V3 mergeados (más los tests agregados en esta ejecución).
 - **Entorno:** Vite (`http://127.0.0.1:5173`) y Supabase local con todas las migraciones, Chromium emulando un celular de 390 × 844 px, un usuario nuevo por prueba (PR-01). La base de producción tiene las mismas migraciones.
-- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright (266 de 266 tests), Vitest (1088 de 1088) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**
+- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright (272 de 272 tests), Vitest (1088 de 1088) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**
 - **Criterio:** un caso es PASSED si pasaron todas las pruebas que lo cubren, FAILED si alguna falló y BLOCKED si ninguna prueba lo cubre o no se pudo correr. La columna «Pruebas que lo cubren» de la planilla nombra cada una. Un caso de UI y API puede estar cubierto por Playwright y por pgTAP a la vez.
 - **Cobertura parcial:** un test de Playwright puede cubrir varios casos (por ejemplo, un test por criterio de aceptación para varios casos de una historia). Eso es cobertura del comportamiento, no una repetición paso a paso de la tabla del caso.
 - **pgTAP:** en local `update_subscription.test.sql` falla 3 de 164 (tests 75 a 77) por usuarios viejos de otras corridas en la base local; en la CI pasa y ningún caso de V3 depende de ese archivo.
@@ -15,26 +15,26 @@ Planilla: [`04-ejecucion.xlsx`](04-ejecucion.xlsx) (índice con el resultado y l
 
 | Conjunto | Casos | PASSED | FAILED | BLOCKED | % PASSED |
 |---|---|---|---|---|---|
-| Casos de V3 | 146 | 146 | 0 | 0 | 100.0 % |
+| Casos de V3 | 165 | 165 | 0 | 0 | 100.0 % |
 | Regresión de V1 y V2 | 177 | 177 | 0 | 0 | 100.0 % |
-| **Total** | 323 | 323 | 0 | 0 | 100.0 % |
+| **Total** | 342 | 342 | 0 | 0 | 100.0 % |
 
 ### Por módulo
 
 | Módulo | V3 PASSED | V3 FAILED | V3 BLOCKED | Regresión PASSED | Regresión FAILED | Regresión BLOCKED |
 |---|---|---|---|---|---|---|
-| ACC | 0 | 0 | 0 | 9 | 0 | 0 |
+| ACC | 4 | 0 | 0 | 9 | 0 | 0 |
 | CAT | 0 | 0 | 0 | 3 | 0 | 0 |
-| CFG | 24 | 0 | 0 | 6 | 0 | 0 |
+| CFG | 26 | 0 | 0 | 6 | 0 | 0 |
 | CUO | 0 | 0 | 0 | 10 | 0 | 0 |
-| DAS | 15 | 0 | 0 | 3 | 0 | 0 |
+| DAS | 21 | 0 | 0 | 3 | 0 | 0 |
 | DEU | 30 | 0 | 0 | 47 | 0 | 0 |
 | EXP | 0 | 0 | 0 | 27 | 0 | 0 |
 | IMP | 17 | 0 | 0 | 15 | 0 | 0 |
 | MON | 0 | 0 | 0 | 5 | 0 | 0 |
 | NAV | 12 | 0 | 0 | 15 | 0 | 0 |
 | REG | 36 | 0 | 0 | 6 | 0 | 0 |
-| SUS | 12 | 0 | 0 | 31 | 0 | 0 |
+| SUS | 19 | 0 | 0 | 31 | 0 | 0 |
 
 ## Casos que no están en PASSED
 
@@ -44,6 +44,17 @@ Ninguno: todos los casos de V3 y de la regresión están en PASSED.
 
 | ID | Prioridad | Título | Historia | Status | Cubierto por |
 |---|---|---|---|---|---|
+| CP-SUS-062 | Alta | Una suscripción activa que todavía no cobró aparece como por cobrar con su total y su cuenta de cobros | ADR-045 | **PASSED** | Playwright |
+| CP-SUS-063 | Alta | Las pausadas y las canceladas no cuentan como por cobrar | ADR-045 | **PASSED** | Playwright |
+| CP-SUS-064 | Media | Una suscripción en US$ sin tipo de cambio del mes se informa aparte y no entra al total | ADR-045 | **PASSED** | Playwright |
+| CP-SUS-065 | Media | Si no se pueden leer las suscripciones, el Resumen se ve igual y sin la tarjeta | ADR-045 | **PASSED** | Playwright |
+| CP-SUS-066 | Alta | En el mes en curso solo cuenta lo que su día de cobro todavía no llegó, y un mes pasado no tiene nada | ADR-045 | **PASSED** | Vitest |
+| CP-SUS-067 | Media | La X cierra la franja y no vuelve al cambiar de pantalla ni al recargar | US-53 | **PASSED** | Playwright |
+| CP-SUS-068 | Media | «Reintentar» llama de nuevo y, si anda, la franja desaparece | US-53 | **PASSED** | Playwright |
+| CP-ACC-013 | Alta | Una cuenta nueva ve el setup, lo saltea y queda adentro de la app aunque recargue | US-68 | **PASSED** | Playwright |
+| CP-ACC-014 | Alta | Completar el setup con el primer gasto lleva a la app y al volver a iniciar sesión no reaparece | US-68 | **PASSED** | Playwright |
+| CP-ACC-015 | Alta | Si guardar o leer el estado del setup falla, igual se entra a la app | US-68 | **PASSED** | Playwright |
+| CP-ACC-016 | Media | Una cuenta anterior a US-68, sin fila de setup, entra directo a la app | US-68 | **PASSED** | Playwright |
 | CP-IMP-042 | Media | La plantilla y la hoja «Instrucciones» traen «Cuotas pendientes» | US-80 | **PASSED** | Vitest |
 | CP-IMP-043 | Alta | Una compra de 6 cuotas con 3 pendientes se imputa desde este mes y se ve en Movimientos | US-80 | **PASSED** | Playwright |
 | CP-IMP-044 | Alta | Con resto, con todas pendientes y sin la columna | US-80 | **PASSED** | Vitest |
@@ -72,13 +83,13 @@ Ninguno: todos los casos de V3 y de la regresión están en PASSED.
 | CP-DEU-093 | Alta | La RPC rechaza pedidos inválidos y no deja filas | US-82 | **PASSED** | pgTAP |
 | CP-DEU-094 | Alta | Con una sola persona rige lo de US-34 y US-41, con el pedido nuevo | US-82 | **PASSED** | pgTAP |
 | CP-DEU-095 | Media | Cambiar la moneda, el tipo o el monto en el paso 1 con filas cargadas | US-82 | **PASSED** | Playwright |
-| CP-DAS-012 | Alta | «Me deben» resta del balance y muestra la línea | US-83 | **PASSED** | Playwright |
-| CP-DAS-013 | Alta | «Debo» suma al balance | US-83 | **PASSED** | Playwright |
-| CP-DAS-014 | Alta | Saldar la deuda del mismo mes deja el balance en ingresos − gastos y la línea en $0,00 | US-83 | **PASSED** | Playwright |
+| CP-DAS-012 | Alta | «Me deben» suma al gasto neto y muestra la línea de deudas sueltas | US-83 | **PASSED** | Playwright |
+| CP-DAS-013 | Alta | «Debo» resta del gasto neto | US-83 | **PASSED** | Playwright |
+| CP-DAS-014 | Alta | Saldar la deuda del mismo mes deja el número en −ingresos y la línea en $0,00 | US-83 | **PASSED** | Playwright |
 | CP-DAS-015 | Alta | Una deuda de H−1 saldada hoy mueve H−1 y H, cada uno en su mes | US-83 | **PASSED** | Vitest |
 | CP-DAS-016 | Media | Reabrir quita el evento de H y deja H−1 igual | US-83 | **PASSED** | Vitest |
 | CP-DAS-017 | Alta | En US$ el evento usa el tipo de cambio congelado | US-83 | **PASSED** | Vitest |
-| CP-DAS-018 | Alta | Un gasto compartido no mueve el balance y la deuda suelta no cambia Gastado ni Ingresos | US-83 | **PASSED** | Playwright |
+| CP-DAS-018 | Alta | Un gasto compartido no mueve las deudas sueltas y la deuda suelta no cambia Gastado ni Ingresos | US-83 | **PASSED** | Playwright |
 | CP-DAS-019 | Alta | Un mes con solo la deuda muestra el Resumen, no el estado vacío; la línea solo existe con eventos | US-83 | **PASSED** | Playwright |
 | CP-DAS-020 | Media | El mes viene de la URL; el borde de mes se calcula en hora de Argentina; si falla la lectura no hay números | US-83 | **PASSED** | Playwright; Vitest |
 | CP-REG-017 | Alta | «Editar» en las filas activas, no en las eliminadas, con los campos precargados y la vuelta al mismo período | US-84 | **PASSED** | Playwright |
@@ -170,6 +181,14 @@ Ninguno: todos los casos de V3 y de la regresión están en PASSED.
 | CP-REG-050 | Media | Las ocho categorías sembradas se leen completas, sin cortar palabras | US-98 | **PASSED** | Playwright |
 | CP-REG-051 | Media | Un nombre largo ocupa como máximo dos líneas | US-98 | **PASSED** | Playwright |
 | CP-REG-052 | Media | Los chips de cuenta miden al menos 48 px de alto | US-98 | **PASSED** | Playwright |
+| CP-DAS-027 | Alta | El predeterminado es «Solo gastos»: el número es lo gastado y las cuatro opciones están apagadas | US-101 | **PASSED** | Playwright |
+| CP-DAS-028 | Alta | Cada opción mueve el número al instante, con su signo, y la elección queda guardada | US-101 | **PASSED** | Playwright; Vitest |
+| CP-DAS-029 | Media | «Solo gastos» apaga todas las opciones de un toque | US-101 | **PASSED** | Playwright |
+| CP-DAS-030 | Alta | El desglose suma exactamente el número y «Fuera del número» muestra lo que moverían las opciones apagadas | US-101 | **PASSED** | Playwright; Vitest |
+| CP-DAS-031 | Media | El ícono de la esquina abre la misma hoja y, en la compu, el popover nace de la pill y Escape devuelve el foco | US-101 | **PASSED** | Playwright |
+| CP-DAS-032 | Media | El rótulo cambia a «Gastado neto» con una opción y el número negativo lleva el signo menos | US-101 | **PASSED** | Playwright |
+| CP-CFG-040 | Alta | En Ajustes cada interruptor cambia solo el número del Resumen y la elección sobrevive al recargar | US-101 | **PASSED** | Playwright |
+| CP-CFG-041 | Alta | La preferencia es de cada usuario: otro usuario no la ve ni la modifica | US-101 | **PASSED** | pgTAP |
 | CP-CFG-031 | Alta | Elegir «Oscuro» cambia el tema al instante y queda al recargar | US-102 | **PASSED** | Playwright |
 | CP-CFG-032 | Media | «Automático» sigue al tema del sistema | US-102 | **PASSED** | Playwright |
 | CP-CFG-033 | Media | La elección no se guarda en la base y otro dispositivo conserva la suya | US-102 | **PASSED** | Playwright |

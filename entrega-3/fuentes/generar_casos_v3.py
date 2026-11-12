@@ -1,4 +1,4 @@
-"""Genera entrega-3/01-especificacion-casos-v3.xlsx desde entrega-3/casos/us-*.md.
+"""Genera entrega-3/01-especificacion-casos-v3.xlsx desde entrega-3/casos/us-*.md y adr-*.md.
 
 Uso (desde la raíz del repo):  python3 entrega-3/fuentes/generar_casos_v3.py
 Necesita openpyxl. Una hoja «Índice» con todos los casos y una hoja por sección de cada archivo
@@ -14,7 +14,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 ROOT = Path(__file__).resolve().parent.parent
-CASOS = sorted((ROOT / 'casos').glob('us-*.md'), key=lambda p: int(re.match(r'us-(\d+)', p.name).group(1)))
+CASOS = sorted([*(ROOT / 'casos').glob('us-*.md'), *(ROOT / 'casos').glob('adr-*.md')],
+               key=lambda p: int(re.match(r'(?:us|adr)-(\d+)', p.name).group(1)))
 OUT = ROOT / '01-especificacion-casos-v3.xlsx'
 
 LABEL = PatternFill('solid', fgColor='FFFFFFCC')

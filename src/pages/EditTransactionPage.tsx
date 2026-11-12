@@ -89,6 +89,7 @@ function Shell({ backTo, children }: { backTo: string; children: React.ReactNode
       <div className="flex items-center gap-1 pt-3 pb-6 lg:pt-0 lg:pb-8">
         <Link
           to={backTo}
+          data-testid="edit-transaction-back"
           aria-label="Volver a Movimientos"
           className="press -ml-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-primary hover:bg-primary/8"
         >

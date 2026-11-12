@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test'
 import { apiSession, signUpAndSkipSetup } from './support/app.ts'
-import { openSpentOptions } from './support/dashboard.ts'
+import { includeInSpent, openSpentOptions } from './support/dashboard.ts'
 
 // US-101 (#371), ADR-053: qué entra en el número del Resumen (el gasto neto) se elige desde la misma tarjeta verde.
 // El número se recalcula al instante, la elección se guarda en user_preferences y Ajustes muestra lo mismo.
@@ -25,7 +25,7 @@ async function seed(page: Page, request: Parameters<typeof apiSession>[0], tag: 
 const saved = (page: Page) =>
   page.waitForResponse((r) => r.url().includes('/rest/v1/user_preferences') && r.request().method() === 'POST' && r.ok())
 
-test('en el celular, la hoja del héroe cambia el número al instante y la elección queda guardada', async ({ page, request }) => {
+test('CP-DAS-027 a 030 · en el celular, la hoja del héroe cambia el número al instante y la elección queda guardada', async ({ page, request }) => {
   await seed(page, request, 'adr053-sheet')
   await page.goto('/dashboard')
 
@@ -99,7 +99,7 @@ test('en el celular, la hoja del héroe cambia el número al instante y la elecc
   }
 })
 
-test('el ícono de la esquina abre la misma hoja', async ({ page, request }) => {
+test('CP-DAS-031 · el ícono de la esquina abre la misma hoja', async ({ page, request }) => {
   await seed(page, request, 'adr053-icon')
   await page.goto('/dashboard')
   await page.getByTestId('dashboard-spent-options-button').click()
@@ -110,7 +110,7 @@ test('el ícono de la esquina abre la misma hoja', async ({ page, request }) => 
 test.describe('en la compu', () => {
   test.use({ viewport: { width: 1280, height: 900 } })
 
-  test('el popover nace de la pill, Escape lo cierra y el foco vuelve al botón', async ({ page, request }) => {
+  test('CP-DAS-031 · el popover nace de la pill, Escape lo cierra y el foco vuelve al botón', async ({ page, request }) => {
     await seed(page, request, 'adr053-popover')
     await page.goto('/dashboard')
     await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('$120.000,00')
@@ -127,4 +127,16 @@ test.describe('en la compu', () => {
     await expect(page.getByTestId('dashboard-spent-options-panel')).toHaveCount(0)
     await expect(trigger).toBeFocused()
   })
+})
+
+test('CP-DAS-032 · el rótulo cambia a «Gastado neto» con una opción y el número negativo lleva el signo menos', async ({ page, request }) => {
+  await seed(page, request, 'adr053-label')
+  await page.goto('/dashboard')
+  const label = page.locator('#dashboard-total-label')
+  await expect(label).toContainText('Gastado en')
+  await expect(label).not.toContainText('neto')
+
+  await includeInSpent(page, ['income', 'reimbursements'])
+  await expect(label).toContainText('Gastado neto en')
+  await expect(page.getByTestId('dashboard-total-expenses')).toHaveText('-$40.000,00')
 })

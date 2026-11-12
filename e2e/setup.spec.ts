@@ -36,7 +36,7 @@ async function logIn(page: Page, email: string) {
   await page.getByTestId('login-form-submit').click()
 }
 
-test('una cuenta nueva ve el setup, lo saltea y queda adentro de la app aunque recargue', async ({ page }) => {
+test('CP-ACC-013 · una cuenta nueva ve el setup, lo saltea y queda adentro de la app aunque recargue', async ({ page }) => {
   await signUp(page, 'saltear')
   await expect(page).toHaveURL(/\/setup$/)
   await skipWholeSetup(page)
@@ -48,7 +48,7 @@ test('una cuenta nueva ve el setup, lo saltea y queda adentro de la app aunque r
   await expect(page).toHaveURL(/\/dashboard/)
 })
 
-test('completar el setup con el primer gasto lleva a la app', async ({ page }) => {
+test('CP-ACC-014 · completar el setup con el primer gasto lleva a la app', async ({ page }) => {
   await signUp(page, 'gasto')
   await expect(page).toHaveURL(/\/setup$/)
   await page.getByTestId('setup-reason-option-entender').click()
@@ -65,7 +65,7 @@ test('completar el setup con el primer gasto lleva a la app', async ({ page }) =
   await expectInsideApp(page)
 })
 
-test('después de completarlo, volver a iniciar sesión no muestra el setup', async ({ page, browser }) => {
+test('CP-ACC-014 · después de completarlo, volver a iniciar sesión no muestra el setup', async ({ page, browser }) => {
   const email = await signUp(page, 'relogin')
   await skipWholeSetup(page)
   await expectInsideApp(page)
@@ -77,7 +77,7 @@ test('después de completarlo, volver a iniciar sesión no muestra el setup', as
   await other.close()
 })
 
-test('si guardar el setup falla, igual se entra a la app', async ({ page }) => {
+test('CP-ACC-015 · si guardar el setup falla, igual se entra a la app', async ({ page }) => {
   await signUp(page, 'falla-guardar')
   await expect(page).toHaveURL(/\/setup$/)
   await page.route(SETUP_REST, (route) =>
@@ -87,7 +87,7 @@ test('si guardar el setup falla, igual se entra a la app', async ({ page }) => {
   await expectInsideApp(page)
 })
 
-test('si leer el estado del setup falla, se entra a la app', async ({ page }) => {
+test('CP-ACC-015 · si leer el estado del setup falla, se entra a la app', async ({ page }) => {
   await page.route(SETUP_REST, (route) =>
     route.request().method() === 'GET' ? route.fulfill({ status: 500, body: '{}' }) : route.continue(),
   )
@@ -95,7 +95,7 @@ test('si leer el estado del setup falla, se entra a la app', async ({ page }) =>
   await expectInsideApp(page)
 })
 
-test('una cuenta sin fila de setup (anterior a US-68) entra directo a la app', async ({ page }) => {
+test('CP-ACC-016 · una cuenta sin fila de setup (anterior a US-68) entra directo a la app', async ({ page }) => {
   // La fila la crea la base al registrarse (ADR-025); una cuenta vieja no la tiene. Se simula
   // respondiendo "sin fila", que es lo que devuelve la API para esas cuentas.
   await page.route(SETUP_REST, (route) =>
