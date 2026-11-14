@@ -386,3 +386,30 @@ export function debtDeletionEffect(debt: DebtRecord, all: readonly DebtRecord[])
 export function deletedNoticeText(person: string): string {
   return `Deuda con ${person} eliminada`
 }
+
+/** US-100: cuántas sugerencias de persona se muestran como máximo. */
+export const MAX_PERSON_SUGGESTIONS = 5
+
+/**
+ * US-100: de las personas ya cargadas (`known`, la más reciente primero), las que coinciden con lo que se
+ * escribe. Coincide con la misma clave que US-91 (`personKey`): sin mayúsculas, tildes ni espacios de más,
+ * y por contenido ("an" sugiere «Ana» y «Mariana»; las que empiezan con lo escrito van primero). Cada
+ * persona sale una vez, con el nombre de su deuda más reciente. No sugiere con el campo vacío ni lo que ya
+ * está escrito tal cual.
+ */
+export function suggestPeople(known: readonly string[], typed: string, limit = MAX_PERSON_SUGGESTIONS): string[] {
+  const query = personKey(typed)
+  if (!query) return []
+  const seen = new Set<string>()
+  const prefix: string[] = []
+  const inside: string[] = []
+  for (const name of known) {
+    const key = personKey(name)
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    if (name.trim() === typed.trim()) continue
+    if (key.startsWith(query)) prefix.push(name.trim())
+    else if (key.includes(query)) inside.push(name.trim())
+  }
+  return [...prefix, ...inside].slice(0, limit)
+}

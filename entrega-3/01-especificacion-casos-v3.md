@@ -41,7 +41,7 @@ Por módulo: REG 36, DEU 30, CFG 26, DAS 21, SUS 19, IMP 17, NAV 12, ACC 4. Por 
 
 ## Qué no está acá
 
-- **Mejoras de UX que no tienen casos (épica [#325](https://github.com/Joaconz/Biyu/issues/325)).** Se implementaron de otra forma de la que pedían las historias, así que se adaptaron: US-92, US-93, US-94, US-97 y US-98, más las nuevas US-102 a US-105 (rebranding y tema, dona y tendencias, gráficos de Suscripciones, categorías con ícono). Sus 42 casos están en la tabla de arriba. US-95, US-96, US-99 y US-100 no se implementaron en V3 y no tienen casos. Los casos de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) ya están automatizados contra la UX final.
+- **Mejoras de UX que no tienen casos (épica [#325](https://github.com/Joaconz/Biyu/issues/325)).** Se implementaron de otra forma de la que pedían las historias, así que se adaptaron: US-92, US-93, US-94, US-97 y US-98, más las nuevas US-102 a US-105 (rebranding y tema, dona y tendencias, gráficos de Suscripciones, categorías con ícono). Sus 42 casos están en la tabla de arriba. US-95, US-96 y US-99 no se implementaron en V3 y no tienen casos. US-100 se implementó después: sus casos están en [`us-100`](casos/us-100-sugerir-personas.md) (CP-DEU-096 a 102) y todavía no suman a los totales de esta página ni a la planilla. Los casos de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) ya están automatizados contra la UX final.
 - **Casos de confirmación de DEF-030 a DEF-037.** No se escriben casos nuevos: cada defecto lo detectó un caso de V2, y ese caso (corregido cuando el defecto era del caso: DEF-035 y DEF-036) está en la selección de regresión ([`03-seleccion-regresion.md`](03-seleccion-regresion.md)) y en la automatización.
 
 ## Cómo se arma la planilla

@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PersonInput } from '@/components/ui/person-input'
 import { Label } from '@/components/ui/label'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
@@ -21,6 +22,7 @@ import {
 import type { DebtDirection } from '@/domain/debts'
 import type { Currency } from '@/domain/fx'
 import { formatPeriod, parsePeriod, toIsoDate, tryPeriodOf } from '@/domain/period'
+import { usePeople } from '@/hooks/usePeople'
 import { today } from '@/lib/clock'
 import { createDebt } from '@/lib/debts'
 import { saveErrorMessage } from '@/lib/errors'
@@ -47,6 +49,7 @@ type RateStatus = 'idle' | 'loading' | 'found' | 'missing' | 'error'
  */
 export function DebtFormPage() {
   const navigate = useNavigate()
+  const people = usePeople()
   const todayIso = toIsoDate(today())
   const [values, setValues] = useState<DebtDraftInput>(() => emptyDebtDraftInput(todayIso))
   const [touched, setTouched] = useState<Partial<Record<DebtDraftField, boolean>>>({})
@@ -151,7 +154,22 @@ export function DebtFormPage() {
       }}
       className="mx-auto flex w-full max-w-2xl flex-col"
     >
-      <PageHeader title="Nueva deuda" testId="debt-form-title" />
+      <PageHeader
+        title="Nueva deuda"
+        testId="debt-form-title"
+        leading={
+          // Hallazgo 10 (#352): como Movimientos y Categorías, Nueva deuda vuelve a su lista desde el encabezado.
+          <Link
+            to="/debts"
+            data-testid="debt-form-back"
+            aria-disabled={saving || undefined}
+            onClick={(e) => saving && e.preventDefault()}
+            className="press -ml-1 inline-flex min-h-11 items-center rounded-full px-1 text-callout font-medium text-primary hover:underline"
+          >
+            ‹ Deudas
+          </Link>
+        }
+      />
 
       <fieldset disabled={saving} className="grid gap-6">
         <div className="grid gap-2.5">
@@ -168,16 +186,18 @@ export function DebtFormPage() {
         </div>
 
         <Field label="Persona" htmlFor="debt-form-person" errorId="debt-form-person-error" error={shown('person')}>
-          <Input
+          <PersonInput
             id="debt-form-person"
             data-testid="debt-form-person"
+            testId="debt-form-person"
+            people={people}
             autoFocus
             autoComplete="off"
             enterKeyHint="next"
             maxLength={MAX_PERSON_LENGTH}
             placeholder="Nombre"
             value={values.person}
-            onChange={(e) => change({ person: e.target.value })}
+            onValueChange={(person) => change({ person })}
             onBlur={blur('person')}
             aria-invalid={!!shown('person') || undefined}
             aria-describedby={shown('person') ? 'debt-form-person-error' : undefined}
