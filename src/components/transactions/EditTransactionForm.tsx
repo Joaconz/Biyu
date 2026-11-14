@@ -1,3 +1,4 @@
+import { AmountInput } from '@/components/shared/AmountInput'
 import { useMemo, useRef, useState } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { useNavigate } from 'react-router'
@@ -200,13 +201,12 @@ export function EditTransactionForm({
             <span aria-hidden="true" className="text-title-2 font-semibold text-muted-foreground">
               {symbol}
             </span>
-            <Input
+            <AmountInput as={Input}
               id="edit-transaction-amount"
               data-testid="edit-transaction-amount"
-              inputMode="decimal"
               autoComplete="off"
               value={values.amount}
-              onChange={(e) => change({ amount: e.target.value })}
+              onValueChange={(amount) => change({ amount })}
               aria-invalid={(touched.amount && !!errors.amount) || undefined}
               aria-describedby={errors.amount ? 'edit-transaction-amount-error' : undefined}
               className="tabular text-title-3 font-semibold"

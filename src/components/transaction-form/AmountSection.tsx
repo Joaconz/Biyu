@@ -1,3 +1,4 @@
+import { AmountInput } from '@/components/shared/AmountInput'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import type { Currency } from '@/domain/fx'
 import { FieldError } from './FieldError'
@@ -25,18 +26,17 @@ export function AmountSection({ values, errors, touched, onChange }: SectionProp
         <span aria-hidden="true" className="text-title-1 font-semibold text-muted-foreground">
           {values.currency === 'USD' ? 'US$' : '$'}
         </span>
-        <input
+        <AmountInput
           id="transaction-form-amount"
           data-testid="transaction-form-amount"
           autoFocus
-          inputMode="decimal"
           enterKeyHint="next"
           autoComplete="off"
           placeholder="0"
           style={{ width }}
           className="tabular min-w-0 max-w-[calc(100vw-6rem)] bg-transparent text-left text-amount font-bold caret-primary outline-none placeholder:text-muted-foreground/45 focus-visible:outline-none"
           value={values.amount}
-          onChange={(e) => onChange({ amount: e.target.value })}
+          onValueChange={(amount) => onChange({ amount })}
           aria-invalid={(touched.amount && !!errors.amount) || undefined}
           aria-describedby={errors.amount ? errorId : undefined}
         />

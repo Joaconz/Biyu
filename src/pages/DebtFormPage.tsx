@@ -1,3 +1,4 @@
+import { AmountInput } from '@/components/shared/AmountInput'
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -186,16 +187,15 @@ export function DebtFormPage() {
 
         <Field label="Monto" htmlFor="debt-form-amount" errorId="debt-form-amount-error" error={shown('amount')}>
           <div className="flex gap-2">
-            <Input
+            <AmountInput as={Input}
               id="debt-form-amount"
               data-testid="debt-form-amount"
-              inputMode="decimal"
               autoComplete="off"
               enterKeyHint="next"
               placeholder="0,00"
               className="tabular flex-1"
               value={values.amount}
-              onChange={(e) => change({ amount: e.target.value })}
+              onValueChange={(amount) => change({ amount })}
               onBlur={blur('amount')}
               aria-invalid={!!shown('amount') || undefined}
               aria-describedby={shown('amount') ? 'debt-form-amount-error' : undefined}

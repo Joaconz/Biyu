@@ -1,3 +1,4 @@
+import { AmountInput } from '@/components/shared/AmountInput'
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
@@ -215,14 +216,13 @@ function EditDebtForm({ debt, backTo }: { debt: EditableDebt; backTo: string }) 
             <span aria-hidden="true" className="text-title-3 font-semibold text-muted-foreground">
               {debt.currency === 'USD' ? 'US$' : '$'}
             </span>
-            <Input
+            <AmountInput as={Input}
               id="edit-debt-amount"
               data-testid="edit-debt-amount"
-              inputMode="decimal"
               autoComplete="off"
               className="tabular flex-1"
               value={values.amount}
-              onChange={(e) => change({ amount: e.target.value }, ['amount'])}
+              onValueChange={(amount) => change({ amount }, ['amount'])}
               aria-invalid={!!shown('amount') || undefined}
               aria-describedby={shown('amount') ? 'edit-debt-amount-error' : undefined}
             />

@@ -154,7 +154,7 @@ test('US-86 CA-7 · si falla guardar se muestra el error, se conserva lo escrito
   await page.getByTestId('edit-debt-amount').fill('12000')
   await page.getByTestId('edit-debt-submit').click()
   await expect(page.getByTestId('edit-debt-error')).toContainText('No pudimos guardar los cambios')
-  await expect(page.getByTestId('edit-debt-amount')).toHaveValue('12000')
+  await expect(page.getByTestId('edit-debt-amount')).toHaveValue('12.000')
   await page.getByTestId('edit-debt-submit').click()
   await expect(page.getByTestId('debts-edited')).toBeVisible()
   expect((await row(s.api, id)).amount_text).toBe('12000.00')
