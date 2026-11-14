@@ -36,7 +36,7 @@ export function RegisterPage() {
             <Link
               to="/import"
               data-testid="register-import"
-              className="press inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-card px-4 text-footnote font-semibold text-foreground hover:bg-accent"
+              className="press inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-card px-4 text-footnote font-semibold text-foreground hover:bg-accent"
             >
               <FileSpreadsheet aria-hidden="true" className="size-4" />
               Importar desde Excel
