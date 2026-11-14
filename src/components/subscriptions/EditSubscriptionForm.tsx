@@ -4,6 +4,10 @@ import { toast } from 'sonner'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { EmptyCatalog, Field, SELECT_CLASS } from '@/components/subscriptions/subscriptionFormParts'
+import { AccountIcon } from '@/components/shared/AccountIcon'
+import { CategoryIcon } from '@/components/shared/CategoryIcon'
+import { ChipGroup } from '@/components/transaction-form/ChipGroup'
+import { sortCategoriesForGrid } from '@/lib/visuals'
 import { formatPeriodLong } from '@/domain/period'
 import {
   ARCHIVED_HINT_TEXT,
@@ -61,8 +65,17 @@ export function EditSubscriptionForm({
   const [serverErrors, setServerErrors] = useState<SubscriptionErrors>({})
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  const categoryOptions = editOptions(categories, { id: subscription.categoryId, name: subscription.categoryName })
-  const accountOptions = editOptions(accounts, { id: subscription.accountId, name: subscription.accountName })
+  // Las activas más, si ya no lo está, la actual con «(archivada)»: el chip sigue siendo `<nombre>` (ADR-032, US-84).
+  const categoryOptions = sortCategoriesForGrid(
+    editOptions(categories, { id: subscription.categoryId, name: subscription.categoryName }).map((option) => {
+      const source = categories.find((c) => c.id === option.id)
+      return { id: option.id, name: source?.name ?? subscription.categoryName, label: option.label, color: source?.color ?? null, icon: source?.icon ?? null, archived: option.archived }
+    }),
+  )
+  const accountOptions = editOptions(accounts, { id: subscription.accountId, name: subscription.accountName }).map((option) => {
+    const source = accounts.find((a) => a.id === option.id)
+    return { id: option.id, name: source?.name ?? subscription.accountName, label: option.label, type: source?.type ?? 'cash', archived: option.archived }
+  })
   const categoryArchived = categoryOptions.find((o) => o.id === values.categoryId)?.archived ?? false
   const accountArchived = accountOptions.find((o) => o.id === values.accountId)?.archived ?? false
 
@@ -153,7 +166,7 @@ export function EditSubscriptionForm({
               data-testid="subscription-form-currency-readonly"
               className="flex h-11 items-center rounded-xl bg-secondary px-3 text-base text-muted-foreground"
             >
-              {subscription.currency}
+              {subscription.currency === 'USD' ? 'US$' : 'ARS'}
             </p>
           </div>
         </div>
@@ -164,51 +177,45 @@ export function EditSubscriptionForm({
           error={errors.categoryId}
           help={categoryArchived ? ARCHIVED_HINT_TEXT : undefined}
           helpTestId="subscription-form-category-archived-hint"
+          group
         >
           {categoryOptions.length === 0 ? (
             <EmptyCatalog testId="subscription-form-category-empty" message="No tenés categorías activas." />
           ) : (
-            <select
-              id="subscription-form-category"
-              data-testid="subscription-form-category"
-              className={cn(SELECT_CLASS, !values.categoryId && 'text-muted-foreground')}
-              value={values.categoryId}
-              onChange={(e) => change({ categoryId: e.target.value })}
-              aria-invalid={!!errors.categoryId || undefined}
-            >
-              {categoryOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <ChipGroup
+              layout="tiles"
+              testId="subscription-form-category"
+              labelId="subscription-form-category-label"
+              describedBy={errors.categoryId ? 'subscription-form-category-error' : undefined}
+              options={categoryOptions}
+              value={values.categoryId || null}
+              onChange={(id) => change({ categoryId: id })}
+              renderIcon={(category) => <CategoryIcon name={category.name} color={category.color} icon={category.icon} />}
+            />
           )}
         </Field>
 
         <Field
           id="account"
-          label="Medio de pago"
+          label="Cuenta"
           error={errors.accountId}
           help={accountArchived ? ARCHIVED_HINT_TEXT : undefined}
           helpTestId="subscription-form-account-archived-hint"
+          group
         >
           {accountOptions.length === 0 ? (
-            <EmptyCatalog testId="subscription-form-account-empty" message="No tenés medios de pago activos." />
+            <EmptyCatalog testId="subscription-form-account-empty" message="No tenés cuentas activas." />
           ) : (
-            <select
-              id="subscription-form-account"
-              data-testid="subscription-form-account"
-              className={cn(SELECT_CLASS, !values.accountId && 'text-muted-foreground')}
-              value={values.accountId}
-              onChange={(e) => change({ accountId: e.target.value })}
-              aria-invalid={!!errors.accountId || undefined}
-            >
-              {accountOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <ChipGroup
+              layout="chips"
+              testId="subscription-form-account"
+              labelId="subscription-form-account-label"
+              describedBy={errors.accountId ? 'subscription-form-account-error' : undefined}
+              options={accountOptions}
+              value={values.accountId || null}
+              onChange={(id) => change({ accountId: id })}
+              renderIcon={(account) => <AccountIcon type={account.type} className="text-muted-foreground" />}
+            />
           )}
         </Field>
 

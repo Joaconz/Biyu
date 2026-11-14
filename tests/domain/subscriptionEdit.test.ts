@@ -79,7 +79,7 @@ describe('validateSubscriptionEdit (US-59 CA-6, CA-7)', () => {
     expect(draft?.description).toBeNull()
   })
 
-  it('mensajes de nombre, monto, categoría, medio de pago, día de cobro y descripción (los de US-52)', () => {
+  it('mensajes de nombre, monto, categoría, cuenta, día de cobro y descripción (los de US-52)', () => {
     expect(errorsOf({ name: '   ' }).name).toBe('Escribí un nombre')
     expect(errorsOf({ name: 'a'.repeat(61) }).name).toBe('El nombre admite hasta 60 caracteres')
     expect(errorsOf({ name: 'a'.repeat(60) }).name).toBeUndefined()
@@ -88,10 +88,10 @@ describe('validateSubscriptionEdit (US-59 CA-6, CA-7)', () => {
     expect(errorsOf({ amount: '10,123' }).amount).toBe('El monto admite hasta 2 decimales')
     expect(errorsOf({ amount: '1000000000000,00' }).amount).toBe('El monto máximo es $999.999.999.999,99')
     expect(errorsOf({ amount: '1000000000000,00' }, record({ currency: 'USD' })).amount).toBe(
-      'El monto máximo es USD 999.999.999.999,99',
+      'El monto máximo es US$999.999.999.999,99',
     )
     expect(errorsOf({ categoryId: '' }).categoryId).toBe('Elegí una categoría')
-    expect(errorsOf({ accountId: '' }).accountId).toBe('Elegí un medio de pago')
+    expect(errorsOf({ accountId: '' }).accountId).toBe('Elegí una cuenta')
     expect(errorsOf({ billingDay: '' }).billingDay).toBe('Indicá el día de cobro')
     expect(errorsOf({ billingDay: '0' }).billingDay).toBe('El día de cobro va de 1 a 31')
     expect(errorsOf({ billingDay: '32' }).billingDay).toBe('El día de cobro va de 1 a 31')
@@ -163,7 +163,7 @@ describe('editNextChargeText (US-59)', () => {
   })
 
   it('en dólares muestra la moneda de la suscripción', () => {
-    expect(text(record({ currency: 'USD', amount: '10.00' }), { amount: '12,50' })).toBe('Próximo cobro: 10/10/2026 por USD 12,50')
+    expect(text(record({ currency: 'USD', amount: '10.00' }), { amount: '12,50' })).toBe('Próximo cobro: 10/10/2026 por US$12,50')
   })
 
   it('pausada: no hay próximo cobro', () => {
