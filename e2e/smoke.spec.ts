@@ -26,10 +26,15 @@ test('alta, gasto en 3 cuotas con tarjeta de crédito y total del mes en el dash
   await page.getByTestId('setup-expense-skip').click()
 
   await expect(page).toHaveURL(/\/register$/)
-  await expect(page.getByTestId('transaction-form')).toBeVisible()
+  await expect(page.getByTestId('transaction-form')).toBeVisible({ timeout: 20_000 })
 
   // Registro en pasos (ADR-024): monto → categoría (avanza sola al tocarla) → detalles.
-  await page.getByTestId('transaction-form-amount').fill(AMOUNT)
+  // Con la base cargada el formulario puede volver a montarse justo después del alta y perder lo
+  // tipeado (la CI lo mostró con «Siguiente» deshabilitado): se reescribe hasta que lo acepte.
+  await expect(async () => {
+    await page.getByTestId('transaction-form-amount').fill(AMOUNT)
+    await expect(page.getByTestId('transaction-form-next')).toBeEnabled({ timeout: 2_000 })
+  }).toPass({ timeout: 20_000 })
   await page.getByTestId('transaction-form-next').click()
   await page.getByTestId('transaction-form-category-chip-comida-y-supermercado').click()
   await expect(page.getByTestId('transaction-form-step')).toHaveAttribute('data-step', 'details')
