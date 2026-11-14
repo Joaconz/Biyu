@@ -1,3 +1,4 @@
+import { AmountInput } from '@/components/shared/AmountInput'
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
@@ -10,7 +11,7 @@ import { debtEditBlock, debtEditErrors, debtEditInput, debtFxText, hasDebtChange
 import { firstDebtDraftError, MAX_NOTES_LENGTH, MAX_PERSON_LENGTH, type DebtDraftField, type DebtDraftInput } from '@/domain/debtDraft'
 import type { DebtDirection } from '@/domain/debts'
 import { toIsoDate } from '@/domain/period'
-import { parseMoney } from '@/domain/money'
+import { tryParseMoney } from '@/domain/money'
 import { today } from '@/lib/clock'
 import { fetchDebtForEdit, updateDebt } from '@/lib/debts'
 import { saveFailureReason } from '@/lib/errors'
@@ -146,7 +147,7 @@ function EditDebtForm({ debt, backTo }: { debt: EditableDebt; backTo: string }) 
     try {
       await updateDebt(debt.id, {
         person: values.person.trim(),
-        amount: parseMoney(values.amount),
+        amount: tryParseMoney(values.amount)!, // «20.000» es veinte mil; canSave ya lo validó
         notes: values.notes.trim() || null,
         // Solo una deuda suelta manda fecha y dirección: la de un gasto sigue las del gasto.
         ...(isLinked ? {} : { incurredOn: values.incurredOn, direction: values.direction }),
@@ -215,14 +216,13 @@ function EditDebtForm({ debt, backTo }: { debt: EditableDebt; backTo: string }) 
             <span aria-hidden="true" className="text-title-3 font-semibold text-muted-foreground">
               {debt.currency === 'USD' ? 'US$' : '$'}
             </span>
-            <Input
+            <AmountInput as={Input}
               id="edit-debt-amount"
               data-testid="edit-debt-amount"
-              inputMode="decimal"
               autoComplete="off"
               className="tabular flex-1"
               value={values.amount}
-              onChange={(e) => change({ amount: e.target.value }, ['amount'])}
+              onValueChange={(amount) => change({ amount }, ['amount'])}
               aria-invalid={!!shown('amount') || undefined}
               aria-describedby={shown('amount') ? 'edit-debt-amount-error' : undefined}
             />

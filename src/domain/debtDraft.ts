@@ -100,7 +100,8 @@ export function toNewDebt(input: DebtDraftInput, today: string): NewDebt | null 
   return {
     direction: input.direction,
     person: input.person.trim(),
-    amount: parseMoney(input.amount),
+    // tryParseMoney: «20.000» es veinte mil (parseMoney lo leería como 20). Ya está validado arriba.
+    amount: tryParseMoney(input.amount)!,
     currency: input.currency,
     // En ARS no viaja tipo de cambio aunque haya quedado algo escrito de cuando era US$ (I5).
     fxRate: input.currency === 'USD' ? parseMoney(input.fxRate) : null,

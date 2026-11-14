@@ -1,12 +1,12 @@
 # Entrega 3 · Especificación de casos de prueba (V3)
 
-Planilla: [`01-especificacion-casos-v3.xlsx`](01-especificacion-casos-v3.xlsx) (un «Índice» con los 179 casos y una hoja por sección de cada archivo, con el formato de la cátedra: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos, pasos y resultado esperado). Issue [#338](https://github.com/Joaconz/Biyu/issues/338), épica [#326](https://github.com/Joaconz/Biyu/issues/326).
+Planilla: [`01-especificacion-casos-v3.xlsx`](01-especificacion-casos-v3.xlsx) (un «Índice» con los 184 casos y una hoja por sección de cada archivo, con el formato de la cátedra: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos, pasos y resultado esperado). Issue [#338](https://github.com/Joaconz/Biyu/issues/338), épica [#326](https://github.com/Joaconz/Biyu/issues/326).
 
 La fuente de cada caso es su archivo de [`casos/`](casos/). La planilla se genera con `python3 entrega-3/fuentes/generar_casos_v3.py` (necesita `openpyxl`): si cambia un `.md`, se vuelve a correr.
 
 ## Alcance
 
-Los casos de las historias de V3 que ya están implementadas: las que pasaron de V2 a V3 (US-80 a US-83), el CRUD completo (US-84 a US-90), deudas por persona (US-91), las mejoras de UX (US-92 a US-105, salvo US-99) y lo que sumó el equipo sin historia de V3 propia: US-101 (qué entra en el número del Resumen), las suscripciones por cobrar (ADR-045), la franja de la puesta al día (US-53 · CA-4) y la configuración inicial (US-68).
+Los casos de las historias de V3 que ya están implementadas: las que pasaron de V2 a V3 (US-80 a US-83), el CRUD completo (US-84 a US-90), deudas por persona (US-91), las mejoras de UX (US-92 a US-105) y lo que sumó el equipo sin historia de V3 propia: US-101 (qué entra en el número del Resumen), las suscripciones por cobrar (ADR-045), la franja de la puesta al día (US-53 · CA-4) y la configuración inicial (US-68).
 
 | Historia | Issue | Archivo | Casos | Rango |
 |---|---|---|---|---|
@@ -29,6 +29,7 @@ Los casos de las historias de V3 que ya están implementadas: las que pasaron de
 | US-96 · Botones y controles de al menos 44 px | [#357](https://github.com/Joaconz/Biyu/issues/357) | [`us-96`](casos/us-96-controles-44px.md) | 4 | CP-NAV-038 a 041 |
 | US-97 · Esqueletos y transiciones | [#358](https://github.com/Joaconz/Biyu/issues/358) | [`us-97`](casos/us-97-esqueletos-y-transiciones.md) | 5 | CP-NAV-033 a 037 |
 | US-98 · Categorías y cuentas legibles | [#359](https://github.com/Joaconz/Biyu/issues/359) | [`us-98`](casos/us-98-categorias-y-cuentas-legibles.md) | 3 | CP-REG-050 a 052 |
+| US-99 · Separador de miles al escribir el monto | [#360](https://github.com/Joaconz/Biyu/issues/360) | [`us-99`](casos/us-99-separador-de-miles.md) | 5 | CP-REG-053 a 057 |
 | US-100 · Sugerir personas ya cargadas en Nueva deuda | [#361](https://github.com/Joaconz/Biyu/issues/361) | [`us-100`](casos/us-100-sugerir-personas.md) | 7 | CP-DEU-096 a 102 |
 | US-102 · Rebranding y tema | [#410](https://github.com/Joaconz/Biyu/issues/410) | [`us-102`](casos/us-102-rebranding-y-tema.md) | 5 | CP-CFG-031 a 034 y CP-DAS-021 |
 | US-103 · Dona y tendencias | [#411](https://github.com/Joaconz/Biyu/issues/411) | [`us-103`](casos/us-103-dona-y-tendencias.md) | 5 | CP-DAS-022 a 026 |
@@ -38,13 +39,13 @@ Los casos de las historias de V3 que ya están implementadas: las que pasaron de
 | ADR-045 · Suscripciones por cobrar en el Resumen | PR [#370](https://github.com/Joaconz/Biyu/pull/370) | [`adr-045`](casos/adr-045-suscripciones-por-cobrar.md) | 5 | CP-SUS-062 a 066 |
 | US-53 · Franja de la puesta al día (CA-4) | [#211](https://github.com/Joaconz/Biyu/issues/211) | [`us-53`](casos/us-53-franja-de-la-puesta-al-dia.md) | 2 | CP-SUS-067 a 068 |
 | US-68 · Configuración inicial | [#159](https://github.com/Joaconz/Biyu/issues/159) | [`us-68`](casos/us-68-configuracion-inicial.md) | 4 | CP-ACC-013 a 016 |
-| **Total** | | | **179** | |
+| **Total** | | | **184** | |
 
-Por módulo: REG 36, DEU 37, CFG 26, DAS 21, SUS 22, IMP 17, NAV 16, ACC 4. Por prioridad: 103 Alta, 74 Media y 2 Baja. Los 179 son automatizables y están automatizados: los 104 de US-80 a US-91 en Playwright, pgTAP o Vitest (cada archivo lo dice) y los 56 de las historias de UX (US-92 a US-105) en `e2e/ux-navegacion.spec.ts`, `e2e/ux-ajustes.spec.ts` y `e2e/ux-resumen.spec.ts` y `e2e/ux-suscripciones.spec.ts`; los 19 de US-101, suscripciones por cobrar, la franja y el setup, en `e2e/dashboard-balance-options.spec.ts`, `e2e/settings-summary.spec.ts`, `e2e/pending-subscriptions.spec.ts`, `e2e/catchup-banner-dismiss.spec.ts` y `e2e/setup.spec.ts`, con pgTAP y Vitest en el tramo de API y de dominio. Qué prueba cubre cada caso y su resultado está en [`04-ejecucion.md`](04-ejecucion.md).
+Por módulo: REG 41, DEU 37, CFG 26, DAS 21, SUS 22, IMP 17, NAV 16, ACC 4. Por prioridad: 105 Alta, 77 Media y 2 Baja. Los 184 son automatizables y están automatizados: los 104 de US-80 a US-91 en Playwright, pgTAP o Vitest (cada archivo lo dice) y los 61 de las historias de UX (US-92 a US-105) en `e2e/ux-navegacion.spec.ts`, `e2e/ux-ajustes.spec.ts` y `e2e/ux-resumen.spec.ts` y `e2e/ux-suscripciones.spec.ts`; los 19 de US-101, suscripciones por cobrar, la franja y el setup, en `e2e/dashboard-balance-options.spec.ts`, `e2e/settings-summary.spec.ts`, `e2e/pending-subscriptions.spec.ts`, `e2e/catchup-banner-dismiss.spec.ts` y `e2e/setup.spec.ts`, con pgTAP y Vitest en el tramo de API y de dominio. Qué prueba cubre cada caso y su resultado está en [`04-ejecucion.md`](04-ejecucion.md).
 
 ## Qué no está acá
 
-- **Mejoras de UX que no tienen casos (épica [#325](https://github.com/Joaconz/Biyu/issues/325)).** Se implementaron de otra forma de la que pedían las historias, así que se adaptaron: US-92 a US-98 y US-100, más las nuevas US-102 a US-105 (rebranding y tema, dona y tendencias, gráficos de Suscripciones, categorías con ícono). Sus 56 casos están en la tabla de arriba. US-99 no se implementó en V3 y no tiene casos. Los casos de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) ya están automatizados contra la UX final.
+- **Mejoras de UX que no tienen casos (épica [#325](https://github.com/Joaconz/Biyu/issues/325)).** Se implementaron de otra forma de la que pedían las historias, así que se adaptaron: US-92 a US-98, US-99 y US-100, más las nuevas US-102 a US-105 (rebranding y tema, dona y tendencias, gráficos de Suscripciones, categorías con ícono). Sus 61 casos están en la tabla de arriba. Los casos de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) ya están automatizados contra la UX final.
 - **Casos de confirmación de DEF-030 a DEF-037.** No se escriben casos nuevos: cada defecto lo detectó un caso de V2, y ese caso (corregido cuando el defecto era del caso: DEF-035 y DEF-036) está en la selección de regresión ([`03-seleccion-regresion.md`](03-seleccion-regresion.md)) y en la automatización.
 
 ## Cómo se arma la planilla

@@ -1,3 +1,4 @@
+import { AmountInput } from '@/components/shared/AmountInput'
 import { useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -152,15 +153,14 @@ export function SubscriptionForm({
 
         <div className="grid grid-cols-[minmax(0,1fr)_9rem] items-start gap-3">
           <Field id="amount" label="Monto" error={errors.amount}>
-            <Input
+            <AmountInput as={Input}
               id="subscription-form-amount"
               data-testid="subscription-form-amount"
-              inputMode="decimal"
               autoComplete="off"
               placeholder="0,00"
               className="tabular"
               value={values.amount}
-              onChange={(e) => change({ amount: e.target.value })}
+              onValueChange={(amount) => change({ amount })}
               aria-invalid={!!errors.amount || undefined}
             />
           </Field>

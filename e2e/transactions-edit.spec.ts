@@ -420,7 +420,7 @@ test('CA-23 · si falla guardar se muestra el error, se conserva lo escrito y re
   await page.getByTestId('edit-transaction-amount').fill('12000')
   await save(page)
   await expect(page.getByTestId('edit-transaction-error')).toContainText('No pudimos guardar los cambios')
-  await expect(page.getByTestId('edit-transaction-amount')).toHaveValue('12000')
+  await expect(page.getByTestId('edit-transaction-amount')).toHaveValue('12.000')
   await expect(page.getByTestId('edit-transaction-submit')).toBeEnabled()
   await save(page)
   await expect(page.getByTestId('transactions-edited')).toBeVisible()
