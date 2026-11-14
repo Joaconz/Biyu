@@ -2,6 +2,7 @@ import { useEffect, useRef, type MouseEvent } from 'react'
 import { Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PersonInput } from '@/components/ui/person-input'
 import { Switch } from '@/components/ui/switch'
 import { parseDraftInput } from '@/domain/draft'
 import {
@@ -12,6 +13,7 @@ import {
   splitEqually,
   validateSharedRows,
 } from '@/domain/sharedDebt'
+import { usePeople } from '@/hooks/usePeople'
 import { cn } from '@/lib/utils'
 import type { SectionProps, SharedRowTouched } from './types'
 
@@ -27,6 +29,7 @@ export function SharedSection({
   onChange,
   onTouchedRowsChange,
 }: SectionProps & { onTouchedRowsChange: (rows: SharedRowTouched[]) => void }) {
+  const people = usePeople()
   const rows = values.sharedRows
   const touchedRows = touched.sharedRows ?? []
   const draft = parseDraftInput(values)
@@ -103,9 +106,11 @@ export function SharedSection({
                     <label htmlFor={`transaction-form-shared-person-${index}`} className="text-footnote font-semibold">
                       ¿Con quién?
                     </label>
-                    <Input
+                    <PersonInput
                       id={`transaction-form-shared-person-${index}`}
                       data-testid="transaction-form-shared-person"
+                      testId="transaction-form-shared-person"
+                      people={people}
                       data-index={index}
                       type="text"
                       autoComplete="off"
@@ -113,7 +118,7 @@ export function SharedSection({
                       maxLength={MAX_PERSON_LENGTH}
                       placeholder="Nombre"
                       value={row.person}
-                      onChange={(e) => setRow(i, { person: e.target.value })}
+                      onValueChange={(person) => setRow(i, { person })}
                       onBlur={() => touch(i, 'person')}
                       aria-invalid={!!personShown || undefined}
                       aria-describedby={personShown ? personErrorId : undefined}

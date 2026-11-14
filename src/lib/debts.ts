@@ -161,3 +161,10 @@ export async function fetchDebtForEdit(id: string): Promise<EditableDebt | null>
       : null,
   }
 }
+
+/** US-100: los nombres de persona de mis deudas, la más reciente primero (RLS, C7). Alimenta las sugerencias. */
+export async function fetchPersonNames(): Promise<string[]> {
+  const { data, error } = await supabase.from('debts').select('person').order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((row) => row.person)
+}
