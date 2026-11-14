@@ -38,6 +38,13 @@ EVIDENCIA_MANUAL = {
     'CP-IMP-050': [U(f'tests/domain/{IP}')],
     'CP-IMP-051': [D('installments_paid.test.sql')], 'CP-IMP-052': [D('installments_paid.test.sql')],
     'CP-IMP-057': [E('CP-IMP-057 · abrir y cerrar la guía no cambia el archivo, el resumen, el filtro ni la URL')],
+    'CP-DEU-096': [E('US-100 CA-1 · al escribir sugiere las personas que coinciden, sin distinguir mayúsculas ni tildes')],
+    'CP-DEU-097': [E('US-100 CA-2 · elegir una sugerencia completa el campo con ese nombre y guarda en la misma persona')],
+    'CP-DEU-098': [E('US-100 CA-3 · sin coincidencias, o con el campo vacío, no sugiere nada')],
+    'CP-DEU-099': [E('US-100 CA-4 · con el teclado: flechas recorren, Enter elige sin enviar el formulario y Escape cierra')],
+    'CP-DEU-100': [E('US-100 CA-5 · en el gasto compartido de Registrar también sugiere')],
+    'CP-DEU-101': [E('US-100 CA-6 · el encabezado de Nueva deuda tiene «‹ Deudas» que vuelve a la lista')],
+    'CP-DEU-102': [U('tests/domain/person-suggestions.test.ts')],
     'CP-DEU-093': [D('shared_expense_many_people.test.sql')],
     'CP-DEU-094': [D('shared_expense_many_people.test.sql'), D('shared_expense.test.sql')],
     'CP-CFG-041': [D('user_preferences.test.sql')],
@@ -81,8 +88,16 @@ EVIDENCIA_EXTRA = {
 def cargar_resultados():
     pw = json.loads((EJEC / 'playwright-resultados.json').read_text(encoding='utf-8'))
     e2e = {}
-    for sp in pw['suites'][0]['specs']:
-        e2e[sp['title']] = (sp['ok'], sp['file'])
+
+    def recorrer(suite):
+        # El reporter JSON de Playwright anida un suite por archivo (y por describe): se recorren todos.
+        for sp in suite.get('specs', []):
+            e2e[sp['title']] = (sp['ok'], sp['file'])
+        for hijo in suite.get('suites', []):
+            recorrer(hijo)
+
+    for suite in pw['suites']:
+        recorrer(suite)
     stats = dict(total=len(e2e), pasados=sum(1 for v in e2e.values() if v[0]))
     vt = json.loads((EJEC / 'vitest-resultados.json').read_text(encoding='utf-8'))
     unit = {}
@@ -169,6 +184,32 @@ def evidencia_v3(e2e, unit, db):
     return ev
 
 
+# Confirmación de defectos: (defecto, severidad, caso que lo detectó, marca del título del test, arreglo, qué se verifica)
+DEFECTOS = [
+    ('DEF-030', 'Media', 'CP-EXP-027', 'CP-EXP-027 ·', 'PR #365', 'Tocar fuera de la hoja «Exportar movimientos» la cierra sin descargar'),
+    ('DEF-031', 'Media', 'CP-EXP-028', 'CP-EXP-028 ·', 'PR #365', '«Atrás» y «Adelante» cierran la hoja y cambian el período'),
+    ('DEF-032', 'Media', 'CP-EXP-029', 'CP-EXP-029 ·', 'PR #365', '«Atrás» durante «Exportando…» cancela la descarga'),
+    ('DEF-033', 'Baja', 'CP-IMP-024', 'CP-IMP-024 ·', 'PR #366', 'La tarjeta de la fila muestra los nombres de Biyu (también en `import-rows.test.ts`)'),
+    ('DEF-034', 'Baja', 'CP-SUS-032', 'CP-SUS-032 ·', 'PR #368', 'Operar sobre la suscripción de otro usuario responde 404'),
+    ('DEF-035', 'Baja', 'CP-SUS-022', 'CP-SUS-022 ·', 'PR #368', 'Sin sesión la API responde 401 con `42501` (el defecto era del caso)'),
+    ('DEF-036', 'Baja', 'CP-SUS-048', 'CP-SUS-048 ·', 'PR #368', 'La vista previa marca `data-blocked` en cada mes (el defecto era del caso)'),
+    ('DEF-037', 'Media', 'CP-DEU-024 y CP-DEU-025', 'DEF-037', 'PR #367', 'El primer clic en «US$» selecciona la moneda; un tipo de cambio de 0 muestra su error'),
+    ('DEF-023', 'Alta', 'sin caso (V1, intermitente)', 'aunque la siembra tarde (DEF-023)', 'PR #198 (V1)', 'Con la siembra demorada, crear la cuenta lleva a `/setup` y nada vuelve a `/register`; los casos CP-ACC-013 a 016 cubren el alta'),
+]
+
+
+def confirmacion_defectos(e2e):
+    filas = []
+    for d, sev, caso, marca, arreglo, que in DEFECTOS:
+        tests = [t for t in e2e if marca in t]
+        if not tests:
+            est = 'BLOCKED'
+        else:
+            est = 'PASSED' if all(e2e[t][0] for t in tests) else 'FAILED'
+        filas.append((d, sev, caso, arreglo, que, est, len(tests)))
+    return filas
+
+
 def main():
     e2e, unit, db, stats, vt = cargar_resultados()
     v3, reg = casos_v3(), casos_regresion()
@@ -238,6 +279,15 @@ def main():
     for c in rs[1]:
         c.font = Font(bold=True)
     rs.column_dimensions['A'].width = 22
+    cd = wb.create_sheet('Defectos')
+    cd.append(['Defecto', 'Severidad', 'Caso', 'Arreglo', 'Qué se confirma', 'Resultado', 'Tests'])
+    for c in cd[1]:
+        c.font = Font(bold=True)
+    for f in confirmacion_defectos(e2e):
+        cd.append(list(f))
+        cd.cell(cd.max_row, 6).fill = PatternFill('solid', fgColor=colores[f[5]])
+    for col, w in zip('ABCDEFG', (10, 10, 26, 14, 90, 11, 7)):
+        cd.column_dimensions[col].width = w
     wb.save(RAIZ / 'entrega-3' / '04-ejecucion.xlsx')
 
     # ------------------------------------------------------------ md
@@ -252,13 +302,15 @@ def main():
     out.append('Planilla: [`04-ejecucion.xlsx`](04-ejecucion.xlsx) (índice con el resultado y las pruebas de cada caso, y un resumen por módulo). '
                'Se genera con `python entrega-3/fuentes/generar_ejecucion.py` a partir de los resultados de `entrega-3/ejecucion/`.\n')
     out.append('## Condiciones de la ejecución\n')
-    out.append('- **Fecha:** 2026-11-11, sobre `main` con todos los PR de V3 mergeados (más los tests agregados en esta ejecución).')
+    out.append('- **Fecha:** 2026-11-14, sobre `main` en `40ab30e` (merge de [#424](https://github.com/Joaconz/Biyu/pull/424)), con todas las historias de V3 mergeadas, incluidas US-95, US-96, US-99 y US-100.')
     out.append('- **Entorno:** Vite (`http://127.0.0.1:5173`) y Supabase local con todas las migraciones, Chromium emulando un celular de 390 × 844 px, un usuario nuevo por prueba (PR-01). La base de producción tiene las mismas migraciones.')
     out.append(f"- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright ({stats['pasados']} de {stats['total']} tests), "
                f"Vitest ({vt['numPassedTests']} de {vt['numTotalTests']}) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**")
     out.append('- **Criterio:** un caso es PASSED si pasaron todas las pruebas que lo cubren, FAILED si alguna falló y BLOCKED si ninguna prueba lo cubre o no se pudo correr. '
                'La columna «Pruebas que lo cubren» de la planilla nombra cada una. Un caso de UI y API puede estar cubierto por Playwright y por pgTAP a la vez.')
     out.append('- **Cobertura parcial:** un test de Playwright puede cubrir varios casos (por ejemplo, un test por criterio de aceptación para varios casos de una historia). Eso es cobertura del comportamiento, no una repetición paso a paso de la tabla del caso.')
+    out.append('- **Corridas:** Playwright se corrió tres veces completo. La primera dio 285 de 290: CP-SUS-024 y CP-IMP-040 fallaron porque el contenedor del edge runtime de Supabase local estaba detenido (se levantó y pasan); CP-DAS-020, CP-CFG-040 y CP-NAV-033 se pasaron de tiempo con la máquina cargada y pasan de a uno. La segunda, con el edge runtime, dio 289 de 290: CP-CFG-040 volvió a pasarse de los 30 s con 4 workers (pasa 6 de 6 repetido de a uno). La tercera, con 2 workers, dio **290 de 290** y es la que registra esta planilla.')
+    out.append('- **CI de `main`:** la corrida de la CI del mismo commit dio 289 de 290: falló CP-CFG-028 (esperaba la URL `/settings` y llegó `/settings?period=2026-11`). Acá pasa, también 5 de 5 repetido de a uno, así que es intermitente; queda abierto como hallazgo, ver el reporte final.')
     out.append('- **pgTAP:** en local `update_subscription.test.sql` falla 3 de 164 (tests 75 a 77) por usuarios viejos de otras corridas en la base local; en la CI pasa y ningún caso de V3 depende de ese archivo.\n')
     out.append('## Resultado\n')
     out.append('| Conjunto | Casos | PASSED | FAILED | BLOCKED | % PASSED |\n|---|---|---|---|---|---|')
@@ -280,6 +332,15 @@ def main():
             out.append(f'| {c} | {st} | {motivo or "falló una prueba"}: {titulo} |')
     else:
         out.append('Ninguno: todos los casos de V3 y de la regresión están en PASSED.')
+    conf = confirmacion_defectos(e2e)
+    out.append('\n## Confirmación de defectos\n')
+    out.append('Testeo de confirmación: cada defecto de V2 (DEF-030 a DEF-037) y el DEF-023 de V1 (intermitente, sin confirmar en la Entrega 2) se repite con el test que reproduce sus pasos. '
+               'Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso. DEF-023 era intermitente: el test demora la siembra a propósito y verifica que nada vuelva a `/register`, que es la causa corregida; no prueba que la pantalla en blanco no pueda reaparecer.\n')
+    out.append('| Defecto | Severidad | Caso | Arreglo | Qué se confirma | Resultado | Tests |\n|---|---|---|---|---|---|---|')
+    for d, sev, caso, arreglo, que, est, n in conf:
+        out.append(f'| {d} | {sev} | {caso} | {arreglo} | {que} | **{est}** | {n} |')
+    cc = Counter(c[5] for c in conf)
+    out.append(f"\n**{cc['PASSED']} de {len(conf)} confirmados** (corregidos); {cc['FAILED']} siguen fallando y {cc['BLOCKED']} no se pudieron confirmar.")
     out.append('\n## Resultado por caso de V3\n')
     out.append('| ID | Prioridad | Título | Historia | Status | Cubierto por |\n|---|---|---|---|---|---|')
     for cid, m in v3.items():

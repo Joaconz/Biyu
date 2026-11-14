@@ -6,9 +6,9 @@ Tarea [#337](https://github.com/Joaconz/Biyu/issues/337), dentro de la épica de
 
 | | |
 |---|---|
-| Suite | Playwright (`e2e/`, 272 tests), Vitest (`tests/domain/`, 1088 tests) y pgTAP (`supabase/tests/database/`) |
+| Suite | Playwright (`e2e/`, 290 tests), Vitest (`tests/domain/`, 1131 tests) y pgTAP (`supabase/tests/database/`) |
 | Entorno de la corrida registrada | Vite en `127.0.0.1:5173` y Supabase local con todas las migraciones; Chromium emulando un celular de 390 × 844 px; un usuario nuevo por test (PR-01) |
-| Fecha | 2026-11-11, sobre `main` con los PR de V3 mergeados |
+| Fecha | 2026-11-14, sobre `main` en `40ab30e` (merge de [#424](https://github.com/Joaconz/Biyu/pull/424)), con todas las historias de V3 mergeadas |
 | Resultados crudos | `entrega-3/ejecucion/` (`playwright-resultados.json`, `vitest-resultados.json`, `pgtap-resultados.txt`) |
 | Corrida de la CI | [43115707756](https://github.com/Joaconz/Biyu/actions/runs/43115707756), sobre `ef312d2` (merge de [#418](https://github.com/Joaconz/Biyu/pull/418)): `web`, `db` y `e2e` en verde, con el artefacto `playwright-report` (reporte HTML, trazas y capturas; la CI lo guarda 14 días) |
 | Cómo se vuelve a correr | `npm run test:e2e`, `npm test` y `npm run test:db` (necesitan `supabase start`); la planilla se regenera con `python entrega-3/fuentes/generar_ejecucion.py` |
@@ -19,15 +19,16 @@ La corrida de la CI de `ef312d2` tiene 266 tests de Playwright; la diferencia co
 
 | Conjunto | Casos | PASSED | FAILED | BLOCKED | % PASSED |
 |---|---|---|---|---|---|
-| Casos de V3 | 165 | 165 | 0 | 0 | 100,0 % |
+| Casos de V3 | 184 | 184 | 0 | 0 | 100,0 % |
 | Regresión de V1 y V2 | 177 | 177 | 0 | 0 | 100,0 % |
-| **Total** | 342 | 342 | 0 | 0 | 100,0 % |
+| **Total** | 361 | 361 | 0 | 0 | 100,0 % |
 
 | Suite | Tests | Pasaron | Fallaron |
 |---|---|---|---|
-| Playwright | 272 | 272 | 0 |
-| Vitest | 1088 | 1088 | 0 |
+| Playwright | 290 | 290 | 0 |
+| Vitest | 1131 | 1131 | 0 |
 | pgTAP (CI) | 1354 (43 archivos) | 1354 | 0 |
+| pgTAP (local) | 1354 (43 archivos) | 1351 | 3 (`update_subscription.test.sql`, tests 75 a 77, usuarios viejos de otras corridas; en la CI pasa) |
 
 - **Defectos:** ningún caso falló, así que no hay defectos nuevos que reportar. Los defectos de V2 y el DEF-023 de V1 están confirmados en la sección «Confirmación de defectos» de [`04-ejecucion.md`](04-ejecucion.md) (9 de 9).
 - **Criterio de PASSED:** un caso pasa si pasaron todas las pruebas que lo cubren. Un test de Playwright puede cubrir varios casos (un test por criterio de aceptación en las historias de US-80 a US-91), de modo que eso es cobertura del comportamiento, no una repetición paso a paso de la tabla del caso. La planilla nombra, para cada caso, las pruebas que lo cubren.
@@ -59,6 +60,8 @@ Lo que esta comparación **no** prueba:
 |---|---|
 | Playwright en la CI (266 tests, corrida 43115707756) | 15,1 min |
 | Playwright en la CI (272 tests, corridas de #419 y de `main`) | 11,2 y 12,7 min |
+| Playwright en la CI (290 tests, corrida 43649897941 sobre `40ab30e`) | 13,0 min |
+| Playwright local (290 tests, 2 workers; la corrida que registra la planilla) | 12,4 min |
 | pgTAP (1354 tests) | 2 s de reloj |
 | Job `e2e` completo en la CI (instalar Chromium, esperar Supabase, correr y subir el reporte) | 17,2 min |
 | Job `db` y job `web` en la CI | 1,5 min y 0,5 min |
@@ -71,6 +74,11 @@ El tiempo de ejecutar los mismos casos a mano **no se midió** en la Entrega 2 (
 - **Tests lentos con la máquina cargada:** una corrida local con otro proyecto usando Docker dio 179 fallas por timeouts; se descartó. Reiniciado Docker y con el equipo libre, los 9 tests que habían quedado en rojo se corrieron de a uno y pasaron, y se registró la corrida entera.
 - **`smoke.spec.ts` en la CI de `main`:** en la corrida [43131598486](https://github.com/Joaconz/Biyu/actions/runs/43131598486), sobre `0a8acbd` (merge de [#419](https://github.com/Joaconz/Biyu/pull/419)), el job `e2e` quedó en rojo con 271 tests en verde y 1 caído: «alta, gasto en 3 cuotas…» no pudo tocar «Siguiente» en 30 s porque el botón seguía deshabilitado. En #419 el mismo test había fallado una vez y pasó al relanzar el job. La causa más probable es que el formulario de Registrar se vuelve a montar justo después del alta y pierde el monto tipeado, como ya había pasado con DEF-023 (ver `e2e/dashboard-amounts.spec.ts`). No es una falla de la aplicación que se haya reproducido a mano. Se endureció el test (espera de 20 s al formulario y reescritura del monto hasta que «Siguiente» lo acepta), igual que lo hace el helper `signUpAndSkipSetup` con el resto de la suite. Queda como riesgo de flakiness hasta ver varias corridas de la CI en verde.
 
+- **Edge runtime detenido (2026-11-14):** en la primera corrida local sobre `40ab30e`, CP-SUS-024 y CP-IMP-040 fallaron porque el contenedor del edge runtime de Supabase local llevaba 3 días detenido y la puesta al día de suscripciones no corría (en CP-IMP-040 apareció además el «Reintentar» de la franja, que chocaba con el de Importar). Con el contenedor levantado pasan. En una corrida anterior, los agentes habían atribuido ese fallo a «un Supabase de otro proyecto»; no era así: el `project_id` de `supabase/config.toml` conserva el nombre viejo del repositorio.
+- **CP-CFG-040 con 4 workers:** se pasó de los 30 s en dos corridas completas con 4 workers y la máquina cargada, y pasa 6 de 6 repetido de a uno y en la corrida con 2 workers (290 de 290), que es la que registra la planilla.
+- **CP-CFG-028 en la CI de `main` (intermitente, abierto):** la corrida 43649897941 dio 289 de 290: el test esperaba la URL `/settings` y llegó `/settings?period=2026-11` al volver de «Categorías». En local pasa en las corridas completas y 5 de 5 repetido de a uno. No se corrigió ni el test ni la aplicación: puede ser una carrera real del parámetro `period` o una aserción demasiado estricta; hay que mirarlo antes de dar la CI por estable.
+- **Confirmación de defectos fuera de `main`:** la sección «Confirmación de defectos» de `04-ejecucion.md` (PR [#420](https://github.com/Joaconz/Biyu/pull/420)) se había mergeado a una rama que ya estaba mergeada, y nunca llegó a `main`. Se restauró al regenerar la planilla (9 de 9 confirmados).
+
 ## 6. Conclusión
 
-V3 pasa la suite automatizada completa: 342 de 342 casos en PASSED (165 de V3 y 177 de regresión), sin defectos nuevos, con los 9 defectos de confirmación corregidos y sin regresiones respecto de la Entrega 2. Quedan fuera de este reporte, por no estar automatizado, el repaso manual del equipo sobre el deploy y la comparación de tiempos contra una ejecución manual medida. Este reporte se enlaza desde el reporte final de la Entrega 3 ([#341](https://github.com/Joaconz/Biyu/issues/341)) cuando exista. El análisis de los defectos de V1 a V3 y el post-mortem de las actividades están en [`06-analisis-y-post-mortem.md`](06-analisis-y-post-mortem.md).
+V3 pasa la suite automatizada completa: 361 de 361 casos en PASSED (184 de V3 y 177 de regresión), sin defectos nuevos, con los 9 defectos de confirmación corregidos y sin regresiones respecto de la Entrega 2. Quedan fuera de este reporte, por no estar automatizado, el repaso manual del equipo sobre el deploy y la comparación de tiempos contra una ejecución manual medida. Este reporte se enlaza desde el reporte final de la Entrega 3 ([`07-reporte-final.md`](07-reporte-final.md), [#341](https://github.com/Joaconz/Biyu/issues/341)). El análisis de los defectos de V1 a V3 y el post-mortem de las actividades están en [`06-analisis-y-post-mortem.md`](06-analisis-y-post-mortem.md).

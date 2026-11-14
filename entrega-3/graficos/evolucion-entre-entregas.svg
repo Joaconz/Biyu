@@ -1,0 +1,32 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='760' height='420' viewBox='0 0 760 420' font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif' role='img' aria-label='Casos por estado en cada entrega'>
+<rect width='760' height='420' fill='#FFFFFF'/>
+<text x='24' y='36' font-size='22' font-weight='700' fill='#1B1B1B'>Evolución entre entregas</text>
+<text x='24' y='62' font-size='14' fill='#555'>Casos por estado en la última ejecución de cada entrega (V3 incluye la regresión)</text>
+<line x1='80' y1='340' x2='730' y2='340' stroke='#999'/>
+<rect x='146.7' y='290.1' width='90' height='49.9' fill='#2E7D5B'/>
+<text x='191.7' y='320.1' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>72</text>
+<rect x='146.7' y='288.8' width='90' height='1.4' fill='#C0392B'/>
+<text x='191.7' y='280.8' font-size='13' font-weight='700' fill='#1B1B1B' text-anchor='middle'>74 casos · 97,3 % PASSED</text>
+<text x='191.7' y='362' font-size='13' font-weight='600' fill='#1B1B1B' text-anchor='middle'>Entrega 1 (V1)</text>
+<text x='191.7' y='380' font-size='11' fill='#444' text-anchor='middle'>Failed 2</text>
+<rect x='350.0' y='209.1' width='90' height='130.9' fill='#2E7D5B'/>
+<text x='395.0' y='279.6' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>189</text>
+<rect x='350.0' y='202.9' width='90' height='6.2' fill='#C0392B'/>
+<rect x='350.0' y='202.2' width='90' height='0.7' fill='#D4A017'/>
+<rect x='350.0' y='199.4' width='90' height='2.8' fill='#8C8C8C'/>
+<text x='395.0' y='191.4' font-size='13' font-weight='700' fill='#1B1B1B' text-anchor='middle'>203 casos · 93,1 % PASSED</text>
+<text x='395.0' y='362' font-size='13' font-weight='600' fill='#1B1B1B' text-anchor='middle'>Entrega 2 (V2)</text>
+<text x='395.0' y='380' font-size='11' fill='#444' text-anchor='middle'>Failed 9 · Duda 1 · Blocked 4</text>
+<rect x='553.3' y='90.0' width='90' height='250.0' fill='#2E7D5B'/>
+<text x='598.3' y='220.0' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>361</text>
+<text x='598.3' y='82.0' font-size='13' font-weight='700' fill='#1B1B1B' text-anchor='middle'>361 casos · 100,0 % PASSED</text>
+<text x='598.3' y='362' font-size='13' font-weight='600' fill='#1B1B1B' text-anchor='middle'>Entrega 3 (V3)</text>
+<rect x='24' y='384' width='14' height='14' fill='#2E7D5B'/>
+<text x='44' y='396' font-size='12' fill='#333'>PASSED</text>
+<rect x='134' y='384' width='14' height='14' fill='#C0392B'/>
+<text x='154' y='396' font-size='12' fill='#333'>FAILED</text>
+<rect x='244' y='384' width='14' height='14' fill='#D4A017'/>
+<text x='264' y='396' font-size='12' fill='#333'>DUDA</text>
+<rect x='354' y='384' width='14' height='14' fill='#8C8C8C'/>
+<text x='374' y='396' font-size='12' fill='#333'>BLOCKED</text>
+</svg>
