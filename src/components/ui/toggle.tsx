@@ -14,7 +14,7 @@ const toggleVariants = cva(
       },
       size: {
         default: "min-h-11 min-w-11 px-3",
-        sm: "min-h-9 min-w-9 px-2.5 text-footnote",
+        sm: "min-h-11 min-w-11 px-2.5 text-footnote",
         lg: "min-h-12 min-w-12 px-4",
       },
     },

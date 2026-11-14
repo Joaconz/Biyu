@@ -90,7 +90,7 @@ export function validateSubscriptionEdit(
   }
 
   if (!values.categoryId) errors.categoryId = 'Elegí una categoría'
-  if (!values.accountId) errors.accountId = 'Elegí un medio de pago'
+  if (!values.accountId) errors.accountId = 'Elegí una cuenta'
 
   const billingDay = /^\d+$/.test(values.billingDay) ? Number(values.billingDay) : null
   if (!values.billingDay) errors.billingDay = 'Indicá el día de cobro'
@@ -180,7 +180,7 @@ export function editNextChargeText(
   }
 }
 
-/** Una opción de las listas de categoría y medio de pago de la edición. */
+/** Una opción de las listas de categoría y cuenta de la edición. */
 export interface EditOption {
   id: string
   label: string

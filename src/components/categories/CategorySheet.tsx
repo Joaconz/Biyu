@@ -197,7 +197,7 @@ function CategoryForm({
               aria-label={swatch}
               data-testid={`${prefix}-color-${swatch.slice(1).toLowerCase()}`} // DEF-015
               onClick={() => setColor(swatch)}
-              className="press size-10 rounded-full ring-offset-2 ring-offset-popover outline-none aria-checked:ring-2 aria-checked:ring-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              className="press size-11 rounded-full ring-offset-2 ring-offset-popover outline-none aria-checked:ring-2 aria-checked:ring-foreground focus-visible:ring-2 focus-visible:ring-ring"
               style={{ backgroundColor: swatch }}
             />
           ))}
@@ -272,7 +272,7 @@ function IconOption({
       title={label}
       data-testid={testId}
       onClick={onSelect}
-      className="press flex size-10 items-center justify-center rounded-xl border border-hairline bg-card text-muted-foreground outline-none hover:border-input aria-checked:border-primary aria-checked:bg-[color-mix(in_srgb,var(--primary)_9%,var(--card))] aria-checked:text-primary aria-checked:ring-1 aria-checked:ring-primary aria-checked:ring-inset focus-visible:ring-2 focus-visible:ring-ring"
+      className="press flex size-11 items-center justify-center rounded-xl border border-hairline bg-card text-muted-foreground outline-none hover:border-input aria-checked:border-primary aria-checked:bg-[color-mix(in_srgb,var(--primary)_9%,var(--card))] aria-checked:text-primary aria-checked:ring-1 aria-checked:ring-primary aria-checked:ring-inset focus-visible:ring-2 focus-visible:ring-ring"
     >
       {children}
     </button>
