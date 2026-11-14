@@ -167,7 +167,7 @@ export function DashboardPage() {
             <Link
               to={`/transactions?period=${formatPeriod(period)}`}
               data-testid="dashboard-transactions-view-all"
-              className="press -my-2 -mr-1 rounded-full px-1 py-2 text-callout font-medium text-primary hover:underline"
+              className="press -my-3 -mr-2 inline-flex min-h-11 items-center rounded-full px-2 text-callout font-medium text-primary hover:underline"
             >
               Ver todos
             </Link>

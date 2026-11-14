@@ -126,7 +126,7 @@ function SubscriptionData({
   const rows: Array<[string, string, string?]> = [
     ['Monto', subscriptionAmountText(subscription.amount, subscription.currency)],
     ['Categoría', subscription.categoryName],
-    ['Medio de pago', subscription.accountName],
+    ['Cuenta', subscription.accountName],
     ['Día de cobro', String(subscription.billingDay)],
     ['Desde', formatPeriodLong(subscription.startPeriod)],
     ['Hasta', subscription.endPeriod ? formatPeriodLong(subscription.endPeriod) : 'Sin fin'],

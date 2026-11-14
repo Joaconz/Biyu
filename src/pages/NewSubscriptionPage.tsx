@@ -21,7 +21,7 @@ export function NewSubscriptionPage() {
       {catalog.status === 'error' && (
         <div className="flex flex-col items-start gap-3">
           <p role="alert" data-testid="subscription-form-load-error" className="text-callout text-destructive">
-            No pudimos cargar tus categorías y medios de pago.
+            No pudimos cargar tus categorías y cuentas.
           </p>
           <button
             type="button"
