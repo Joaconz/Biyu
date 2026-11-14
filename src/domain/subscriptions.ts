@@ -2,7 +2,7 @@
 // entra por parámetro (C1) y es el hoy de Argentina (ADR-031 §7). Postgres repite cada validación
 // en create_subscription con los mismos mensajes (C6).
 import type { Currency } from './fx'
-import { convertToArs, Decimal, formatArs, formatUsdCode, parseMoney, tryParseMoney } from './money'
+import { convertToArs, Decimal, formatArs, formatUsd, parseMoney, tryParseMoney } from './money'
 import {
   addMonths,
   argentinaDateOf,
@@ -306,7 +306,7 @@ export function validateSubscriptionForm(
   }
 
   if (!values.categoryId) errors.categoryId = 'Elegí una categoría'
-  if (!values.accountId) errors.accountId = 'Elegí un medio de pago'
+  if (!values.accountId) errors.accountId = 'Elegí una cuenta'
 
   const billingDay = /^\d+$/.test(values.billingDay) ? Number(values.billingDay) : null
   if (!values.billingDay) errors.billingDay = 'Indicá el día de cobro'
@@ -470,9 +470,9 @@ export function committedCountText(count: number): string {
   return count === 1 ? '1 suscripción activa este mes' : `${count} suscripciones activas este mes`
 }
 
-/** "+ USD 10,00 sin tipo de cambio de octubre 2026" */
+/** "+ US$10,00 sin tipo de cambio de octubre 2026" */
 export function committedUsdPendingText(usdPending: Decimal, period: Period): string {
-  return `+ ${formatUsdCode(usdPending)} sin tipo de cambio de ${formatPeriodLong(period)}`
+  return `+ ${formatUsd(usdPending)} sin tipo de cambio de ${formatPeriodLong(period)}`
 }
 
 // ---------------------------------------------------------------------------
@@ -506,7 +506,7 @@ export const PREVIEW_BLOCKED_FX_TEXT = 'Sin tipo de cambio: se carga cuando lo c
  * del tipo de cambio; este se alinea con la marca "No se pudo cargar" de US-62.
  */
 export const PREVIEW_BLOCKED_RANGE_TEXT = 'No se pudo cargar: el monto en pesos queda fuera de rango'
-export const PREVIEW_FX_UNAVAILABLE_TEXT = 'No pudimos cargar tus tipos de cambio, así que no podemos mostrar el calendario en USD.'
+export const PREVIEW_FX_UNAVAILABLE_TEXT = 'No pudimos cargar tus tipos de cambio, así que no podemos mostrar el calendario en US$.'
 
 const BLOCKED_TEXT: Record<BlockReason, string> = {
   missing_fx_rate: PREVIEW_BLOCKED_FX_TEXT,
@@ -596,7 +596,7 @@ const FIELD_OF_MESSAGE: ReadonlyArray<[RegExp, SubscriptionField]> = [
   [/^(Escribí un nombre|El nombre admite hasta 60 caracteres|Ya tenés una suscripción con ese nombre)$/, 'name'],
   [/^El monto /, 'amount'],
   [/^(Elegí una categoría|La categoría no está disponible)$/, 'categoryId'],
-  [/^(Elegí un medio de pago|El medio de pago no está disponible)$/, 'accountId'],
+  [/^(Elegí una cuenta|Elegí un medio de pago|La cuenta no está disponible|El medio de pago no está disponible)$/, 'accountId'],
   [/^(Indicá el día de cobro|El día de cobro va de 1 a 31)$/, 'billingDay'],
   [/^(Elegí el mes de inicio|El mes de inicio )/, 'startPeriod'],
   [/^El mes de fin /, 'endPeriod'],
@@ -620,10 +620,10 @@ export function savedNoticeText(generated: number): string {
 // Lista y detalle (US-52)
 // ---------------------------------------------------------------------------
 
-/** "$5.000,00" o "USD 10,00" (formatos de entrega-2/historias/suscripciones.md). */
+/** "$5.000,00" o "US$10,00": el mismo formato que Registrar y Deudas (US-95). */
 export function subscriptionAmountText(amount: string, currency: Currency): string {
   const value = new Decimal(amount)
-  return currency === 'USD' ? formatUsdCode(value) : formatArs(value)
+  return currency === 'USD' ? formatUsd(value) : formatArs(value)
 }
 
 export function billingDayText(billingDay: number): string {

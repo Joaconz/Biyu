@@ -49,7 +49,7 @@ describe('committedMonthlyTotal (US-63, ADR-033)', () => {
     expect(result.count).toBe(1)
   })
 
-  it('CA-3: USD 10,00 con tipo de cambio de octubre de 1.250,00 suma $12.500,00', () => {
+  it('CA-3: US$10,00 con tipo de cambio de octubre de 1.250,00 suma $12.500,00', () => {
     const result = total([item({ currency: 'USD', amount: '10.00' })])
     expect(formatArs(result.totalArs)).toBe('$12.500,00')
     expect(result.usdPending).toBeNull()
@@ -72,10 +72,10 @@ describe('committedMonthlyTotal (US-63, ADR-033)', () => {
     expect(result.usdPending?.toFixed()).toBe('10')
   })
 
-  it('"+ USD" es la suma de todas las USD sin convertir', () => {
+  it('"+ US$" es la suma de todas las USD sin convertir', () => {
     const result = total([item({ currency: 'USD', amount: '10.00' }), item({ currency: 'USD', amount: '4.50' })], null)
     expect(committedUsdPendingText(result.usdPending as Decimal, result.period)).toBe(
-      '+ USD 14,50 sin tipo de cambio de octubre 2026',
+      '+ US$14,50 sin tipo de cambio de octubre 2026',
     )
   })
 
@@ -83,12 +83,12 @@ describe('committedMonthlyTotal (US-63, ADR-033)', () => {
     expect(formatArs(total([item({ amount: '6000.00' })]).totalArs)).toBe('$6.000,00')
   })
 
-  it('CA-7: una sola suscripción, USD 10,00, sin tipo de cambio: $0,00, "1 suscripción" y la línea "+ USD"', () => {
+  it('CA-7: una sola suscripción, US$10,00, sin tipo de cambio: $0,00, "1 suscripción" y la línea "+ US$"', () => {
     const result = total([item({ currency: 'USD', amount: '10.00' })], null)
     expect(formatArs(result.totalArs)).toBe('$0,00')
     expect(committedCountText(result.count)).toBe('1 suscripción activa este mes')
     expect(committedUsdPendingText(result.usdPending as Decimal, result.period)).toBe(
-      '+ USD 10,00 sin tipo de cambio de octubre 2026',
+      '+ US$10,00 sin tipo de cambio de octubre 2026',
     )
   })
 
@@ -121,7 +121,7 @@ describe('committedMonthlyTotal (US-63, ADR-033)', () => {
     expect(committedCountText(result.count)).toBe('No tenés suscripciones activas este mes')
   })
 
-  it('solo entran USD sin tipo de cambio: $0,00, el conteo y la línea "+ USD"', () => {
+  it('solo entran USD sin tipo de cambio: $0,00, el conteo y la línea "+ US$"', () => {
     const result = total([item({ currency: 'USD', amount: '10.00' }), item({ currency: 'USD', amount: '5.00' })], null)
     expect(formatArs(result.totalArs)).toBe('$0,00')
     expect(committedCountText(result.count)).toBe('2 suscripciones activas este mes')

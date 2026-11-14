@@ -51,8 +51,8 @@ async function fillForm(page: Page, o: { name: string; amount: string; day?: str
   await page.goto('/subscriptions/new')
   await page.getByTestId('subscription-form-name').fill(o.name)
   await page.getByTestId('subscription-form-amount').fill(o.amount)
-  await page.getByTestId('subscription-form-category').selectOption({ label: 'Entretenimiento' })
-  await page.getByTestId('subscription-form-account').selectOption({ label: 'Efectivo' })
+  await page.getByTestId('subscription-form-category-chip-entretenimiento').click()
+  await page.getByTestId('subscription-form-account-chip-efectivo').click()
   await page.getByTestId('subscription-form-billing-day').fill(o.day ?? '28')
   await page.getByTestId('subscription-form-start-period').fill((o.start ?? period(-2)).slice(0, 7))
 }

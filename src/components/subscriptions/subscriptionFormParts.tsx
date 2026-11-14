@@ -14,6 +14,7 @@ export function Field({
   help,
   helpTestId,
   footer,
+  group,
   children,
 }: {
   id: string
@@ -24,13 +25,21 @@ export function Field({
   helpTestId?: string
   /** Debajo del mensaje de error (CA-16). */
   footer?: ReactNode
+  /** El control es un grupo de chips: el rótulo no apunta a un campo, nombra al grupo (`aria-labelledby`). */
+  group?: boolean
   children: ReactNode
 }) {
   return (
     <div className="grid gap-2">
-      <label htmlFor={`subscription-form-${id}`} className="text-footnote font-medium text-muted-foreground">
-        {label}
-      </label>
+      {group ? (
+        <span id={`subscription-form-${id}-label`} className="text-footnote font-medium text-muted-foreground">
+          {label}
+        </span>
+      ) : (
+        <label htmlFor={`subscription-form-${id}`} className="text-footnote font-medium text-muted-foreground">
+          {label}
+        </label>
+      )}
       {children}
       {help && (
         <p data-testid={helpTestId} className="text-footnote text-muted-foreground">
@@ -43,7 +52,7 @@ export function Field({
   )
 }
 
-/** Lista vacía de categorías o medios de pago, con el atajo a Ajustes. */
+/** Lista vacía de categorías o cuentas, con el atajo a Ajustes. */
 export function EmptyCatalog({ testId, message }: { testId: string; message: string }) {
   return (
     <div data-testid={testId} className="flex items-center justify-between gap-3 rounded-xl border border-input bg-card px-4 py-2.5">

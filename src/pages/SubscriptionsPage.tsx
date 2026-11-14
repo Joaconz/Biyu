@@ -20,7 +20,7 @@ export function SubscriptionsPage() {
     <div className="mx-auto flex w-full max-w-2xl flex-col">
       <PageHeader title="Suscripciones" testId="subscriptions-title">
         <Link to="/subscriptions/new" data-testid="subscriptions-new" className={buttonVariants({ size: 'sm' })}>
-          Nueva
+          Nueva suscripción
         </Link>
       </PageHeader>
 
@@ -53,7 +53,7 @@ export function SubscriptionsPage() {
             <p className="text-callout text-muted-foreground">
               Todavía no tenés suscripciones. Cargá lo que pagás todos los meses y se registra solo.
             </p>
-            <Link to="/subscriptions/new" data-testid="subscriptions-empty-new" className={buttonVariants({ size: 'sm' })}>
+            <Link to="/subscriptions/new" data-testid="subscriptions-empty-new" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
               Agregar la primera
             </Link>
           </div>

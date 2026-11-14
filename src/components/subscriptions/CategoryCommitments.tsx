@@ -2,7 +2,7 @@ import { CategoryIcon } from '@/components/shared/CategoryIcon'
 import { GroupedCard, GroupedSection } from '@/components/shared/GroupedList'
 import { BreakdownRow } from '@/components/dashboard/BreakdownRow'
 import { useResolvedTheme } from '@/components/layout/ThemeProvider'
-import { formatArs, formatUsdCode } from '@/domain/money'
+import { formatArs, formatUsd } from '@/domain/money'
 import { formatPercentage } from '@/domain/summary'
 import type { CategoryCommitment } from '@/domain/subscriptions'
 import { displayCategoryColor } from '@/lib/visuals'
@@ -36,7 +36,7 @@ export function CategoryCommitments({ rows }: { rows: readonly CategoryCommitmen
               sublabel={
                 <span className="tabular truncate text-footnote text-muted-foreground">
                   {countText(row.count)}
-                  {row.usdPending && ` · + ${formatUsdCode(row.usdPending)} sin tipo de cambio`}
+                  {row.usdPending && ` · + ${formatUsd(row.usdPending)} sin tipo de cambio`}
                 </span>
               }
               amount={formatArs(row.totalArs)}
@@ -68,7 +68,7 @@ export function CategoryCommitments({ rows }: { rows: readonly CategoryCommitmen
                 <td>{row.count}</td>
                 <td>
                   {formatArs(row.totalArs)}
-                  {row.usdPending && `, más ${formatUsdCode(row.usdPending)} sin tipo de cambio`}
+                  {row.usdPending && `, más ${formatUsd(row.usdPending)} sin tipo de cambio`}
                 </td>
                 <td>{formatPercentage(row.percentage)}</td>
               </tr>

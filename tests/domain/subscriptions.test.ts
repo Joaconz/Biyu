@@ -104,13 +104,13 @@ describe('validateSubscriptionForm (US-52 CA-3 a CA-7)', () => {
     expect(errorsOf({ amount: '999.999.999.999,99' }).amount).toBeUndefined()
     expect(errorsOf({ amount: '1.000.000.000.000' }).amount).toBe('El monto máximo es $999.999.999.999,99')
     expect(errorsOf({ amount: '1.000.000.000.000', currency: 'USD' }).amount).toBe(
-      'El monto máximo es USD 999.999.999.999,99',
+      'El monto máximo es US$999.999.999.999,99',
     )
   })
 
-  it('categoría y medio de pago obligatorios', () => {
+  it('categoría y cuenta obligatorias', () => {
     expect(errorsOf({ categoryId: '' }).categoryId).toBe('Elegí una categoría')
-    expect(errorsOf({ accountId: '' }).accountId).toBe('Elegí un medio de pago')
+    expect(errorsOf({ accountId: '' }).accountId).toBe('Elegí una cuenta')
   })
 
   it('día de cobro (CA-4): 1 y 31 se aceptan, "01" es 1, 0 y 32 se rechazan, vacío pide el día', () => {
@@ -178,9 +178,10 @@ describe('errores de create_subscription (CA-8, CA-15, CA-16)', () => {
   it('cada rechazo de la RPC va debajo de su campo', () => {
     expect(fieldOfSaveError('Ya tenés una suscripción con ese nombre')).toBe('name')
     expect(fieldOfSaveError('El nombre admite hasta 60 caracteres')).toBe('name')
-    expect(fieldOfSaveError('El monto máximo es USD 999.999.999.999,99')).toBe('amount')
+    expect(fieldOfSaveError('El monto máximo es US$999.999.999.999,99')).toBe('amount')
     expect(fieldOfSaveError('La categoría no está disponible')).toBe('categoryId')
     expect(fieldOfSaveError('El medio de pago no está disponible')).toBe('accountId')
+    expect(fieldOfSaveError('La cuenta no está disponible')).toBe('accountId')
     expect(fieldOfSaveError('El día de cobro va de 1 a 31')).toBe('billingDay')
     expect(fieldOfSaveError('El mes de inicio va de octubre 2024 a octubre 2027')).toBe('startPeriod')
     expect(fieldOfSaveError('El mes de fin puede ser como máximo diciembre 2099')).toBe('endPeriod')
@@ -227,10 +228,10 @@ describe('lista de Suscripciones (US-52)', () => {
     expect(groups[0].items.map((s) => s.name)).toEqual(['Gimnasio', 'Hosting', 'netflix'])
   })
 
-  it('montos "$5.000,00" y "USD 10,00"', () => {
+  it('montos "$5.000,00" y "US$10,00"', () => {
     expect(subscriptionAmountText('5000.00', 'ARS')).toBe('$5.000,00')
-    expect(subscriptionAmountText('10', 'USD')).toBe('USD 10,00')
-    expect(subscriptionAmountText('999999999999.99', 'USD')).toBe('USD 999.999.999.999,99')
+    expect(subscriptionAmountText('10', 'USD')).toBe('US$10,00')
+    expect(subscriptionAmountText('999999999999.99', 'USD')).toBe('US$999.999.999.999,99')
   })
 
   it('"Se cobra el día 10" y "Terminó en mayo 2026"', () => {
@@ -566,9 +567,9 @@ describe('vista previa: qué se carga y qué viene (US-75)', () => {
     expect(preview.summary).toBe('Al guardar se carga 1 gasto de $5.000,00.')
   })
 
-  it('en USD el monto va como "USD 10,00" y el total no se convierte', () => {
+  it('en USD el monto va como "US$10,00" y el total no se convierte', () => {
     const preview = previewOf({ currency: 'USD', amount: '10,00' }, fx({ '2026-08': '1200', '2026-09': '1250' }))
-    expect(preview.summary).toBe('Al guardar se cargan 2 gastos de USD 10,00 (total USD 20,00).')
+    expect(preview.summary).toBe('Al guardar se cargan 2 gastos de US$10,00 (total US$20,00).')
   })
 
   it('CA-6: USD sin tipo de cambio de septiembre: esa fila queda bloqueada y no cuenta en el resumen', () => {
@@ -577,7 +578,7 @@ describe('vista previa: qué se carga y qué viene (US-75)', () => {
       ['2026-08', null],
       ['2026-09', 'missing_fx_rate'],
     ])
-    expect(preview.summary).toBe('Al guardar se carga 1 gasto de USD 10,00.')
+    expect(preview.summary).toBe('Al guardar se carga 1 gasto de US$10,00.')
     expect(preview.due[1].blockedText).toBe('Sin tipo de cambio: se carga cuando lo cargues')
     expect(preview.due[0].blockedText).toBeNull()
   })
@@ -619,7 +620,7 @@ describe('vista previa: qué se carga y qué viene (US-75)', () => {
     expect(buildCalendarPreview(form({ startPeriod: '2026-08', ...patch }), NO_FX, TODAY)).toEqual({ kind: 'empty' })
   })
 
-  it('el nombre, la categoría y el medio de pago no cambian el calendario', () => {
+  it('el nombre, la categoría y la cuenta no cambian el calendario', () => {
     const preview = buildCalendarPreview(form({ startPeriod: '2026-08', name: '', categoryId: '', accountId: '' }), NO_FX, TODAY)
     expect(preview.kind).toBe('ready')
   })
