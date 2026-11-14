@@ -26,15 +26,20 @@ export function Switch({
       disabled={disabled}
       data-testid={testId}
       onClick={() => onCheckedChange(!checked)}
-      className={cn(
-        'press relative ml-auto h-[31px] w-[51px] shrink-0 rounded-full border transition-colors duration-(--dur-fade) disabled:opacity-45',
-        checked ? 'border-primary bg-primary' : 'border-input bg-secondary',
-      )}
+      className="press relative ml-auto h-11 w-[51px] shrink-0 rounded-full disabled:opacity-45"
     >
+      {/* US-96: el botón mide 44 px de alto (área táctil); el óvalo de 51×31 se dibuja adentro, sin cambiar el diseño. */}
       <span
         aria-hidden="true"
         className={cn(
-          'absolute top-[2px] size-[25px] rounded-full border bg-card transition-[left] duration-(--dur-fade)',
+          'absolute inset-x-0 top-1/2 h-[31px] -translate-y-1/2 rounded-full border transition-colors duration-(--dur-fade)',
+          checked ? 'border-primary bg-primary' : 'border-input bg-secondary',
+        )}
+      />
+      <span
+        aria-hidden="true"
+        className={cn(
+          'absolute top-1/2 size-[25px] -translate-y-1/2 rounded-full border bg-card transition-[left] duration-(--dur-fade)',
           checked ? 'left-[22px] border-primary' : 'left-[2px] border-input',
         )}
       />

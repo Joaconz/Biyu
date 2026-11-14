@@ -64,7 +64,7 @@ export function SegmentedControl<T extends string>({
           data-testid={option.testId}
           className={cn(
             'press relative z-10 flex items-center justify-center rounded-full px-2 text-center font-medium text-muted-foreground outline-offset-0 transition-colors duration-(--dur-fade) aria-pressed:font-semibold aria-pressed:text-foreground',
-            size === 'md' ? 'min-h-10 text-callout' : 'min-h-9 text-footnote',
+            size === 'md' ? 'min-h-11 text-callout' : 'min-h-11 text-footnote',
           )}
         >
           {option.label}

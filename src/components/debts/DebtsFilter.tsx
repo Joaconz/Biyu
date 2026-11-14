@@ -115,7 +115,7 @@ function RadioFilter<T extends string>({
             option,
             i,
             cn(
-              'press flex min-h-10 items-center rounded-full px-4 text-footnote font-medium transition-colors duration-(--dur-fade)',
+              'press flex min-h-11 items-center rounded-full px-4 text-footnote font-medium transition-colors duration-(--dur-fade)',
               option.value === value ? 'bg-primary font-semibold text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground',
             ),
           ),
@@ -142,7 +142,7 @@ function RadioFilter<T extends string>({
           option,
           i,
           cn(
-            'press relative z-10 flex min-h-10 items-center justify-center rounded-full px-2 text-center text-callout font-medium text-muted-foreground outline-offset-0 transition-colors duration-(--dur-fade)',
+            'press relative z-10 flex min-h-11 items-center justify-center rounded-full px-2 text-center text-callout font-medium text-muted-foreground outline-offset-0 transition-colors duration-(--dur-fade)',
             option.value === value && 'font-semibold text-foreground',
           ),
         ),
