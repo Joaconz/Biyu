@@ -43,7 +43,7 @@
 | 3 | Monto `20000`, persona `Sofía G.`, nota `Cena`; guardar. | Se guarda; la fecha y la dirección siguen siendo las del gasto. |
 | 4 | API con `p_incurred_on` o `p_direction` distintos de los del gasto. | `23514`, «La fecha y la dirección de una deuda de un gasto no se pueden cambiar». |
 | 5 | API con `p_amount` 40000.01. | `23514`, «I7: la deuda no puede superar el monto del gasto». |
-| 6 | Persona de `   `, monto `0`, `10,123`, `abc`, fecha futura. | Los mensajes de «Nueva deuda» («Ingresá el nombre de la persona», «El monto debe ser mayor a cero», «El monto admite hasta 2 decimales», «Ingresá un número válido», «La fecha no puede ser futura»). |
+| 6 | Persona de `   `, monto `0`, `10,123`, `abc` (con US-99 el campo descarta las letras y queda vacío), `-`, fecha futura. | Los mensajes de «Nueva deuda» («Ingresá el nombre de la persona», «El monto debe ser mayor a cero», «El monto admite hasta 2 decimales», «Ingresá el monto» (para `abc`), «Ingresá un número válido» (para `-`), «La fecha no puede ser futura»). |
 | 7 | API con persona de 61 caracteres. | `23514`, «La persona admite hasta 60 caracteres»; la deuda no cambia. |
 
 ## CP-DEU-082 — Deuda saldada

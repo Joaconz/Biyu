@@ -128,3 +128,12 @@ describe('TC de referencia (US-36 CA-4, CA-5; US-20, US-21)', () => {
     expect(applyDebtReferenceRate({ ...usd('40', ''), incurredOn: '' }, { period: october }, '1250.0000').fxRate).toBe('')
   })
 })
+
+describe('el monto formateado en es-AR se manda con su valor (US-99)', () => {
+  it.each([
+    ['20.000', '20000'],
+    ['20.000,50', '20000.5'],
+    ['1.234.567,89', '1234567.89'],
+    ['20000', '20000'],
+  ])('«%s» → %s', (amount, expected) => expect(toNewDebt(draft({ amount }), TODAY)!.amount.toFixed()).toBe(expected))
+})

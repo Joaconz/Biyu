@@ -110,7 +110,7 @@ test('US-86 CA-5 · las validaciones de la pantalla tienen los mensajes de «Nue
   await page.getByTestId('edit-debt-person').fill('   ')
   await expect(page.getByTestId('edit-debt-person-error')).toHaveText('Ingresá el nombre de la persona')
   await page.getByTestId('edit-debt-person').fill('Juan')
-  for (const [text, message] of [['0', 'El monto debe ser mayor a cero'], ['10,123', 'El monto admite hasta 2 decimales'], ['abc', 'Ingresá un número válido']] as const) {
+  for (const [text, message] of [['0', 'El monto debe ser mayor a cero'], ['10,123', 'El monto admite hasta 2 decimales'], ['abc', 'Ingresá el monto'], ['-', 'Ingresá un número válido']] as const) {
     await page.getByTestId('edit-debt-amount').fill(text)
     await expect(page.getByTestId('edit-debt-amount-error')).toHaveText(message)
     await expect(page.getByTestId('edit-debt-submit')).toBeDisabled()

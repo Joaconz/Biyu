@@ -5,6 +5,11 @@
 export type AmountEditOptions = {
   /** Posición del cursor en `raw` después de la edición. Por defecto, al final. */
   caret?: number
+  /**
+   * Si el navegador informó un borrado (`inputType` «delete…»). Sin esto, quitar un punto no se
+   * distingue de un `fill` que lo reemplaza, así que solo con `true` se borra también el dígito vecino.
+   */
+  deletion?: boolean
   /** Si fue un borrado hacia atrás (Backspace) o hacia adelante (Supr). Por defecto, hacia atrás. */
   backward?: boolean
 }
@@ -97,7 +102,13 @@ export function formatAmountInput(raw: string, prev = '', options: AmountEditOpt
 
   let working = raw
   let at = caret
-  if (inserted.length > 1 || (prev === '' && inserted.length > 0)) {
+  const replaced = inserted !== '' && removed !== '' && (inserted.length > 1 || removed.length > 1)
+  if (replaced) {
+    // fill, seleccionar todo y pegar, o pegar sobre una selección: el prefijo y el sufijo que
+    // coinciden con lo anterior son casualidad, así que se interpreta el campo entero.
+    working = normalizeBulk(raw)
+    at = working.length
+  } else if (inserted.length > 1 || (prev === '' && inserted.length > 0)) {
     // Pegado (o valor cargado de golpe): se interpreta el texto nuevo completo.
     const head = raw.slice(0, start)
     const bulk = normalizeBulk(inserted)
@@ -108,7 +119,7 @@ export function formatAmountInput(raw: string, prev = '', options: AmountEditOpt
     const hasComma = prev.includes(',')
     working = raw.slice(0, start) + (hasComma ? '' : ',') + raw.slice(start + 1)
     at = hasComma ? start : start + 1
-  } else if (inserted === '' && removed === '.') {
+  } else if (options.deletion && inserted === '' && removed === '.') {
     // Se borró un punto de miles: se borra también el dígito de ese lado.
     const digit = backward ? start - 1 : start
     if (digit >= 0 && /\d/.test(working[digit] ?? '')) {

@@ -31,6 +31,7 @@ export function AmountInput({ value, onValueChange, as: Component = 'input', ...
     const inputType = (e.nativeEvent as InputEvent).inputType
     const { text, caret } = formatAmountInput(el.value, shown, {
       caret: el.selectionStart ?? el.value.length,
+      deletion: inputType?.startsWith('delete') ?? false,
       backward: inputType !== 'deleteContentForward',
     })
     pendingCaret.current = caret

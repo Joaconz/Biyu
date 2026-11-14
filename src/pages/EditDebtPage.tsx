@@ -11,7 +11,7 @@ import { debtEditBlock, debtEditErrors, debtEditInput, debtFxText, hasDebtChange
 import { firstDebtDraftError, MAX_NOTES_LENGTH, MAX_PERSON_LENGTH, type DebtDraftField, type DebtDraftInput } from '@/domain/debtDraft'
 import type { DebtDirection } from '@/domain/debts'
 import { toIsoDate } from '@/domain/period'
-import { parseMoney } from '@/domain/money'
+import { tryParseMoney } from '@/domain/money'
 import { today } from '@/lib/clock'
 import { fetchDebtForEdit, updateDebt } from '@/lib/debts'
 import { saveFailureReason } from '@/lib/errors'
@@ -147,7 +147,7 @@ function EditDebtForm({ debt, backTo }: { debt: EditableDebt; backTo: string }) 
     try {
       await updateDebt(debt.id, {
         person: values.person.trim(),
-        amount: parseMoney(values.amount),
+        amount: tryParseMoney(values.amount)!, // «20.000» es veinte mil; canSave ya lo validó
         notes: values.notes.trim() || null,
         // Solo una deuda suelta manda fecha y dirección: la de un gasto sigue las del gasto.
         ...(isLinked ? {} : { incurredOn: values.incurredOn, direction: values.direction }),

@@ -59,6 +59,29 @@ describe('formatAmountInput: pegar', () => {
   })
 })
 
+describe('formatAmountInput: reemplazar el contenido (fill, seleccionar todo y pegar)', () => {
+  it('«12.500,00» sobre «10.000,00» (coinciden el principio y el final)', () => {
+    expect(formatAmountInput('12.500,00', '10.000,00').text).toBe('12.500,00')
+  })
+  it('«12000» sobre «12.000» y «20000.00» sobre un valor anterior', () => {
+    expect(formatAmountInput('12000', '12.000').text).toBe('12.000')
+    expect(formatAmountInput('20000.00', '30.000,00').text).toBe('20.000,00')
+  })
+  it('«12.000» pegado sobre «12.500» es 12000, no 12,00', () => {
+    expect(formatAmountInput('12.000', '12.500').text).toBe('12.000')
+    expect(formatAmountInput('12.000', '').text).toBe('12.000')
+  })
+  it('quitar el punto sin que sea un borrado (fill) no borra el dígito vecino', () => {
+    expect(formatAmountInput('12000', '12.000').text).toBe('12.000')
+  })
+  it('«abc» sobre un valor anterior lo deja vacío', () => {
+    expect(formatAmountInput('abc', '10.000').text).toBe('')
+  })
+  it('«40.000,01» sobre «20.000»', () => {
+    expect(formatAmountInput('40.000,01', '20.000').text).toBe('40.000,01')
+  })
+})
+
 describe('formatAmountInput: borrar', () => {
   it('Backspace sobre el último dígito reagrupa', () => {
     expect(formatAmountInput('12.50', '12.500').text).toBe('1.250')
@@ -67,11 +90,11 @@ describe('formatAmountInput: borrar', () => {
     expect(formatAmountInput('', '1').text).toBe('')
   })
   it('Backspace sobre un punto de miles borra el dígito de la izquierda', () => {
-    const r = formatAmountInput('1234', '1.234', { caret: 1 })
+    const r = formatAmountInput('1234', '1.234', { caret: 1, deletion: true })
     expect(r.text).toBe('234')
   })
   it('Supr sobre un punto de miles borra el dígito de la derecha', () => {
-    const r = formatAmountInput('1234', '1.234', { caret: 1, backward: false })
+    const r = formatAmountInput('1234', '1.234', { caret: 1, backward: false, deletion: true })
     expect(r.text).toBe('134')
   })
   it('borrar la coma deja los decimales como parte entera', () => {
