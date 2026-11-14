@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" font-family="Arial, Helvetica, sans-serif" role="img" aria-label="Defectos por módulo y severidad">
+<rect width="760" height="480" fill="#ffffff"/>
+<text x="20" y="28" font-size="16" font-weight="bold" fill="#1f2933">Defectos por módulo y severidad (DEF-001 a DEF-037, sin DEF-029)</text>
+<text x="20" y="48" font-size="12" fill="#52606d">36 defectos con issue en GitHub. Entre paréntesis, los casos del catálogo del módulo.</text>
+<rect x="20" y="56" width="10" height="10" fill="#7f1d1d"/><text x="34" y="65" font-size="11" fill="#1f2933">Crítica</text>
+<rect x="100" y="56" width="10" height="10" fill="#c2410c"/><text x="114" y="65" font-size="11" fill="#1f2933">Alta</text>
+<rect x="180" y="56" width="10" height="10" fill="#d99a1e"/><text x="194" y="65" font-size="11" fill="#1f2933">Media</text>
+<rect x="260" y="56" width="10" height="10" fill="#6b8fb3"/><text x="274" y="65" font-size="11" fill="#1f2933">Baja</text>
+<text x="180" y="88" font-size="12" text-anchor="end" fill="#1f2933">CFG (15)</text>
+<rect x="190" y="74" width="38" height="20" fill="#7f1d1d"><title>CFG: 1 Crítica</title></rect>
+<text x="209.0" y="89" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="228" y="74" width="76" height="20" fill="#c2410c"><title>CFG: 2 Alta</title></rect>
+<text x="266.0" y="89" font-size="11" text-anchor="middle" fill="#ffffff">2</text>
+<rect x="304" y="74" width="152" height="20" fill="#d99a1e"><title>CFG: 4 Media</title></rect>
+<text x="380.0" y="89" font-size="11" text-anchor="middle" fill="#ffffff">4</text>
+<rect x="456" y="74" width="152" height="20" fill="#6b8fb3"><title>CFG: 4 Baja</title></rect>
+<text x="532.0" y="89" font-size="11" text-anchor="middle" fill="#ffffff">4</text>
+<text x="616" y="89" font-size="12" font-weight="bold" fill="#1f2933">11</text>
+<text x="180" y="118" font-size="12" text-anchor="end" fill="#1f2933">ACC (12)</text>
+<rect x="190" y="104" width="152" height="20" fill="#d99a1e"><title>ACC: 4 Media</title></rect>
+<text x="266.0" y="119" font-size="11" text-anchor="middle" fill="#ffffff">4</text>
+<rect x="342" y="104" width="38" height="20" fill="#6b8fb3"><title>ACC: 1 Baja</title></rect>
+<text x="361.0" y="119" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<text x="388" y="119" font-size="12" font-weight="bold" fill="#1f2933">5</text>
+<text x="180" y="148" font-size="12" text-anchor="end" fill="#1f2933">REG (16)</text>
+<rect x="190" y="134" width="38" height="20" fill="#7f1d1d"><title>REG: 1 Crítica</title></rect>
+<text x="209.0" y="149" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="228" y="134" width="38" height="20" fill="#d99a1e"><title>REG: 1 Media</title></rect>
+<text x="247.0" y="149" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="266" y="134" width="76" height="20" fill="#6b8fb3"><title>REG: 2 Baja</title></rect>
+<text x="304.0" y="149" font-size="11" text-anchor="middle" fill="#ffffff">2</text>
+<text x="350" y="149" font-size="12" font-weight="bold" fill="#1f2933">4</text>
+<text x="180" y="178" font-size="12" text-anchor="end" fill="#1f2933">EXP (31)</text>
+<rect x="190" y="164" width="114" height="20" fill="#d99a1e"><title>EXP: 3 Media</title></rect>
+<text x="247.0" y="179" font-size="11" text-anchor="middle" fill="#ffffff">3</text>
+<text x="312" y="179" font-size="12" font-weight="bold" fill="#1f2933">3</text>
+<text x="180" y="208" font-size="12" text-anchor="end" fill="#1f2933">SUS (48)</text>
+<rect x="190" y="194" width="114" height="20" fill="#6b8fb3"><title>SUS: 3 Baja</title></rect>
+<text x="247.0" y="209" font-size="11" text-anchor="middle" fill="#ffffff">3</text>
+<text x="312" y="209" font-size="12" font-weight="bold" fill="#1f2933">3</text>
+<text x="180" y="238" font-size="12" text-anchor="end" fill="#1f2933">Transversal (sin casos propios)</text>
+<rect x="190" y="224" width="38" height="20" fill="#d99a1e"><title>Transversal: 1 Media</title></rect>
+<text x="209.0" y="239" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="228" y="224" width="76" height="20" fill="#6b8fb3"><title>Transversal: 2 Baja</title></rect>
+<text x="266.0" y="239" font-size="11" text-anchor="middle" fill="#ffffff">2</text>
+<text x="312" y="239" font-size="12" font-weight="bold" fill="#1f2933">3</text>
+<text x="180" y="268" font-size="12" text-anchor="end" fill="#1f2933">DAS (11)</text>
+<rect x="190" y="254" width="38" height="20" fill="#d99a1e"><title>DAS: 1 Media</title></rect>
+<text x="209.0" y="269" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<rect x="228" y="254" width="38" height="20" fill="#6b8fb3"><title>DAS: 1 Baja</title></rect>
+<text x="247.0" y="269" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<text x="274" y="269" font-size="12" font-weight="bold" fill="#1f2933">2</text>
+<text x="180" y="298" font-size="12" text-anchor="end" fill="#1f2933">DEU (61)</text>
+<rect x="190" y="284" width="76" height="20" fill="#d99a1e"><title>DEU: 2 Media</title></rect>
+<text x="228.0" y="299" font-size="11" text-anchor="middle" fill="#ffffff">2</text>
+<text x="274" y="299" font-size="12" font-weight="bold" fill="#1f2933">2</text>
+<text x="180" y="328" font-size="12" text-anchor="end" fill="#1f2933">MON (7)</text>
+<rect x="190" y="314" width="76" height="20" fill="#6b8fb3"><title>MON: 2 Baja</title></rect>
+<text x="228.0" y="329" font-size="11" text-anchor="middle" fill="#ffffff">2</text>
+<text x="274" y="329" font-size="12" font-weight="bold" fill="#1f2933">2</text>
+<text x="180" y="358" font-size="12" text-anchor="end" fill="#1f2933">IMP (41)</text>
+<rect x="190" y="344" width="38" height="20" fill="#6b8fb3"><title>IMP: 1 Baja</title></rect>
+<text x="209.0" y="359" font-size="11" text-anchor="middle" fill="#ffffff">1</text>
+<text x="236" y="359" font-size="12" font-weight="bold" fill="#1f2933">1</text>
+<text x="180" y="388" font-size="12" text-anchor="end" fill="#1f2933">CUO (13)</text>
+<text x="198" y="389" font-size="12" font-weight="bold" fill="#1f2933">0</text>
+<text x="180" y="418" font-size="12" text-anchor="end" fill="#1f2933">NAV (25)</text>
+<text x="198" y="419" font-size="12" font-weight="bold" fill="#1f2933">0</text>
+<text x="20" y="466" font-size="11" fill="#52606d">Fuente: reportes de defectos de las entregas 1 y 2 e issues con la etiqueta bug.</text>
+</svg>
