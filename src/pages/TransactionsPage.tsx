@@ -107,7 +107,7 @@ export function TransactionsPage() {
             data-testid={`transactions-filter-${value}`}
             onClick={() => selectView(value)}
             className={cn(
-              'press min-h-9 rounded-full px-4 py-1.5 text-footnote font-medium text-muted-foreground',
+              'press min-h-11 rounded-full px-4 py-1.5 text-footnote font-medium text-muted-foreground',
               view === value && 'bg-card text-foreground',
             )}
           >

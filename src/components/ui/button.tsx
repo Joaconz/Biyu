@@ -19,10 +19,10 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-12 px-6 text-callout font-semibold",
-        sm: "h-10 px-4 text-footnote font-semibold",
+        sm: "h-11 px-4 text-footnote font-semibold",
         lg: "h-14 px-7 text-headline font-semibold",
         icon: "size-11",
-        "icon-sm": "size-9",
+        "icon-sm": "size-11",
         "icon-lg": "size-12",
       },
     },
