@@ -63,11 +63,6 @@ export function formatSignedArs(amount: Decimal): string {
   return amount.gt(0) ? `+${formatArs(amount)}` : formatArs(amount)
 }
 
-/** Dólares con el código, como en las historias de Entrega 2: "USD 1.234,56" o "-USD 1.234,56". */
-export function formatUsdCode(amount: Decimal): string {
-  return formatWithSymbol('USD ', amount)
-}
-
 /** Dólares con el mismo formato argentino: US$1.234,56 o -US$1.234,56 */
 export function formatUsd(amount: Decimal): string {
   return formatWithSymbol('US$', amount)

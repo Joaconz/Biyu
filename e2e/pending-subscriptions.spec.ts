@@ -75,7 +75,7 @@ test('CP-SUS-064 · una suscripción en US$ sin tipo de cambio del mes se inform
 
   await page.goto(`/dashboard?period=${nextPeriod()}`)
   await expect(page.getByTestId('dashboard-pending-subscriptions-total')).toHaveText('$3.000,00')
-  await expect(page.getByTestId('dashboard-pending-subscriptions-usd-pending')).toContainText('USD 10,00')
+  await expect(page.getByTestId('dashboard-pending-subscriptions-usd-pending')).toContainText('US$10,00')
   await expect(page.getByTestId('dashboard-pending-subscriptions-usd-pending')).toContainText('sin tipo de cambio')
 })
 

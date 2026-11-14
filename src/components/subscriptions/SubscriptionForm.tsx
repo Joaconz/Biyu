@@ -26,12 +26,16 @@ import type { Account, Category } from '@/lib/catalog'
 import { isNetworkError, saveFailureReason } from '@/lib/errors'
 import { createSubscription } from '@/lib/subscriptions'
 import { cn } from '@/lib/utils'
+import { AccountIcon } from '@/components/shared/AccountIcon'
+import { CategoryIcon } from '@/components/shared/CategoryIcon'
+import { ChipGroup } from '@/components/transaction-form/ChipGroup'
+import { sortCategoriesForGrid } from '@/lib/visuals'
 import { SubscriptionPreview } from '@/components/subscriptions/SubscriptionPreview'
 import { EmptyCatalog, Field, SELECT_CLASS } from '@/components/subscriptions/subscriptionFormParts'
 
 const CURRENCY_OPTIONS: { value: Currency; label: string; testId: string; ariaLabel: string }[] = [
   { value: 'ARS', label: 'ARS', testId: 'subscription-form-currency-ars', ariaLabel: 'Pesos' },
-  { value: 'USD', label: 'USD', testId: 'subscription-form-currency-usd', ariaLabel: 'Dólares' },
+  { value: 'USD', label: 'US$', testId: 'subscription-form-currency-usd', ariaLabel: 'Dólares' },
 ]
 
 /**
@@ -174,51 +178,37 @@ export function SubscriptionForm({
           </div>
         </div>
 
-        <Field id="category" label="Categoría" error={errors.categoryId}>
+        <Field id="category" label="Categoría" error={errors.categoryId} group>
           {categories.length === 0 ? (
             <EmptyCatalog testId="subscription-form-category-empty" message="No tenés categorías activas." />
           ) : (
-            <select
-              id="subscription-form-category"
-              data-testid="subscription-form-category"
-              className={cn(SELECT_CLASS, !values.categoryId && 'text-muted-foreground')}
-              value={values.categoryId}
-              onChange={(e) => change({ categoryId: e.target.value })}
-              aria-invalid={!!errors.categoryId || undefined}
-            >
-              <option value="" disabled>
-                Elegí…
-              </option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            <ChipGroup
+              layout="tiles"
+              testId="subscription-form-category"
+              labelId="subscription-form-category-label"
+              describedBy={errors.categoryId ? 'subscription-form-category-error' : undefined}
+              options={sortCategoriesForGrid(categories)}
+              value={values.categoryId || null}
+              onChange={(id) => change({ categoryId: id })}
+              renderIcon={(category) => <CategoryIcon name={category.name} color={category.color} icon={category.icon} />}
+            />
           )}
         </Field>
 
-        <Field id="account" label="Medio de pago" error={errors.accountId}>
+        <Field id="account" label="Cuenta" error={errors.accountId} group>
           {accounts.length === 0 ? (
-            <EmptyCatalog testId="subscription-form-account-empty" message="No tenés medios de pago activos." />
+            <EmptyCatalog testId="subscription-form-account-empty" message="No tenés cuentas activas." />
           ) : (
-            <select
-              id="subscription-form-account"
-              data-testid="subscription-form-account"
-              className={cn(SELECT_CLASS, !values.accountId && 'text-muted-foreground')}
-              value={values.accountId}
-              onChange={(e) => change({ accountId: e.target.value })}
-              aria-invalid={!!errors.accountId || undefined}
-            >
-              <option value="" disabled>
-                Elegí…
-              </option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </select>
+            <ChipGroup
+              layout="chips"
+              testId="subscription-form-account"
+              labelId="subscription-form-account-label"
+              describedBy={errors.accountId ? 'subscription-form-account-error' : undefined}
+              options={accounts}
+              value={values.accountId || null}
+              onChange={(id) => change({ accountId: id })}
+              renderIcon={(account) => <AccountIcon type={account.type} className="text-muted-foreground" />}
+            />
           )}
         </Field>
 
