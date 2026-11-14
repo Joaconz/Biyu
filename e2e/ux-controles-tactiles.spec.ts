@@ -36,7 +36,7 @@ async function expectTall(locator: Locator, name: string) {
 
 test('CP-NAV-038 · «Ver todos» del Resumen y «Activos»/«Eliminados» miden al menos 44 px', async ({ page, request }) => {
   await setup(page, request, 'nav-038')
-  await page.goto('/')
+  await page.goto('/dashboard')
   await expectTall(page.getByTestId('dashboard-transactions-view-all'), '«Ver todos»')
   await page.goto('/transactions')
   await expectTall(page.getByTestId('transactions-filter-active'), '«Activos»')
@@ -67,7 +67,7 @@ test('CP-NAV-041 · los controles contiguos están separados al menos 8 px y no 
   const settle = await box(page.getByTestId('debts-item-settle'))
   const gap = edit.x >= settle.x + settle.width ? edit.x - (settle.x + settle.width) : settle.x - (edit.x + edit.width)
   expect(gap, 'separación entre «Marcar saldada» y «Editar»').toBeGreaterThanOrEqual(8)
-  for (const path of ['/', '/debts', '/transactions', '/settings']) {
+  for (const path of ['/dashboard', '/debts', '/transactions', '/settings']) {
     await page.goto(path)
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
     expect(overflow, `${path} sin scroll horizontal`).toBe(false)
