@@ -27,7 +27,7 @@ Lo que hay que tener presente al leer los números:
 |---|---|---|---|---|---|---|
 | V1 (DEF-001 a DEF-028) | 28 | 2 | 2 | 12 | 12 | 74 casos ejecutados (2 FAILED) y mucho más afuera del catálogo (§1.4) |
 | V2 (DEF-030 a DEF-037) | 8 | 0 | 0 | 4 | 4 | 203 casos con resultado (9 FAILED) |
-| V3 | **0 registrados** | 0 | 0 | 0 | 0 | 342 casos automatizados, 0 FAILED (ver §1.7 por lo que esto no dice) |
+| V3 | **0 registrados** | 0 | 0 | 0 | 0 | 361 casos automatizados (184 de V3 y 177 de regresión), 0 FAILED (ver §1.7 por lo que esto no dice) |
 | **Total** | **36** | **2** | **2** | **16** | **16** | |
 
 Al cierre de V3 no queda ningún defecto abierto. Los dos Críticos son DEF-004 (un `NaN` como monto se guardaba y rompía el Resumen: «$NaN,undefined») y DEF-022 (el setup de US-68 dejaba afuera de la app a cuentas existentes). Los dos Altos son DEF-017 (US-68 sin implementar) y DEF-023 (pantalla en blanco intermitente tras crear la cuenta).
@@ -126,7 +126,7 @@ Días corridos entre la apertura del issue y su cierre (36 issues):
 
 ### 1.7 Lo que el conteo de defectos no dice
 
-- **V3 tiene cero defectos registrados porque la ejecución de V3 es solo automatizada** (342 de 342 PASSED, 0 FAILED). No hubo ataque libre, exploración ni repaso manual de V3 (`05-reporte-ejecucion-automatizada.md` §3 y §6). Cero defectos acá es «la suite no encontró nada nuevo», no «V3 no tiene defectos».
+- **V3 tiene cero defectos registrados porque la ejecución de V3 es solo automatizada** (361 de 361 PASSED, 0 FAILED). No hubo ataque libre, exploración ni repaso manual de V3 (`05-reporte-ejecucion-automatizada.md` §3 y §6). Cero defectos acá es «la suite no encontró nada nuevo», no «V3 no tiene defectos».
 - **La suite detectó regresiones durante el desarrollo de V3 que se corrigieron sin abrir un DEF.** Dos con evidencia en el mensaje del commit: `fab0456` (2026-11-07, «falló DEF-021 en la CI»: las tablas para lector de pantalla volvieron a ensanchar la página a 360 px con el monto máximo) y `d0edfac` (2026-11-07, «5 specs e2e no podían clickear dentro del diálogo» por un `view-transition-name` permanente). Un tercer arreglo, `fd04238` (2026-11-10, toques que atravesaban la barra flotante), no dice cómo se encontró. Son defectos reales detectados antes de mergear, que no figuran en las 36 filas: el conteo de §1.1 **subestima** los defectos que V3 efectivamente produjo y corrigió. Es una decisión razonable (no hacía falta un issue para algo que la CI detuvo antes de `main`), pero conviene saber que el número no es comparable con V1 y V2.
 
 ## 2. Post-mortem de las actividades de testing
@@ -188,7 +188,7 @@ Evidencia del repo: 266 de 327 commits (81 %) llevan `Co-Authored-By: Claude` en
 
 ### 2.4 Automatización: Playwright, Vitest y pgTAP en la CI
 
-**Qué se hizo.** La suite corre contra Vite y Supabase local en cada PR (job `e2e`, PR [#364](https://github.com/Joaconz/Biyu/pull/364), 2026-10-31): **272 tests de Playwright**, **1088 de Vitest** y **1354 de pgTAP** (43 archivos). 342 casos (165 de V3 y 177 de regresión) quedaron en PASSED, sin regresiones respecto de la Entrega 2; los 9 casos de confirmación (8 defectos de V2 y DEF-023) pasan (`05-reporte-ejecucion-automatizada.md`).
+**Qué se hizo.** La suite corre contra Vite y Supabase local en cada PR (job `e2e`, PR [#364](https://github.com/Joaconz/Biyu/pull/364), 2026-10-31): **290 tests de Playwright**, **1131 de Vitest** y **1354 de pgTAP** (43 archivos). 361 casos (184 de V3 y 177 de regresión) quedaron en PASSED, sin regresiones respecto de la Entrega 2; los 9 casos de confirmación (8 defectos de V2 y DEF-023) pasan (`05-reporte-ejecucion-automatizada.md`).
 
 **Qué funcionó**
 
@@ -201,7 +201,7 @@ Evidencia del repo: 266 de 327 commits (81 %) llevan `Co-Authored-By: Claude` en
 
 - **Tiempo.** El job `e2e` tarda 17,2 minutos (Playwright 11,2 a 15,1 min); el de `db` 1,5 y el de `web` 0,5. Un PR chico paga 17 minutos. Con la CI de los últimos 100 runs (todas las ramas) hubo 84 éxitos y 16 fallas; no distingo cuántas fallas fueron de infraestructura, flakiness o regresión real.
 - **Flakiness.** `smoke.spec.ts` cayó en `main` el 2026-11-11 (271 verdes y 1 caído): el botón «Siguiente» quedaba deshabilitado porque el formulario se vuelve a montar tras el alta y pierde el monto tipeado, como en DEF-023. Se endureció el test, pero el reporte lo deja como «riesgo hasta ver varias corridas en verde». Y el job `e2e` falló dos veces por DNS al instalar Chromium (se agregaron 3 reintentos en [#416](https://github.com/Joaconz/Biyu/pull/416)).
-- **100 % de PASSED no es evidencia de cobertura.** No hay en el repositorio medición de cobertura de código ni de mutación (no hay configuración de `coverage` en `package.json`, Vitest ni la CI). La suite pasó 342 de 342 al primer registro formal, y los tests se escribieron junto con las historias (§2.3): no se sabe cuántos fallarían si se rompiera una regla. Un caso por criterio de aceptación puede dejar sin mirar un matiz de un paso (lo dice el propio reporte).
+- **100 % de PASSED no es evidencia de cobertura.** No hay en el repositorio medición de cobertura de código ni de mutación (no hay configuración de `coverage` en `package.json`, Vitest ni la CI). La suite pasó 361 de 361 en el registro formal, y los tests se escribieron junto con las historias (§2.3): no se sabe cuántos fallarían si se rompiera una regla. Un caso por criterio de aceptación puede dejar sin mirar un matiz de un paso (lo dice el propio reporte).
 - **Un test cubre varios casos en US-80 a US-91.** El criterio de PASSED es «pasaron todas las pruebas que lo cubren»; no hay un mapeo caso a test 1 a 1 para esas historias, aunque la planilla nombra los tests de cada caso.
 - **Quedó sin automatizar lo que más cuesta ver:** lo visual (espaciado, legibilidad), la corrida contra el deploy de Vercel con WebKit y Firefox (existe como `SMOKE_URL`, pero no corre en la CI) y el repaso manual con otras personas.
 - **No se midió el tiempo de la ejecución manual.** No existe número manual contra el cual comparar los 17 minutos; la ganancia solo se puede decir cualitativamente (§4 de `05-reporte-ejecucion-automatizada.md`).
@@ -220,7 +220,7 @@ Cada una apunta a un hecho de arriba y a algo que se puede hacer.
 | 6 | **Cuando se arregla algo derivado de una causa, hacer el análisis de impacto.** DEF-010 produjo DEF-026 y DEF-028; DEF-017, DEF-022 y DEF-023 | §1.2 | Al cerrar un defecto, correr los casos del módulo vecino (ya lo hace la regla 3 de ADR-027) y anotar en el reporte «puede afectar a…» |
 | 7 | **Ejecución por IA con control humano real, no solo informado.** 30 de 212 casos de V2 sin ejecución propia registrada | §2.1, §2.3 | Si el agente ejecuta, el tester cruzado repasa una muestra con evidencia (captura o traza) por caso; un «ok» sin dato no cuenta como PASSED |
 | 8 | **Separar quién implementa de quién escribe el test.** Los tests de V3 nacieron con la historia | §2.3, §2.4 | Los tests de regresión de una historia los escribe una sesión distinta de la que la implementó, a partir de los criterios de aceptación y no del código |
-| 9 | **Medir lo que la suite verifica.** 342/342 sin ninguna medición de cobertura ni mutación | §2.4 | Agregar cobertura de `src/domain/` (Vitest) y una pasada de mutación sobre `src/domain/` y las RPC críticas antes del cierre; reportar el porcentaje de mutantes muertos |
+| 9 | **Medir lo que la suite verifica.** 361/361 sin ninguna medición de cobertura ni mutación | §2.4 | Agregar cobertura de `src/domain/` (Vitest) y una pasada de mutación sobre `src/domain/` y las RPC críticas antes del cierre; reportar el porcentaje de mutantes muertos |
 | 10 | **Tratar la flakiness como defecto.** `smoke.spec.ts` y DEF-023 comparten causa probable | §1.5, §2.4 | Abrir un `DEF` por cada falla intermitente de CI, con el reintento como evidencia; no cerrar sin reproducir más que como «riesgo» |
 | 11 | **Dar número a lo que la CI detiene antes de `main`.** V3 corrigió al menos 2 regresiones sin DEF | §1.7 | Registrar el defecto en el PR (campo «Defecto asociado») o con un issue `bug` liviano, para poder comparar versiones |
 | 12 | **Aceptar que el 100 % automatizado no reemplaza una pasada manual del deploy.** Lo visual y WebKit/Firefox quedaron afuera | §2.4 | Una pasada manual acotada en el deploy por versión, con 10 a 15 casos Alta elegidos por riesgo, y medir su tiempo para tener una base contra los 17 minutos de la CI |

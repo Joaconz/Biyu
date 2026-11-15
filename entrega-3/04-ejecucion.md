@@ -4,20 +4,22 @@ Planilla: [`04-ejecucion.xlsx`](04-ejecucion.xlsx) (índice con el resultado y l
 
 ## Condiciones de la ejecución
 
-- **Fecha:** 2026-11-11, sobre `main` con todos los PR de V3 mergeados (más los tests agregados en esta ejecución).
+- **Fecha:** 2026-11-14, sobre `main` en `40ab30e` (merge de [#424](https://github.com/Joaconz/Biyu/pull/424)), con todas las historias de V3 mergeadas, incluidas US-95, US-96, US-99 y US-100.
 - **Entorno:** Vite (`http://127.0.0.1:5173`) y Supabase local con todas las migraciones, Chromium emulando un celular de 390 × 844 px, un usuario nuevo por prueba (PR-01). La base de producción tiene las mismas migraciones.
-- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright (272 de 272 tests), Vitest (1088 de 1088) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**
+- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright (290 de 290 tests), Vitest (1131 de 1131) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**
 - **Criterio:** un caso es PASSED si pasaron todas las pruebas que lo cubren, FAILED si alguna falló y BLOCKED si ninguna prueba lo cubre o no se pudo correr. La columna «Pruebas que lo cubren» de la planilla nombra cada una. Un caso de UI y API puede estar cubierto por Playwright y por pgTAP a la vez.
 - **Cobertura parcial:** un test de Playwright puede cubrir varios casos (por ejemplo, un test por criterio de aceptación para varios casos de una historia). Eso es cobertura del comportamiento, no una repetición paso a paso de la tabla del caso.
+- **Corridas:** Playwright se corrió tres veces completo. La primera dio 285 de 290: CP-SUS-024 y CP-IMP-040 fallaron porque el contenedor del edge runtime de Supabase local estaba detenido (se levantó y pasan); CP-DAS-020, CP-CFG-040 y CP-NAV-033 se pasaron de tiempo con la máquina cargada y pasan de a uno. La segunda, con el edge runtime, dio 289 de 290: CP-CFG-040 volvió a pasarse de los 30 s con 4 workers (pasa 6 de 6 repetido de a uno). La tercera, con 2 workers, dio **290 de 290** y es la que registra esta planilla.
+- **CI de `main`:** la corrida de la CI del mismo commit dio 289 de 290: falló CP-CFG-028 (esperaba la URL `/settings` y llegó `/settings?period=2026-11`). Acá pasa, también 5 de 5 repetido de a uno, así que es intermitente; queda abierto como hallazgo, ver el reporte final.
 - **pgTAP:** en local `update_subscription.test.sql` falla 3 de 164 (tests 75 a 77) por usuarios viejos de otras corridas en la base local; en la CI pasa y ningún caso de V3 depende de ese archivo.
 
 ## Resultado
 
 | Conjunto | Casos | PASSED | FAILED | BLOCKED | % PASSED |
 |---|---|---|---|---|---|
-| Casos de V3 | 165 | 165 | 0 | 0 | 100.0 % |
+| Casos de V3 | 184 | 184 | 0 | 0 | 100.0 % |
 | Regresión de V1 y V2 | 177 | 177 | 0 | 0 | 100.0 % |
-| **Total** | 342 | 342 | 0 | 0 | 100.0 % |
+| **Total** | 361 | 361 | 0 | 0 | 100.0 % |
 
 ### Por módulo
 
@@ -28,17 +30,35 @@ Planilla: [`04-ejecucion.xlsx`](04-ejecucion.xlsx) (índice con el resultado y l
 | CFG | 26 | 0 | 0 | 6 | 0 | 0 |
 | CUO | 0 | 0 | 0 | 10 | 0 | 0 |
 | DAS | 21 | 0 | 0 | 3 | 0 | 0 |
-| DEU | 30 | 0 | 0 | 47 | 0 | 0 |
+| DEU | 37 | 0 | 0 | 47 | 0 | 0 |
 | EXP | 0 | 0 | 0 | 27 | 0 | 0 |
 | IMP | 17 | 0 | 0 | 15 | 0 | 0 |
 | MON | 0 | 0 | 0 | 5 | 0 | 0 |
-| NAV | 12 | 0 | 0 | 15 | 0 | 0 |
-| REG | 36 | 0 | 0 | 6 | 0 | 0 |
-| SUS | 19 | 0 | 0 | 31 | 0 | 0 |
+| NAV | 16 | 0 | 0 | 15 | 0 | 0 |
+| REG | 41 | 0 | 0 | 6 | 0 | 0 |
+| SUS | 22 | 0 | 0 | 31 | 0 | 0 |
 
 ## Casos que no están en PASSED
 
 Ninguno: todos los casos de V3 y de la regresión están en PASSED.
+
+## Confirmación de defectos
+
+Testeo de confirmación: cada defecto de V2 (DEF-030 a DEF-037) y el DEF-023 de V1 (intermitente, sin confirmar en la Entrega 2) se repite con el test que reproduce sus pasos. Es el mismo caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso. DEF-023 era intermitente: el test demora la siembra a propósito y verifica que nada vuelva a `/register`, que es la causa corregida; no prueba que la pantalla en blanco no pueda reaparecer.
+
+| Defecto | Severidad | Caso | Arreglo | Qué se confirma | Resultado | Tests |
+|---|---|---|---|---|---|---|
+| DEF-030 | Media | CP-EXP-027 | PR #365 | Tocar fuera de la hoja «Exportar movimientos» la cierra sin descargar | **PASSED** | 1 |
+| DEF-031 | Media | CP-EXP-028 | PR #365 | «Atrás» y «Adelante» cierran la hoja y cambian el período | **PASSED** | 1 |
+| DEF-032 | Media | CP-EXP-029 | PR #365 | «Atrás» durante «Exportando…» cancela la descarga | **PASSED** | 1 |
+| DEF-033 | Baja | CP-IMP-024 | PR #366 | La tarjeta de la fila muestra los nombres de Biyu (también en `import-rows.test.ts`) | **PASSED** | 1 |
+| DEF-034 | Baja | CP-SUS-032 | PR #368 | Operar sobre la suscripción de otro usuario responde 404 | **PASSED** | 1 |
+| DEF-035 | Baja | CP-SUS-022 | PR #368 | Sin sesión la API responde 401 con `42501` (el defecto era del caso) | **PASSED** | 1 |
+| DEF-036 | Baja | CP-SUS-048 | PR #368 | La vista previa marca `data-blocked` en cada mes (el defecto era del caso) | **PASSED** | 1 |
+| DEF-037 | Media | CP-DEU-024 y CP-DEU-025 | PR #367 | El primer clic en «US$» selecciona la moneda; un tipo de cambio de 0 muestra su error | **PASSED** | 2 |
+| DEF-023 | Alta | sin caso (V1, intermitente) | PR #198 (V1) | Con la siembra demorada, crear la cuenta lleva a `/setup` y nada vuelve a `/register`; los casos CP-ACC-013 a 016 cubren el alta | **PASSED** | 1 |
+
+**9 de 9 confirmados** (corregidos); 0 siguen fallando y 0 no se pudieron confirmar.
 
 ## Resultado por caso de V3
 
@@ -173,6 +193,13 @@ Ninguno: todos los casos de V3 y de la regresión están en PASSED.
 | CP-REG-047 | Alta | El diálogo de un movimiento dice «¿Eliminar movimiento?» y muestra su detalle | US-94 | **PASSED** | Playwright |
 | CP-REG-048 | Alta | Una compra en cuotas con deuda vinculada muestra las cuotas y la deuda en el detalle | US-94 | **PASSED** | Playwright |
 | CP-REG-049 | Media | El botón de confirmar tiene estilo de peligro, está separado de «Cancelar» y «Cancelar» no borra, en los cuatro diálogos | US-94 | **PASSED** | Playwright |
+| CP-SUS-160 | Media | El alta muestra «US$», «Cuenta» y chips en lugar de selects | US-95 | **PASSED** | Playwright |
+| CP-SUS-161 | Media | La edición muestra «US$» y los chips con lo elegido | US-95 | **PASSED** | Playwright |
+| CP-SUS-162 | Baja | La lista ofrece «Nueva suscripción» y el detalle dice «Cuenta» | US-95 | **PASSED** | Playwright |
+| CP-NAV-038 | Media | «Ver todos» del Resumen y «Activos»/«Eliminados» miden al menos 44 px | US-96 | **PASSED** | Playwright |
+| CP-NAV-039 | Media | En Deudas, los filtros, «Nueva deuda», «Marcar saldada» y «Editar» miden al menos 44 px | US-96 | **PASSED** | Playwright |
+| CP-NAV-040 | Media | En Ajustes, el selector de tema y los interruptores miden al menos 44 px de alto | US-96 | **PASSED** | Playwright |
+| CP-NAV-041 | Media | Los controles contiguos están separados al menos 8 px y no hay scroll horizontal | US-96 | **PASSED** | Playwright |
 | CP-NAV-033 | Media | El Resumen, Movimientos, Deudas y Suscripciones muestran un esqueleto y después el contenido | US-97 | **PASSED** | Playwright |
 | CP-NAV-034 | Media | Cambiar de mes o de filtro no dispara transición | US-97 | **PASSED** | Playwright |
 | CP-NAV-035 | Media | Cambiar de pestaña funde y entrar a un detalle o volver desplaza y funde | US-97 | **PASSED** | Playwright |
@@ -181,6 +208,18 @@ Ninguno: todos los casos de V3 y de la regresión están en PASSED.
 | CP-REG-050 | Media | Las ocho categorías sembradas se leen completas, sin cortar palabras | US-98 | **PASSED** | Playwright |
 | CP-REG-051 | Media | Un nombre largo ocupa como máximo dos líneas | US-98 | **PASSED** | Playwright |
 | CP-REG-052 | Media | Los chips de cuenta miden al menos 48 px de alto | US-98 | **PASSED** | Playwright |
+| CP-REG-053 | Alta | El monto se muestra con separador de miles y coma decimal mientras se escribe | US-99 | **PASSED** | Playwright |
+| CP-REG-054 | Media | Pegar un valor con punto decimal, una coma sola y letras | US-99 | **PASSED** | Playwright |
+| CP-REG-055 | Media | Editar en el medio no manda el cursor al final; borrar un punto borra el dígito vecino | US-99 | **PASSED** | Playwright |
+| CP-REG-056 | Alta | El gasto se guarda con el valor escrito (12.500,5 → 12500.50) | US-99 | **PASSED** | Playwright |
+| CP-REG-057 | Media | Nueva deuda y Nueva suscripción muestran el mismo formato | US-99 | **PASSED** | Playwright |
+| CP-DEU-096 | Alta | Al escribir en «Persona» sugiere las personas que coinciden, sin distinguir mayúsculas ni tildes | US-100 | **PASSED** | Playwright |
+| CP-DEU-097 | Alta | Elegir una sugerencia completa el campo, no marca error y guarda en la misma persona | US-100 | **PASSED** | Playwright |
+| CP-DEU-098 | Alta | Sin coincidencias o con el campo vacío no sugiere nada | US-100 | **PASSED** | Playwright |
+| CP-DEU-099 | Media | Con el teclado: flechas recorren, Enter elige sin enviar y Escape cierra | US-100 | **PASSED** | Playwright |
+| CP-DEU-100 | Media | En el gasto compartido de Registrar también sugiere | US-100 | **PASSED** | Playwright |
+| CP-DEU-101 | Media | Nueva deuda tiene «‹ Deudas» en el encabezado y vuelve a la lista | US-100 | **PASSED** | Playwright |
+| CP-DEU-102 | Alta | suggestPeople: normaliza, ordena, no repite, limita y no sugiere lo ya escrito | US-100 | **PASSED** | Vitest |
 | CP-DAS-027 | Alta | El predeterminado es «Solo gastos»: el número es lo gastado y las cuatro opciones están apagadas | US-101 | **PASSED** | Playwright |
 | CP-DAS-028 | Alta | Cada opción mueve el número al instante, con su signo, y la elección queda guardada | US-101 | **PASSED** | Playwright; Vitest |
 | CP-DAS-029 | Media | «Solo gastos» apaga todas las opciones de un toque | US-101 | **PASSED** | Playwright |
