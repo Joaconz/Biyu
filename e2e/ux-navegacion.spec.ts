@@ -50,7 +50,7 @@ test('CP-NAV-026 · a 390 px la barra tiene cinco destinos en orden y el encabez
   expect(names.map((n) => n.trim())).toEqual(['Resumen', 'Deudas', 'Registrar', 'Suscripciones', 'Ajustes'])
   await expect(page.locator('header').getByRole('link', { name: /ajustes/i })).toHaveCount(0)
   await nav(page).getByRole('link', { name: 'Ajustes' }).click()
-  await expect(page).toHaveURL(/\/settings$/)
+  await expect(page).toHaveURL(/\/settings(\?period=\d{4}-\d{2})?$/)
 })
 
 test('CP-NAV-027 · el indicador se desliza bajo el ítem activo y una ruta inexistente no muestra la barra', async ({ page, request }) => {
