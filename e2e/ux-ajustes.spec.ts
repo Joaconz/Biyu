@@ -55,7 +55,7 @@ test('CP-CFG-028 · «Categorías» abre su pantalla, la barra sigue marcando Aj
   await expect(page.getByTestId('settings-categories-list')).toContainText('Transporte')
   await expect(nav(page).getByRole('link', { name: 'Ajustes' })).toHaveAttribute('aria-current', 'page')
   await page.getByTestId('settings-categories-back').click()
-  await expect(page).toHaveURL(/\/settings$/)
+  await expect(page).toHaveURL(/\/settings(\?period=\d{4}-\d{2})?$/)
 })
 
 test('CP-CFG-029 · todo elemento interactivo de Ajustes tiene un data-testid propio y sin repetir', async ({ page, request }) => {
