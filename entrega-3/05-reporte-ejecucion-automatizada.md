@@ -51,7 +51,7 @@ Los 177 casos de la regresión ya tenían resultado de la Entrega 2 (V1 y V2). C
 
 Lo que esta comparación **no** prueba:
 
-- La referencia de la Entrega 2 es una ejecución con IA contra el stack local más un repaso manual del equipo en el deploy de Vercel. Esta corrida es solo automatizada y local: no repite el repaso manual ni se corrió contra el deploy.
+- La referencia de la Entrega 2 es una ejecución con IA contra el stack local más un repaso manual del equipo en el deploy de Vercel. Esta corrida es solo automatizada y local: no se corrió contra el deploy. El repaso manual de V3 sobre el deploy, que el equipo hizo del 14 al 16 de noviembre, está en [`08-ejecucion-manual.md`](08-ejecucion-manual.md) (361 de 361 en PASSED, coincide con esta corrida).
 - Un caso automatizado verifica lo que su test afirma. Donde un test cubre varios casos por criterio de aceptación, un matiz de un paso puntual puede quedar sin mirar; la mirada de una persona sobre lo visual (espaciado, legibilidad) no la reemplaza.
 
 ## 4. Tiempo
@@ -66,7 +66,7 @@ Lo que esta comparación **no** prueba:
 | Job `e2e` completo en la CI (instalar Chromium, esperar Supabase, correr y subir el reporte) | 17,2 min |
 | Job `db` y job `web` en la CI | 1,5 min y 0,5 min |
 
-El tiempo de ejecutar los mismos casos a mano **no se midió** en la Entrega 2 (el repaso se repartió entre cinco personas en el deploy), así que no hay un número manual contra el cual dividir. Lo que sí se puede decir es de otra naturaleza: la suite entera corre en unos 17 minutos sin intervención, en cada PR, mientras que el repaso manual necesitó a todo el equipo.
+El tiempo de ejecutar los mismos casos a mano **no se midió** ni en la Entrega 2 ni en la 3 (el equipo repasó los 361 casos en el deploy a lo largo de tres días, del 14 al 16 de noviembre, sin cronometrar cada uno), así que no hay un número manual preciso contra el cual dividir; la suite tarda unos 12 a 17 minutos. Lo que sí se puede decir es de otra naturaleza: la suite entera corre en unos 17 minutos sin intervención, en cada PR, mientras que el repaso manual necesitó a todo el equipo.
 
 ## 5. Incidentes de la corrida
 
@@ -81,4 +81,4 @@ El tiempo de ejecutar los mismos casos a mano **no se midió** en la Entrega 2 (
 
 ## 6. Conclusión
 
-V3 pasa la suite automatizada completa: 361 de 361 casos en PASSED (184 de V3 y 177 de regresión), sin defectos nuevos, con los 9 defectos de confirmación corregidos y sin regresiones respecto de la Entrega 2. Quedan fuera de este reporte, por no estar automatizado, el repaso manual del equipo sobre el deploy y la comparación de tiempos contra una ejecución manual medida. Este reporte se enlaza desde el reporte final de la Entrega 3 ([`07-reporte-final.md`](07-reporte-final.md), [#341](https://github.com/Joaconz/Biyu/issues/341)). El análisis de los defectos de V1 a V3 y el post-mortem de las actividades están en [`06-analisis-y-post-mortem.md`](06-analisis-y-post-mortem.md).
+V3 pasa la suite automatizada completa: 361 de 361 casos en PASSED (184 de V3 y 177 de regresión), sin defectos nuevos, con los 9 defectos de confirmación corregidos y sin regresiones respecto de la Entrega 2. Quedan fuera de este reporte, por no estar automatizado, el repaso manual del equipo sobre el deploy (en [`08-ejecucion-manual.md`](08-ejecucion-manual.md): 361 de 361 en PASSED, coincide caso por caso con esta corrida) y la comparación de tiempos contra una ejecución manual medida. Este reporte se enlaza desde el reporte final de la Entrega 3 ([`07-reporte-final.md`](07-reporte-final.md), [#341](https://github.com/Joaconz/Biyu/issues/341)). El análisis de los defectos de V1 a V3 y el post-mortem de las actividades están en [`06-analisis-y-post-mortem.md`](06-analisis-y-post-mortem.md).

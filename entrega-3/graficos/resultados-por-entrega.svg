@@ -1,5 +1,5 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='960' height='550' viewBox='0 0 960 550' font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif' role='img' aria-label='Resultados por entrega y por ejecución'>
-<rect width='960' height='550' fill='#FFFFFF'/>
+<svg xmlns='http://www.w3.org/2000/svg' width='960' height='614' viewBox='0 0 960 614' font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif' role='img' aria-label='Resultados por entrega y por ejecución'>
+<rect width='960' height='614' fill='#FFFFFF'/>
 <text x='24' y='36' font-size='22' font-weight='700' fill='#1B1B1B'>Resultados por entrega y por ejecución</text>
 <text x='24' y='62' font-size='14' fill='#555'>Porcentaje sobre los casos planificados de cada ejecución</text>
 <text x='24' y='111' font-size='15' font-weight='600' fill='#1B1B1B'>Entrega 1 · ejecución 1</text>
@@ -35,13 +35,17 @@
 <text x='24' y='449' font-size='12' fill='#666'>V3, 2026-11-14 · 177 casos</text>
 <rect x='330.0' y='416' width='420.0' height='34' fill='#2E7D5B'/>
 <text x='540.0' y='438' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>100,0 % (177)</text>
-<rect x='24' y='494' width='14' height='14' fill='#2E7D5B'/>
-<text x='44' y='506' font-size='12' fill='#333'>PASSED</text>
-<rect x='134' y='494' width='14' height='14' fill='#C0392B'/>
-<text x='154' y='506' font-size='12' fill='#333'>FAILED</text>
-<rect x='244' y='494' width='14' height='14' fill='#D4A017'/>
-<text x='264' y='506' font-size='12' fill='#333'>DUDA</text>
-<rect x='354' y='494' width='14' height='14' fill='#8C8C8C'/>
-<text x='374' y='506' font-size='12' fill='#333'>BLOCKED</text>
-<text x='24' y='536' font-size='11' fill='#666'>Fuentes: entrega-1/05-reporte-de-ejecucion.md §1, entrega-2/04-ejecucion.md (Reporte, §1) y entrega-3/04-ejecucion.md. DUDA: pasa, con dudas.</text>
+<text x='24' y='495' font-size='15' font-weight='600' fill='#1B1B1B'>Entrega 3 · ejecución manual</text>
+<text x='24' y='513' font-size='12' fill='#666'>V3, 14 al 16/11/2026 · 361 casos</text>
+<rect x='330.0' y='480' width='420.0' height='34' fill='#2E7D5B'/>
+<text x='540.0' y='502' font-size='13' font-weight='600' fill='#FFF' text-anchor='middle'>100,0 % (361)</text>
+<rect x='24' y='558' width='14' height='14' fill='#2E7D5B'/>
+<text x='44' y='570' font-size='12' fill='#333'>PASSED</text>
+<rect x='134' y='558' width='14' height='14' fill='#C0392B'/>
+<text x='154' y='570' font-size='12' fill='#333'>FAILED</text>
+<rect x='244' y='558' width='14' height='14' fill='#D4A017'/>
+<text x='264' y='570' font-size='12' fill='#333'>DUDA</text>
+<rect x='354' y='558' width='14' height='14' fill='#8C8C8C'/>
+<text x='374' y='570' font-size='12' fill='#333'>BLOCKED</text>
+<text x='24' y='600' font-size='11' fill='#666'>Fuentes: entrega-1/05-reporte-de-ejecucion.md §1, entrega-2/04-ejecucion.md (Reporte, §1) y entrega-3/04-ejecucion.md. DUDA: pasa, con dudas.</text>
 </svg>
