@@ -305,7 +305,7 @@ def main():
     out.append('- **Fecha:** 2026-11-14, sobre `main` en `40ab30e` (merge de [#424](https://github.com/Joaconz/Biyu/pull/424)), con todas las historias de V3 mergeadas, incluidas US-95, US-96, US-99 y US-100.')
     out.append('- **Entorno:** Vite (`http://127.0.0.1:5173`) y Supabase local con todas las migraciones, Chromium emulando un celular de 390 × 844 px, un usuario nuevo por prueba (PR-01). La base de producción tiene las mismas migraciones.')
     out.append(f"- **Quién ejecutó:** la suite automatizada, corrida con IA (Claude Code) sobre el stack local: Playwright ({stats['pasados']} de {stats['total']} tests), "
-               f"Vitest ({vt['numPassedTests']} de {vt['numTotalTests']}) y pgTAP. **No hay ejecución manual del equipo en esta planilla.**")
+               f"Vitest ({vt['numPassedTests']} de {vt['numTotalTests']}) y pgTAP. Esta planilla es solo la ejecución automatizada; la ejecución manual del equipo está en [`08-ejecucion-manual.md`](08-ejecucion-manual.md).")
     out.append('- **Criterio:** un caso es PASSED si pasaron todas las pruebas que lo cubren, FAILED si alguna falló y BLOCKED si ninguna prueba lo cubre o no se pudo correr. '
                'La columna «Pruebas que lo cubren» de la planilla nombra cada una. Un caso de UI y API puede estar cubierto por Playwright y por pgTAP a la vez.')
     out.append('- **Cobertura parcial:** un test de Playwright puede cubrir varios casos (por ejemplo, un test por criterio de aceptación para varios casos de una historia). Eso es cobertura del comportamiento, no una repetición paso a paso de la tabla del caso.')

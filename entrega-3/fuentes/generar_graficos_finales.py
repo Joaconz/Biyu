@@ -138,6 +138,7 @@ def main():
         V1_EJ1, V1_EJ2, V2_NUEVOS, V2_REG,
         ('Entrega 3 · casos nuevos de V3', 'V3, 2026-11-14', nuevos),
         ('Entrega 3 · regresión de V1 y V2', 'V3, 2026-11-14', regresion),
+        ('Entrega 3 · ejecución manual', 'V3, 14 al 16/11/2026', {'PASSED': 361}),
     ]
     SALIDA.mkdir(exist_ok=True)
     grafico_porcentajes(filas, SALIDA / 'resultados-por-entrega.svg')
