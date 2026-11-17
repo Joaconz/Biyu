@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biyu · Entrega 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/*
+  Plan (frontend-design): base ecru, verde cazador de apoyo, espresso para texto (60/30/10, ADR-023).
+  Playfair Display es el elemento activo: títulos y cifras. Inter para leer, con números tabulares.
+  Lectura editorial alineada a la izquierda. La audacia está en un solo lugar: los separadores de
+  sección en verde a pantalla completa. Todo lo demás queda quieto: filetes, nada de cajas repetidas.
+*/
+:root {
+  --bg: #f9f6f0; --paper: #fdfbf7; --linen: #f1ebe0; --ink: #2b1e19; --muted: #6e625a; --hair: #e6dfd3;
+  --green: #1b4d3e; --green-ink: #f9f6f0; --gold: #d4af37; --bad: #8b2e2e; --warn: #7a5c12; --warn-bg: #f3ebd6;
+  --display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --body: "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.slide { position: relative; min-height: 100vh; min-height: 100dvh; scroll-snap-align: start; padding-block: clamp(64px, 11vh, 110px) clamp(40px, 8vh, 80px); padding-inline: max(16px, 7vw, calc((100vw - 1160px) / 2)); display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+.slide > * { max-width: 100%; }
+.slide + .slide { border-top: 1px solid var(--hair); }
+.section-mark { font-size: 15px; color: var(--green); font-weight: 500; }
+.eyebrow { font-size: 16px; color: inherit; opacity: .85; }
+h1, h2 { font-family: var(--display); margin: 0; text-wrap: balance; color: var(--green); font-weight: 600; letter-spacing: -0.005em; }
+h1 { font-size: clamp(76px, 13vw, 168px); line-height: .95; font-weight: 700; color: var(--ink); }
+h2 { font-size: clamp(34px, 4.6vw, 58px); line-height: 1.08; max-width: 20ch; }
+.lead { font-size: clamp(20px, 2vw, 24px); color: var(--muted); max-width: 44ch; margin: 0; }
+p { margin: 0; }
+.muted { color: var(--muted); max-width: 70ch; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
+.row > * { min-width: 0; }
+/* Capturas: el panel verde es el 30 % de la slide, los teléfonos van enteros. */
+.phones { display: flex; gap: clamp(16px, 2.4vw, 28px); justify-content: center; align-items: flex-start; background: var(--green); border-radius: 8px; padding: clamp(20px, 3vw, 40px); }
+.phones figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
+.phone img { display: block; height: min(60vh, 560px); width: auto; max-width: 100%; border: 6px solid var(--bg); border-radius: 8px; background: var(--bg); }
+.phones figcaption { font-size: 14px; color: var(--green-ink); }
+ul.points { list-style: none; padding: 0; margin: 0; display: grid; }
+ul.points li { padding: 14px 0; border-top: 1px solid var(--hair); font-size: clamp(18px, 1.7vw, 21px); max-width: 60ch; }
+ul.points li:last-child { border-bottom: 1px solid var(--hair); }
+ul.points b { font-weight: 600; }
+/* Cifras: números grandes en Playfair, separados por filetes, sin cajas. */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border-top: 1px solid var(--hair); }
+.stat { padding: 22px 24px 22px 0; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--hair); }
+.stat .n { font-family: var(--display); font-size: clamp(44px, 5.6vw, 76px); font-weight: 600; font-variant-numeric: lining-nums tabular-nums; line-height: 1; color: var(--ink); }
+.stat .l { font-size: 15px; color: var(--muted); }
+.stat.hero .n { color: var(--green); }
+.n.bad { color: var(--bad); } .n.warn { color: var(--warn); }
+table { border-collapse: collapse; width: 100%; font-size: 16px; font-variant-numeric: tabular-nums; }
+.tbl { overflow-x: auto; }
+th, td { text-align: left; padding: 12px 16px 12px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+th { font-size: 14px; color: var(--green); font-weight: 600; border-bottom: 2px solid var(--green); }
+td.num, th.num { text-align: right; padding-right: 0; padding-left: 16px; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 8px; font-size: 14px; font-weight: 500; background: var(--linen); }
+.pill.ok { color: var(--green); } .pill.bad { color: var(--bad); } .pill.warn { color: var(--warn); background: var(--warn-bg); }
+pre.prompt { font-family: var(--body); font-size: clamp(14px, 1.25vw, 16.5px); line-height: 1.65; background: var(--paper); border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; padding: 22px 26px; margin: 0; white-space: pre-wrap; overflow-x: auto; color: var(--ink); max-width: 90ch; }
+pre.prompt mark { background: none; color: var(--green); font-weight: 600; }
+.flow { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; font-family: var(--display); font-size: clamp(20px, 2.1vw, 27px); color: var(--ink); }
+.flow span { white-space: nowrap; }
+.flow i { font-style: normal; color: var(--gold); }
+.bar { display: flex; height: 10px; border-radius: 8px; overflow: hidden; background: var(--linen); }
+.bar div { height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 20px; font-size: 15px; color: var(--muted); }
+.legend b { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; }
+/* Pares título/descripción: lista con filetes, no tarjetas. */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 4vw, 64px); border-top: 1px solid var(--hair); }
+.card { padding: 20px 0; border-bottom: 1px solid var(--hair); display: grid; gap: 4px; }
+.card h3 { margin: 0; font-size: 24px; font-family: var(--display); font-weight: 600; color: var(--green); }
+.card p { color: var(--muted); font-size: 16px; max-width: 48ch; }
+.card .tag { font-size: 14px; color: var(--muted); order: 3; }
+.board { margin: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--hair); }
+.board img { display: block; width: 100%; max-height: 64vh; object-fit: contain; background: var(--bg); }
+.notes { display: none; background: var(--warn-bg); border-radius: 8px; padding: 16px 20px; font-size: 16px; color: var(--ink); max-width: 80ch; }
+.notes::before { content: "Notas del orador"; display: block; font-size: 14px; color: var(--warn); margin-bottom: 6px; font-weight: 600; }
+body.show-notes .notes { display: block; }
+.dot { color: var(--gold); }
+/* Portada y demo: ecru, con la marca grande. */
+.cover h2 { color: var(--green); }
+/* Separadores de sección: el único momento fuerte del deck. */
+.divider { background: var(--green); color: var(--green-ink); border-top: 0 !important; justify-content: flex-end; }
+.divider .kicker { font-size: 17px; opacity: .8; }
+.divider h2 { color: var(--green-ink); font-size: clamp(48px, 7.4vw, 104px); max-width: 14ch; line-height: 1; }
+.divider p { font-size: clamp(18px, 1.8vw, 22px); max-width: 52ch; opacity: .85; }
+.divider + .slide { border-top: 0; }
+.slide-meta { position: absolute; top: clamp(18px, 3.4vh, 32px); left: max(16px, 7vw, calc((100vw - 1160px) / 2)); right: max(16px, 7vw, calc((100vw - 1160px) / 2)); width: auto; max-width: none; margin: 0; display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.slide-meta .brand { font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--ink); }
+.slide-meta .pg { font-variant-numeric: tabular-nums; }
+.divider .slide-meta, .divider .slide-meta .brand { color: var(--green-ink); }
+.toolbar { position: fixed; right: max(16px, 2vw); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 8px; z-index: 10; }
+.toolbar button { font: 500 14px var(--body); min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--hair); background: var(--paper); color: var(--ink); cursor: pointer; }
+.toolbar button[aria-pressed="true"] { background: var(--green); color: var(--green-ink); border-color: var(--green); }
+.toolbar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.counter { display: none; }
+@media (max-width: 820px) {
+  .row, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .slide { min-height: auto; padding-block: 72px 48px; }
+  .divider { min-height: 70vh; }
+  html { scroll-snap-type: none; }
+  .phone img { height: auto; width: min(34vw, 190px); }
+}
+.path { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; color: var(--green); white-space: nowrap; }
+.map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 2px solid var(--green); }
+.zone { padding: 18px 20px 18px 0; display: grid; align-content: start; gap: 12px; min-width: 0; }
+.zone + .zone { padding-left: 20px; border-left: 1px solid var(--hair); }
+.zone h3 { margin: 0; font-family: var(--display); font-size: 24px; font-weight: 600; color: var(--green); }
+.zone > p { font-size: 15px; color: var(--muted); }
+.zone ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.zone li { display: grid; gap: 1px; }
+.zone li span:last-child { font-size: 14px; color: var(--muted); line-height: 1.4; }
+@media (max-width: 980px) { .map { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zone:nth-child(3) { border-left: 0; padding-left: 0; } }
+@media (max-width: 560px) { .map { grid-template-columns: minmax(0, 1fr); } .zone + .zone { border-left: 0; padding-left: 0; border-top: 1px solid var(--hair); } .path { white-space: normal; word-break: break-all; } }
+.link { color: var(--green); font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.link:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+.cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; margin-right: 14px; background: var(--green); color: var(--green-ink); border-radius: 8px; text-decoration: none; }
+/* Modo presentación (pantallas de compu): cada slide ocupa exactamente la ventana y su contenido
+   se achica solo si no entra, así se ve igual en una MacBook que en un monitor grande. */
+.fit { display: flex; flex-direction: column; justify-content: center; gap: 28px; min-width: 0; }
+.divider .fit { justify-content: flex-end; }
+@media (min-width: 821px) {
+  .slide { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; padding-block: clamp(64px, 9vh, 88px) clamp(68px, 9vh, 88px); }
+  .fit { flex: 1 1 auto; min-height: 0; }
+  body.show-notes .notes { display: none; }
+  body.show-notes .slide.current .notes { display: block; position: fixed; left: max(16px, 2vw); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: min(72ch, calc(100vw - 280px)); max-height: 40vh; overflow-y: auto; z-index: 9; border: 1px solid var(--hair); }
+}
+/* Gráfico por entrega: barras 100 % apiladas, hechas con el diseño del deck (dataviz). */
+.runs { display: grid; gap: 0; border-top: 1px solid var(--hair); }
+.run { display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr) minmax(130px, 190px); gap: clamp(16px, 2.4vw, 32px); align-items: center; padding: 18px 0; border-bottom: 1px solid var(--hair); }
+.run .who { display: grid; gap: 2px; min-width: 0; }
+.run .who b { font-family: var(--display); font-weight: 600; font-size: clamp(19px, 1.9vw, 24px); color: var(--green); }
+.run .who span { font-size: 14px; color: var(--muted); }
+.stack { display: flex; height: 28px; }
+.stack > i { display: block; height: 100%; min-width: 4px; margin-left: 2px; }
+.stack > i:first-child { margin-left: 0; border-radius: 0 0 0 0; }
+.stack > i:last-child { border-radius: 0 4px 4px 0; }
+.stack > i:only-child { border-radius: 0 4px 4px 0; }
+.run .res { display: grid; gap: 2px; justify-items: end; text-align: right; }
+.run .res .pct { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 3.4vw, 46px); line-height: 1; color: var(--ink); font-variant-numeric: lining-nums tabular-nums; }
+.run .res .rest { font-size: 14px; color: var(--muted); min-height: 21px; }
+.run.hero .res .pct { color: var(--green); }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 15px; color: var(--muted); }
+.chart-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.chart-legend b { display: inline-block; width: 12px; height: 12px; border-radius: 2px; }
+.chart-axis { display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr) minmax(130px, 190px); gap: clamp(16px, 2.4vw, 32px); font-size: 13px; color: var(--muted); margin-top: -18px; }
+.chart-axis div { display: flex; justify-content: space-between; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 820px) { .run { grid-template-columns: minmax(0, 1fr); gap: 8px; } .run .res { justify-items: start; text-align: left; } .chart-axis { display: none; } }
+td.num, th.num { white-space: nowrap; }
+.runs.compact .run { padding: 7px 0; gap: 12px 24px; }
+.runs.compact .stack { height: 18px; }
+.runs.compact .run .res .pct { font-size: clamp(22px, 2.4vw, 30px); }
+.runs.compact .run .res .rest { min-height: 0; }
+.runs.compact .run .who b { font-size: clamp(16px, 1.5vw, 19px); }
+</style>
+</head>
+<body>
+
+<nav class="toolbar" aria-label="Controles">
+  <span class="counter" id="counter">1 / 19</span>
+  <button id="prev" type="button" aria-label="Slide anterior">←</button>
+  <button id="next" type="button" aria-label="Slide siguiente">→</button>
+  <button id="toggle-notes" type="button" aria-pressed="false">Notas (N)</button>
+</nav>
+
+<section class="slide cover" id="portada">
+  <div class="eyebrow">Testing de Aplicaciones, proyecto integrador. Entrega 03</div>
+  <h1>biyu<span class="dot">.</span></h1>
+  <p class="lead">V3: edición y borrado completos, una interfaz renovada y la regresión automatizada.</p>
+  <p class="muted">Valentina Giampieri, Santiago Pazos, Joaquin Nuñez, Mariana Caceres y Micaela Dopazo</p>
+  <div class="notes">Presentamos la Entrega 3: qué trae V3 y sus requerimientos, los casos de prueba de V3, cómo elegimos los casos de V1 y V2 que se vuelven a ejecutar y cuáles automatizamos, y el resumen final de las ejecuciones: manual y automatizada, con qué casos cambiaron de estado y los defectos. La demo va al final.</div>
+</section>
+
+<section class="slide divider" id="sec-1">
+  <div class="kicker">Parte 1 de 3</div>
+  <h2>Requerimientos de V3</h2>
+  <p>Qué trae la tercera versión y qué decisiones cambiaron el diseño.</p>
+</section>
+
+<section class="slide" id="v3">
+  <div class="section-mark">Funcionalidades nuevas de V3</div>
+  <h2>Completar el CRUD y pulir lo que ya existía</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Funcionalidad</th><th>Qué resuelve</th><th>Historias</th></tr></thead>
+    <tbody>
+      <tr><td>CRUD completo</td><td>Editar un movimiento y una deuda; borrar definitivamente movimientos, deudas, suscripciones y categorías; reactivar una cuenta archivada</td><td>US-84 a US-90</td></tr>
+      <tr><td>Lo que no llegó a V2</td><td>Importar una compra empezada y la guía del archivo; compartir un gasto con varias personas; deudas sueltas en el gasto neto</td><td>US-80 a US-83</td></tr>
+      <tr><td>Deudas por persona</td><td>El listado junta los nombres que solo difieren en mayúsculas, tildes o espacios y muestra el neto de cada persona</td><td>US-91</td></tr>
+      <tr><td>Mejoras de UX</td><td>Barra flotante, rebranding con tema claro y oscuro, dona y tendencias, gráficos de Suscripciones, categorías con ícono, controles de 44 px, separador de miles, sugerir personas</td><td>US-92 a US-100, US-102 a US-105</td></tr>
+      <tr><td>El número del Resumen</td><td>Elegir qué entra en el gasto neto; suscripciones por cobrar; franja de la puesta al día; configuración inicial</td><td>US-101, ADR-045, US-53, US-68</td></tr>
+      <tr><td>Defectos de V2</td><td>Los ocho defectos de V2 se corrigen con la IA y se confirman</td><td>DEF-030 a DEF-037</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notes">Estas son las funcionalidades de V3 con sus historias; el detalle de cada una está en docs/roadmap.md, sección V3, y en docs/08-trazabilidad.md. Las historias US-80 a US-84 estaban pensadas para V2 y no llegaron: volvieron a V3. Las mejoras de UX salen de una auditoría de la interfaz; algunas se implementaron de otra forma de la que pedía la historia y se adaptaron.</div>
+</section>
+
+<section class="slide" id="decisiones">
+  <div class="section-mark">Decisiones de diseño</div>
+  <h2>Tres decisiones que cambian lo que se prueba</h2>
+  <ul class="points">
+    <li><b>Editar un movimiento regenera sus imputaciones</b> (US-84, ADR-009). Es la funcionalidad más chica que toca la invariante central del sistema, así que es la que mejor material de regresión da</li>
+    <li><b>Borrar definitivamente contradice el borrado lógico</b> (US-85 y US-87 a US-89, ADR-044). Hubo que registrar la decisión en un ADR y pedir confirmación antes de borrar</li>
+    <li><b>La UX se adaptó a lo implementado</b>: algunas historias se implementaron de otra forma de la que pedían, y sus casos se escribieron contra la interfaz final</li>
+  </ul>
+  <p class="muted">Las historias, los ADR y el mapa de trazabilidad están en <span class="path">docs/roadmap.md</span> y <span class="path">docs/08-trazabilidad.md</span>.</p>
+  <div class="notes">El criterio para elegir la funcionalidad nueva fue qué regresión genera. Editar un movimiento obliga a borrar y regenerar todas las imputaciones al cambiar el monto o las cuotas: ahí se rompe en silencio la suma de imputaciones. El borrado definitivo contradice la regla de borrado lógico del proyecto, por eso lleva su propio ADR.</div>
+</section>
+
+<section class="slide divider" id="sec-2">
+  <div class="kicker">Parte 2 de 3</div>
+  <h2>Los casos de prueba</h2>
+  <p>Los de V3, cuáles de V1 y V2 se repiten y cuáles se automatizan.</p>
+</section>
+
+<section class="slide" id="casos-v3">
+  <div class="section-mark">Casos de prueba de V3</div>
+  <h2>184 casos, derivados de las historias</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Módulo</th><th>Qué cubren</th><th class="num">Casos</th></tr></thead>
+    <tbody>
+      <tr><td>Registro (REG)</td><td>Editar y borrar definitivamente un movimiento, confirmación de borrado, separador de miles</td><td class="num">41</td></tr>
+      <tr><td>Deudas (DEU)</td><td>Varias personas por gasto, editar y eliminar una deuda, agrupar por persona, sugerir personas</td><td class="num">37</td></tr>
+      <tr><td>Configuración (CFG)</td><td>Borrar categoría, reactivar cuenta, Ajustes en tarjetas, tema, categorías con ícono</td><td class="num">26</td></tr>
+      <tr><td>Suscripciones (SUS)</td><td>Eliminar suscripción, gráficos, por cobrar, franja de la puesta al día</td><td class="num">22</td></tr>
+      <tr><td>Resumen (DAS)</td><td>Deudas sueltas en el gasto neto, dona y tendencias, qué entra en el número</td><td class="num">21</td></tr>
+      <tr><td>Importar (IMP)</td><td>Compra empezada con cuotas pagas y guía del archivo</td><td class="num">17</td></tr>
+      <tr><td>Navegación (NAV)</td><td>Barra flotante, transiciones, controles de 44 px</td><td class="num">16</td></tr>
+      <tr><td>Acceso (ACC)</td><td>Configuración inicial de una cuenta nueva</td><td class="num">4</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">105 Alta, 77 Media y 2 Baja. Cada caso lleva pasos y resultado esperado exactos: <span class="path">entrega-3/01-especificacion-casos-v3.md</span> y <span class="path">entrega-3/casos/</span>.</p>
+  <div class="notes">Los casos de V3 salen de las historias y de los defectos de V2. Hay casos de confirmación para cada defecto corregido: son los mismos que fallaron y ahora tienen que pasar. La planilla con el formato de la cátedra está en el xlsx.</div>
+</section>
+
+<section class="slide" id="regresion-seleccion">
+  <div class="section-mark">Regresión</div>
+  <h2>177 de los 286 casos de V1 y V2, elegidos por riesgo</h2>
+  <div class="stats">
+    <div class="stat hero"><span class="n">177</span><span class="l">casos de regresión</span></div>
+    <div class="stat"><span class="n">39</span><span class="l">de los 74 de V1</span></div>
+    <div class="stat"><span class="n">138</span><span class="l">de los 212 de V2</span></div>
+    <div class="stat"><span class="n">174</span><span class="l">de prioridad Alta</span></div>
+  </div>
+  <ul class="points">
+    <li><b>Regla 1:</b> todos los casos de prioridad Alta de V1 y V2. Cubren lo que no puede romperse</li>
+    <li><b>Regla 2:</b> los casos de V2 que fallaron por un defecto (DEF-030 a DEF-037), aunque no sean Alta. Hacen de testeo de confirmación</li>
+  </ul>
+  <p class="muted">Los Media y Baja que no fallaron conservan su último resultado. Criterio y lista completa: <span class="path">entrega-3/03-seleccion-regresion.md</span>.</p>
+  <div class="notes">Respecto de la Entrega 2 dejamos de lado las reglas que miraban los defectos de V1: ya se confirmaron sobre V2 y la regresión de V1 dio 60 de 60. Si aparece un defecto en un área excluida, se amplía la selección y se anota.</div>
+</section>
+
+<section class="slide" id="regresion-spec">
+  <div class="section-mark">Especificación de la regresión</div>
+  <h2>Qué se vuelve a ejecutar y qué de V3 lo puede romper</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Módulo</th><th>Qué de V3 lo puede romper</th><th class="num">Elegidos</th></tr></thead>
+    <tbody>
+      <tr><td>Deudas (V2)</td><td>Varias personas, editar, eliminar y agrupar deudas; DEF-037</td><td class="num">47 de 61</td></tr>
+      <tr><td>Suscripciones (V2)</td><td>Eliminar una suscripción, gráficos de cobros; DEF-034 a DEF-036</td><td class="num">31 de 48</td></tr>
+      <tr><td>Exportar CSV (V2)</td><td>Lo borrado definitivamente no se exporta; DEF-030 a DEF-032</td><td class="num">27 de 31</td></tr>
+      <tr><td>Importar Excel (V2)</td><td>Compra empezada y guía; DEF-033</td><td class="num">15 de 41</td></tr>
+      <tr><td>Navegación (V2)</td><td>Barra flotante de cinco destinos y transiciones</td><td class="num">15 de 25</td></tr>
+      <tr><td>Cuotas (V1)</td><td>Editar regenera las imputaciones; borrar las elimina</td><td class="num">10 de 13</td></tr>
+      <tr><td>Acceso (V1)</td><td>La barra flotante cambia la navegación que recorren</td><td class="num">9 de 12</td></tr>
+      <tr><td>Configuración, Registro, Monedas, Resumen y Resumen por categoría</td><td>Editar y borrar movimientos, Ajustes en tarjetas, dona y tendencias</td><td class="num">23 de 55</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notes">Esta es la especificación de la regresión por módulo; cada caso seleccionado, con su prioridad, su resultado anterior y su motivo, está en la tabla completa del documento de selección. Antes de ejecutar revisamos cada caso contra V3 y corregimos los que dependían de un texto o un paso que cambió, sin relajar el resultado esperado.</div>
+</section>
+
+<section class="slide" id="automatizacion">
+  <div class="section-mark">Casos a automatizar</div>
+  <h2>Los 361 casos: los de V3 y toda la regresión</h2>
+  <div class="grid2">
+    <div class="card"><span class="tag">Playwright · 290 tests</span><h3>Por la pantalla y la API</h3><p>Con <code>data-testid</code>, un usuario nuevo por test. Los negativos, la autorización cruzada y el rol <code>anon</code> van por la API.</p></div>
+    <div class="card"><span class="tag">pgTAP · 1354 tests</span><h3>Por la base</h3><p>Invariantes, atomicidad y concurrencia de las RPC.</p></div>
+    <div class="card"><span class="tag">Vitest · 1131 tests</span><h3>Dominio</h3><p>Cuotas, conversión, resúmenes y ocurrencias, con la fecha como parámetro.</p></div>
+    <div class="card"><span class="tag">GitHub Actions</span><h3>En cada pull request</h3><p>Levanta Supabase local y corre las tres suites. Si una prueba falla, el build falla.</p></div>
+  </div>
+  <p class="muted">Por qué estos casos y cómo se escribe cada tipo: <span class="path">entrega-3/02-seleccion-automatizacion.md</span>.</p>
+  <div class="notes">Elegimos automatizar todos los casos de V3 y toda la regresión. Los de regresión son los que tienen que pasar en cada cambio; los de V3 son delicados porque borran y regeneran datos. Dos casos de V1 estaban marcados como no automatizables y se automatizaron igual.</div>
+</section>
+
+<section class="slide divider" id="sec-3">
+  <div class="kicker">Parte 3 de 3</div>
+  <h2>Qué pasó al ejecutarlos</h2>
+  <p>Resultado manual y automatizado, qué cambió de estado y los defectos.</p>
+</section>
+
+<section class="slide" id="res-total">
+  <div class="section-mark">Resultado general de V3</div>
+  <h2>361 de 361 casos pasan, a mano y automatizados</h2>
+  <div class="stats">
+    <div class="stat"><span class="n">361</span><span class="l">casos ejecutados</span></div>
+    <div class="stat hero"><span class="n">361</span><span class="l">PASSED, 100 %</span></div>
+    <div class="stat"><span class="n">0</span><span class="l">FAILED</span></div>
+    <div class="stat"><span class="n">0</span><span class="l">BLOCKED</span></div>
+  </div>
+  <div class="bar" role="img" aria-label="361 PASSED sobre 361"><div style="width:100%;background:var(--green)"></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Ejecución</th><th class="num">Casos</th><th class="num">PASSED</th><th class="num">FAILED</th><th class="num">BLOCKED</th></tr></thead>
+    <tbody>
+      <tr><td>Casos nuevos de V3, manual y automatizada</td><td class="num">184</td><td class="num">184</td><td class="num">0</td><td class="num">0</td></tr>
+      <tr><td>Regresión de V1 y V2, manual y automatizada</td><td class="num">177</td><td class="num">177</td><td class="num">0</td><td class="num">0</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notes">Los 361 casos se ejecutaron de las dos formas y dieron lo mismo caso por caso. La suite automatizada corrió sobre main el 14 de noviembre: 290 tests de Playwright, 1131 de Vitest y pgTAP. El equipo ejecutó los 361 a mano en el deploy de Vercel los días 14, 15 y 16.</div>
+</section>
+
+<section class="slide" id="res-grafico">
+  <div class="section-mark">Gráfico por entrega</div>
+  <h2>Cómo evolucionaron los resultados</h2>
+  <div class="chart-legend" aria-hidden="true"><span><b style="background:#1b4d3e"></b>PASSED</span><span><b style="background:#c8442f"></b>FAILED</span><span><b style="background:#d4af37"></b>DUDA</span><span><b style="background:#8c8c8c"></b>BLOCKED</span></div>
+  <div class="runs compact">
+    <div class="run">
+      <div class="who"><b>Entrega 1 · ejecución 1</b><span>V1 · 74 casos</span></div>
+      <div class="stack" role="img" aria-label="Entrega 1 · ejecución 1: 67 PASSED, 3 FAILED, 4 BLOCKED sobre 74"><i style="flex:67 1 0;background:#1b4d3e" title="PASSED 67 de 74"></i><i style="flex:3 1 0;background:#c8442f" title="FAILED 3 de 74"></i><i style="flex:4 1 0;background:#8c8c8c" title="BLOCKED 4 de 74"></i></div>
+      <div class="res"><span class="pct">90,5 %</span><span class="rest">Failed 3 · Blocked 4</span></div>
+    </div>
+    <div class="run">
+      <div class="who"><b>Entrega 1 · ejecución 2</b><span>V1, re-test · 74 casos</span></div>
+      <div class="stack" role="img" aria-label="Entrega 1 · ejecución 2: 72 PASSED, 2 FAILED sobre 74"><i style="flex:72 1 0;background:#1b4d3e" title="PASSED 72 de 74"></i><i style="flex:2 1 0;background:#c8442f" title="FAILED 2 de 74"></i></div>
+      <div class="res"><span class="pct">97,3 %</span><span class="rest">Failed 2</span></div>
+    </div>
+    <div class="run">
+      <div class="who"><b>Entrega 2 · casos de V2</b><span>203 casos con resultado</span></div>
+      <div class="stack" role="img" aria-label="Entrega 2 · casos de V2: 189 PASSED, 9 FAILED, 1 DUDA, 4 BLOCKED sobre 203"><i style="flex:189 1 0;background:#1b4d3e" title="PASSED 189 de 203"></i><i style="flex:9 1 0;background:#c8442f" title="FAILED 9 de 203"></i><i style="flex:1 1 0;background:#d4af37" title="DUDA 1 de 203"></i><i style="flex:4 1 0;background:#8c8c8c" title="BLOCKED 4 de 203"></i></div>
+      <div class="res"><span class="pct">93,1 %</span><span class="rest">Failed 9 · Duda 1 · Blocked 4</span></div>
+    </div>
+    <div class="run hero">
+      <div class="who"><b>Entrega 2 · regresión de V1</b><span>60 casos</span></div>
+      <div class="stack" role="img" aria-label="Entrega 2 · regresión de V1: 60 PASSED sobre 60"><i style="flex:60 1 0;background:#1b4d3e" title="PASSED 60 de 60"></i></div>
+      <div class="res"><span class="pct">100 %</span><span class="rest"></span></div>
+    </div>
+    <div class="run hero">
+      <div class="who"><b>Entrega 3 · casos nuevos de V3</b><span>184 casos, automatizados</span></div>
+      <div class="stack" role="img" aria-label="Entrega 3 · casos nuevos de V3: 184 PASSED sobre 184"><i style="flex:184 1 0;background:#1b4d3e" title="PASSED 184 de 184"></i></div>
+      <div class="res"><span class="pct">100 %</span><span class="rest"></span></div>
+    </div>
+    <div class="run hero">
+      <div class="who"><b>Entrega 3 · regresión de V1 y V2</b><span>177 casos, automatizados</span></div>
+      <div class="stack" role="img" aria-label="Entrega 3 · regresión de V1 y V2: 177 PASSED sobre 177"><i style="flex:177 1 0;background:#1b4d3e" title="PASSED 177 de 177"></i></div>
+      <div class="res"><span class="pct">100 %</span><span class="rest"></span></div>
+    </div>
+    <div class="run hero">
+      <div class="who"><b>Entrega 3 · ejecución manual</b><span>361 casos, 14 al 16/11</span></div>
+      <div class="stack" role="img" aria-label="Entrega 3 · ejecución manual: 361 PASSED sobre 361"><i style="flex:361 1 0;background:#1b4d3e" title="PASSED 361 de 361"></i></div>
+      <div class="res"><span class="pct">100 %</span><span class="rest"></span></div>
+    </div>
+  </div>
+  <div class="chart-axis" aria-hidden="true"><span></span><div><span>0 %</span><span>50 %</span><span>100 %</span></div><span></span></div>
+  <div class="notes">En V1 la primera ejecución dio 90,5 % porque US-68 no existía. En V2, el 93 % de los casos nuevos pasaba y la regresión de V1 pasó entera. En V3 todo pasa, de las dos formas. Los porcentajes no son comparables sin cuidado: cada entrega ejecutó un conjunto distinto de casos.</div>
+</section>
+
+<section class="slide" id="res-cambios">
+  <div class="section-mark">Cambios de estado</div>
+  <h2>Qué casos cambiaron de estado en cada entrega</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Cuándo</th><th>Casos</th><th>Cambio</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>E1, ejecución 1 → 2</td><td>CP-CFG-011 y 012 a 015</td><td><span class="pill bad">FAILED</span> <span class="pill warn">BLOCKED</span> → <span class="pill ok">PASSED</span></td><td>Se implementó US-68</td></tr>
+      <tr><td>E1 → E2</td><td>CP-ACC-004 y CP-CFG-004</td><td><span class="pill bad">FAILED</span> → <span class="pill ok">PASSED</span></td><td>DEF-005 y DEF-006 corregidos</td></tr>
+      <tr><td>E2 → E3</td><td>9 casos de DEF-030 a DEF-037</td><td><span class="pill bad">FAILED</span> → <span class="pill ok">PASSED</span></td><td>Se corrigieron los defectos</td></tr>
+      <tr><td>E2 → E3</td><td>CP-DEU-013, 055, 056, 057</td><td><span class="pill warn">BLOCKED</span> → <span class="pill ok">PASSED</span></td><td>US-82 se implementó en V3</td></tr>
+      <tr><td>E2 → E3</td><td>CP-DEU-018, 022, 036 a 039</td><td>sin ejecutar → <span class="pill ok">PASSED</span></td><td>No tenían resultado en V2</td></tr>
+      <tr><td>E2 → E3</td><td>CP-DEU-002</td><td><span class="pill warn">DUDA</span> → <span class="pill ok">PASSED</span></td><td>US-82 permite el paso 15</td></tr>
+      <tr><td>E2 → E3</td><td>Otros 157 de la regresión</td><td><span class="pill ok">PASSED</span> → <span class="pill ok">PASSED</span></td><td>Sin cambios</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notes">Los 177 casos de regresión ya tenían resultado en la Entrega 2. Pasan a PASSED 20 que antes no lo eran, cada uno por una razón conocida, y ninguno que pasaba falla ahora. Los 184 casos nuevos de V3 no tienen resultado anterior.</div>
+</section>
+
+<section class="slide" id="res-regresion">
+  <div class="section-mark">Regresión y confirmación</div>
+  <h2>V3 no rompió V1 ni V2, y los defectos están confirmados</h2>
+  <div class="stats">
+    <div class="stat hero"><span class="n">177/177</span><span class="l">casos de regresión PASSED</span></div>
+    <div class="stat hero"><span class="n">9/9</span><span class="l">defectos confirmados corregidos</span></div>
+    <div class="stat"><span class="n">0</span><span class="l">regresiones</span></div>
+  </div>
+  <p class="muted">Los nueve son los ocho de V2 (DEF-030 a DEF-037) y DEF-023 de V1, que había quedado intermitente en la Entrega 2. Detalle: <span class="path">entrega-3/04-ejecucion.md</span>, «Confirmación de defectos».</p>
+  <div class="notes">El testeo de confirmación repite cada defecto con el caso que lo detectó: antes fallaba y ahora pasa. DEF-035 y DEF-036 eran errores del caso y se corrigieron en el caso. DEF-023, intermitente, se confirmó demorando la siembra a propósito y verificando que nada vuelve a /register.</div>
+</section>
+
+<section class="slide" id="res-defectos">
+  <div class="section-mark">Defectos del proyecto</div>
+  <h2>36 defectos en tres versiones, ninguno abierto</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Versión</th><th class="num">Defectos</th><th class="num">Críticos</th><th class="num">Altos</th><th class="num">Medios</th><th class="num">Bajos</th></tr></thead>
+    <tbody>
+      <tr><td>V1 (DEF-001 a DEF-028)</td><td class="num">28</td><td class="num">2</td><td class="num">2</td><td class="num">12</td><td class="num">12</td></tr>
+      <tr><td>V2 (DEF-030 a DEF-037)</td><td class="num">8</td><td class="num">0</td><td class="num">0</td><td class="num">4</td><td class="num">4</td></tr>
+      <tr><td>V3</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+      <tr><td><b>Total</b></td><td class="num"><b>36</b></td><td class="num"><b>2</b></td><td class="num"><b>2</b></td><td class="num"><b>16</b></td><td class="num"><b>16</b></td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Configuración concentra 11 de los 36. Cuotas y Navegación no tienen ninguno. Análisis completo: <span class="path">entrega-3/06-analisis-y-post-mortem.md</span>.</p>
+  <div class="notes">DEF-029 se retiró porque era un error de un caso y no se cuenta. Cero defectos registrados en V3 no significa que V3 no tenga defectos: durante V3 la suite detectó regresiones que se corrigieron sin abrir un defecto, y no hubo exploración libre. Los dos críticos fueron un NaN que rompía el Resumen y un setup que dejaba afuera a cuentas existentes.</div>
+</section>
+
+<section class="slide" id="limites">
+  <div class="section-mark">Qué dice y qué no dice el 100 %</div>
+  <h2>Lo que encontramos al ejecutar, y los límites</h2>
+  <ul class="points">
+    <li><b>La CI de <code>main</code> falló una vez</b> en CP-CFG-028: el test esperaba la URL <code>/settings</code> sin parámetros y la app le agrega <code>?period=</code>. Era una aserción demasiado estricta; se corrigió</li>
+    <li><b>La ejecución manual es el resultado informado por el equipo.</b> No hay capturas ni pasos por caso en el repositorio, y no se anotó qué commit estaba desplegado</li>
+    <li><b>Que todo pase no mide cuánto detectaría la suite.</b> No hay medición de cobertura ni de mutación</li>
+    <li><b>Sin verificar:</b> que alguien pueda clonar el repo, levantar el schema desde cero y correr la suite en otra máquina</li>
+  </ul>
+  <div class="notes">Preferimos decir qué no se puede afirmar. Una sección de confirmación de defectos se había mergeado a una rama que ya estaba mergeada y no llegó a main; la detectamos al regenerar la planilla y la restauramos. Y la suite local falló dos veces por el entorno: un contenedor detenido y timeouts con la máquina cargada.</div>
+</section>
+
+<section class="slide" id="postmortem">
+  <div class="section-mark">Post-mortem</div>
+  <h2>Lo que aprendimos de las actividades de testing</h2>
+  <ul class="points">
+    <li><b>La cantidad de casos no predice los defectos:</b> Deudas tiene 61 casos y 2 defectos; Configuración, 15 casos y 11</li>
+    <li><b>En V1, 22 de 28 defectos salieron de fuera de los casos escritos</b> (ataque libre, exploración, uso real y la suite automatizada)</li>
+    <li><b>El recorte de 672 a 206 casos en V2 descartó el 69 %:</b> escribimos de más, incluso casos de historias que todavía no existían</li>
+    <li><b>Con la IA implementando y probando, la propiedad cruzada dejó de aplicarse</b> y el control humano se desplazó al repaso manual, que queda sin evidencia por caso</li>
+  </ul>
+  <p class="muted">Doce lecciones accionables, cada una con su evidencia: <span class="path">entrega-3/06-analisis-y-post-mortem.md</span>.</p>
+  <div class="notes">El post-mortem completo cubre la organización del equipo, el diseño de casos, el uso de IA para implementar, ejecutar y reportar, y la automatización. Los datos salen de los reportes de defectos, los issues y el historial de git; lo que no se pudo verificar está marcado en el documento.</div>
+</section>
+
+<section class="slide" id="mapa-repo">
+  <div class="section-mark">Dónde está cada cosa</div>
+  <h2>Todo en <span class="path" style="font-size:inherit">entrega-3/</span></h2>
+  <div class="map">
+    <div class="zone"><h3>Casos</h3><ul>
+      <li><span class="path">01-especificacion-casos-v3</span><span>184 casos de V3 (md y xlsx), uno por archivo en <span class="path">casos/</span></span></li>
+      <li><span class="path">02 y 03</span><span>Qué se automatiza y qué se repite de V1 y V2</span></li>
+    </ul></div>
+    <div class="zone"><h3>Ejecución</h3><ul>
+      <li><span class="path">04-ejecucion</span><span>Automatizada: resultado por caso y confirmación de defectos</span></li>
+      <li><span class="path">05-reporte-ejecucion-automatizada</span><span>La suite y su comparación con la Entrega 2</span></li>
+      <li><span class="path">08-ejecucion-manual</span><span>Los 361 casos a mano en el deploy</span></li>
+    </ul></div>
+    <div class="zone"><h3>Reportes</h3><ul>
+      <li><span class="path">07-reporte-final</span><span>Resumen, gráficos y cambios de estado</span></li>
+      <li><span class="path">06-analisis-y-post-mortem</span><span>Defectos y lecciones</span></li>
+      <li><span class="path">graficos/</span><span>Los gráficos de este deck</span></li>
+    </ul></div>
+  </div>
+  <div class="notes">Los resultados crudos de la suite están en entrega-3/ejecucion y las planillas se regeneran con los scripts de entrega-3/fuentes.</div>
+</section>
+
+<section class="slide cover" id="demo">
+  <div class="eyebrow">Demo</div>
+  <h2>Biyu V3, en vivo</h2>
+  <ul class="points">
+    <li>Editar un movimiento en cuotas y ver cómo se regeneran las imputaciones en el Resumen</li>
+    <li>Borrar definitivamente un movimiento y una deuda, con su confirmación</li>
+    <li>Deudas agrupadas por persona y sugerencias al escribir «Persona»</li>
+    <li>Barra flotante, tema oscuro, dona y tendencias del Resumen</li>
+  </ul>
+  <p><a class="link cta" href="https://biyu-rust.vercel.app" target="_blank" rel="noopener">Abrir biyu-rust.vercel.app</a></p>
+  <div class="notes">Recorremos una pantalla por cada cambio grande de V3. Conviene tener un movimiento en cuotas y una deuda cargados antes de empezar.</div>
+</section>
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const counter = document.getElementById('counter');
+  const notesBtn = document.getElementById('toggle-notes');
+  let current = 0;
+  const update = () => { counter.textContent = `${current + 1} / ${slides.length}`; slides.forEach((s, i) => s.classList.toggle('current', i === current)); };
+  const go = (i) => { current = Math.max(0, Math.min(slides.length - 1, i)); slides[current].scrollIntoView({ block: 'start' }); update(); };
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting && e.intersectionRatio > 0.5) { current = slides.indexOf(e.target); update(); } });
+  }, { threshold: [0.5] });
+  slides.forEach((s) => io.observe(s));
+  const toggleNotes = () => {
+    const on = document.body.classList.toggle('show-notes');
+    notesBtn.setAttribute('aria-pressed', String(on));
+    try { localStorage.setItem('biyu-notes', on ? '1' : '0'); } catch (e) {}
+  };
+  try { if (localStorage.getItem('biyu-notes') === '1') toggleNotes(); } catch (e) {}
+  document.getElementById('prev').addEventListener('click', () => go(current - 1));
+  document.getElementById('next').addEventListener('click', () => go(current + 1));
+  notesBtn.addEventListener('click', toggleNotes);
+  document.addEventListener('keydown', (e) => {
+    if (e.target.closest('input, textarea')) return;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(current + 1); }
+    if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); go(current - 1); }
+    if (e.key.toLowerCase() === 'n') toggleNotes();
+  });
+  slides.forEach((sl) => {
+    const f = document.createElement('div'); f.className = 'fit';
+    [...sl.children].forEach((c) => { if (!c.classList.contains('notes')) f.appendChild(c); });
+    sl.prepend(f);
+  });
+  const fit = () => {
+    slides.forEach((sl) => {
+      const f = sl.querySelector('.fit');
+      f.style.zoom = ''; if (window.innerWidth <= 820) return;
+      f.style.flex = 'none'; const need = f.offsetHeight; f.style.flex = '';
+      const cs = getComputedStyle(sl);
+      const avail = sl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (need > avail) f.style.zoom = String(avail / need);
+    });
+  };
+  fit(); window.addEventListener('resize', fit);
+  if (document.fonts) document.fonts.ready.then(fit);
+  window.addEventListener('load', fit);
+  slides.forEach((sl, i) => {
+    const m = document.createElement('div'); m.className = 'slide-meta';
+    m.innerHTML = '<span class="brand">biyu<span class="dot">.</span></span><span class="pg">' + (i + 1) + ' de ' + slides.length + '</span>';
+    sl.prepend(m);
+  });
+  update();
+})();
+</script>
+</body>
+</html>
