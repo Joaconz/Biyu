@@ -196,6 +196,8 @@ P2 entra si alcanza el sprint.
 
 ## Casos de V3: historia → casos
 
+Todo (casos de V1 a V3, historias, defectos y resultados) está también en un solo Excel con IDs enlazados: [`entrega-3/Biyu-Planilla-Unica.xlsx`](../entrega-3/Biyu-Planilla-Unica.xlsx).
+
 Catálogo en [`entrega-3/01-especificacion-casos-v3.md`](../entrega-3/01-especificacion-casos-v3.md) (184 casos, planilla `.xlsx` generada desde `entrega-3/casos/`). Todas las historias de UX implementadas tienen casos.
 
 | Historia | Casos |
