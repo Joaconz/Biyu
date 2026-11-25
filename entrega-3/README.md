@@ -2,7 +2,7 @@
 
 Entregables de la Entrega 03 del Proyecto Integrador (Testing de Aplicaciones): **V3, CRUD completo, mejoras de UX y automatización**. Mismo esquema de IDs que las entregas anteriores: **historia `US-nn` → criterio `CA-k` → caso `CP-<módulo>-<nnn>` → resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-plan-de-testing.md` §4 y los procedimientos `PR-nn` de `docs/12-procedimientos-de-prueba.md`.
 
-**Para la defensa:** la presentación es [`09-presentacion.html`](09-presentacion.html) y el resumen de todo, con los porcentajes y los gráficos, es [`07-reporte-final.md`](07-reporte-final.md). Todo el trabajo de testing de las tres entregas, con los casos, las historias y los defectos enlazados, está en una sola planilla: [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx).
+**Para la defensa:** la presentación es [`09-presentacion-keynote.html`](09-presentacion-keynote.html) y el resumen de todo, con los porcentajes y los gráficos, es [`07-reporte-final.md`](07-reporte-final.md). Todo el trabajo de testing de las tres entregas, con los casos, las historias y los defectos enlazados, está en una sola planilla: [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx).
 
 ## Resultado en una línea
 
@@ -12,7 +12,7 @@ Entregables de la Entrega 03 del Proyecto Integrador (Testing de Aplicaciones): 
 
 | Objetivo de la Entrega 03 | Archivo |
 |---|---|
-| Resumen de las funcionalidades nuevas y los requerimientos funcionales | [`00-historias-de-usuario-v3.md`](00-historias-de-usuario-v3.md) y la sección «Requerimientos de V3» de la presentación |
+| Resumen de las funcionalidades nuevas y los requerimientos funcionales | [`00-historias-de-usuario-v3.md`](00-historias-de-usuario-v3.md) y la diapositiva «Completar el CRUD y pulir lo que ya existía» de la presentación |
 | Corregir los defectos encontrados en V1 y V2 | Los 36 están cerrados; la confirmación, en [`04-ejecucion.md`](04-ejecucion.md) («Confirmación de defectos») y [`08-ejecucion-manual.md`](08-ejecucion-manual.md) |
 | Casos de prueba de las funcionalidades de V3 | [`01-especificacion-casos-v3.md`](01-especificacion-casos-v3.md) / `.xlsx` y una ficha por historia en [`casos/`](casos/) |
 | Cómo se eligieron los casos de V1 y V2 a ejecutar (regresión) | [`03-seleccion-regresion.md`](03-seleccion-regresion.md): 177 de 286, por prioridad Alta o por haber fallado por un defecto en V2 |
@@ -37,8 +37,7 @@ Entregables de la Entrega 03 del Proyecto Integrador (Testing de Aplicaciones): 
 | [`06-analisis-y-post-mortem.md`](06-analisis-y-post-mortem.md) | Análisis de los 36 defectos de V1 y V2 y post-mortem de las actividades de testing de las tres entregas |
 | [`07-reporte-final.md`](07-reporte-final.md) | Reporte final: resultado de V3, gráficos, cambios de estado entre entregas, defectos y criterios de «Terminado» |
 | [`08-ejecucion-manual.md`](08-ejecucion-manual.md) / `.xlsx` | Ejecución manual del equipo: resultado de los 361 casos y testeo de confirmación |
-| [`09-presentacion.html`](09-presentacion.html) | Presentación de la entrega |
-| [`10-presentacion-keynote.html`](10-presentacion-keynote.html) | Otra versión de la presentación, estilo Keynote, para 15 a 20 minutos: 13 diapositivas (unos 12 minutos) y una demo de 5 con su guion. Notas del orador con tiempo sugerido y reloj (tecla N), tema claro u oscuro (T) y export a PDF con la impresión del navegador |
+| [`09-presentacion-keynote.html`](09-presentacion-keynote.html) | Presentación de la entrega, estilo Keynote, para 15 a 20 minutos: 13 diapositivas (unos 12 minutos) y una demo de 5 con su guion. Notas del orador con tiempo sugerido y reloj (tecla N), tema claro u oscuro (T) y export a PDF con la impresión del navegador |
 | [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx) | Planilla única de las tres entregas, con casos, historias y defectos enlazados |
 | [`casos/`](casos/) | Una ficha por historia: la fuente de cada caso de V3 |
 | [`ejecucion/`](ejecucion/) | Resultados crudos de Playwright, Vitest y pgTAP |
