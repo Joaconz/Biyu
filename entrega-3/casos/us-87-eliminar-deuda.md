@@ -4,15 +4,15 @@
 **Oráculo:** una deuda pendiente se borra por RPC `delete_debt`; la saldada no (primero vuelve a pendiente); la deuda de un gasto compartido se borra sola y el gasto queda como gasto normal; una ajena o inexistente responde «no encontrada».
 **Convenciones:** PR-01 crea el usuario, PR-02 el token (`docs/12-procedimientos-de-prueba.md`). Montos ficticios (C14). Canal API: `POST <SUPABASE_URL>/rest/v1/rpc/delete_debt` con `{"p_debt_id": "<uuid>"}`.
 
-| ID | Título | Técnica | Tipo | Canal | Prioridad | Automatizable |
-|---|---|---|---|---|---|---|
-| CP-DEU-062 | Eliminar una deuda suelta «Me deben» de $20.000,00: confirmación, listado y totales | Casos de uso | Positivo | UI | Alta | Sí |
-| CP-DEU-063 | Cancelar la confirmación no borra | Casos de uso | Negativo | UI | Media | Sí |
-| CP-DEU-064 | Una deuda saldada no ofrece «Eliminar» hasta volver a pendiente | Transición de estados | Negativo | UI | Alta | Sí |
-| CP-DEU-065 | La RPC rechaza una deuda saldada (`23514`, HTTP 400) | Transición de estados | Negativo | API | Alta | Sí |
-| CP-DEU-066 | Borrar la deuda de un gasto compartido deja el gasto como gasto normal | Casos de uso | Positivo | API | Alta | Sí |
-| CP-DEU-067 | La deuda de otro usuario responde 404 y no se borra; `anon` recibe `42501` | Adivinación de errores | Negativo | API | Alta | Sí |
-| CP-DEU-068 | Si la baja falla por la red el diálogo sigue abierto y permite reintentar | Adivinación de errores | Negativo | UI | Media | Sí |
+| ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
+|---|---|---|---|---|---|---|---|
+| CP-DEU-062 | Eliminar una deuda suelta «Me deben» de $20.000,00: confirmación, listado y totales | CA-1, CA-4 | Casos de uso | Positivo | UI | Alta | Sí |
+| CP-DEU-063 | Cancelar la confirmación no borra | CA-3 | Casos de uso | Negativo | UI | Media | Sí |
+| CP-DEU-064 | Una deuda saldada no ofrece «Eliminar» hasta volver a pendiente | ADR-044 §3 | Transición de estados | Negativo | UI | Alta | Sí |
+| CP-DEU-065 | La RPC rechaza una deuda saldada (`23514`, HTTP 400) | ADR-044 §3 | Transición de estados | Negativo | API | Alta | Sí |
+| CP-DEU-066 | Borrar la deuda de un gasto compartido deja el gasto como gasto normal | CA-1 | Casos de uso | Positivo | API | Alta | Sí |
+| CP-DEU-067 | La deuda de otro usuario responde 404 y no se borra; `anon` recibe `42501` | CA-2 | Adivinación de errores | Negativo | API | Alta | Sí |
+| CP-DEU-068 | Si la baja falla por la red el diálogo sigue abierto y permite reintentar | CA-4 | Adivinación de errores | Negativo | UI | Media | Sí |
 
 ## CP-DEU-062 — Eliminar una suelta
 **Historia y criterio:** US-87 · CA-1, CA-4 · ADR-041. **Caso par:** CP-DEU-065. **Pre-requisitos:** PR-01 con `eliminar-062@biyu.test`, configuración inicial salteada. **Datos:** deuda «Me deben» a «Lucas», $20.000,00, fecha de hoy.

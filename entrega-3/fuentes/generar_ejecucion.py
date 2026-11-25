@@ -271,6 +271,11 @@ def main():
     for nombre, res in (('V3', res_v3), ('Regresión V1 y V2', res_reg)):
         c = Counter(s for s, _, _ in res.values())
         rs.append([nombre, len(res), c['PASSED'], c['FAILED'], c['BLOCKED'], round(100 * c['PASSED'] / len(res), 1)])
+    todos = Counter(s for res in (res_v3, res_reg) for s, _, _ in res.values())
+    total = len(res_v3) + len(res_reg)
+    rs.append(['Total', total, todos['PASSED'], todos['FAILED'], todos['BLOCKED'], round(100 * todos['PASSED'] / total, 1)])
+    for c in rs[rs.max_row]:
+        c.font = Font(bold=True)
     rs.append([])
     rs.append(['Módulo', 'Conjunto', 'PASSED', 'FAILED', 'BLOCKED'])
     for nombre, res in (('V3', res_v3), ('Regresión', res_reg)):

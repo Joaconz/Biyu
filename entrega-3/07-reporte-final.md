@@ -87,6 +87,7 @@ Los 184 casos nuevos de V3 no tienen resultado anterior. De esos, 7 corresponden
 - **Abiertos:** ninguno de los 36. Los 36 issues con etiqueta `bug` están cerrados.
 - **Corregidos:** los 36.
 - **Confirmados en V3:** los 8 de V2 (DEF-030 a DEF-037) y DEF-023 de V1, que había quedado intermitente en la Entrega 2: **9 de 9** (sección «Confirmación de defectos» de [`04-ejecucion.md`](04-ejecucion.md)).
+- **Confirmados antes de V3:** los otros 27 de V1. 21 se confirmaron sobre V2 en la Entrega 2 y 6 en el re-test de la Entrega 1 (DEF-002 y DEF-003 como «no se reproduce»). DEF-021, DEF-027 y DEF-028 quedaron **confirmados en parte** en la Entrega 2, porque el iPhone, el límite de altas y la siembra lenta se simularon, y no se repitieron en V3. La columna «Confirmación» de la hoja Defectos de [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx) dice, para cada defecto, en qué entrega se confirmó.
 - **Nuevos de V3:** ningún caso falló, así que no hay defectos nuevos con número. Esto subestima lo producido: durante V3 la suite detectó regresiones que se corrigieron sin abrir un DEF (commits `fab0456` y `d0edfac`; `06-analisis-y-post-mortem.md` §1.7).
 
 **Hallazgos de esta ejecución que no son defectos registrados:**

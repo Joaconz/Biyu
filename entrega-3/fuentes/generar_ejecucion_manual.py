@@ -12,7 +12,7 @@ import re
 from collections import Counter, OrderedDict
 from pathlib import Path
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 RAIZ = Path(__file__).resolve().parents[2]
@@ -45,6 +45,20 @@ def casos_automatizados():
     return v3, reg
 
 
+def historias_v1_v2():
+    """Historia de cada caso de V1 y V2, del «Índice» de su catálogo (los casos de regresión no la traen)."""
+    out = {}
+    for ruta in ('entrega-1/02-especificacion-casos-de-prueba.xlsx', 'entrega-2/02-especificacion-casos-v2.xlsx'):
+        ws = load_workbook(RAIZ / ruta, read_only=True)['Índice']
+        filas = ws.iter_rows(min_row=2, values_only=True)
+        cab = [str(c or '').strip() for c in next(filas)]
+        i_id, i_us = cab.index('Test case ID'), cab.index('User story')
+        for f in filas:
+            if f[i_id] and f[i_us]:
+                out[str(f[i_id]).strip()] = str(f[i_us]).strip()
+    return out
+
+
 def manual_de(cid):
     if cid in MANUAL_EXCEPCIONES:
         return MANUAL_EXCEPCIONES[cid][0]
@@ -63,6 +77,11 @@ def pct(n, total):
 def main():
     v3, reg = casos_automatizados()
     assert len(v3) == 184 and len(reg) == 177, (len(v3), len(reg))
+    hist = historias_v1_v2()
+    for x in reg.values():
+        x['historia'] = hist.get(x['id'], '')
+    sin_historia = [x['id'] for x in reg.values() if not x['historia']]
+    assert not sin_historia, sin_historia
     todos = list(v3.values()) + list(reg.values())
     coinciden = sum(1 for x in todos if manual_de(x['id']) == x['auto'])
     cv3, creg, ctot = conteo(v3.values()), conteo(reg.values()), conteo(todos)

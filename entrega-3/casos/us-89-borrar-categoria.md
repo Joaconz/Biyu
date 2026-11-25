@@ -4,15 +4,15 @@
 **Oráculo:** la regla «solo se borra una categoría sin uso» (movimientos, incluidos los dados de baja, y suscripciones); con uso rechaza con un mensaje que dice cuántos tiene y sugiere archivar.
 **Convenciones:** PR-01 crea el usuario, PR-02 su token (`docs/12-procedimientos-de-prueba.md`). Montos ficticios (C14). Canal API: `POST <SUPABASE_URL>/rest/v1/rpc/delete_category` con `{"p_category_id": "<uuid>"}`.
 
-| ID | Título | Técnica | Tipo | Canal | Prioridad | Automatizable |
-|---|---|---|---|---|---|---|
-| CP-CFG-016 | Borrar una categoría activa sin uso y volver a usar el nombre | Casos de uso | Positivo | UI | Alta | Sí |
-| CP-CFG-017 | Borrar una categoría archivada sin uso | Particiones | Positivo | UI | Media | Sí |
-| CP-CFG-018 | Con un movimiento activo la categoría no se borra y el mensaje dice cuántos | Particiones | Negativo | UI | Alta | Sí |
-| CP-CFG-019 | La misma regla directo contra la RPC (`23514`, HTTP 400) | Particiones | Negativo | API | Alta | Sí |
-| CP-CFG-020 | Un movimiento dado de baja o una suscripción también cuentan como uso | Adivinación de errores | Negativo | API | Alta | Sí |
-| CP-CFG-021 | La categoría de otro usuario responde «no encontrada» (HTTP 404) y no se borra | Adivinación de errores | Negativo | API | Alta | Sí |
-| CP-CFG-022 | Cancelar la confirmación no borra | Casos de uso | Negativo | UI | Media | Sí |
+| ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
+|---|---|---|---|---|---|---|---|
+| CP-CFG-016 | Borrar una categoría activa sin uso y volver a usar el nombre | CA-1, CA-4 | Casos de uso | Positivo | UI | Alta | Sí |
+| CP-CFG-017 | Borrar una categoría archivada sin uso | CA-1 | Particiones | Positivo | UI | Media | Sí |
+| CP-CFG-018 | Con un movimiento activo la categoría no se borra y el mensaje dice cuántos | CA-2 | Particiones | Negativo | UI | Alta | Sí |
+| CP-CFG-019 | La misma regla directo contra la RPC (`23514`, HTTP 400) | CA-2 | Particiones | Negativo | API | Alta | Sí |
+| CP-CFG-020 | Un movimiento dado de baja o una suscripción también cuentan como uso | CA-2 | Adivinación de errores | Negativo | API | Alta | Sí |
+| CP-CFG-021 | La categoría de otro usuario responde «no encontrada» (HTTP 404) y no se borra | CA-3 | Adivinación de errores | Negativo | API | Alta | Sí |
+| CP-CFG-022 | Cancelar la confirmación no borra | CA-1 | Casos de uso | Negativo | UI | Media | Sí |
 
 ## CP-CFG-016 — Borrar una categoría activa sin uso y volver a usar el nombre
 **Historia y criterio:** US-89 · CA-1, CA-4. **Invariante:** — · **Caso par:** CP-CFG-019

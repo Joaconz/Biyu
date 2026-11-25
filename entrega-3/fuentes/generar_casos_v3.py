@@ -79,8 +79,9 @@ def parse(path):
                 hdr = cells(ln)
             elif not is_separator(ln):
                 rows.append(dict(zip(hdr, cells(ln))))
-    us = re.search(r'\(US-(\d+)\)', title)
-    return 'US-' + us.group(1) if us else '', meta, rows, sections
+    # «(US-87)», «(US-53 · CA-4)» o, sin historia, la decisión que origina los casos: «(ADR-045)».
+    us = re.search(r'\((US|ADR)-(\d+)\b', title)
+    return f'{us.group(1)}-{us.group(2)}' if us else '', meta, rows, sections
 
 
 def sheet_name(ids, used):
@@ -176,6 +177,9 @@ def build_case_sheet(wb, name, ids, rows_by_id, us, meta, sec):
         if not t:
             continue
         hdr, body = t[0], t[1:]
+        if len(hdr) == 2:  # «| Entrada | Resultado esperado |»: numerar y dejar el esperado en D, como las demás tablas
+            hdr = ['#'] + hdr
+            body = [[str(k)] + r for k, r in enumerate(body, 1)]
         put(ws, f'A{row}', hdr[0], label=True)
         put(ws, f'B{row}', hdr[1] if len(hdr) > 1 else '', label=True, merge=f'B{row}:C{row}')
         put(ws, f'D{row}', ' '.join(hdr[2:]), label=True, merge=f'D{row}:E{row}')
