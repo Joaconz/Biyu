@@ -79,8 +79,9 @@ def parse(path):
                 hdr = cells(ln)
             elif not is_separator(ln):
                 rows.append(dict(zip(hdr, cells(ln))))
-    us = re.search(r'\(US-(\d+)\)', title)
-    return 'US-' + us.group(1) if us else '', meta, rows, sections
+    # «(US-87)», «(US-53 · CA-4)» o, sin historia, la decisión que origina los casos: «(ADR-045)».
+    us = re.search(r'\((US|ADR)-(\d+)\b', title)
+    return f'{us.group(1)}-{us.group(2)}' if us else '', meta, rows, sections
 
 
 def sheet_name(ids, used):

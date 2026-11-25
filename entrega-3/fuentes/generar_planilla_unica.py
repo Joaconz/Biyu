@@ -33,6 +33,8 @@ ID_CASO = re.compile(r'CP-[A-Z]{3}-\d{3}')
 VERDE, CREMA, GRIS = 'FF1B4D3E', 'FFF1EBE0', 'FFEDEDED'
 COLOR_ESTADO = {'PASSED': 'FFC6E0B4', 'FAILED': 'FFF4B6B6', 'BLOCKED': 'FFD9D9D9', 'DUDA': 'FFFFE699'}
 LINK = Font(color='FF0563C1', underline='single')
+# Defectos que eran errores del caso, no de la app (entrega-3/04-ejecucion.md, «Confirmación de defectos»).
+ERRORES_DEL_CASO = {'DEF-035', 'DEF-036'}
 FILA_CAB = 4  # las tablas empiezan en la fila 4; la 1 es el título y la 2 la navegación
 
 
@@ -142,10 +144,14 @@ def leer_issues():
 
 def leer_historias(issues, casos, defectos):
     h = OrderedDict()
+    v3 = titulos_v3()
     for i in issues:
         m = re.match(r'^(US-\d+)\s*[·:\-–]?\s*(.*)', i['title'])
         if m:
-            h[m.group(1)] = dict(id=m.group(1), titulo=m.group(2).strip(), issue=i['number'], url=i['url'],
+            titulo = m.group(2).strip()
+            if v3.get(m.group(1)) and (i['milestone'] or {}).get('title') == 'V3':
+                titulo = v3[m.group(1)]  # el issue de US-83 y US-101 conserva el título anterior a ADR-053
+            h[m.group(1)] = dict(id=m.group(1), titulo=titulo, issue=i['number'], url=i['url'],
                                  estado='Cerrado' if i['state'] == 'CLOSED' else 'Abierto',
                                  version=(i['milestone'] or {}).get('title', ''), cuerpo=limpiar(i['body']), tipo='Historia')
     for p in sorted((RAIZ / 'docs' / 'adr').glob('*.md')):
@@ -181,6 +187,13 @@ def leer_defectos(issues):
     if '## Confirmación de defectos' in txt:
         sec = txt.split('## Confirmación de defectos', 1)[1].split('\n## ', 1)[0]
         confirm_v3 = set(re.findall(r'\| (DEF-\d+) \|', sec))
+    # Testeo de confirmación de los defectos de V1 sobre V2 (entrega-2/04-ejecucion.md): DEF → resultado.
+    confirm_e2 = {}
+    txt2 = (RAIZ / 'entrega-2' / '04-ejecucion.md').read_text(encoding='utf-8')
+    for linea in txt2.splitlines():
+        celdas = [c.strip() for c in linea.strip().strip('|').split('|')]
+        if len(celdas) == 7 and re.fullmatch(r'DEF-\d+', celdas[0]) and celdas[5].startswith('**'):
+            confirm_e2[celdas[0]] = celdas[5].replace('**', '')
     defectos = OrderedDict()
     for ver, ruta in (('V1', 'entrega-1/04-reportes-de-defectos.md'), ('V2', 'entrega-2/05-reportes-de-defectos.md')):
         texto = (RAIZ / ruta).read_text(encoding='utf-8')
@@ -205,8 +218,49 @@ def leer_defectos(issues):
                 issue=iss['number'] if iss else '', url=iss['url'] if iss else '',
                 estado='Cerrado' if iss and iss['state'] == 'CLOSED' else 'Abierto',
                 cerrado=(iss['closedAt'][:10] if iss and iss.get('closedAt') else ''),
-                confirmado_v3='Sí' if did in confirm_v3 else '')
+                confirmacion=confirmacion(did, limpiar(campos.get('Estado')), confirm_v3, confirm_e2))
     return defectos
+
+
+def confirmacion(did, estado_reporte, confirm_v3, confirm_e2):
+    """Dónde y cómo se confirmó la corrección de cada defecto (testeo de confirmación de cada entrega)."""
+    e2 = confirm_e2.get(did, '')
+    if did in confirm_v3:
+        return 'Confirmado en V3 (Entrega 3)' + (f'; en la Entrega 2 había sido {e2.lower()}' if e2 and e2 != 'Confirmado' else '')
+    if e2 == 'Confirmado':
+        return 'Confirmado en V2 (Entrega 2)'
+    if e2 == 'Confirmado parcial':
+        return 'Confirmado en parte en V2 (Entrega 2), con la condición simulada; no se repitió en V3'
+    if e2:
+        return f'{e2} en V2 (Entrega 2)'
+    if 'no se reproduce' in estado_reporte.lower():
+        return 'No se reproduce en V1 (re-test de la Entrega 1)'
+    if 'confirmado' in estado_reporte.lower() or 're-test' in estado_reporte.lower() or 'verificado' in estado_reporte.lower():
+        return 'Confirmado en V1 (re-test de la Entrega 1)'
+    return ''
+
+
+def por_que(cid, e1, e2, e3a, defecto):
+    """Explicación de un cambio de estado entre entregas."""
+    if defecto:
+        arreglo = 'V2 (Entrega 2)' if e2 == 'PASSED' and e1 == 'FAILED' else 'V3 (Entrega 3)'
+        if defecto['id'] in ERRORES_DEL_CASO:
+            return f"Falló por {defecto['id']} ({defecto['titulo']}). Era un error del caso: se corrigió el caso y pasó en {arreglo}."
+        return f"Falló por {defecto['id']} ({defecto['titulo']}). Se corrigió la app y el caso pasó en {arreglo}."
+    if e2 == 'BLOCKED':
+        return ('En la Entrega 2 no se podía ejecutar: faltaba US-82 (gasto compartido con varias personas, #270). '
+                'US-82 se implementó en V3 y el caso pasó.')
+    if e2 == 'DUDA':
+        return ('En la Entrega 2 se cumplía con una sola persona, porque US-82 no existía, y quedó sin resultado firme. '
+                'Con US-82 implementada en V3 el caso pasó tal como está escrito.')
+    return ''
+
+
+def titulos_v3():
+    """Títulos de las historias de V3 según 00-historias-de-usuario-v3.md, que sigue a ADR-053 (gasto neto)."""
+    texto = (RAIZ / 'entrega-3' / '00-historias-de-usuario-v3.md').read_text(encoding='utf-8')
+    return {m.group(1): m.group(2).strip() for m in re.finditer(r'^### (US-\d+) · (.+)$', texto, flags=re.M)
+            if '(CA-' not in m.group(2)}
 
 
 # ------------------------------------------------------------------------------------------- escritura
@@ -387,10 +441,10 @@ def main():
     # ------------------------------------------------------------------ Defectos
     ds_ = L.hoja('Defectos', 'Defectos (V1 y V2): reporte, estado y confirmación', [10, 52, 8, 10, 12, 14, 9, 14, 14, 11, 16, 60, 52, 52, 34])
     cabecera(ds_, FILA_CAB, ['ID', 'Título', 'Versión', 'Severidad', 'Estado actual', 'Cerrado el', 'Issue', 'Caso que lo detectó', 'Historia',
-                             'Confirmado en V3', 'Encontrado en', 'Pasos para reproducir', 'Resultado esperado', 'Resultado obtenido', 'Entorno'])
+                             'Confirmación', 'Encontrado en', 'Pasos para reproducir', 'Resultado esperado', 'Resultado obtenido', 'Entorno'])
     for did, d in defectos.items():
         f = fila_def[did]
-        vals = [did, d['titulo'], d['version'], d['severidad'], d['estado'], d['cerrado'], '', '', '', d['confirmado_v3'], d['encontrado'],
+        vals = [did, d['titulo'], d['version'], d['severidad'], d['estado'], d['cerrado'], '', '', '', d['confirmacion'], d['encontrado'],
                 d['pasos'], d['esperado'], d['obtenido'], d['entorno']]
         for col, v in enumerate(vals, 1):
             ds_.cell(f, col, v)
@@ -406,7 +460,7 @@ def main():
         else:
             ds_.cell(f, 9, d['historia'][:60])
     ds_.auto_filter.ref = f'A{FILA_CAB}:O{FILA_CAB + len(defectos)}'
-    ajustar(ds_, FILA_CAB + 1, {2, 11, 12, 13, 14, 15})
+    ajustar(ds_, FILA_CAB + 1, {2, 10, 11, 12, 13, 14, 15})
 
     # ------------------------------------------------------------------ Resultados
     rs = L.hoja('Resultados', 'Resultados por entrega', [38, 10, 10, 10, 10, 10, 11])
@@ -449,7 +503,7 @@ def main():
             rs.cell(fila + 2 + k, col, v)
 
     # ------------------------------------------------------------------ Cambios de estado
-    cb = L.hoja('Cambios de estado', 'Casos que cambiaron de estado entre entregas', [14, 8, 62, 12, 12, 14, 16, 18])
+    cb = L.hoja('Cambios de estado', 'Casos que cambiaron de estado entre entregas', [14, 8, 62, 12, 12, 14, 12, 60])
     cabecera(cb, FILA_CAB, ['ID del caso', 'Versión', 'Título', 'Entrega 1', 'Entrega 2', 'Entrega 3 (automatizada)', 'Defecto', 'Por qué'])
     motivo = {}
     for did, d in defectos.items():
@@ -463,10 +517,11 @@ def main():
         did = motivo.get(cid)
         if did and did in fila_def:
             enlace(cb.cell(f, 7), 'Defectos', f'A{fila_def[did]}', did)
+        cb.cell(f, 8, por_que(cid, e1, e2, e3a, defectos.get(did) if did else None))
         for col in (4, 5, 6):
             pintar_estado(cb.cell(f, col))
     cb.auto_filter.ref = f'A{FILA_CAB}:H{FILA_CAB + len(cambios)}'
-    ajustar(cb, FILA_CAB + 1, {3})
+    ajustar(cb, FILA_CAB + 1, {3, 8})
 
     # ------------------------------------------------------------------ Inicio (se completa al final)
     ini['A3'] = 'Todo el trabajo de testing del proyecto en un solo archivo. Los IDs de casos, historias y defectos son links: tocá uno y vas a la hoja donde está especificado; cada hoja tiene un link de vuelta.'
@@ -477,9 +532,9 @@ def main():
     indice = [('Casos', len(casos), 'Los 470 casos (74 de V1, 212 de V2 y 184 de V3), con prioridad, técnica, tipo y su resultado en cada entrega. El ID lleva a sus pasos; la historia, a su especificación; el defecto, a su reporte.'),
               ('Pasos', sum(max(1, len(s['pasos'])) for s in secciones), 'Pre-requisitos, datos, pasos y resultado esperado de cada caso. El ID de la izquierda vuelve al caso.'),
               ('Historias', len(historias), 'Historias de usuario (US-nn) con su issue y su especificación, y las decisiones de diseño (ADR). Muestra cuántos casos y defectos tiene cada una.'),
-              ('Defectos', len(defectos), 'Los 36 defectos de V1 y V2: pasos para reproducir, esperado, obtenido, severidad, estado actual y si se confirmó en V3.'),
+              ('Defectos', len(defectos), 'Los 36 defectos de V1 y V2: pasos para reproducir, esperado, obtenido, severidad, estado actual y en qué entrega se confirmó la corrección.'),
               ('Resultados', len(corridas), 'PASSED, FAILED, DUDA y BLOCKED de cada ejecución de las tres entregas, con gráfico y el resumen por módulo de V3.'),
-              ('Cambios de estado', len(cambios), 'Los casos que cambiaron de estado entre entregas, con el defecto que lo explica.')]
+              ('Cambios de estado', len(cambios), 'Los casos que cambiaron de estado entre entregas, con el defecto o el motivo que lo explica.')]
     for k, (hoja, n, que) in enumerate(indice):
         f = FILA_CAB + 1 + k
         enlace(ini.cell(f, 1), hoja, 'A1', hoja)

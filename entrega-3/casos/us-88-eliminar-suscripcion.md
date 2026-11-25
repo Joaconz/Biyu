@@ -4,15 +4,15 @@
 **Oráculo:** la suscripción se borra en cualquier estado; los gastos que generó quedan como movimientos sueltos (`subscription_id` y `subscription_period` en nulo, también los dados de baja), con el resto de sus columnas e imputaciones intactas; la puesta al día ya no genera nada de ella; una ajena o inexistente responde 404 «Suscripción no encontrada».
 **Convenciones:** PR-01 crea el usuario, PR-02 el token (`docs/12-procedimientos-de-prueba.md`). Montos ficticios (C14). Canal API: `POST <SUPABASE_URL>/rest/v1/rpc/delete_subscription` con `{"p_subscription_id": "<uuid>"}`.
 
-| ID | Título | Técnica | Tipo | Canal | Prioridad | Automatizable |
-|---|---|---|---|---|---|---|
-| CP-SUS-049 | Eliminar una activa con gastos generados: confirmación, listado y movimientos sueltos | Casos de uso | Positivo | UI | Alta | Sí |
-| CP-SUS-050 | «Volver» en la confirmación no borra | Casos de uso | Negativo | UI | Media | Sí |
-| CP-SUS-051 | Una cancelada solo ofrece «Eliminar definitivamente» | Transición de estados | Positivo | UI | Media | Sí |
-| CP-SUS-052 | Una pausada se borra; el diálogo avisa que deja de generar | Transición de estados | Positivo | UI | Media | Sí |
-| CP-SUS-053 | Tras borrar, la puesta al día no genera nada de esa suscripción ni toca los movimientos sueltos | Adivinación de errores | Positivo | API | Alta | Sí |
-| CP-SUS-054 | La baja lógica de uno de los gastos sigue después de borrar la suscripción | Adivinación de errores | Positivo | API | Media | Sí |
-| CP-SUS-055 | La suscripción de otro usuario responde 404 y no se borra; `anon` recibe 401 `42501` | Adivinación de errores | Negativo | API | Alta | Sí |
+| ID | Título | Criterio | Técnica | Tipo | Canal | Prioridad | Automatizable |
+|---|---|---|---|---|---|---|---|
+| CP-SUS-049 | Eliminar una activa con gastos generados: confirmación, listado y movimientos sueltos | CA-1, CA-2 | Casos de uso | Positivo | UI | Alta | Sí |
+| CP-SUS-050 | «Volver» en la confirmación no borra | CA-4 | Casos de uso | Negativo | UI | Media | Sí |
+| CP-SUS-051 | Una cancelada solo ofrece «Eliminar definitivamente» | CA-1 | Transición de estados | Positivo | UI | Media | Sí |
+| CP-SUS-052 | Una pausada se borra; el diálogo avisa que deja de generar | CA-1, CA-2 | Transición de estados | Positivo | UI | Media | Sí |
+| CP-SUS-053 | Tras borrar, la puesta al día no genera nada de esa suscripción ni toca los movimientos sueltos | CA-2 | Adivinación de errores | Positivo | API | Alta | Sí |
+| CP-SUS-054 | La baja lógica de uno de los gastos sigue después de borrar la suscripción | CA-2 | Adivinación de errores | Positivo | API | Media | Sí |
+| CP-SUS-055 | La suscripción de otro usuario responde 404 y no se borra; `anon` recibe 401 `42501` | CA-3 | Adivinación de errores | Negativo | API | Alta | Sí |
 
 ## CP-SUS-049 — Eliminar una activa
 **Historia y criterio:** US-88 · CA-1, CA-2. **Caso par:** CP-SUS-055. **Pre-requisitos:** PR-01 con `eliminar-049@biyu.test`, configuración inicial salteada. **Datos:** «Netflix», $5.000,00, día 1, inicio el mes corriente, categoría «Entretenimiento», cuenta «Efectivo» (genera 1 gasto).
