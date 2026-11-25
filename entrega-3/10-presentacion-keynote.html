@@ -1,0 +1,767 @@
+<!doctype html>
+<!--
+  Biyu · Entrega 3 · Presentación estilo Keynote (archivo único, sin dependencias).
+  Hecha con tres skills:
+  - ppt-keynote (nexu-io/open-design): una idea por pantalla, 1280×720, portada y cierre, indicador
+    página/total arriba a la derecha, ←/→/espacio y hash #/n, fade entre diapositivas, grids de datos.
+  - keynote-slides (dbmcco/keynote-slides-skill): layouts title/split/grid/metrics/quote, aparición
+    escalonada (--i), notas del orador (tecla N), línea de acento animada en pocas diapositivas, SVG en línea,
+    ?motion=off y export a PDF con la impresión del navegador.
+  - apple-design (dickwu/apple-design-skill y la guía local): tipografía del sistema con tracking por tamaño,
+    materiales translúcidos para la barra y las notas, respuesta al presionar, mismo camino de entrada y salida,
+    swipe con seguimiento 1:1, contraste ≥ 4,5:1, nada solo por color, reduced motion/transparency/contrast.
+  Datos: entrega-3/07-reporte-final.md, 03-seleccion-regresion.md, 02-seleccion-automatizacion.md,
+  04-ejecucion.md, 06-analisis-y-post-mortem.md y Biyu-Planilla-Unica.xlsx.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biyu · Entrega 3 · V3 a prueba</title>
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#051f20">
+<style>
+  /* ---------------------------------------------------------------- tokens (paleta esmeralda, ADR-052) */
+  :root {
+    --bg-0: #041a1b;
+    --bg-1: #051f20;
+    --card: #0b2b26;
+    --card-2: #10362f;
+    --line: rgba(218, 241, 222, 0.12);
+    --ink: #daf1de;          /* 14,4:1 sobre --bg-1 */
+    --ink-2: #a9c9b3;        /* 9,3:1 */
+    --muted: #8eb69b;        /* salvia, 7,4:1 */
+    --accent: #c9a96e;       /* dorado, 8,1:1: solo acentos y la línea animada */
+    --pass: #6fcf97;         /* PASSED: siempre con la palabra al lado */
+    --fail: #f2994a;
+    --block: #9aa5a0;
+    --duda: #e8c766;
+    --glass: rgba(11, 43, 38, 0.62);
+    --glass-edge: rgba(218, 241, 222, 0.16);
+    --shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+    --spring: cubic-bezier(0.22, 1, 0.36, 1);   /* aproxima un resorte crítico (damping 1.0, response ~0.4) */
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  :root[data-theme="light"] {
+    --bg-0: #efe6d2;
+    --bg-1: #f3ecdc;
+    --card: #fbf8f1;
+    --card-2: #f6f0e3;
+    --line: rgba(11, 43, 38, 0.12);
+    --ink: #0b2b26;          /* 12,9:1 */
+    --ink-2: #24463d;
+    --muted: #3c5e52;        /* 6,6:1 */
+    --accent: #8a6420;
+    --pass: #1f7a4a;
+    --fail: #b4531a;
+    --block: #5d6a64;
+    --duda: #8a6a10;
+    --glass: rgba(251, 248, 241, 0.7);
+    --glass-edge: rgba(11, 43, 38, 0.12);
+    --shadow: 0 30px 80px rgba(11, 43, 38, 0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--bg-0);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+    touch-action: pan-y;
+  }
+
+  /* ---------------------------------------------------------------- escenario 1280×720 escalado */
+  .stage { position: fixed; inset: 0; overflow: hidden; }
+  #deck {
+    position: absolute; left: 50%; top: 50%;
+    width: 1280px; height: 720px;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) scale(var(--scale, 1));
+  }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 84px 96px 92px;
+    border-radius: 28px;
+    overflow: hidden;
+    background:
+      radial-gradient(900px 520px at 85% -10%, color-mix(in srgb, var(--muted) 22%, transparent), transparent 60%),
+      radial-gradient(700px 480px at -10% 110%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
+      linear-gradient(160deg, var(--bg-1), var(--bg-0));
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transform: translateX(calc(var(--dir, 1) * 28px)) scale(0.985);
+    transition: opacity 520ms var(--spring), transform 620ms var(--spring), visibility 0s linear 620ms;
+  }
+  .slide.active {
+    opacity: 1; visibility: visible; transform: none;
+    transition: opacity 520ms var(--spring), transform 620ms var(--spring), visibility 0s;
+  }
+  .slide.past { --dir: -1; }
+
+  /* aparición escalonada (keynote-slides: reveal + --reveal-index) */
+  .reveal { opacity: 0; transform: translateY(14px); }
+  .slide.active .reveal {
+    opacity: 1; transform: none;
+    transition: opacity 560ms var(--spring), transform 700ms var(--spring);
+    transition-delay: calc(80ms + var(--i, 0) * 55ms);
+  }
+
+  /* ---------------------------------------------------------------- tipografía (tracking por tamaño) */
+  .eyebrow {
+    font-size: 15px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 22px;
+  }
+  .display {
+    font-size: 104px; line-height: 0.98; font-weight: 700; letter-spacing: -0.045em;
+  }
+  .title {
+    font-size: 64px; line-height: 1.03; font-weight: 650; letter-spacing: -0.035em;
+    max-width: 1000px; text-wrap: balance;
+  }
+  .title.sm { font-size: 52px; }
+  .lede {
+    font-size: 25px; line-height: 1.42; letter-spacing: -0.008em; color: var(--ink-2);
+    max-width: 880px; margin-top: 22px; text-wrap: pretty;
+  }
+  .small { font-size: 17px; line-height: 1.5; color: var(--muted); letter-spacing: 0.005em; }
+  .mono { font-family: var(--mono); font-size: 0.92em; letter-spacing: 0; }
+  strong { font-weight: 650; color: var(--ink); }
+  .gold { color: var(--accent); }
+
+  /* línea de acento animada (keynote-slides: .accent-line; en 4 diapositivas) */
+  .accent-line {
+    display: block; height: 4px; width: 96px; border-radius: 4px; margin: 30px 0 0;
+    background: var(--accent); transform-origin: left center; transform: scaleX(0);
+  }
+  .slide.active .accent-line {
+    transform: scaleX(1); transition: transform 800ms var(--spring) 260ms;
+  }
+
+  /* ---------------------------------------------------------------- layouts */
+  .layout-title { justify-content: flex-end; padding-bottom: 110px; }
+  .layout-split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .layout-split > .col { min-width: 0; }
+  .layout-quote { align-items: flex-start; }
+  .layout-quote .title { font-size: 58px; max-width: 1040px; }
+
+  .grid { display: grid; gap: 18px; margin-top: 40px; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 24px 26px;
+    min-width: 0;
+  }
+  .card h3 { font-size: 22px; line-height: 1.2; font-weight: 650; letter-spacing: -0.015em; }
+  .card p { font-size: 17px; line-height: 1.45; color: var(--ink-2); margin-top: 8px; }
+  .card .tag { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+  .metric .n {
+    font-size: 72px; line-height: 1; font-weight: 700; letter-spacing: -0.045em;
+    font-variant-numeric: tabular-nums;
+  }
+  .metric .n small { font-size: 0.42em; letter-spacing: -0.01em; color: var(--muted); font-weight: 600; }
+  .metric .l { font-size: 18px; line-height: 1.35; color: var(--ink-2); margin-top: 10px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .chip {
+    font-size: 14px; line-height: 1; padding: 8px 11px; border-radius: 999px;
+    background: color-mix(in srgb, var(--muted) 14%, transparent);
+    color: var(--ink); border: 1px solid var(--line); white-space: nowrap;
+  }
+  .chip b { color: var(--muted); font-weight: 650; margin-right: 6px; font-family: var(--mono); font-size: 12.5px; }
+
+  .status { display: inline-flex; align-items: center; gap: 8px; font-weight: 650; font-size: 15px; letter-spacing: 0.02em; }
+  .status::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+  .s-pass { color: var(--pass); } .s-fail { color: var(--fail); } .s-block { color: var(--block); } .s-duda { color: var(--duda); }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 17px; margin-top: 34px; font-variant-numeric: tabular-nums; }
+  .t th { text-align: left; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 0 12px 12px; }
+  .t td { padding: 13px 12px; border-top: 1px solid var(--line); color: var(--ink-2); vertical-align: top; }
+  .t td:first-child { color: var(--ink); font-weight: 600; }
+  .t .num { text-align: right; white-space: nowrap; }
+
+  ul.list { list-style: none; padding: 0; margin-top: 30px; display: grid; gap: 16px; }
+  ul.list li {
+    font-size: 22px; line-height: 1.4; color: var(--ink-2); padding-left: 30px; position: relative;
+    letter-spacing: -0.005em;
+  }
+  ul.list li::before {
+    content: ""; position: absolute; left: 0; top: 0.58em; width: 12px; height: 2px; background: var(--accent); border-radius: 2px;
+  }
+
+  svg.diagram { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { font-family: var(--font); }
+
+  /* ---------------------------------------------------------------- chrome translúcido */
+  .glass {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--glass-edge);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 12px 32px rgba(0,0,0,0.25);
+  }
+  .counter {
+    position: fixed; top: 18px; right: 20px; z-index: 5;
+    font-size: 14px; font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: tabular-nums;
+    padding: 9px 14px; border-radius: 999px; color: var(--ink-2);
+  }
+  .counter b { color: var(--ink); }
+  .bar {
+    position: fixed; left: 50%; bottom: 18px; z-index: 5;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px;
+    transition: opacity 400ms var(--spring), transform 500ms var(--spring);
+  }
+  body.idle .bar { opacity: 0; transform: translate(-50%, 12px); pointer-events: none; }
+  .bar button {
+    min-width: 44px; height: 44px; padding: 0 14px; border-radius: 999px; border: 0;
+    background: transparent; color: var(--ink); font: 600 15px/1 var(--font); letter-spacing: 0.01em;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform 100ms ease-out, background 160ms ease;
+  }
+  .bar button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+  .bar button:active { transform: scale(0.94); }
+  .bar button[aria-pressed="true"] { background: color-mix(in srgb, var(--ink) 14%, transparent); }
+  .bar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bar svg { width: 18px; height: 18px; }
+  .progress { width: 160px; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 0 8px; }
+  .progress i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 4px; transition: width 600ms var(--spring); }
+
+  /* notas del orador: hoja translúcida que entra y sale por abajo (mismo camino) */
+  .notes {
+    position: fixed; left: 50%; bottom: 84px; z-index: 6;
+    width: min(880px, calc(100vw - 32px)); max-height: 34vh; overflow: auto;
+    padding: 20px 24px; border-radius: 22px;
+    font-size: 18px; line-height: 1.55; color: var(--ink);
+    transform: translate(-50%, 24px) scale(0.98); opacity: 0; pointer-events: none;
+    transition: opacity 360ms var(--spring), transform 480ms var(--spring);
+  }
+  body.show-notes .notes { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .notes .k { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .slide-notes { display: none; }
+
+  .hint {
+    position: fixed; left: 20px; top: 18px; z-index: 5; font-size: 13px; color: var(--muted);
+    padding: 9px 14px; border-radius: 999px; transition: opacity 600ms ease;
+  }
+  body.hint-off .hint { opacity: 0; }
+  kbd { font-family: var(--mono); font-size: 12px; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--glass-edge); }
+
+  /* ---------------------------------------------------------------- accesibilidad */
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .slide.active { transform: none !important; transition: opacity 200ms ease, visibility 0s linear 200ms; }
+    .slide.active { transition: opacity 200ms ease, visibility 0s; }
+    .reveal, .slide.active .reveal { transform: none; transition: opacity 200ms ease; transition-delay: 0ms; }
+    .accent-line, .slide.active .accent-line { transform: scaleX(1); transition: none; }
+  }
+  html.motion-off .slide, html.motion-off .reveal, html.motion-off .accent-line { transition: none !important; transform: none !important; }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  }
+  @media (prefers-contrast: more) {
+    :root { --ink-2: var(--ink); --muted: var(--ink); --line: rgba(218, 241, 222, 0.4); }
+    .slide { background: var(--bg-1); }
+    .glass { background: var(--card); backdrop-filter: none; border-color: var(--ink); }
+  }
+
+  /* ---------------------------------------------------------------- impresión: una diapositiva por hoja (PDF) */
+  @media print {
+    @page { size: 1280px 720px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    .stage { position: static; overflow: visible; }
+    #deck { position: static; transform: none !important; width: 1280px; height: auto; }
+    .slide { position: relative; opacity: 1 !important; visibility: visible !important; transform: none !important;
+             width: 1280px; height: 720px; border-radius: 0; box-shadow: none; break-after: page; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+    .accent-line { transform: scaleX(1) !important; }
+    .counter, .bar, .notes, .hint { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+<main id="deck" aria-roledescription="presentación" aria-label="Biyu, Entrega 3">
+
+  <!-- 1 · Portada -->
+  <section class="slide layout-title" data-title="Portada">
+    <p class="eyebrow reveal" style="--i:0">Testing de Aplicaciones · Proyecto Integrador · Entrega 03</p>
+    <h1 class="display reveal" style="--i:1">Biyu V3,<br><span class="gold">a prueba.</span></h1>
+    <p class="lede reveal" style="--i:2">CRUD completo, once mejoras de UX y una suite que corre en cada PR. Qué se pidió, qué se probó y qué no podemos afirmar.</p>
+    <span class="accent-line long"></span>
+    <p class="small reveal" style="--i:3; margin-top:26px">Noviembre de 2026 · Equipo Biyu</p>
+    <aside class="slide-notes">Abrir con la pregunta que guía la charla: ¿V3 hace lo que pedían sus historias sin romper V1 ni V2? La respuesta corta llega en la próxima diapositiva; el resto es la evidencia y sus límites.</aside>
+  </section>
+
+  <!-- 2 · El número -->
+  <section class="slide layout-quote" data-title="El resultado">
+    <p class="eyebrow reveal" style="--i:0">El resultado, primero</p>
+    <h2 class="display reveal" style="--i:1; font-size:150px">361 <span style="color:var(--muted)">/</span> 361</h2>
+    <p class="lede reveal" style="--i:2">Los 184 casos nuevos de V3 y los 177 de regresión de V1 y V2 dieron <strong>PASSED</strong> dos veces: con la suite automatizada y a mano, en el deploy de Vercel.</p>
+    <span class="accent-line"></span>
+    <aside class="slide-notes">Manual y automatizado coinciden caso por caso. Los 8 defectos de V2 y DEF-023 de V1 quedaron confirmados (9 de 9). V3 no registró defectos nuevos. Avisar que al final mostramos qué no dice este 100 %.</aside>
+  </section>
+
+  <!-- 3 · Requerimientos: qué trae V3 -->
+  <section class="slide" data-title="Qué trae V3">
+    <p class="eyebrow reveal" style="--i:0">Parte 1 · Requerimientos de V3</p>
+    <h2 class="title reveal" style="--i:1">Completar el CRUD y pulir lo que ya existía.</h2>
+    <div class="grid g4">
+      <div class="card metric reveal" style="--i:2"><div class="n">7</div><div class="l"><strong>CRUD completo.</strong> Editar y borrar en todas las entidades.</div></div>
+      <div class="card metric reveal" style="--i:3"><div class="n">6</div><div class="l"><strong>Deudas y Resumen.</strong> Varias personas, por persona, un solo número.</div></div>
+      <div class="card metric reveal" style="--i:4"><div class="n">2</div><div class="l"><strong>Importar.</strong> Cuotas ya empezadas y guía del archivo.</div></div>
+      <div class="card metric reveal" style="--i:5"><div class="n">11</div><div class="l"><strong>UX.</strong> Navegación, legibilidad, tema y accesibilidad.</div></div>
+    </div>
+    <p class="small reveal" style="--i:6; margin-top:26px">26 historias nuevas (US-80 a US-105), más US-53 (CA-4), US-68 y las suscripciones por cobrar (ADR-045): 28 fichas de casos.</p>
+    <aside class="slide-notes">El criterio para elegir la funcionalidad nueva fue qué regresión genera. Editar un movimiento regenera todas sus imputaciones; el borrado definitivo contradice el borrado lógico del proyecto.</aside>
+  </section>
+
+  <!-- 4 · Requerimientos funcionales en detalle -->
+  <section class="slide" data-title="Requerimientos funcionales">
+    <p class="eyebrow reveal" style="--i:0">Los requerimientos funcionales</p>
+    <h2 class="title sm reveal" style="--i:1">Veintiséis historias, cuatro frentes.</h2>
+    <div class="grid g2" style="margin-top:30px; gap:16px">
+      <div class="card reveal" style="--i:2"><span class="tag">CRUD completo</span>
+        <div class="chips"><span class="chip"><b>84</b>Editar movimiento</span><span class="chip"><b>85</b>Borrado definitivo</span><span class="chip"><b>86</b>Editar deuda</span><span class="chip"><b>87</b>Eliminar deuda</span><span class="chip"><b>88</b>Borrar suscripción</span><span class="chip"><b>89</b>Borrar categoría</span><span class="chip"><b>90</b>Reactivar cuenta</span></div></div>
+      <div class="card reveal" style="--i:3"><span class="tag">Deudas y Resumen</span>
+        <div class="chips"><span class="chip"><b>82</b>Varias personas</span><span class="chip"><b>91</b>Por persona</span><span class="chip"><b>100</b>Sugerir personas</span><span class="chip"><b>83</b>Deudas en el gasto neto</span><span class="chip"><b>101</b>Qué entra en el número</span><span class="chip"><b>103</b>Dona y tendencias</span></div></div>
+      <div class="card reveal" style="--i:4"><span class="tag">Importar Excel</span>
+        <div class="chips"><span class="chip"><b>80</b>Cuotas ya empezadas</span><span class="chip"><b>81</b>Guía del archivo</span></div></div>
+      <div class="card reveal" style="--i:5"><span class="tag">UX</span>
+        <div class="chips"><span class="chip"><b>92</b>Barra flotante</span><span class="chip"><b>93</b>Ajustes en tarjetas</span><span class="chip"><b>94</b>Qué se borra</span><span class="chip"><b>95</b>Textos iguales</span><span class="chip"><b>96</b>44 px</span><span class="chip"><b>97</b>Esqueletos</span><span class="chip"><b>98</b>Legibles</span><span class="chip"><b>99</b>Miles</span><span class="chip"><b>102</b>Tema</span><span class="chip"><b>104</b>Gráficos</span><span class="chip"><b>105</b>Íconos</span></div></div>
+    </div>
+    <aside class="slide-notes">Cada número es una historia US-nn con su issue. Las historias, los ADR y la matriz de trazabilidad están en docs/roadmap.md y docs/08-trazabilidad.md.</aside>
+  </section>
+
+  <!-- 5 · Tres decisiones -->
+  <section class="slide" data-title="Tres decisiones">
+    <p class="eyebrow reveal" style="--i:0">Lo que cambia la forma de probar</p>
+    <h2 class="title sm reveal" style="--i:1">Tres decisiones que movieron los casos.</h2>
+    <div class="grid g3">
+      <div class="card reveal" style="--i:2"><span class="tag">US-84 · ADR-009</span><h3 style="margin-top:12px">Editar regenera las imputaciones</h3><p>La funcionalidad más chica que toca la invariante central: la suma de las imputaciones es el monto.</p></div>
+      <div class="card reveal" style="--i:3"><span class="tag">US-85, 87–89 · ADR-044</span><h3 style="margin-top:12px">Borrar definitivamente</h3><p>Contradice el borrado lógico del proyecto. Lleva su ADR, una confirmación que dice qué se borra y su RPC.</p></div>
+      <div class="card reveal" style="--i:4"><span class="tag">US-101 · ADR-053</span><h3 style="margin-top:12px">Un solo número en el Resumen</h3><p>El balance pasó a ser el gasto neto, configurable desde Ajustes. US-83 se reescribió contra ese número.</p></div>
+    </div>
+    <aside class="slide-notes">Algunas historias de UX se implementaron de otra forma de la que pedían; sus casos se escribieron contra la interfaz final.</aside>
+  </section>
+
+  <!-- 6 · Casos de V3 -->
+  <section class="slide layout-split" data-title="Casos de V3">
+    <div class="col">
+      <p class="eyebrow reveal" style="--i:0">Parte 2 · Casos de prueba de V3</p>
+      <h2 class="title reveal" style="--i:1">184 casos, salidos de los criterios.</h2>
+      <p class="lede reveal" style="--i:2">Cada caso cita su historia y su criterio de aceptación, y se prueba por la pantalla y, si valida datos, directo contra la API.</p>
+      <div class="grid g3 reveal" style="--i:3; margin-top:30px; gap:12px">
+        <div class="card metric" style="padding:18px 20px"><div class="n" style="font-size:44px">105</div><div class="l" style="font-size:15px">Alta</div></div>
+        <div class="card metric" style="padding:18px 20px"><div class="n" style="font-size:44px">77</div><div class="l" style="font-size:15px">Media</div></div>
+        <div class="card metric" style="padding:18px 20px"><div class="n" style="font-size:44px">2</div><div class="l" style="font-size:15px">Baja</div></div>
+      </div>
+    </div>
+    <div class="col reveal" style="--i:4">
+      <svg class="diagram" viewBox="0 0 520 400" role="img" aria-labelledby="v3mods-t">
+        <title id="v3mods-t">Casos de V3 por módulo: Registro 41, Deudas 37, Configuración 26, Suscripciones 22, Resumen 21, Importar 17, Navegación 16, Acceso 4.</title>
+        <g font-size="17" fill="var(--ink-2)">
+          <!-- escala: 41 casos = 330 px -->
+          <g transform="translate(0,8)"><text x="0" y="20">Registro</text><rect x="150" y="4" width="330" height="22" rx="7" fill="var(--muted)"/><text x="490" y="21" fill="var(--ink)" font-weight="650">41</text></g>
+          <g transform="translate(0,56)"><text x="0" y="20">Deudas</text><rect x="150" y="4" width="298" height="22" rx="7" fill="var(--muted)"/><text x="458" y="21" fill="var(--ink)" font-weight="650">37</text></g>
+          <g transform="translate(0,104)"><text x="0" y="20">Configuración</text><rect x="150" y="4" width="209" height="22" rx="7" fill="var(--muted)" opacity="0.85"/><text x="369" y="21" fill="var(--ink)" font-weight="650">26</text></g>
+          <g transform="translate(0,152)"><text x="0" y="20">Suscripciones</text><rect x="150" y="4" width="177" height="22" rx="7" fill="var(--muted)" opacity="0.8"/><text x="337" y="21" fill="var(--ink)" font-weight="650">22</text></g>
+          <g transform="translate(0,200)"><text x="0" y="20">Resumen</text><rect x="150" y="4" width="169" height="22" rx="7" fill="var(--muted)" opacity="0.75"/><text x="329" y="21" fill="var(--ink)" font-weight="650">21</text></g>
+          <g transform="translate(0,248)"><text x="0" y="20">Importar</text><rect x="150" y="4" width="137" height="22" rx="7" fill="var(--muted)" opacity="0.7"/><text x="297" y="21" fill="var(--ink)" font-weight="650">17</text></g>
+          <g transform="translate(0,296)"><text x="0" y="20">Navegación</text><rect x="150" y="4" width="129" height="22" rx="7" fill="var(--muted)" opacity="0.65"/><text x="289" y="21" fill="var(--ink)" font-weight="650">16</text></g>
+          <g transform="translate(0,344)"><text x="0" y="20">Acceso</text><rect x="150" y="4" width="32" height="22" rx="7" fill="var(--muted)" opacity="0.6"/><text x="192" y="21" fill="var(--ink)" font-weight="650">4</text></g>
+        </g>
+      </svg>
+    </div>
+    <aside class="slide-notes">Formato de la cátedra: ID, prioridad, técnica, trazabilidad, pre-requisitos, datos, pasos y resultado esperado. Una ficha por historia en entrega-3/casos/. Técnicas: casos de uso, transición de estados, valores límite, particiones y adivinación de errores.</aside>
+  </section>
+
+  <!-- 7 · Selección de regresión -->
+  <section class="slide layout-split" data-title="Selección de la regresión">
+    <div class="col">
+      <p class="eyebrow reveal" style="--i:0">Casos de V1 y V2 que se vuelven a ejecutar</p>
+      <h2 class="title reveal" style="--i:1">177 de 286, elegidos por riesgo.</h2>
+      <p class="lede reveal" style="--i:2">Entra un caso si cumple <strong>alguna</strong> de dos reglas. El resto conserva el resultado de su última ejecución.</p>
+    </div>
+    <div class="col">
+      <div class="card reveal" style="--i:3"><span class="tag">Regla 1</span><h3 style="margin-top:10px">Todos los de prioridad Alta</h3><p>Cubren lo que no puede romperse. Es la regla 1 de ADR-027, la misma que usó la regresión de la Entrega 2.</p></div>
+      <div class="card reveal" style="--i:4; margin-top:14px"><span class="tag">Regla 2</span><h3 style="margin-top:10px">Los de V2 que fallaron por un defecto</h3><p>DEF-030 a DEF-037. Sirven de testeo de confirmación: V3 los corrige y el caso tiene que pasar.</p></div>
+      <div class="grid g2 reveal" style="--i:5; margin-top:14px; gap:14px">
+        <div class="card metric" style="padding:18px 22px"><div class="n" style="font-size:48px">39<small> / 74</small></div><div class="l" style="font-size:15px">de V1</div></div>
+        <div class="card metric" style="padding:18px 22px"><div class="n" style="font-size:48px">138<small> / 212</small></div><div class="l" style="font-size:15px">de V2</div></div>
+      </div>
+    </div>
+    <aside class="slide-notes">De la Entrega 2 se dejan de lado las reglas 2 a 4 (Media de módulos tocados, defectos de V1, casos que fallaron en V1): los 22 defectos de V1 ya se habían confirmado sobre V2 y la regresión de V1 dio 60 de 60. 174 de los 177 son Alta.</aside>
+  </section>
+
+  <!-- 8 · Especificación de la regresión -->
+  <section class="slide" data-title="Especificación de la regresión">
+    <p class="eyebrow reveal" style="--i:0">Especificación de la regresión</p>
+    <h2 class="title sm reveal" style="--i:1">Qué se repite, y qué de V3 lo puede romper.</h2>
+    <table class="t reveal" style="--i:2; font-size:16px">
+      <thead><tr><th>Módulo</th><th class="num">Elegidos</th><th>Qué de V3 lo puede romper</th></tr></thead>
+      <tbody>
+        <tr><td>Deudas</td><td class="num">47 / 61</td><td>Varias personas (US-82), editar y eliminar (US-86, 87), por persona (US-91), DEF-037</td></tr>
+        <tr><td>Suscripciones</td><td class="num">31 / 48</td><td>Borrar una suscripción (US-88), gráficos de cobros (US-104), DEF-034 a 036</td></tr>
+        <tr><td>Exportar CSV</td><td class="num">27 / 31</td><td>Lo borrado definitivamente no se exporta (US-85), DEF-030 a 032</td></tr>
+        <tr><td>Navegación · Importar</td><td class="num">15 + 15</td><td>Barra flotante (US-92), transiciones (US-97) · cuotas empezadas (US-80, 81), DEF-033</td></tr>
+        <tr><td>Cuotas · Monedas</td><td class="num">10 + 5</td><td>Editar regenera las imputaciones (ADR-009) con el tipo de cambio congelado</td></tr>
+        <tr><td>Acceso · Config. · Registro · Resumen · Categorías</td><td class="num">9 + 6 + 6 + 3 + 3</td><td>Ajustes dentro de la barra, borrar categoría, reactivar cuenta, dona y tendencias</td></tr>
+      </tbody>
+    </table>
+    <aside class="slide-notes">La lista completa de los 177, con la regla que los incluye y los ajustes que necesitaron para V3, está en 03-seleccion-regresion.md.</aside>
+  </section>
+
+  <!-- 9 · Automatización -->
+  <section class="slide" data-title="Automatización">
+    <p class="eyebrow reveal" style="--i:0">Casos a automatizar</p>
+    <h2 class="title reveal" style="--i:1">Se automatiza todo lo que se ejecuta.</h2>
+    <p class="lede reveal" style="--i:2">Los 184 de V3, porque son la regresión de lo que venga, y los 177 de regresión, porque tienen que pasar en cada cambio. La CI los corre en cada PR y falla el build.</p>
+    <div class="grid g3">
+      <div class="card metric reveal" style="--i:3"><div class="tag">Por la pantalla y la API</div><div class="n" style="margin-top:10px">290</div><div class="l">tests de <strong>Playwright</strong>, solo con <span class="mono">data-testid</span> y un usuario nuevo por test</div></div>
+      <div class="card metric reveal" style="--i:4"><div class="tag">Dominio puro</div><div class="n" style="margin-top:10px">1131</div><div class="l">tests de <strong>Vitest</strong> sobre <span class="mono">src/domain/</span>, con <span class="mono">today</span> como parámetro</div></div>
+      <div class="card metric reveal" style="--i:5"><div class="tag">Base de datos</div><div class="n" style="margin-top:10px">1354</div><div class="l">aserciones de <strong>pgTAP</strong>: RLS, invariantes y concurrencia</div></div>
+    </div>
+    <aside class="slide-notes">Quedan solo manuales los casos Media y Baja de V1 y V2 que no fallaron. Dos casos de V1 marcados como no automatizables se automatizaron igual: la siembra en paralelo con dos páginas de Playwright y la previsualización de cuotas leyendo el texto por data-testid.</aside>
+  </section>
+
+  <!-- 10 · Resultado de V3 -->
+  <section class="slide layout-split" data-title="Resultado de V3">
+    <div class="col">
+      <p class="eyebrow reveal" style="--i:0">Parte 3 · Ejecución</p>
+      <h2 class="title reveal" style="--i:1">Pasan los 361, a mano y automatizados.</h2>
+      <table class="t reveal" style="--i:2">
+        <thead><tr><th>Conjunto</th><th class="num">Casos</th><th class="num">Resultado</th></tr></thead>
+        <tbody>
+          <tr><td>V3, automatizados</td><td class="num">184</td><td class="num"><span class="status s-pass">100 % PASSED</span></td></tr>
+          <tr><td>V3, manuales</td><td class="num">184</td><td class="num"><span class="status s-pass">100 % PASSED</span></td></tr>
+          <tr><td>Regresión, automatizada</td><td class="num">177</td><td class="num"><span class="status s-pass">100 % PASSED</span></td></tr>
+          <tr><td>Regresión, manual</td><td class="num">177</td><td class="num"><span class="status s-pass">100 % PASSED</span></td></tr>
+        </tbody>
+      </table>
+      <p class="small reveal" style="--i:3; margin-top:18px">0 FAILED · 0 BLOCKED. Automatizada: 2026-11-14 sobre <span class="mono">40ab30e</span>. Manual: 14 al 16 de noviembre en Vercel.</p>
+    </div>
+    <div class="col reveal" style="--i:4">
+      <svg class="diagram" viewBox="0 0 440 440" role="img" aria-labelledby="donut-t">
+        <title id="donut-t">Anillo de resultados: 361 PASSED de 361, 0 FAILED y 0 BLOCKED.</title>
+        <circle cx="220" cy="220" r="160" fill="none" stroke="var(--line)" stroke-width="34"/>
+        <circle cx="220" cy="220" r="160" fill="none" stroke="var(--pass)" stroke-width="34" stroke-linecap="round"
+                stroke-dasharray="1005.3" stroke-dashoffset="0" transform="rotate(-90 220 220)"/>
+        <text x="220" y="215" text-anchor="middle" font-size="84" font-weight="700" fill="var(--ink)" letter-spacing="-3">100 %</text>
+        <text x="220" y="262" text-anchor="middle" font-size="20" font-weight="600" fill="var(--ink-2)" letter-spacing="1.5">PASSED · 361 DE 361</text>
+      </svg>
+    </div>
+    <aside class="slide-notes">Un caso es PASSED si pasan todas las pruebas que lo cubren. La CI de main sobre el mismo commit dio 289 de 290 por CP-CFG-028, una aserción demasiado estricta que se corrigió en el PR 428.</aside>
+  </section>
+
+  <!-- 11 · Evolución entre entregas -->
+  <section class="slide" data-title="Evolución entre entregas">
+    <p class="eyebrow reveal" style="--i:0">Porcentaje por ejecución, en las tres entregas</p>
+    <h2 class="title sm reveal" style="--i:1">De 90,5 % a 100 %, con más casos en cada entrega.</h2>
+    <div class="reveal" style="--i:2; margin-top:34px">
+      <svg class="diagram" viewBox="0 0 1088 380" role="img" aria-labelledby="evo-t">
+        <title id="evo-t">Resultados por ejecución. Entrega 1, ejecución 1: 74 casos, 67 PASSED, 3 FAILED, 4 BLOCKED, 90,5 %. Entrega 1, re-test: 74 casos, 72 PASSED, 2 FAILED, 97,3 %. Entrega 2, casos de V2: 203 casos, 189 PASSED, 9 FAILED, 1 DUDA, 4 BLOCKED, 93,1 %. Entrega 2, regresión de V1: 60 de 60, 100 %. Entrega 3, casos nuevos: 184 de 184. Entrega 3, regresión: 177 de 177. Entrega 3, manual: 361 de 361.</title>
+        <g font-size="16" fill="var(--ink-2)">
+          <!-- barra completa = 640 px; x0 = 300 -->
+          <g transform="translate(0,0)"><text x="0" y="22">E1 · ejecución 1</text><text x="240" y="22" text-anchor="end" fill="var(--muted)">74</text>
+            <rect x="300" y="6" width="579.5" height="24" rx="6" fill="var(--pass)"/><rect x="879.5" y="6" width="25.9" height="24" fill="var(--fail)"/><rect x="905.4" y="6" width="34.6" height="24" rx="6" fill="var(--block)"/>
+            <text x="960" y="24" fill="var(--ink)" font-weight="650">90,5 %</text></g>
+          <g transform="translate(0,52)"><text x="0" y="22">E1 · re-test</text><text x="240" y="22" text-anchor="end" fill="var(--muted)">74</text>
+            <rect x="300" y="6" width="622.7" height="24" rx="6" fill="var(--pass)"/><rect x="922.7" y="6" width="17.3" height="24" rx="6" fill="var(--fail)"/>
+            <text x="960" y="24" fill="var(--ink)" font-weight="650">97,3 %</text></g>
+          <g transform="translate(0,104)"><text x="0" y="22">E2 · casos de V2</text><text x="240" y="22" text-anchor="end" fill="var(--muted)">203</text>
+            <rect x="300" y="6" width="595.9" height="24" rx="6" fill="var(--pass)"/><rect x="895.9" y="6" width="28.4" height="24" fill="var(--fail)"/><rect x="924.3" y="6" width="3.1" height="24" fill="var(--duda)"/><rect x="927.4" y="6" width="12.6" height="24" rx="6" fill="var(--block)"/>
+            <text x="960" y="24" fill="var(--ink)" font-weight="650">93,1 %</text></g>
+          <g transform="translate(0,156)"><text x="0" y="22">E2 · regresión de V1</text><text x="240" y="22" text-anchor="end" fill="var(--muted)">60</text>
+            <rect x="300" y="6" width="640" height="24" rx="6" fill="var(--pass)"/><text x="960" y="24" fill="var(--ink)" font-weight="650">100 %</text></g>
+          <g transform="translate(0,208)"><text x="0" y="22">E3 · casos nuevos de V3</text><text x="240" y="22" text-anchor="end" fill="var(--muted)">184</text>
+            <rect x="300" y="6" width="640" height="24" rx="6" fill="var(--pass)"/><text x="960" y="24" fill="var(--ink)" font-weight="650">100 %</text></g>
+          <g transform="translate(0,260)"><text x="0" y="22">E3 · regresión de V1 y V2</text><text x="240" y="22" text-anchor="end" fill="var(--muted)">177</text>
+            <rect x="300" y="6" width="640" height="24" rx="6" fill="var(--pass)"/><text x="960" y="24" fill="var(--ink)" font-weight="650">100 %</text></g>
+          <g transform="translate(0,312)"><text x="0" y="22">E3 · manual de los 361</text><text x="240" y="22" text-anchor="end" fill="var(--muted)">361</text>
+            <rect x="300" y="6" width="640" height="24" rx="6" fill="var(--pass)"/><text x="960" y="24" fill="var(--ink)" font-weight="650">100 %</text></g>
+        </g>
+        <g font-size="14" font-weight="600" transform="translate(300,368)">
+          <rect width="12" height="12" rx="3" fill="var(--pass)" y="-11"/><text x="18" fill="var(--ink-2)">PASSED</text>
+          <rect x="100" width="12" height="12" rx="3" fill="var(--fail)" y="-11"/><text x="118" fill="var(--ink-2)">FAILED</text>
+          <rect x="196" width="12" height="12" rx="3" fill="var(--duda)" y="-11"/><text x="214" fill="var(--ink-2)">DUDA</text>
+          <rect x="278" width="12" height="12" rx="3" fill="var(--block)" y="-11"/><text x="296" fill="var(--ink-2)">BLOCKED</text>
+        </g>
+      </svg>
+    </div>
+    <aside class="slide-notes">Los porcentajes no son comparables sin cuidado: cada entrega ejecutó un conjunto distinto de casos y con otra forma de ejecutar. V1 y V2: ejecución con IA y repaso manual del equipo. V3: suite automatizada y repaso manual en el deploy.</aside>
+  </section>
+
+  <!-- 12 · Cambios de estado -->
+  <section class="slide layout-split" data-title="Cambios de estado">
+    <div class="col">
+      <p class="eyebrow reveal" style="--i:0">Casos que cambiaron de estado</p>
+      <h2 class="title reveal" style="--i:1">Veinte casos pasaron a PASSED. Ninguno al revés.</h2>
+      <p class="lede reveal" style="--i:2">De la Entrega 2 a la 3, cada cambio tiene una razón conocida. Los otros 157 de la regresión ya pasaban y siguen pasando.</p>
+      <p class="small reveal" style="--i:3; margin-top:22px">Antes, de la Entrega 1 a la 2: CP-ACC-004 (DEF-005) y CP-CFG-004 (DEF-006) pasaron de FAILED a PASSED.</p>
+    </div>
+    <div class="col">
+      <div class="card reveal" style="--i:3; display:flex; gap:18px; align-items:center"><div class="metric"><div class="n" style="font-size:52px">9</div></div><div><span class="status s-fail">FAILED</span> <span class="small">→</span> <span class="status s-pass">PASSED</span><p class="small" style="margin-top:6px">Se corrigieron DEF-030 a DEF-037 (dos eran errores del caso).</p></div></div>
+      <div class="card reveal" style="--i:4; display:flex; gap:18px; align-items:center; margin-top:12px"><div class="metric"><div class="n" style="font-size:52px">6</div></div><div><span class="status s-block">SIN RESULTADO</span> <span class="small">→</span> <span class="status s-pass">PASSED</span><p class="small" style="margin-top:6px">Casos de Deudas informados como «OK» en la Entrega 2, sin resultado registrado.</p></div></div>
+      <div class="card reveal" style="--i:5; display:flex; gap:18px; align-items:center; margin-top:12px"><div class="metric"><div class="n" style="font-size:52px">4</div></div><div><span class="status s-block">BLOCKED</span> <span class="small">→</span> <span class="status s-pass">PASSED</span><p class="small" style="margin-top:6px">Faltaba US-82 (varias personas); se implementó en V3.</p></div></div>
+      <div class="card reveal" style="--i:6; display:flex; gap:18px; align-items:center; margin-top:12px"><div class="metric"><div class="n" style="font-size:52px">1</div></div><div><span class="status s-duda">DUDA</span> <span class="small">→</span> <span class="status s-pass">PASSED</span><p class="small" style="margin-top:6px">CP-DEU-002 se cumplía con una sola persona; con US-82, tal como está escrito.</p></div></div>
+    </div>
+    <aside class="slide-notes">Cada fila está en la hoja «Cambios de estado» de la planilla única, con la columna «Por qué». Los 184 casos de V3 no tienen resultado anterior.</aside>
+  </section>
+
+  <!-- 13 · Defectos -->
+  <section class="slide layout-split" data-title="Defectos">
+    <div class="col">
+      <p class="eyebrow reveal" style="--i:0">Resumen de defectos</p>
+      <h2 class="title reveal" style="--i:1">36 defectos en tres versiones. Ninguno abierto.</h2>
+      <p class="lede reveal" style="--i:2">28 de V1 y 8 de V2, todos corregidos. V3 no registró defectos nuevos: la suite frenó al menos dos regresiones antes de <span class="mono">main</span>, sin número.</p>
+    </div>
+    <div class="col reveal" style="--i:3">
+      <svg class="diagram" viewBox="0 0 520 210" role="img" aria-labelledby="sev-t">
+        <title id="sev-t">Defectos por severidad: Crítica 2, Alta 2, Media 16, Baja 16.</title>
+        <g font-size="17" fill="var(--ink-2)">
+          <g><text x="0" y="22">Crítica</text><rect x="110" y="6" width="38" height="24" rx="6" fill="var(--fail)"/><text x="160" y="24" fill="var(--ink)" font-weight="650">2</text></g>
+          <g transform="translate(0,48)"><text x="0" y="22">Alta</text><rect x="110" y="6" width="38" height="24" rx="6" fill="var(--duda)"/><text x="160" y="24" fill="var(--ink)" font-weight="650">2</text></g>
+          <g transform="translate(0,96)"><text x="0" y="22">Media</text><rect x="110" y="6" width="304" height="24" rx="6" fill="var(--muted)"/><text x="426" y="24" fill="var(--ink)" font-weight="650">16</text></g>
+          <g transform="translate(0,144)"><text x="0" y="22">Baja</text><rect x="110" y="6" width="304" height="24" rx="6" fill="var(--block)"/><text x="426" y="24" fill="var(--ink)" font-weight="650">16</text></g>
+        </g>
+      </svg>
+      <div class="grid g3" style="margin-top:22px; gap:12px">
+        <div class="card metric" style="padding:16px 18px"><div class="n" style="font-size:40px">9</div><div class="l" style="font-size:14px">confirmados en V3</div></div>
+        <div class="card metric" style="padding:16px 18px"><div class="n" style="font-size:40px">21</div><div class="l" style="font-size:14px">en V2 (3 en parte)</div></div>
+        <div class="card metric" style="padding:16px 18px"><div class="n" style="font-size:40px">6</div><div class="l" style="font-size:14px">en el re-test de V1</div></div>
+      </div>
+    </div>
+    <aside class="slide-notes">Confirmados en V3: los 8 de V2 (DEF-030 a 037) y DEF-023 de V1, que había sido no concluyente. DEF-021, 027 y 028 se confirmaron en parte en la Entrega 2 (iPhone, límite de altas y siembra lenta simulados) y no se repitieron. DEF-029 se retiró por ser un error de un caso.</aside>
+  </section>
+
+  <!-- 14 · Límites -->
+  <section class="slide" data-title="Lo que no podemos afirmar">
+    <p class="eyebrow reveal" style="--i:0">Lo que este 100 % no dice</p>
+    <h2 class="title sm reveal" style="--i:1">Preferimos decir qué no se puede afirmar.</h2>
+    <ul class="list">
+      <li class="reveal" style="--i:2"><strong>Que todo pase no mide cuánto detectaría la suite.</strong> No hay medición de cobertura ni de mutación.</li>
+      <li class="reveal" style="--i:3"><strong>La ejecución manual es el resultado informado por el equipo.</strong> No hay capturas por caso ni se anotó el commit desplegado.</li>
+      <li class="reveal" style="--i:4"><strong>Tres defectos de V1 se confirmaron en parte</strong> (DEF-021, 027 y 028), con la condición simulada.</li>
+      <li class="reveal" style="--i:5"><strong>Sin verificar:</strong> que un tercero clone el repo, levante el schema desde cero y corra la suite en otra máquina.</li>
+    </ul>
+    <aside class="slide-notes">Hallazgos que no son defectos: CP-CFG-028 intermitente en la CI (aserción estricta, corregida en #428), CP-CFG-040 lento con 4 workers y el runtime de Edge local detenido en la primera corrida.</aside>
+  </section>
+
+  <!-- 15 · Aprendizajes -->
+  <section class="slide" data-title="Lo que aprendimos">
+    <p class="eyebrow reveal" style="--i:0">Post-mortem</p>
+    <h2 class="title sm reveal" style="--i:1">Cuatro cosas que haríamos distinto.</h2>
+    <div class="grid g2" style="gap:16px">
+      <div class="card reveal" style="--i:2"><h3>Casos por partición, no por valor</h3><p>672 casos terminaron en 206 vigentes. Uno por clase de equivalencia alcanzaba.</p></div>
+      <div class="card reveal" style="--i:3"><h3>Una sesión de exploración por versión</h3><p>En V1, 22 de 28 defectos salieron de afuera de los casos escritos.</p></div>
+      <div class="card reveal" style="--i:4"><h3>Quien implementa no escribe el test</h3><p>Los tests de V3 nacieron en el mismo PR que la historia, a veces en la misma sesión.</p></div>
+      <div class="card reveal" style="--i:5"><h3>Medir lo que la suite verifica</h3><p>361 de 361 sin cobertura ni mutación: el próximo paso es medir mutantes muertos.</p></div>
+    </div>
+    <aside class="slide-notes">Las doce lecciones, con su evidencia y qué hacer con cada una, están en 06-analisis-y-post-mortem.md §3.</aside>
+  </section>
+
+  <!-- 16 · Dónde está todo -->
+  <section class="slide layout-split" data-title="Dónde está todo">
+    <div class="col">
+      <p class="eyebrow reveal" style="--i:0">La trazabilidad</p>
+      <h2 class="title reveal" style="--i:1">Todo en una planilla, con links.</h2>
+      <p class="lede reveal" style="--i:2"><span class="mono" style="font-size:0.85em">Biyu-Planilla-Unica.xlsx</span>: cada caso, historia y defecto de las tres entregas lleva a la hoja donde está especificado, y vuelve.</p>
+    </div>
+    <div class="col">
+      <svg class="diagram reveal" style="--i:3" viewBox="0 0 520 330" role="img" aria-labelledby="traz-t">
+        <title id="traz-t">Cadena de trazabilidad: historia US-nn, criterio CA-k, caso CP, resultado y defecto DEF-nnn.</title>
+        <g font-size="18" font-weight="650" text-anchor="middle">
+          <g><rect x="0" y="0" width="230" height="58" rx="16" fill="var(--card)" stroke="var(--line)"/><text x="115" y="36" fill="var(--ink)">Historia · US-nn</text></g>
+          <g><rect x="290" y="0" width="230" height="58" rx="16" fill="var(--card)" stroke="var(--line)"/><text x="405" y="36" fill="var(--ink)">Criterio · CA-k</text></g>
+          <g><rect x="0" y="136" width="230" height="58" rx="16" fill="var(--card)" stroke="var(--line)"/><text x="115" y="172" fill="var(--ink)">Caso · CP-MOD-nnn</text></g>
+          <g><rect x="290" y="136" width="230" height="58" rx="16" fill="var(--card)" stroke="var(--line)"/><text x="405" y="172" fill="var(--ink)">Resultado × 3 entregas</text></g>
+          <g><rect x="145" y="272" width="230" height="58" rx="16" fill="var(--card)" stroke="var(--accent)"/><text x="260" y="308" fill="var(--accent)">Defecto · DEF-nnn</text></g>
+        </g>
+        <g stroke="var(--muted)" stroke-width="2" fill="none" stroke-linecap="round">
+          <path d="M232 29 H286"/><path d="M405 60 C405 100 115 96 115 134"/><path d="M232 165 H286"/><path d="M405 196 C405 236 260 232 260 270"/>
+        </g>
+        <g fill="var(--muted)"><path d="M286 24 l8 5 -8 5z"/><path d="M110 128 l5 8 5 -8z"/><path d="M286 160 l8 5 -8 5z"/><path d="M255 264 l5 8 5 -8z"/></g>
+      </svg>
+      <p class="small reveal" style="--i:4; margin-top:18px">470 casos · 157 historias y ADR · 36 defectos · 16 cambios de estado. Reporte final: <span class="mono">07-reporte-final.md</span>.</p>
+    </div>
+    <aside class="slide-notes">Fue el pedido del profesor en la devolución de la Entrega 2: un solo Excel donde los IDs sean links. La planilla se regenera con entrega-3/fuentes/generar_planilla_unica.py.</aside>
+  </section>
+
+  <!-- 17 · Cierre -->
+  <section class="slide layout-title" data-title="Gracias">
+    <p class="eyebrow reveal" style="--i:0">Biyu V3, en vivo</p>
+    <h2 class="display reveal" style="--i:1">Gracias.</h2>
+    <p class="lede reveal" style="--i:2">La app: <span class="mono" style="font-size:0.9em">biyu-rust.vercel.app</span> · El repositorio: <span class="mono" style="font-size:0.9em">github.com/Joaconz/Biyu</span></p>
+    <span class="accent-line long"></span>
+    <aside class="slide-notes">Si hay tiempo, mostrar en vivo: editar un movimiento en cuotas y ver que el Resumen se recalcula; borrar definitivamente con la confirmación que dice qué se borra.</aside>
+  </section>
+
+</main>
+</div>
+
+<div class="counter glass" aria-live="polite"><b id="cur">1</b> / <span id="tot">17</span></div>
+<div class="hint glass" aria-hidden="true"><kbd>←</kbd> <kbd>→</kbd> navegar · <kbd>N</kbd> notas · <kbd>F</kbd> pantalla completa · <kbd>T</kbd> tema</div>
+
+<nav class="bar glass" aria-label="Controles de la presentación">
+  <button id="prev" aria-label="Diapositiva anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+  <button id="next" aria-label="Diapositiva siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  <button id="notesBtn" aria-pressed="false">Notas</button>
+  <button id="themeBtn" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg></button>
+  <button id="fsBtn" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</nav>
+
+<aside class="notes glass" id="notes" aria-live="polite"><div class="k">Notas del orador · <span id="notesTitle"></span></div><div id="notesBody"></div></aside>
+<p class="sr-only" id="announcer" aria-live="polite"></p>
+
+<script>
+(() => {
+  const deck = document.getElementById('deck');
+  const slides = [...deck.querySelectorAll('.slide')];
+  const total = slides.length;
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  let index = 0;
+
+  $('tot').textContent = total;
+  if (params.get('motion') === 'off') document.documentElement.classList.add('motion-off');
+  if (params.get('theme') === 'light') setTheme('light');
+  if (params.get('notes') === '1') document.body.classList.add('show-notes');
+
+  // Escala el escenario de 1280×720 al viewport, con margen para el chrome.
+  function fit() {
+    const s = Math.min(window.innerWidth / 1360, window.innerHeight / 800);
+    deck.style.setProperty('--scale', Math.max(0.3, s).toFixed(4));
+  }
+
+  function fromHash() {
+    const m = location.hash.match(/^#\/(\d+)/);
+    return m ? Math.min(total, Math.max(1, +m[1])) - 1 : 0;
+  }
+
+  function go(i, { push = true } = {}) {
+    i = Math.min(total - 1, Math.max(0, i));
+    slides.forEach((s, k) => {
+      s.classList.toggle('active', k === i);
+      s.classList.toggle('past', k < i);
+      s.setAttribute('aria-hidden', k === i ? 'false' : 'true');
+      s.inert = k !== i;
+    });
+    index = i;
+    $('cur').textContent = i + 1;
+    $('prog').style.width = ((i + 1) / total * 100) + '%';
+    $('prev').disabled = i === 0;
+    $('next').disabled = i === total - 1;
+    const note = slides[i].querySelector('.slide-notes');
+    $('notesTitle').textContent = slides[i].dataset.title || '';
+    $('notesBody').textContent = note ? note.textContent.trim() : 'Sin notas para esta diapositiva.';
+    $('announcer').textContent = `Diapositiva ${i + 1} de ${total}: ${slides[i].dataset.title || ''}`;
+    const h = `#/${i + 1}`;
+    if (push && location.hash !== h) history.replaceState(null, '', h);
+  }
+
+  function setTheme(t) {
+    document.documentElement.dataset.theme = t;
+    document.querySelector('meta[name="theme-color"]').content = t === 'light' ? '#f3ecdc' : '#051f20';
+  }
+  function toggleTheme() { setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'); }
+  function toggleNotes() {
+    const on = document.body.classList.toggle('show-notes');
+    $('notesBtn').setAttribute('aria-pressed', String(on));
+  }
+  function toggleFs() {
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else document.documentElement.requestFullscreen?.();
+  }
+
+  // Teclado (ppt-keynote: ←/→/espacio; keynote-slides: N notas).
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); go(index + 1); }
+    else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); go(index - 1); }
+    else if (k === 'Home') go(0);
+    else if (k === 'End') go(total - 1);
+    else if (k === 'n' || k === 'N') toggleNotes();
+    else if (k === 't' || k === 'T') toggleTheme();
+    else if (k === 'f' || k === 'F') toggleFs();
+    else return;
+    wake();
+  });
+
+  $('prev').addEventListener('click', () => go(index - 1));
+  $('next').addEventListener('click', () => go(index + 1));
+  $('notesBtn').addEventListener('click', toggleNotes);
+  $('themeBtn').addEventListener('click', toggleTheme);
+  $('fsBtn').addEventListener('click', toggleFs);
+  window.addEventListener('hashchange', () => go(fromHash(), { push: false }));
+  window.addEventListener('resize', fit);
+
+  // Swipe con seguimiento 1:1 (apple-design §2): la diapositiva sigue al dedo y, al soltar,
+  // decide por la velocidad o la distancia; si no alcanza, vuelve con el mismo resorte.
+  let drag = null;
+  deck.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') return;
+    drag = { x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, v: 0, axis: null, id: e.pointerId };
+  });
+  deck.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.axis && Math.hypot(dx, dy) > 10) {           // histéresis de 10 px antes de decidir
+      drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (drag.axis === 'x') deck.setPointerCapture(e.pointerId);
+    }
+    if (drag.axis !== 'x') return;
+    const now = performance.now();
+    drag.v = (dx - drag.dx) / Math.max(1, now - drag.t) * 1000;  // px/s
+    drag.dx = dx; drag.t = now;
+    const edge = (index === 0 && dx > 0) || (index === total - 1 && dx < 0);
+    const shown = edge ? (dx * 0.55 * 300) / (300 + 0.55 * Math.abs(dx)) : dx;  // rubber-band en los extremos
+    const cur = slides[index];
+    cur.style.transition = 'none';
+    cur.style.transform = `translateX(${shown / (parseFloat(getComputedStyle(deck).getPropertyValue('--scale')) || 1)}px)`;
+  });
+  const end = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const cur = slides[index];
+    cur.style.transition = ''; cur.style.transform = '';
+    if (drag.axis === 'x') {
+      const projected = drag.dx + (drag.v / 1000) * 0.998 / (1 - 0.998);  // proyección de momento
+      if (projected < -160) go(index + 1);
+      else if (projected > 160) go(index - 1);
+    }
+    drag = null;
+  };
+  deck.addEventListener('pointerup', end);
+  deck.addEventListener('pointercancel', end);
+
+  // El chrome se oculta solo cuando no se usa (vuelve con cualquier movimiento).
+  let idleTimer;
+  function wake() {
+    document.body.classList.remove('idle');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      if (!document.body.classList.contains('show-notes')) document.body.classList.add('idle');
+    }, 3200);
+  }
+  ['mousemove', 'pointerdown', 'touchstart'].forEach((ev) => window.addEventListener(ev, wake, { passive: true }));
+  setTimeout(() => document.body.classList.add('hint-off'), 5000);
+
+  fit();
+  go(fromHash(), { push: false });
+  wake();
+})();
+</script>
+</body>
+</html>
