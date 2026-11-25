@@ -43,9 +43,10 @@ Los casos de las historias de V3 que ya están implementadas: las que pasaron de
 
 Por módulo: REG 41, DEU 37, CFG 26, DAS 21, SUS 22, IMP 17, NAV 16, ACC 4. Por prioridad: 105 Alta, 77 Media y 2 Baja. Los 184 son automatizables y están automatizados: los 104 de US-80 a US-91 en Playwright, pgTAP o Vitest (cada archivo lo dice) y los 61 de las historias de UX (US-92 a US-105) en `e2e/ux-navegacion.spec.ts`, `e2e/ux-ajustes.spec.ts` y `e2e/ux-resumen.spec.ts` y `e2e/ux-suscripciones.spec.ts`; los 19 de US-101, suscripciones por cobrar, la franja y el setup, en `e2e/dashboard-balance-options.spec.ts`, `e2e/settings-summary.spec.ts`, `e2e/pending-subscriptions.spec.ts`, `e2e/catchup-banner-dismiss.spec.ts` y `e2e/setup.spec.ts`, con pgTAP y Vitest en el tramo de API y de dominio. Qué prueba cubre cada caso y su resultado está en [`04-ejecucion.md`](04-ejecucion.md).
 
+Las mejoras de UX (épica [#325](https://github.com/Joaconz/Biyu/issues/325)) se implementaron de otra forma de la que pedían las historias, así que las historias se adaptaron a lo implementado antes de escribir sus casos: US-92 a US-100, más las nuevas US-102 a US-105 (rebranding y tema, dona y tendencias, gráficos de Suscripciones, categorías con ícono). Los casos de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) están automatizados contra la UX final.
+
 ## Qué no está acá
 
-- **Mejoras de UX que no tienen casos (épica [#325](https://github.com/Joaconz/Biyu/issues/325)).** Se implementaron de otra forma de la que pedían las historias, así que se adaptaron: US-92 a US-98, US-99 y US-100, más las nuevas US-102 a US-105 (rebranding y tema, dona y tendencias, gráficos de Suscripciones, categorías con ícono). Sus 61 casos están en la tabla de arriba. Los casos de V1 y V2 que esa UX toca (ACC, NAV, parte de DAS y REG) ya están automatizados contra la UX final.
 - **Casos de confirmación de DEF-030 a DEF-037.** No se escriben casos nuevos: cada defecto lo detectó un caso de V2, y ese caso (corregido cuando el defecto era del caso: DEF-035 y DEF-036) está en la selección de regresión ([`03-seleccion-regresion.md`](03-seleccion-regresion.md)) y en la automatización.
 
 ## Cómo se arma la planilla

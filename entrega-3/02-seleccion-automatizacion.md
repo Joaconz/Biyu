@@ -8,7 +8,7 @@ Decisión del equipo (2026-10-30): **todos los casos de V3 y todos los casos de 
 
 | Conjunto | Casos | Fuente |
 |---|---|---|
-| Casos de V3 | Todos los que salgan de [#338](https://github.com/Joaconz/Biyu/issues/338) (historias del milestone V3 y casos de confirmación de DEF-030 a DEF-037) | [`01-especificacion-casos-v3.md`](01-especificacion-casos-v3.md) y `entrega-3/casos/` (165 casos) |
+| Casos de V3 | Todos los de [#338](https://github.com/Joaconz/Biyu/issues/338): 184, de las historias del milestone V3. DEF-030 a DEF-037 no tienen casos nuevos: los confirma el caso de V2 que los detectó, que está en la regresión | [`01-especificacion-casos-v3.md`](01-especificacion-casos-v3.md) y `entrega-3/casos/` |
 | Regresión de V1 y V2 | 177: 39 de V1 y 138 de V2 | [`03-seleccion-regresion.md`](03-seleccion-regresion.md) |
 
 ## Por qué
