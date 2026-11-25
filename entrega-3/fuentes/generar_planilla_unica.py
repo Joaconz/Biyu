@@ -78,23 +78,44 @@ def leer_casos():
 def parsear_hoja_caso(ws, ver):
     filas = [[limpiar(c.value) for c in r] for r in ws.iter_rows(max_col=6)]
     ids = ID_CASO.findall(filas[0][1]) if filas and len(filas[0]) > 1 else []
-    pre, datos, oraculo, pasos, en_pasos = '', '', '', [], False
+    pre, datos, oraculo, convenciones, pasos, en_pasos = '', '', '', '', [], False
     for i, f in enumerate(filas):
         a = f[0] if f else ''
         if a == 'S #' and len(f) > 3 and 'Pre-requisitos' in f[1]:
-            nxt = filas[i + 1] if i + 1 < len(filas) else []
-            pre, datos = (nxt[1] if len(nxt) > 1 else ''), (nxt[3] if len(nxt) > 3 else '')
+            # Pre-requisitos (B) y datos de prueba (D, y E en V2: «D 1:» | valor), una fila por ítem hasta el título.
+            pres, dats = [], []
+            for g in filas[i + 1:]:
+                if g[0] in ('Título del CP', 'Historias de Usuario', 'Pasos #'):
+                    break
+                if g[1]:
+                    pres.append(g[1])
+                dato = ' '.join(x for x in (g[3], g[4]) if x)
+                if dato:
+                    dats.append(dato)
+            pre, datos = '\n'.join(pres), '\n'.join(dats)
         elif a == 'Pre-requisitos, datos y pasos':
             pre = f[1]
         elif a in ('Oráculo', 'Oraculo'):
             oraculo = f[1]
-        elif a in ('Pasos #', '#') and not en_pasos:
+        elif a == 'Convenciones':
+            convenciones = f[1]
+        elif not en_pasos and 'esperado' in f[3].lower():
+            # Cabecera de una tabla de pasos: «Pasos # | Detalle | Resultado Esperado» (V1, V2) o, en V3,
+            # «# | Paso», «ID | Llamada», «ID | Verificación»… con el resultado esperado en D. Puede haber varias.
             en_pasos = True
             continue
         elif en_pasos:
             if not a and not f[1]:
-                break
-            pasos.append((a, f[1], f[2] if len(f) > 2 else ''))
+                en_pasos = False
+                continue
+            # B:C están combinadas en las tres planillas: el resultado esperado está en D (en C solo si D está vacía).
+            pasos.append((a, f[1], f[3] or f[2]))
+    if not pasos and pre:
+        # Caso de V3 escrito en un solo párrafo: el párrafo son los pasos.
+        pasos, pre = [('1', pre, 'Lo indica el mismo párrafo.')], ''
+    if not pre and convenciones:
+        # Secciones de V3 que siguen a la anterior y no repiten los pre-requisitos: valen las convenciones de la ficha.
+        pre = f'No repite pre-requisitos: valen las convenciones de la ficha y el caso que cite el paso. {convenciones}'
     return dict(ids=ids, pre=pre, datos=datos, oraculo=oraculo, pasos=pasos)
 
 

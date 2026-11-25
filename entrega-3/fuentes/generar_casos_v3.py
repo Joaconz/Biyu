@@ -177,6 +177,9 @@ def build_case_sheet(wb, name, ids, rows_by_id, us, meta, sec):
         if not t:
             continue
         hdr, body = t[0], t[1:]
+        if len(hdr) == 2:  # «| Entrada | Resultado esperado |»: numerar y dejar el esperado en D, como las demás tablas
+            hdr = ['#'] + hdr
+            body = [[str(k)] + r for k, r in enumerate(body, 1)]
         put(ws, f'A{row}', hdr[0], label=True)
         put(ws, f'B{row}', hdr[1] if len(hdr) > 1 else '', label=True, merge=f'B{row}:C{row}')
         put(ws, f'D{row}', ' '.join(hdr[2:]), label=True, merge=f'D{row}:E{row}')
