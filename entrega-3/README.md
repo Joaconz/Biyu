@@ -38,6 +38,7 @@ Entregables de la Entrega 03 del Proyecto Integrador (Testing de Aplicaciones): 
 | [`07-reporte-final.md`](07-reporte-final.md) | Reporte final: resultado de V3, gráficos, cambios de estado entre entregas, defectos y criterios de «Terminado» |
 | [`08-ejecucion-manual.md`](08-ejecucion-manual.md) / `.xlsx` | Ejecución manual del equipo: resultado de los 361 casos y testeo de confirmación |
 | [`09-presentacion.html`](09-presentacion.html) | Presentación de la entrega |
+| [`10-presentacion-keynote.html`](10-presentacion-keynote.html) | Otra versión de la presentación, estilo Keynote: una idea por diapositiva, notas del orador (tecla N), tema claro u oscuro (T) y export a PDF con la impresión del navegador |
 | [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx) | Planilla única de las tres entregas, con casos, historias y defectos enlazados |
 | [`casos/`](casos/) | Una ficha por historia: la fuente de cada caso de V3 |
 | [`ejecucion/`](ejecucion/) | Resultados crudos de Playwright, Vitest y pgTAP |
