@@ -2,7 +2,7 @@
 
 Entregables de la Entrega 03 del Proyecto Integrador (Testing de Aplicaciones): **V3, CRUD completo, mejoras de UX y automatización**. Mismo esquema de IDs que las entregas anteriores: **historia `US-nn` → criterio `CA-k` → caso `CP-<módulo>-<nnn>` → resultado → defecto `DEF-nnn`**. Casos escritos con el estándar de `docs/07-plan-de-testing.md` §4 y los procedimientos `PR-nn` de `docs/12-procedimientos-de-prueba.md`.
 
-**Para la defensa:** la presentación es [`09-presentacion.html`](09-presentacion.html) y el resumen de todo, con los porcentajes y los gráficos, es [`07-reporte-final.md`](07-reporte-final.md). Todo el trabajo de testing de las tres entregas, con los casos, las historias y los defectos enlazados, está en una sola planilla: [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx).
+**Para la defensa:** la presentación es [`10-presentacion-keynote.html`](10-presentacion-keynote.html) (la versión anterior, [`09-presentacion.html`](09-presentacion.html)), el guion para presentarla con la demo es [`11-guion-de-la-defensa.md`](11-guion-de-la-defensa.md) y el resumen de todo, con los porcentajes y los gráficos, es [`07-reporte-final.md`](07-reporte-final.md). Todo el trabajo de testing de las tres entregas, con los casos, las historias y los defectos enlazados, está en una sola planilla: [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx).
 
 ## Resultado en una línea
 
@@ -39,6 +39,7 @@ Entregables de la Entrega 03 del Proyecto Integrador (Testing de Aplicaciones): 
 | [`08-ejecucion-manual.md`](08-ejecucion-manual.md) / `.xlsx` | Ejecución manual del equipo: resultado de los 361 casos y testeo de confirmación |
 | [`09-presentacion.html`](09-presentacion.html) | Presentación de la entrega |
 | [`10-presentacion-keynote.html`](10-presentacion-keynote.html) | Otra versión de la presentación, estilo Keynote, para 15 a 20 minutos: 13 diapositivas (unos 12 minutos) y una demo de 5 con su guion. Notas del orador con tiempo sugerido y reloj (tecla N), tema claro u oscuro (T) y export a PDF con la impresión del navegador |
+| [`11-guion-de-la-defensa.md`](11-guion-de-la-defensa.md) | Guion para que una sola persona presente y defienda la entrega en unos 18 minutos: qué decir en cada diapositiva, la demo con el caso de prueba que cubre cada cosa, el recorrido por la planilla única con un caso en profundidad y las preguntas probables |
 | [`Biyu-Planilla-Unica.xlsx`](Biyu-Planilla-Unica.xlsx) | Planilla única de las tres entregas, con casos, historias y defectos enlazados |
 | [`casos/`](casos/) | Una ficha por historia: la fuente de cada caso de V3 |
 | [`ejecucion/`](ejecucion/) | Resultados crudos de Playwright, Vitest y pgTAP |
